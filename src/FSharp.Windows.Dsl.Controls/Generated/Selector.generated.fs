@@ -190,3 +190,6 @@ module Selector =
     let contentChild (c: VirtualNode) : obj = box (ContentChild c)
     let key (k: string) : obj = box (Key k)
 
+    let isSelected (v: obj) (node: VirtualNode) : VirtualNode =
+        { node with Props = box (AttachedProp(System.Windows.Controls.Primitives.Selector.IsSelectedProperty, box v)) :: node.Props }
+

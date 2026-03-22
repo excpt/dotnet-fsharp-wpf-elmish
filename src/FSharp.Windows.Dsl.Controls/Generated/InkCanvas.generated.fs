@@ -175,6 +175,15 @@ module InkCanvas =
     let contentChild (c: VirtualNode) : obj = box (ContentChild c)
     let key (k: string) : obj = box (Key k)
 
+    let top (v: obj) (node: VirtualNode) : VirtualNode =
+        { node with Props = box (AttachedProp(System.Windows.Controls.InkCanvas.TopProperty, box v)) :: node.Props }
+    let bottom (v: obj) (node: VirtualNode) : VirtualNode =
+        { node with Props = box (AttachedProp(System.Windows.Controls.InkCanvas.BottomProperty, box v)) :: node.Props }
+    let left (v: obj) (node: VirtualNode) : VirtualNode =
+        { node with Props = box (AttachedProp(System.Windows.Controls.InkCanvas.LeftProperty, box v)) :: node.Props }
+    let right (v: obj) (node: VirtualNode) : VirtualNode =
+        { node with Props = box (AttachedProp(System.Windows.Controls.InkCanvas.RightProperty, box v)) :: node.Props }
+
     let create (props: obj list) : VirtualNode =
         let cs, uk, ps = VirtualTree.extractSpecialProps props
         { Type = typeof<System.Windows.Controls.InkCanvas>

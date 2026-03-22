@@ -148,3 +148,6 @@ module Panel =
     let contentChild (c: VirtualNode) : obj = box (ContentChild c)
     let key (k: string) : obj = box (Key k)
 
+    let zIndex (v: obj) (node: VirtualNode) : VirtualNode =
+        { node with Props = box (AttachedProp(System.Windows.Controls.Panel.ZIndexProperty, box v)) :: node.Props }
+

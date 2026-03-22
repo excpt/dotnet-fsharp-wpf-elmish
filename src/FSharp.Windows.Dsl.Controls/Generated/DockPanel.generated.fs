@@ -147,6 +147,9 @@ module DockPanel =
     let contentChild (c: VirtualNode) : obj = box (ContentChild c)
     let key (k: string) : obj = box (Key k)
 
+    let dock (v: obj) (node: VirtualNode) : VirtualNode =
+        { node with Props = box (AttachedProp(System.Windows.Controls.DockPanel.DockProperty, box v)) :: node.Props }
+
     let create (props: obj list) : VirtualNode =
         let cs, uk, ps = VirtualTree.extractSpecialProps props
         { Type = typeof<System.Windows.Controls.DockPanel>

@@ -148,6 +148,9 @@ module ToolBarTray =
     let contentChild (c: VirtualNode) : obj = box (ContentChild c)
     let key (k: string) : obj = box (Key k)
 
+    let isLocked (v: bool) (node: VirtualNode) : VirtualNode =
+        { node with Props = box (AttachedProp(System.Windows.Controls.ToolBarTray.IsLockedProperty, box v)) :: node.Props }
+
     let create (props: obj list) : VirtualNode =
         let cs, uk, ps = VirtualTree.extractSpecialProps props
         { Type = typeof<System.Windows.Controls.ToolBarTray>

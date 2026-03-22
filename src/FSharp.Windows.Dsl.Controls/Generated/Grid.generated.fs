@@ -147,6 +147,17 @@ module Grid =
     let contentChild (c: VirtualNode) : obj = box (ContentChild c)
     let key (k: string) : obj = box (Key k)
 
+    let column (v: obj) (node: VirtualNode) : VirtualNode =
+        { node with Props = box (AttachedProp(System.Windows.Controls.Grid.ColumnProperty, box v)) :: node.Props }
+    let row (v: obj) (node: VirtualNode) : VirtualNode =
+        { node with Props = box (AttachedProp(System.Windows.Controls.Grid.RowProperty, box v)) :: node.Props }
+    let columnSpan (v: obj) (node: VirtualNode) : VirtualNode =
+        { node with Props = box (AttachedProp(System.Windows.Controls.Grid.ColumnSpanProperty, box v)) :: node.Props }
+    let rowSpan (v: obj) (node: VirtualNode) : VirtualNode =
+        { node with Props = box (AttachedProp(System.Windows.Controls.Grid.RowSpanProperty, box v)) :: node.Props }
+    let isSharedSizeScope (v: obj) (node: VirtualNode) : VirtualNode =
+        { node with Props = box (AttachedProp(System.Windows.Controls.Grid.IsSharedSizeScopeProperty, box v)) :: node.Props }
+
     let create (props: obj list) : VirtualNode =
         let cs, uk, ps = VirtualTree.extractSpecialProps props
         { Type = typeof<System.Windows.Controls.Grid>

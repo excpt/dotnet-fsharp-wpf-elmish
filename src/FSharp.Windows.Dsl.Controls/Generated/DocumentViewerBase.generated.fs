@@ -162,3 +162,6 @@ module DocumentViewerBase =
     let contentChild (c: VirtualNode) : obj = box (ContentChild c)
     let key (k: string) : obj = box (Key k)
 
+    let isMasterPage (v: obj) (node: VirtualNode) : VirtualNode =
+        { node with Props = box (AttachedProp(System.Windows.Controls.Primitives.DocumentViewerBase.IsMasterPageProperty, box v)) :: node.Props }
+

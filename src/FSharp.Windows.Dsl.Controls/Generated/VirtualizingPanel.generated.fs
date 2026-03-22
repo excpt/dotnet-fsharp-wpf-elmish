@@ -144,3 +144,18 @@ module VirtualizingPanel =
     let contentChild (c: VirtualNode) : obj = box (ContentChild c)
     let key (k: string) : obj = box (Key k)
 
+    let isVirtualizing (v: obj) (node: VirtualNode) : VirtualNode =
+        { node with Props = box (AttachedProp(System.Windows.Controls.VirtualizingPanel.IsVirtualizingProperty, box v)) :: node.Props }
+    let virtualizationMode (v: obj) (node: VirtualNode) : VirtualNode =
+        { node with Props = box (AttachedProp(System.Windows.Controls.VirtualizingPanel.VirtualizationModeProperty, box v)) :: node.Props }
+    let isVirtualizingWhenGrouping (v: obj) (node: VirtualNode) : VirtualNode =
+        { node with Props = box (AttachedProp(System.Windows.Controls.VirtualizingPanel.IsVirtualizingWhenGroupingProperty, box v)) :: node.Props }
+    let scrollUnit (v: obj) (node: VirtualNode) : VirtualNode =
+        { node with Props = box (AttachedProp(System.Windows.Controls.VirtualizingPanel.ScrollUnitProperty, box v)) :: node.Props }
+    let cacheLength (v: obj) (node: VirtualNode) : VirtualNode =
+        { node with Props = box (AttachedProp(System.Windows.Controls.VirtualizingPanel.CacheLengthProperty, box v)) :: node.Props }
+    let cacheLengthUnit (v: obj) (node: VirtualNode) : VirtualNode =
+        { node with Props = box (AttachedProp(System.Windows.Controls.VirtualizingPanel.CacheLengthUnitProperty, box v)) :: node.Props }
+    let isContainerVirtualizable (v: obj) (node: VirtualNode) : VirtualNode =
+        { node with Props = box (AttachedProp(System.Windows.Controls.VirtualizingPanel.IsContainerVirtualizableProperty, box v)) :: node.Props }
+

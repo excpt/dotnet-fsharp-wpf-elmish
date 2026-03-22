@@ -205,6 +205,9 @@ module FrameworkElement =
     let contentChild (c: VirtualNode) : obj = box (ContentChild c)
     let key (k: string) : obj = box (Key k)
 
+    let flowDirection (v: System.Windows.FlowDirection) (node: VirtualNode) : VirtualNode =
+        { node with Props = box (AttachedProp(System.Windows.FrameworkElement.FlowDirectionProperty, box v)) :: node.Props }
+
     let create (props: obj list) : VirtualNode =
         let cs, uk, ps = VirtualTree.extractSpecialProps props
         { Type = typeof<System.Windows.FrameworkElement>
