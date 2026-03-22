@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <OutputType>WinExe</OutputType>
+        <TargetFramework>net8.0-windows</TargetFramework>
+        <UseWPF>true</UseWPF>
+    </PropertyGroup>
+    <ItemGroup>
+        <Compile Include="Program.fs" />
+    </ItemGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\..\src\FSharp.Windows.Dsl\FSharp.Windows.Dsl.fsproj" />
+        <ProjectReference Include="..\..\src\FSharp.Windows.Dsl.Controls\FSharp.Windows.Dsl.Controls.fsproj" />
+    </ItemGroup>
+</Project>
