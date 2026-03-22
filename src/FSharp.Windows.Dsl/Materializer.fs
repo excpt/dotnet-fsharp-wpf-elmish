@@ -47,11 +47,12 @@ module Materializer =
     and materialize (node: VirtualNode) : DependencyObject =
         let el = Activator.CreateInstance(node.Type) :?> DependencyObject
 
-        // Apply props — attached props via SetValue, typed props via registry
+        // Apply props — attached props via SetValue, events unwrapped, typed props via registry
         node.Props
         |> List.iter (fun prop ->
             match prop with
             | :? AttachedProp as (AttachedProp(dp, value)) -> el.SetValue(dp, value)
+            | :? EventProp as (EventProp inner) -> tryApplyProp el node.Type inner
             | _ -> tryApplyProp el node.Type prop)
 
         // Attach children

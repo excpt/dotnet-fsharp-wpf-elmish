@@ -87,7 +87,7 @@ let private emitModule (sb: StringBuilder) (input: EmitControlInput) =
     for ev in baselineEvents do
         let fnName = toCamelCase ev.CaseName
 
-        sb.AppendLine($"    let {fnName} v : obj = box ({propType}.{ev.CaseName} v)")
+        sb.AppendLine($"    let {fnName} v : obj = box (EventProp(box ({propType}.{ev.CaseName} v)))")
         |> ignore
 
     let guardedGroups =
@@ -109,7 +109,7 @@ let private emitModule (sb: StringBuilder) (input: EmitControlInput) =
             | Choice2Of2 ev ->
                 let fnName = toCamelCase ev.CaseName
 
-                sb.AppendLine($"    let {fnName} v : obj = box ({propType}.{ev.CaseName} v)")
+                sb.AppendLine($"    let {fnName} v : obj = box (EventProp(box ({propType}.{ev.CaseName} v)))")
                 |> ignore
 
         sb.AppendLine("#endif") |> ignore
@@ -152,8 +152,12 @@ let private emitModule (sb: StringBuilder) (input: EmitControlInput) =
 
     // Inherited helpers (width, height, content, etc. from ancestor types)
     for h in input.InheritedHelpers do
-        sb.AppendLine($"    let {h.FnName} v : obj = box ({h.PropDUExpression} v)")
-        |> ignore
+        if h.IsEvent then
+            sb.AppendLine($"    let {h.FnName} v : obj = box (EventProp(box ({h.PropDUExpression} v)))")
+            |> ignore
+        else
+            sb.AppendLine($"    let {h.FnName} v : obj = box ({h.PropDUExpression} v)")
+            |> ignore
 
     sb.AppendLine() |> ignore
 
@@ -169,14 +173,10 @@ let private emitModule (sb: StringBuilder) (input: EmitControlInput) =
 
     // Attached property helpers (wrap a VirtualNode, adding the attached prop)
     for ap in input.AttachedDPs do
-        sb.AppendLine(
-            $"    let {ap.FnName} (v: {ap.ValueType}) (node: VirtualNode) : VirtualNode ="
-        )
+        sb.AppendLine($"    let {ap.FnName} (v: {ap.ValueType}) (node: VirtualNode) : VirtualNode =")
         |> ignore
 
-        sb.AppendLine(
-            $"        {{ node with Props = box (AttachedProp({ap.DPExpression}, box v)) :: node.Props }}"
-        )
+        sb.AppendLine($"        {{ node with Props = box (AttachedProp({ap.DPExpression}, box v)) :: node.Props }}")
         |> ignore
 
     if not input.AttachedDPs.IsEmpty then

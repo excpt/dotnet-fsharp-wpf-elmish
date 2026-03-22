@@ -27,6 +27,10 @@ type KeyProp = Key of string
 /// E.g., Grid.Row, DockPanel.Dock, Canvas.Left.
 type AttachedProp = AttachedProp of System.Windows.DependencyProperty * obj
 
+/// Event handler marker — wraps a boxed prop that contains event handlers.
+/// The reconciler uses this to know an element must be replaced, not patched.
+type EventProp = EventProp of obj
+
 module VirtualTree =
     /// Generate a stable position-based internal ID for reconciler matching.
     let makeId (parentId: string) (index: int) (t: Type) : string = $"{parentId}.{index}.{t.Name}"

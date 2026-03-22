@@ -124,7 +124,8 @@ let buildInheritedHelpers
 
             Some
                 { FnName = fnName
-                  PropDUExpression = duCase })
+                  PropDUExpression = duCase
+                  IsEvent = false })
     |> List.distinctBy (fun h -> h.FnName)
 
 /// Build EmitControlInput from a type and its own DPs/events.
@@ -205,7 +206,8 @@ let buildEmitInput
                     | _ ->
                         Some
                             { FnName = fnName
-                              PropDUExpression = $"{duName}.{caseName}" }))
+                              PropDUExpression = $"{duName}.{caseName}"
+                              IsEvent = true }))
 
     { OutputNamespace = outputNamespace
       ControlName = t.Name

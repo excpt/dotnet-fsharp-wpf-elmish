@@ -35,7 +35,8 @@ type EmitEvent =
 /// Inherited helper — a convenience function that boxes at the ancestor's prop level.
 type EmitInheritedHelper =
     { FnName: string
-      PropDUExpression: string }
+      PropDUExpression: string
+      IsEvent: bool }
 
 /// Input for emitting an attached property helper.
 type EmitAttachedDP =

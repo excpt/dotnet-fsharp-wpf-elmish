@@ -17,21 +17,9 @@ module Reconciler =
         | :? Decorator as d when index = 0 && not (isNull d.Child) -> Some d.Child
         | _ -> None
 
-    /// Check if a boxed prop contains a delegate (event handler).
-    let private containsDelegate (prop: obj) =
-        if isNull prop then
-            false
-        else
-            let t = prop.GetType()
-            // Check if the prop DU contains a delegate field (event handler)
-            // F# DU case objects have fields accessible via reflection
-            Microsoft.FSharp.Reflection.FSharpType.IsUnion(t)
-            && Microsoft.FSharp.Reflection.FSharpValue.GetUnionFields(prop, t)
-               |> snd
-               |> Array.exists (fun v -> not (isNull v) && v :? Delegate)
-
-    /// Check if any prop in the list contains an event handler.
-    let private hasEvents (props: obj list) = props |> List.exists containsDelegate
+    /// Check if any prop in the list is an event handler (tagged by codegen).
+    let private hasEvents (props: obj list) =
+        props |> List.exists (fun p -> p :? EventProp)
 
     /// Apply DP props to a live element (safe, idempotent via SetValue).
     let private applyProps (el: DependencyObject) (newProps: obj list) =

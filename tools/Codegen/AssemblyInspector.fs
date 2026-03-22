@@ -130,7 +130,11 @@ let discoverDPs (controlType: Type) : DPInfo list =
                 | null -> "obj"
                 | m ->
                     let parms = m.GetParameters()
-                    if parms.Length >= 2 then parms.[1].ParameterType.Name else "obj"
+
+                    if parms.Length >= 2 then
+                        parms.[1].ParameterType.Name
+                    else
+                        "obj"
             | p -> p.PropertyType.Name
           PropertyTypeFullName =
             let clrProp =
