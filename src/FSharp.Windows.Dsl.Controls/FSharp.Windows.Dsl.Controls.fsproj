@@ -1,0 +1,136 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <TargetFramework>net8.0-windows</TargetFramework>
+        <UseWPF>true</UseWPF>
+        <Description>Generated WPF control wrappers for FSharp.Windows.Dsl</Description>
+    </PropertyGroup>
+    <ItemGroup>
+        <!-- Generated files in hierarchy order (base types first) -->
+        <Compile Include="Generated/Shape.generated.fs" />
+        <Compile Include="Generated/HwndHost.generated.fs" />
+        <Compile Include="Generated/Adorner.generated.fs" />
+        <Compile Include="Generated/AdornerLayer.generated.fs" />
+        <Compile Include="Generated/DocumentReference.generated.fs" />
+        <Compile Include="Generated/AccessText.generated.fs" />
+        <Compile Include="Generated/ContentPresenter.generated.fs" />
+        <Compile Include="Generated/Decorator.generated.fs" />
+        <Compile Include="Generated/Image.generated.fs" />
+        <Compile Include="Generated/InkCanvas.generated.fs" />
+        <Compile Include="Generated/ItemsPresenter.generated.fs" />
+        <Compile Include="Generated/MediaElement.generated.fs" />
+        <Compile Include="Generated/Page.generated.fs" />
+        <Compile Include="Generated/Panel.generated.fs" />
+        <Compile Include="Generated/TextBlock.generated.fs" />
+        <Compile Include="Generated/ToolBarTray.generated.fs" />
+        <Compile Include="Generated/Viewport3D.generated.fs" />
+        <Compile Include="Generated/GridViewRowPresenterBase.generated.fs" />
+        <Compile Include="Generated/Popup.generated.fs" />
+        <Compile Include="Generated/TickBar.generated.fs" />
+        <Compile Include="Generated/Track.generated.fs" />
+        <Compile Include="Generated/Ellipse.generated.fs" />
+        <Compile Include="Generated/Line.generated.fs" />
+        <Compile Include="Generated/Path.generated.fs" />
+        <Compile Include="Generated/Polygon.generated.fs" />
+        <Compile Include="Generated/Polyline.generated.fs" />
+        <Compile Include="Generated/Rectangle.generated.fs" />
+        <Compile Include="Generated/ActiveXHost.generated.fs" />
+        <Compile Include="Generated/PageFunctionBase.generated.fs" />
+        <Compile Include="Generated/Border.generated.fs" />
+        <Compile Include="Generated/Calendar.generated.fs" />
+        <Compile Include="Generated/Canvas.generated.fs" />
+        <Compile Include="Generated/DataGridRow.generated.fs" />
+        <Compile Include="Generated/DatePicker.generated.fs" />
+        <Compile Include="Generated/DockPanel.generated.fs" />
+        <Compile Include="Generated/FlowDocumentReader.generated.fs" />
+        <Compile Include="Generated/FlowDocumentScrollViewer.generated.fs" />
+        <Compile Include="Generated/Grid.generated.fs" />
+        <Compile Include="Generated/GridViewHeaderRowPresenter.generated.fs" />
+        <Compile Include="Generated/GridViewRowPresenter.generated.fs" />
+        <Compile Include="Generated/ItemsControl.generated.fs" />
+        <Compile Include="Generated/PasswordBox.generated.fs" />
+        <Compile Include="Generated/ScrollContentPresenter.generated.fs" />
+        <Compile Include="Generated/Separator.generated.fs" />
+        <Compile Include="Generated/StackPanel.generated.fs" />
+        <Compile Include="Generated/Viewbox.generated.fs" />
+        <Compile Include="Generated/VirtualizingPanel.generated.fs" />
+        <Compile Include="Generated/WrapPanel.generated.fs" />
+        <Compile Include="Generated/BulletDecorator.generated.fs" />
+        <Compile Include="Generated/CalendarItem.generated.fs" />
+        <Compile Include="Generated/DataGridDetailsPresenter.generated.fs" />
+        <Compile Include="Generated/DocumentViewerBase.generated.fs" />
+        <Compile Include="Generated/RangeBase.generated.fs" />
+        <Compile Include="Generated/ResizeGrip.generated.fs" />
+        <Compile Include="Generated/TabPanel.generated.fs" />
+        <Compile Include="Generated/TextBoxBase.generated.fs" />
+        <Compile Include="Generated/Thumb.generated.fs" />
+        <Compile Include="Generated/ToolBarOverflowPanel.generated.fs" />
+        <Compile Include="Generated/UniformGrid.generated.fs" />
+        <Compile Include="Generated/Window.generated.fs" />
+        <Compile Include="Generated/DataGridCell.generated.fs" />
+        <Compile Include="Generated/DataGridCellsPanel.generated.fs" />
+        <Compile Include="Generated/DocumentViewer.generated.fs" />
+        <Compile Include="Generated/Frame.generated.fs" />
+        <Compile Include="Generated/GridSplitter.generated.fs" />
+        <Compile Include="Generated/GroupItem.generated.fs" />
+        <Compile Include="Generated/HeaderedContentControl.generated.fs" />
+        <Compile Include="Generated/HeaderedItemsControl.generated.fs" />
+        <Compile Include="Generated/Label.generated.fs" />
+        <Compile Include="Generated/ListBoxItem.generated.fs" />
+        <Compile Include="Generated/ProgressBar.generated.fs" />
+        <Compile Include="Generated/RichTextBox.generated.fs" />
+        <Compile Include="Generated/ScrollViewer.generated.fs" />
+        <Compile Include="Generated/FlowDocumentPageViewer.generated.fs" />
+        <Compile Include="Generated/Slider.generated.fs" />
+        <Compile Include="Generated/TextBox.generated.fs" />
+        <Compile Include="Generated/ToolTip.generated.fs" />
+        <Compile Include="Generated/TreeView.generated.fs" />
+        <Compile Include="Generated/UserControl.generated.fs" />
+        <Compile Include="Generated/VirtualizingStackPanel.generated.fs" />
+        <Compile Include="Generated/WebBrowser.generated.fs" />
+        <Compile Include="Generated/ButtonBase.generated.fs" />
+        <Compile Include="Generated/DataGridCellsPresenter.generated.fs" />
+        <Compile Include="Generated/DataGridColumnHeadersPresenter.generated.fs" />
+        <Compile Include="Generated/MenuBase.generated.fs" />
+        <Compile Include="Generated/ScrollBar.generated.fs" />
+        <Compile Include="Generated/SelectiveScrollingGrid.generated.fs" />
+        <Compile Include="Generated/Selector.generated.fs" />
+        <Compile Include="Generated/StatusBar.generated.fs" />
+        <Compile Include="Generated/StatusBarItem.generated.fs" />
+        <Compile Include="Generated/ToolBarPanel.generated.fs" />
+        <Compile Include="Generated/NavigationWindow.generated.fs" />
+        <Compile Include="Generated/Button.generated.fs" />
+        <Compile Include="Generated/ComboBox.generated.fs" />
+        <Compile Include="Generated/ComboBoxItem.generated.fs" />
+        <Compile Include="Generated/ContextMenu.generated.fs" />
+        <Compile Include="Generated/Expander.generated.fs" />
+        <Compile Include="Generated/GridViewColumnHeader.generated.fs" />
+        <Compile Include="Generated/GroupBox.generated.fs" />
+        <Compile Include="Generated/ListBox.generated.fs" />
+        <Compile Include="Generated/ListViewItem.generated.fs" />
+        <Compile Include="Generated/Menu.generated.fs" />
+        <Compile Include="Generated/MenuItem.generated.fs" />
+        <Compile Include="Generated/TabControl.generated.fs" />
+        <Compile Include="Generated/TabItem.generated.fs" />
+        <Compile Include="Generated/ToolBar.generated.fs" />
+        <Compile Include="Generated/TreeViewItem.generated.fs" />
+        <Compile Include="Generated/DataGridColumnHeader.generated.fs" />
+        <Compile Include="Generated/DataGridRowHeader.generated.fs" />
+        <Compile Include="Generated/DataGridRowsPresenter.generated.fs" />
+        <Compile Include="Generated/DatePickerTextBox.generated.fs" />
+        <Compile Include="Generated/MultiSelector.generated.fs" />
+        <Compile Include="Generated/RepeatButton.generated.fs" />
+        <Compile Include="Generated/ToggleButton.generated.fs" />
+        <Compile Include="Generated/CheckBox.generated.fs" />
+        <Compile Include="Generated/DataGrid.generated.fs" />
+        <Compile Include="Generated/ListView.generated.fs" />
+        <Compile Include="Generated/RadioButton.generated.fs" />
+        <Compile Include="Generated/CalendarButton.generated.fs" />
+        <Compile Include="Generated/CalendarDayButton.generated.fs" />
+        <!-- Registration before Elements (AutoOpen in Elements shadows module names) -->
+        <Compile Include="Registration.generated.fs" />
+        <Compile Include="Elements.generated.fs" />
+    </ItemGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\FSharp.Windows.Dsl\FSharp.Windows.Dsl.fsproj" />
+    </ItemGroup>
+</Project>
