@@ -6,25 +6,6 @@ open System.Windows.Controls
 
 module Reconciler =
 
-    /// Check if a prop is an event handler (contains AddHandler in the apply chain).
-    /// Events can't be patched — they need element replacement.
-    let private isEventProp (prop: obj) =
-        // Event props are RoutedEventHandler or similar delegate types
-        prop :? RoutedEventHandler
-        || (prop <> null
-            && prop.GetType().IsValueType |> not
-            && prop.GetType().BaseType <> null
-            && prop.GetType().BaseType = typeof<MulticastDelegate> |> not
-            && prop.ToString().Contains("Event") |> not)
-           |> fun _ -> false // For now, we detect by checking if the DU case name starts with "On"
-
-    /// Check if any prop in the list is likely an event (heuristic: DU case names starting with "On").
-    let private hasEventProps (props: obj list) =
-        // We can't easily detect events from boxed props.
-        // Instead, check if any prop caused an apply failure — not practical.
-        // Simplest correct approach: if props differ at all, check structure depth.
-        false
-
     /// Get the live child element at a given index from a parent.
     let private getChild (parent: DependencyObject) (index: int) : DependencyObject option =
         match parent with
@@ -36,8 +17,24 @@ module Reconciler =
         | :? Decorator as d when index = 0 && not (isNull d.Child) -> Some d.Child
         | _ -> None
 
-    /// Apply only non-event DP props. Safe to re-apply (SetValue is idempotent).
-    let private diffProps (el: DependencyObject) (newProps: obj list) =
+    /// Check if a boxed prop contains a delegate (event handler).
+    let private containsDelegate (prop: obj) =
+        if isNull prop then
+            false
+        else
+            let t = prop.GetType()
+            // Check if the prop DU contains a delegate field (event handler)
+            // F# DU case objects have fields accessible via reflection
+            Microsoft.FSharp.Reflection.FSharpType.IsUnion(t)
+            && Microsoft.FSharp.Reflection.FSharpValue.GetUnionFields(prop, t)
+               |> snd
+               |> Array.exists (fun v -> not (isNull v) && v :? Delegate)
+
+    /// Check if any prop in the list contains an event handler.
+    let private hasEvents (props: obj list) = props |> List.exists containsDelegate
+
+    /// Apply DP props to a live element (safe, idempotent via SetValue).
+    let private applyProps (el: DependencyObject) (newProps: obj list) =
         for prop in newProps do
             match prop with
             | :? AttachedProp as (AttachedProp(dp, value)) -> el.SetValue(dp, value)
@@ -71,18 +68,6 @@ module Reconciler =
         | :? Decorator as d -> d.Child <- child :?> UIElement
         | _ -> ()
 
-    /// Check if two prop lists differ only in DP values (safe to patch)
-    /// vs contain structural/event differences (need element replacement).
-    let private canPatchProps (oldProps: obj list) (newProps: obj list) =
-        // Same length and same types = safe to patch DPs
-        oldProps.Length = newProps.Length
-        && List.forall2
-            (fun (o: obj) (n: obj) ->
-                (isNull o && isNull n)
-                || (not (isNull o) && not (isNull n) && o.GetType() = n.GetType()))
-            oldProps
-            newProps
-
     /// Recursively diff old and new virtual trees, applying changes to the live WPF tree.
     let rec reconcile
         (parent: DependencyObject)
@@ -113,18 +98,18 @@ module Reconciler =
 
         // Same type — diff props and children
         | Some old, Some newN ->
-            if old.Props <> newN.Props && not (canPatchProps old.Props newN.Props) then
-                // Structural prop change (different shape) — replace element
+            let propsChanged = old.Props <> newN.Props
+
+            if propsChanged && (hasEvents old.Props || hasEvents newN.Props) then
+                // Props with events changed — replace element to avoid duplicate handlers
                 let el = Materializer.materialize newN
                 replaceChild parent index el
             else
                 match getChild parent index with
                 | Some el ->
-                    // Patch DP props (safe, idempotent)
-                    if old.Props <> newN.Props then
-                        diffProps el newN.Props
+                    if propsChanged then
+                        applyProps el newN.Props
 
-                    // Diff children
                     reconcileChildren el old.Children newN.Children
                 | None -> ()
 
@@ -134,12 +119,10 @@ module Reconciler =
         (oldChildren: VirtualNode list)
         (newChildren: VirtualNode list)
         =
-        // Process removals from end to avoid index shifting
         if oldChildren.Length > newChildren.Length then
             for i in (oldChildren.Length - 1) .. -1 .. newChildren.Length do
                 removeChild parent i
 
-        // Process updates and additions front to back
         for i in 0 .. (newChildren.Length - 1) do
             let oldChild =
                 if i < oldChildren.Length then
@@ -153,8 +136,6 @@ module Reconciler =
     let update (rootElement: DependencyObject) (oldTree: VirtualNode) (newTree: VirtualNode) =
         if not (Object.ReferenceEquals(oldTree, newTree)) then
             if oldTree.Props <> newTree.Props then
-                if canPatchProps oldTree.Props newTree.Props then
-                    diffProps rootElement newTree.Props
-            // else: can't replace root, just re-apply what we can
+                applyProps rootElement newTree.Props
 
             reconcileChildren rootElement oldTree.Children newTree.Children
