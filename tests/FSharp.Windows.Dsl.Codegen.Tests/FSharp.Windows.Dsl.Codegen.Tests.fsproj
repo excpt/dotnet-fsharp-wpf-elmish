@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <TargetFramework>net8.0</TargetFramework>
+        <RootNamespace>FSharp.Windows.Dsl.Codegen.Tests</RootNamespace>
+        <IsPackable>false</IsPackable>
+    </PropertyGroup>
+    <ItemGroup>
+        <Compile Include="FSharpEmitterTests.fs" />
+        <Compile Include="AssemblyInspectorTests.fs" />
+    </ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="xunit.v3" />
+        <PackageReference Include="xunit.runner.visualstudio" />
+        <PackageReference Include="FsUnit.xUnit" />
+    </ItemGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\..\tools\Codegen\Codegen.fsproj" />
+    </ItemGroup>
+</Project>
