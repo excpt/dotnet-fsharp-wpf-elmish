@@ -25,7 +25,7 @@ let ``createContext loads assembly successfully`` () =
         AssemblyInspector.resolveAssembly "net8.0-windows" "PresentationFramework"
 
     let runtimeDir = Path.GetDirectoryName(pfPath)
-    use ctx = AssemblyInspector.createContext runtimeDir
+    use ctx = AssemblyInspector.createContext runtimeDir []
     let assembly = ctx.LoadFromAssemblyPath(pfPath)
     assembly |> should not' (be Null)
     assembly.GetTypes().Length |> should be (greaterThan 0)
@@ -36,7 +36,7 @@ let ``discoverDPs finds WidthProperty on FrameworkElement`` () =
         AssemblyInspector.resolveAssembly "net8.0-windows" "PresentationFramework"
 
     let runtimeDir = Path.GetDirectoryName(pfPath)
-    use ctx = AssemblyInspector.createContext runtimeDir
+    use ctx = AssemblyInspector.createContext runtimeDir []
     let assembly = ctx.LoadFromAssemblyPath(pfPath)
     let feType = assembly.GetType("System.Windows.FrameworkElement")
     let dps = AssemblyInspector.discoverDPs feType
@@ -48,7 +48,7 @@ let ``discoverDPs finds HeightProperty on FrameworkElement`` () =
         AssemblyInspector.resolveAssembly "net8.0-windows" "PresentationFramework"
 
     let runtimeDir = Path.GetDirectoryName(pfPath)
-    use ctx = AssemblyInspector.createContext runtimeDir
+    use ctx = AssemblyInspector.createContext runtimeDir []
     let assembly = ctx.LoadFromAssemblyPath(pfPath)
     let feType = assembly.GetType("System.Windows.FrameworkElement")
     let dps = AssemblyInspector.discoverDPs feType
@@ -60,7 +60,7 @@ let ``discoverDPs marks Grid.RowProperty as attached`` () =
         AssemblyInspector.resolveAssembly "net8.0-windows" "PresentationFramework"
 
     let runtimeDir = Path.GetDirectoryName(pfPath)
-    use ctx = AssemblyInspector.createContext runtimeDir
+    use ctx = AssemblyInspector.createContext runtimeDir []
     let assembly = ctx.LoadFromAssemblyPath(pfPath)
     let gridType = assembly.GetType("System.Windows.Controls.Grid")
     let dps = AssemblyInspector.discoverDPs gridType
@@ -73,7 +73,7 @@ let ``discoverDPs marks Button.IsDefaultProperty as not attached`` () =
         AssemblyInspector.resolveAssembly "net8.0-windows" "PresentationFramework"
 
     let runtimeDir = Path.GetDirectoryName(pfPath)
-    use ctx = AssemblyInspector.createContext runtimeDir
+    use ctx = AssemblyInspector.createContext runtimeDir []
     let assembly = ctx.LoadFromAssemblyPath(pfPath)
     let buttonType = assembly.GetType("System.Windows.Controls.Button")
     let dps = AssemblyInspector.discoverDPs buttonType
@@ -86,7 +86,7 @@ let ``discoverEvents finds Click on ButtonBase`` () =
         AssemblyInspector.resolveAssembly "net8.0-windows" "PresentationFramework"
 
     let runtimeDir = Path.GetDirectoryName(pfPath)
-    use ctx = AssemblyInspector.createContext runtimeDir
+    use ctx = AssemblyInspector.createContext runtimeDir []
     let assembly = ctx.LoadFromAssemblyPath(pfPath)
 
     let buttonBaseType =
@@ -101,7 +101,7 @@ let ``findControlTypes finds Button in PresentationFramework`` () =
         AssemblyInspector.resolveAssembly "net8.0-windows" "PresentationFramework"
 
     let runtimeDir = Path.GetDirectoryName(pfPath)
-    use ctx = AssemblyInspector.createContext runtimeDir
+    use ctx = AssemblyInspector.createContext runtimeDir []
     let assembly = ctx.LoadFromAssemblyPath(pfPath)
     let types = AssemblyInspector.findControlTypes ctx assembly
     types |> List.exists (fun t -> t.Name = "Button") |> should be True
@@ -112,7 +112,7 @@ let ``findControlTypes excludes abstract types`` () =
         AssemblyInspector.resolveAssembly "net8.0-windows" "PresentationFramework"
 
     let runtimeDir = Path.GetDirectoryName(pfPath)
-    use ctx = AssemblyInspector.createContext runtimeDir
+    use ctx = AssemblyInspector.createContext runtimeDir []
     let assembly = ctx.LoadFromAssemblyPath(pfPath)
     let types = AssemblyInspector.findControlTypes ctx assembly
     // ButtonBase is abstract — should NOT be in the list

@@ -54,12 +54,18 @@ let resolveAssembly (tfm: string) (assemblyName: string) : string =
     | _ -> failwith $"Unknown TFM: {tfm}"
 
 /// Create a MetadataLoadContext for inspecting .NET Core WPF assemblies.
-let createContext (wpfRuntimeDir: string) : MetadataLoadContext =
+/// Extra paths are searched for additional assemblies (e.g., DevExpress install dirs).
+let createContext (wpfRuntimeDir: string) (extraPaths: string list) : MetadataLoadContext =
     let version = Path.GetFileName(wpfRuntimeDir).Split('.').[0]
     let coreRuntimeDir = findRuntimeDir "Microsoft.NETCore.App" version
 
     let allDlls =
-        Array.append (Directory.GetFiles(wpfRuntimeDir, "*.dll")) (Directory.GetFiles(coreRuntimeDir, "*.dll"))
+        [| yield! Directory.GetFiles(wpfRuntimeDir, "*.dll")
+           yield! Directory.GetFiles(coreRuntimeDir, "*.dll")
+
+           for path in extraPaths do
+               if Directory.Exists(path) then
+                   yield! Directory.GetFiles(path, "*.dll") |]
 
     let resolver = PathAssemblyResolver(allDlls)
     new MetadataLoadContext(resolver, coreAssemblyName = "System.Runtime")

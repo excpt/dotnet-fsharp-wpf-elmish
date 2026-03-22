@@ -38,7 +38,7 @@ let diffChain
             AssemblyInspector.createFrameworkContext baselineAssemblyPath
         else
             let runtimeDir = Path.GetDirectoryName(baselineAssemblyPath)
-            AssemblyInspector.createContext runtimeDir
+            AssemblyInspector.createContext runtimeDir []
 
     let mutable previousDPs = extractDPSet baselineCtx baselineAssemblyPath
     (baselineCtx :> System.IDisposable).Dispose()
@@ -49,7 +49,7 @@ let diffChain
     for tfm, assemblyPath, guard in tfmChain do
         let ctx =
             let runtimeDir = Path.GetDirectoryName(assemblyPath)
-            AssemblyInspector.createContext runtimeDir
+            AssemblyInspector.createContext runtimeDir []
 
         let currentDPs = extractDPSet ctx assemblyPath
         let newDPs = currentDPs - previousDPs

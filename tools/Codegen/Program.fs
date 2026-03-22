@@ -11,16 +11,19 @@ type CliArgs =
     | [<AltCommandLine("-t")>] Tfm of tfm: string
     | [<AltCommandLine("-b")>] Baseline of tfm: string
     | Tfms of tfms: string
+    | [<AltCommandLine("-p")>] Assembly_Path of path: string
 
     interface IArgParserTemplate with
         member this.Usage =
             match this with
-            | Assembly _ -> "WPF assembly name (e.g., PresentationFramework)"
+            | Assembly _ ->
+                "Assembly name(s), comma-separated (e.g., PresentationFramework or DevExpress.Xpf.Grid.v25.2)"
             | Namespace _ -> "Output namespace (e.g., FSharp.Windows.Dsl.Controls)"
             | Output _ -> "Output directory for generated files"
             | Tfm _ -> "Primary target framework for type discovery (default: net8.0-windows)"
             | Baseline _ -> "Baseline TFM for multi-version diff (e.g., net461)"
-            | Tfms _ -> "Comma-separated TFMs to diff against baseline (e.g., net8.0-windows,net10.0-windows)"
+            | Tfms _ -> "Comma-separated TFMs to diff against baseline"
+            | Assembly_Path _ -> "Additional directory to search for assemblies (e.g., DevExpress install path)"
 
 /// Map TFM to its conditional compilation guard symbol.
 let tfmToGuard (tfm: string) =
@@ -229,31 +232,62 @@ let main argv =
 
     try
         let results = parser.Parse(argv)
-        let assemblyName = results.GetResult Assembly
+
+        let assemblyNames =
+            results.GetResult(Assembly).Split(',')
+            |> Array.map (fun s -> s.Trim())
+            |> Array.toList
+
         let outputNamespace = results.GetResult Namespace
         let outputDir = results.GetResult Output
         let tfm = results.TryGetResult Tfm |> Option.defaultValue "net8.0-windows"
         let baseline = results.TryGetResult Baseline
         let tfmsArg = results.TryGetResult Tfms
 
-        // Resolve assembly
-        let assemblyPath = AssemblyInspector.resolveAssembly tfm assemblyName
-        let runtimeDir = Path.GetDirectoryName(assemblyPath)
+        let extraPaths =
+            results.TryGetResult Assembly_Path
+            |> Option.map (fun p -> p.Split(',') |> Array.map (fun s -> s.Trim()) |> Array.toList)
+            |> Option.defaultValue []
 
-        printfn $"Loading {assemblyName} from {assemblyPath}"
+        // Resolve first assembly to find the WPF runtime dir
+        let firstAssemblyPath =
+            match extraPaths with
+            | p :: _ ->
+                // Look in extra path first
+                let found = Directory.GetFiles(p, $"{assemblyNames.[0]}*.dll") |> Array.tryHead
 
-        // Multi-TFM diff: compute which DPs are version-specific
+                match found with
+                | Some f -> f
+                | None -> AssemblyInspector.resolveAssembly tfm assemblyNames.[0]
+            | [] -> AssemblyInspector.resolveAssembly tfm assemblyNames.[0]
+
+        let runtimeDir = Path.GetDirectoryName(firstAssemblyPath)
+
+        // For WPF runtime resolution, use the standard path
+        let wpfRuntimeDir =
+            try
+                let major = tfm.Replace("net", "").Replace(".0-windows", "")
+                AssemblyInspector.findRuntimeDir "Microsoft.WindowsDesktop.App" major
+            with _ ->
+                runtimeDir
+
+        printfn $"Loading {assemblyNames.Length} assembly(ies) from {runtimeDir}"
+
+        for p in extraPaths do
+            printfn $"  Extra path: {p}"
+
+        // Multi-TFM diff (only for standard WPF assemblies, skip for third-party)
         let versionGuards =
             match baseline, tfmsArg with
-            | Some baselineTfm, Some tfmsStr ->
-                let baselinePath = AssemblyInspector.resolveAssembly baselineTfm assemblyName
+            | Some baselineTfm, Some tfmsStr when extraPaths.IsEmpty ->
+                let baselinePath = AssemblyInspector.resolveAssembly baselineTfm assemblyNames.[0]
                 printfn $"Baseline: {baselineTfm} ({baselinePath})"
 
                 let tfmChain =
                     tfmsStr.Split(',')
                     |> Array.map (fun t ->
                         let t = t.Trim()
-                        let path = AssemblyInspector.resolveAssembly t assemblyName
+                        let path = AssemblyInspector.resolveAssembly t assemblyNames.[0]
                         let guard = tfmToGuard t
                         printfn $"  TFM: {t} -> {guard} ({path})"
                         (t, path, guard))
@@ -265,25 +299,45 @@ let main argv =
         if not versionGuards.IsEmpty then
             printfn $"Found {versionGuards.Count} version-specific DPs"
 
-        // Create context and load assemblies
-        use ctx = AssemblyInspector.createContext runtimeDir
-        let assembly = ctx.LoadFromAssemblyPath(assemblyPath)
-        let assemblyVersion = assembly.GetName().Version
+        // Create context with WPF runtime + extra paths
+        use ctx = AssemblyInspector.createContext wpfRuntimeDir extraPaths
 
-        // Also load PresentationCore (has UIElement, FrameworkElement ancestor DPs)
-        let coreAssemblyPath = Path.Combine(runtimeDir, "PresentationCore.dll")
+        // Load all requested assemblies
+        let loadAssembly (name: string) =
+            // Try extra paths first, then runtime dir
+            let candidates =
+                [ for p in extraPaths do
+                      yield! Directory.GetFiles(p, $"{name}*.dll")
+                  yield Path.Combine(runtimeDir, $"{name}.dll") ]
+
+            let found = candidates |> List.tryFind File.Exists
+
+            match found with
+            | Some path ->
+                printfn $"  Loaded: {Path.GetFileName(path)}"
+                Some(ctx.LoadFromAssemblyPath(path))
+            | None ->
+                printfn $"  WARNING: {name} not found"
+                None
+
+        let assemblies = assemblyNames |> List.choose loadAssembly
+
+        // Also load PresentationCore for UIElement hierarchy
+        let coreAssemblyPath = Path.Combine(wpfRuntimeDir, "PresentationCore.dll")
 
         let assemblies =
             if File.Exists(coreAssemblyPath) then
                 let coreAssembly = ctx.LoadFromAssemblyPath(coreAssemblyPath)
-                [ assembly; coreAssembly ]
+                assemblies @ [ coreAssembly ]
             else
-                [ assembly ]
+                assemblies
 
         let assemblyInfo =
+            let names = assemblyNames |> String.concat ", "
+
             match baseline with
-            | Some b -> $"{assemblyName} {assemblyVersion} (baseline: {b})"
-            | None -> $"{assemblyName} {assemblyVersion}"
+            | Some b -> $"{names} (baseline: {b})"
+            | None -> names
 
         // Find all UIElement subtypes across all loaded assemblies
         let allTypes = AssemblyInspector.findAllUIElementSubtypes ctx assemblies
