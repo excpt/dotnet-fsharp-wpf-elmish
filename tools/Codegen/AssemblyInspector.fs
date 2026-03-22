@@ -123,46 +123,47 @@ let discoverDPs (controlType: Type) : DPInfo list =
           OwnerTypeName = f.DeclaringType.Name
           OwnerTypeFullName = f.DeclaringType.FullName
           PropertyTypeName =
-            let clrProp =
-                controlType.GetProperty(propName, BindingFlags.Public ||| BindingFlags.Instance)
+            try
+                let clrProp =
+                    controlType.GetProperty(propName, BindingFlags.Public ||| BindingFlags.Instance)
 
-            match clrProp with
-            | null ->
-                // Try attached property's static Set method (2nd parameter is the value type)
-                let setMethod =
-                    f.DeclaringType.GetMethod($"Set{propName}", BindingFlags.Public ||| BindingFlags.Static)
+                match clrProp with
+                | null ->
+                    let setMethod =
+                        f.DeclaringType.GetMethod($"Set{propName}", BindingFlags.Public ||| BindingFlags.Static)
 
-                match setMethod with
-                | null -> "obj"
-                | m ->
-                    let parms = m.GetParameters()
-
-                    if parms.Length >= 2 then
-                        parms.[1].ParameterType.Name
-                    else
-                        "obj"
-            | p -> p.PropertyType.Name
+                    match setMethod with
+                    | null -> "obj"
+                    | m ->
+                        let parms = m.GetParameters()
+                        if parms.Length >= 2 then parms.[1].ParameterType.Name else "obj"
+                | p -> p.PropertyType.Name
+            with :? AmbiguousMatchException ->
+                "obj"
           PropertyTypeFullName =
-            let clrProp =
-                controlType.GetProperty(propName, BindingFlags.Public ||| BindingFlags.Instance)
+            try
+                let clrProp =
+                    controlType.GetProperty(propName, BindingFlags.Public ||| BindingFlags.Instance)
 
-            match clrProp with
-            | null ->
-                let setMethod =
-                    f.DeclaringType.GetMethod($"Set{propName}", BindingFlags.Public ||| BindingFlags.Static)
+                match clrProp with
+                | null ->
+                    let setMethod =
+                        f.DeclaringType.GetMethod($"Set{propName}", BindingFlags.Public ||| BindingFlags.Static)
 
-                match setMethod with
-                | null -> "System.Object"
-                | m ->
-                    let parms = m.GetParameters()
+                    match setMethod with
+                    | null -> "System.Object"
+                    | m ->
+                        let parms = m.GetParameters()
 
-                    if parms.Length >= 2 then
-                        let ft = parms.[1].ParameterType.FullName
-                        if isNull ft then "System.Object" else ft
-                    else
-                        "System.Object"
-            | p when isNull p.PropertyType.FullName -> "System.Object"
-            | p -> p.PropertyType.FullName
+                        if parms.Length >= 2 then
+                            let ft = parms.[1].ParameterType.FullName
+                            if isNull ft then "System.Object" else ft
+                        else
+                            "System.Object"
+                | p when isNull p.PropertyType.FullName -> "System.Object"
+                | p -> p.PropertyType.FullName
+            with :? AmbiguousMatchException ->
+                "System.Object"
           IsAttached = isAttached f
           IsReadOnly = hasReadOnlyKey controlType f.Name })
     |> Array.toList
