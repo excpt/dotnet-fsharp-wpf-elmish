@@ -15,6 +15,6 @@
         <PackageReference Include="FsUnit.xUnit" />
     </ItemGroup>
     <ItemGroup>
-        <ProjectReference Include="..\..\tools\Codegen\Codegen.fsproj" />
+        <ProjectReference Include="..\..\tools\Codegen\FSharp.Windows.Dsl.Codegen.fsproj" />
     </ItemGroup>
 </Project>

@@ -3,6 +3,9 @@
         <OutputType>Exe</OutputType>
         <TargetFramework>net8.0</TargetFramework>
         <RootNamespace>FSharp.Windows.Dsl.Codegen</RootNamespace>
+        <PackAsTool>true</PackAsTool>
+        <ToolCommandName>fsharp-wpf-codegen</ToolCommandName>
+        <Description>Code generation tool for FSharp.Windows.Dsl — generates F# DSL wrappers from WPF assemblies</Description>
     </PropertyGroup>
     <ItemGroup>
         <Compile Include="Types.fs" />

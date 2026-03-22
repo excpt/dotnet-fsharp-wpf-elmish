@@ -25,6 +25,6 @@
     <Project Path="tests/FSharp.Windows.Dsl.Tests/FSharp.Windows.Dsl.Tests.fsproj" />
   </Folder>
   <Folder Name="/tools/">
-    <Project Path="tools/Codegen/Codegen.fsproj" />
+    <Project Path="tools/Codegen/FSharp.Windows.Dsl.Codegen.fsproj" />
   </Folder>
 </Solution>
