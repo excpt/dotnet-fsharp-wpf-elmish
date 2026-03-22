@@ -1,0 +1,23 @@
+<Project>
+    <ItemGroup>
+        <!-- Testing -->
+        <PackageVersion Include="xunit.v3" Version="3.2.2"/>
+        <PackageVersion Include="xunit.runner.visualstudio" Version="3.1.5"/>
+        <PackageVersion Include="FsUnit.xUnit" Version="7.1.1"/>
+        <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.12.0"/>
+        <PackageVersion Include="coverlet.collector" Version="8.0.0"/>
+
+        <!-- Source Link -->
+        <PackageVersion Include="Microsoft.SourceLink.GitHub" Version="10.0.102"/>
+
+        <!-- Core -->
+        <PackageVersion Include="FSharp.Core" Version="11.0.100"/>
+
+        <!-- Elmish -->
+        <PackageVersion Include="Elmish" Version="4.2.0"/>
+
+        <!-- Codegen tool -->
+        <PackageVersion Include="System.Reflection.MetadataLoadContext" Version="8.0.1"/>
+        <PackageVersion Include="Argu" Version="6.2.4"/>
+    </ItemGroup>
+</Project>

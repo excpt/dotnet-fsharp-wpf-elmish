@@ -1,0 +1,40 @@
+root = true
+
+# All files
+[*]
+indent_style = space
+indent_size = 4
+tab_width = 4
+end_of_line = lf
+charset = utf-8
+trim_trailing_whitespace = true
+insert_final_newline = true
+
+# XML / project files
+[*.{xml,csproj,fsproj,props,targets}]
+indent_size = 4
+
+# JSON / YAML
+[*.{json,yml,yaml}]
+indent_size = 2
+
+# Markdown
+[*.md]
+trim_trailing_whitespace = false
+
+# F# files — formatted by `dotnet fantomas`
+[*.{fs,fsx}]
+indent_size = 4
+max_line_length = 120
+fsharp_space_before_uppercase_invocation = false
+fsharp_space_before_lowercase_invocation = true
+fsharp_space_before_class_constructor = false
+fsharp_space_before_member = false
+fsharp_space_before_colon = false
+fsharp_space_before_semicolon = false
+fsharp_multiline_bracket_style = cramped
+fsharp_newline_before_multiline_computation_expression = true
+fsharp_align_function_signature_to_indentation = false
+fsharp_alternative_long_member_definitions = false
+fsharp_multi_line_lambda_closing_newline = false
+fsharp_bar_before_discriminated_union_declaration = false

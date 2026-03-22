@@ -1,0 +1,22 @@
+<Project>
+    <PropertyGroup>
+        <RootNamespace>FSharp.Windows.Dsl</RootNamespace>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <Authors>contributors</Authors>
+        <RepositoryUrl>https://github.com/excpt/dotnet-fsharp-wpf-elmish</RepositoryUrl>
+        <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+        <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+        <Version>0.1.0</Version>
+
+        <!-- Source Link: enables stepping into source when debugging NuGet packages -->
+        <PublishRepositoryUrl>true</PublishRepositoryUrl>
+        <EmbedUntrackedSources>true</EmbedUntrackedSources>
+        <DebugType>embedded</DebugType>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="FSharp.Core" />
+        <PackageReference Include="Microsoft.SourceLink.GitHub" PrivateAssets="All" />
+    </ItemGroup>
+</Project>

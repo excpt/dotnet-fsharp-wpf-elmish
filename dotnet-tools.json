@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "isRoot": true,
+  "tools": {
+    "fantomas": {
+      "version": "7.0.5",
+      "commands": [
+        "fantomas"
+      ],
+      "rollForward": false
+    },
+    "versionize": {
+      "version": "2.5.0",
+      "commands": [
+        "versionize"
+      ],
+      "rollForward": false
+    }
+  }
+}
