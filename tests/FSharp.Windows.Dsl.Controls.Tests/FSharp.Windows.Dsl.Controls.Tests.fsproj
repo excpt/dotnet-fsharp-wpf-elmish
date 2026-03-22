@@ -8,6 +8,7 @@
     <ItemGroup>
         <Compile Include="DslTests.fs" />
         <Compile Include="MaterializerIntegrationTests.fs" />
+        <Compile Include="ReconcilerTests.fs" />
     </ItemGroup>
     <ItemGroup>
         <PackageReference Include="xunit.v3" />

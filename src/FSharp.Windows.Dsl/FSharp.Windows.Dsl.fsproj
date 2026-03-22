@@ -7,6 +7,7 @@
     <ItemGroup>
         <Compile Include="VirtualTree.fs" />
         <Compile Include="Materializer.fs" />
+        <Compile Include="Reconciler.fs" />
         <Compile Include="Dsl.fs" />
     </ItemGroup>
 </Project>

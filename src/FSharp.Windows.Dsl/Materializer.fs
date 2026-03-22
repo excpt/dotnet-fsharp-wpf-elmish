@@ -1,12 +1,13 @@
 namespace FSharp.Windows.Dsl
 
 open System
-open System.Collections.Generic
+open System.Collections.Concurrent
 open System.Windows
 open System.Windows.Controls
 
 module Materializer =
-    let private applyRegistry = Dictionary<Type, DependencyObject -> obj -> unit>()
+    let private applyRegistry =
+        ConcurrentDictionary<Type, DependencyObject -> obj -> unit>()
 
     /// Register an apply function for a control type.
     let registerApply<'el, 'prop when 'el :> DependencyObject> (apply: 'el -> 'prop -> unit) =
@@ -14,7 +15,7 @@ module Materializer =
 
     /// Try to apply a prop, walking up the type hierarchy on cast failure.
     /// This allows FrameworkElementProp to be applied to a Button without wrapping.
-    let rec private tryApplyProp (el: DependencyObject) (elType: Type) (prop: obj) =
+    let rec tryApplyProp (el: DependencyObject) (elType: Type) (prop: obj) =
         if isNull elType then
             ()
         else
@@ -25,6 +26,9 @@ module Materializer =
                 with :? InvalidCastException ->
                     tryApplyProp el elType.BaseType prop
             | _ -> tryApplyProp el elType.BaseType prop
+
+    /// Apply a single prop to an element, using the type hierarchy fallback.
+    let applyProp (el: DependencyObject) (prop: obj) = tryApplyProp el (el.GetType()) prop
 
     /// Attach materialized children to a parent element based on its type.
     let rec private attachChildren (parent: DependencyObject) (children: VirtualNode list) =
