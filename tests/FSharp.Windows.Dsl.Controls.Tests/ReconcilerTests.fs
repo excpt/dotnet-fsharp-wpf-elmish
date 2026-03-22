@@ -86,7 +86,8 @@ let ``reconcile updates TextBlock.Text`` () =
 
         Dsl.update live tree2
 
-        tb.Text |> should equal "World")
+        // Element was replaced (props changed) — re-fetch from parent
+        (sp.Children.[0] :?> TextBlock).Text |> should equal "World")
 
 // --- Child additions ---
 

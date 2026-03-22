@@ -17,17 +17,6 @@ module Reconciler =
         | :? Decorator as d when index = 0 && not (isNull d.Child) -> Some d.Child
         | _ -> None
 
-    /// Check if any prop in the list is an event handler (tagged by codegen).
-    let private hasEvents (props: obj list) =
-        props |> List.exists (fun p -> p :? EventProp)
-
-    /// Apply DP props to a live element (safe, idempotent via SetValue).
-    let private applyProps (el: DependencyObject) (newProps: obj list) =
-        for prop in newProps do
-            match prop with
-            | :? AttachedProp as (AttachedProp(dp, value)) -> el.SetValue(dp, value)
-            | _ -> Materializer.applyProp el prop
-
     /// Remove a child from a parent at the given index.
     let private removeChild (parent: DependencyObject) (index: int) =
         match parent with
@@ -56,8 +45,16 @@ module Reconciler =
         | :? Decorator as d -> d.Child <- child :?> UIElement
         | _ -> ()
 
+    /// Apply props to a live element (only safe for DP props on root elements).
+    let private applyProps (el: DependencyObject) (props: obj list) =
+        for prop in props do
+            match prop with
+            | :? AttachedProp as (AttachedProp(dp, value)) -> el.SetValue(dp, value)
+            | :? EventProp as (EventProp inner) -> Materializer.applyProp el inner
+            | _ -> Materializer.applyProp el prop
+
     /// Recursively diff old and new virtual trees, applying changes to the live WPF tree.
-    let rec reconcile
+    let rec private reconcile
         (parent: DependencyObject)
         (index: int)
         (oldNode: VirtualNode option)
@@ -68,38 +65,28 @@ module Reconciler =
         // Same reference — skip entire subtree
         | Some old, Some newN when Object.ReferenceEquals(old, newN) -> ()
 
-        // Both None — nothing to do
+        // Both None
         | None, None -> ()
 
-        // New node where there was none — create
-        | None, Some newN ->
-            let el = Materializer.materialize newN
-            insertChild parent index el
+        // New node — create
+        | None, Some newN -> insertChild parent index (Materializer.materialize newN)
 
-        // Old node removed — destroy
+        // Removed — destroy
         | Some _, None -> removeChild parent index
 
-        // Different types — replace entirely
+        // Different types — replace
         | Some old, Some newN when old.Type <> newN.Type ->
-            let el = Materializer.materialize newN
-            replaceChild parent index el
+            replaceChild parent index (Materializer.materialize newN)
 
-        // Same type — diff props and children
+        // Same type, props changed — replace element (prevents duplicate event handlers)
+        | Some old, Some newN when old.Props <> newN.Props ->
+            replaceChild parent index (Materializer.materialize newN)
+
+        // Same type, same props — just diff children
         | Some old, Some newN ->
-            let propsChanged = old.Props <> newN.Props
-
-            if propsChanged && (hasEvents old.Props || hasEvents newN.Props) then
-                // Props with events changed — replace element to avoid duplicate handlers
-                let el = Materializer.materialize newN
-                replaceChild parent index el
-            else
-                match getChild parent index with
-                | Some el ->
-                    if propsChanged then
-                        applyProps el newN.Props
-
-                    reconcileChildren el old.Children newN.Children
-                | None -> ()
+            match getChild parent index with
+            | Some el -> reconcileChildren el old.Children newN.Children
+            | None -> ()
 
     /// Diff children lists by index.
     and private reconcileChildren
@@ -120,7 +107,9 @@ module Reconciler =
 
             reconcile parent i oldChild (Some newChildren.[i])
 
-    /// Top-level reconcile: diff old tree against new tree, starting from the root element.
+    /// Top-level: diff old tree against new tree.
+    /// Root element props are re-applied in-place (root can't be replaced).
+    /// Children are replaced when props change (safe for events).
     let update (rootElement: DependencyObject) (oldTree: VirtualNode) (newTree: VirtualNode) =
         if not (Object.ReferenceEquals(oldTree, newTree)) then
             if oldTree.Props <> newTree.Props then
