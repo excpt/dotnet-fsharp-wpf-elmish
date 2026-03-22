@@ -55,7 +55,7 @@ SPECS -> TESTS -> RED -> GREEN -> REFACTOR -> DOCUMENTATION
 ### Hot reload
 
 Hot reload IS the visual designer. There is no XAML designer preview.
-See `docs/implementation/0120_hot_reload.md`.
+See `docs/specs/1100_hot_reload.md`.
 
 ## Architecture
 
@@ -71,7 +71,7 @@ See `docs/implementation/0120_hot_reload.md`.
 - `tools/Codegen/` — F# console app, reflects over WPF assemblies via `MetadataLoadContext`
 - Run once to generate base DSL types, output committed to source control
 - Compares assemblies across TFMs (net461, net8.0, net9.0, net10.0), emits `#if` guards for version-specific DPs
-- See `docs/implementation/0900_codegen.md`
+- See `docs/specs/0700_codegen.md`
 
 ### Test projects
 
@@ -99,8 +99,8 @@ Regeneration: `dotnet run --project tools/Codegen`
 
 ### Documentation
 
-Implementation docs in `docs/implementation/` with numbered files (0000-2300).
-Start with `0000_index.md`. Hot reload (0120) and testing (0130) define how we work.
+Specs in `docs/specs/` with numbered files (0000-2300), organized by implementation phase.
+Start with `0000_index.md`. Documents are ordered by dependency — build Phase 1 before Phase 2, etc.
 
 ## Conventions
 
