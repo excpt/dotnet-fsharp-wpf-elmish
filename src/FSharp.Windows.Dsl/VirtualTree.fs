@@ -23,6 +23,10 @@ type ContentProp = ContentChild of VirtualNode
 /// Marker type for user key in prop lists.
 type KeyProp = Key of string
 
+/// Attached property marker — stored on child nodes, applied by materializer.
+/// E.g., Grid.Row, DockPanel.Dock, Canvas.Left.
+type AttachedProp = AttachedProp of System.Windows.DependencyProperty * obj
+
 module VirtualTree =
     /// Generate a stable position-based internal ID for reconciler matching.
     let makeId (parentId: string) (index: int) (t: Type) : string = $"{parentId}.{index}.{t.Name}"

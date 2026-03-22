@@ -121,14 +121,36 @@ let discoverDPs (controlType: Type) : DPInfo list =
                 controlType.GetProperty(propName, BindingFlags.Public ||| BindingFlags.Instance)
 
             match clrProp with
-            | null -> "obj"
+            | null ->
+                // Try attached property's static Set method (2nd parameter is the value type)
+                let setMethod =
+                    f.DeclaringType.GetMethod($"Set{propName}", BindingFlags.Public ||| BindingFlags.Static)
+
+                match setMethod with
+                | null -> "obj"
+                | m ->
+                    let parms = m.GetParameters()
+                    if parms.Length >= 2 then parms.[1].ParameterType.Name else "obj"
             | p -> p.PropertyType.Name
           PropertyTypeFullName =
             let clrProp =
                 controlType.GetProperty(propName, BindingFlags.Public ||| BindingFlags.Instance)
 
             match clrProp with
-            | null -> "System.Object"
+            | null ->
+                let setMethod =
+                    f.DeclaringType.GetMethod($"Set{propName}", BindingFlags.Public ||| BindingFlags.Static)
+
+                match setMethod with
+                | null -> "System.Object"
+                | m ->
+                    let parms = m.GetParameters()
+
+                    if parms.Length >= 2 then
+                        let ft = parms.[1].ParameterType.FullName
+                        if isNull ft then "System.Object" else ft
+                    else
+                        "System.Object"
             | p when isNull p.PropertyType.FullName -> "System.Object"
             | p -> p.PropertyType.FullName
           IsAttached = isAttached f

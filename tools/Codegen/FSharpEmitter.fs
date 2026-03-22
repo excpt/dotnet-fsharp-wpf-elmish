@@ -167,6 +167,21 @@ let private emitModule (sb: StringBuilder) (input: EmitControlInput) =
     sb.AppendLine($"    let key (k: string) : obj = box (Key k)") |> ignore
     sb.AppendLine() |> ignore
 
+    // Attached property helpers (wrap a VirtualNode, adding the attached prop)
+    for ap in input.AttachedDPs do
+        sb.AppendLine(
+            $"    let {ap.FnName} (v: {ap.ValueType}) (node: VirtualNode) : VirtualNode ="
+        )
+        |> ignore
+
+        sb.AppendLine(
+            $"        {{ node with Props = box (AttachedProp({ap.DPExpression}, box v)) :: node.Props }}"
+        )
+        |> ignore
+
+    if not input.AttachedDPs.IsEmpty then
+        sb.AppendLine() |> ignore
+
     // Create function (only for concrete types)
     if not input.IsAbstract then
         sb.AppendLine($"    let create (props: obj list) : VirtualNode =") |> ignore

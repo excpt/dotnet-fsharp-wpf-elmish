@@ -26,6 +26,7 @@ let simpleButtonInput =
             EventExpression = "el.Click"
             Guard = None } ]
       InheritedHelpers = []
+      AttachedDPs = []
       IsAbstract = false
       AssemblyInfo = "PresentationFramework 8.0.0"
       GeneratedDate = "2026-03-22" }

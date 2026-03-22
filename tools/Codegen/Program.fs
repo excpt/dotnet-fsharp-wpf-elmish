@@ -163,6 +163,20 @@ let buildEmitInput
                           EventExpression = $"el.{ev.Name}"
                           Guard = None }))
 
+    // Attached DPs — defined on this type, set on children
+    let attachedDPs =
+        ownDPs
+        |> List.filter (fun dp -> dp.IsAttached && not dp.IsReadOnly)
+        |> List.filter (fun dp -> not (dp.PropertyTypeFullName.Contains('`')))
+        |> List.map (fun dp ->
+            let fnName =
+                let n = dp.Name
+                string (Char.ToLowerInvariant(n.[0])) + n.[1..]
+
+            { FnName = fnName
+              DPExpression = $"{dp.OwnerTypeFullName}.{dp.FieldName}"
+              ValueType = mapToFSharpType dp.PropertyTypeFullName })
+
     let ownDPNames = ownDPs |> List.map (fun dp -> dp.Name) |> Set.ofList
     let ownEventNames = ownEvents |> List.map (fun ev -> ev.Name) |> Set.ofList
 
@@ -202,6 +216,7 @@ let buildEmitInput
       OwnDPs = emitDPs
       OwnEvents = emitEvents
       InheritedHelpers = inherited @ inheritedEventHelpers
+      AttachedDPs = attachedDPs
       IsAbstract = t.IsAbstract
       AssemblyInfo = assemblyInfo
       GeneratedDate = DateTime.Now.ToString("yyyy-MM-dd") }

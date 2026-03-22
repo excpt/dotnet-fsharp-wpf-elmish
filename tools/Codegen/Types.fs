@@ -37,6 +37,12 @@ type EmitInheritedHelper =
     { FnName: string
       PropDUExpression: string }
 
+/// Input for emitting an attached property helper.
+type EmitAttachedDP =
+    { FnName: string
+      DPExpression: string
+      ValueType: string }
+
 /// Complete input for generating one control's F# source file.
 type EmitControlInput =
     { OutputNamespace: string
@@ -48,6 +54,7 @@ type EmitControlInput =
       OwnDPs: EmitDP list
       OwnEvents: EmitEvent list
       InheritedHelpers: EmitInheritedHelper list
+      AttachedDPs: EmitAttachedDP list
       IsAbstract: bool
       AssemblyInfo: string
       GeneratedDate: string }
