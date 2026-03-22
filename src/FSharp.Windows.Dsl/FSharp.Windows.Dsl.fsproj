@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <TargetFramework>net8.0-windows</TargetFramework>
+        <UseWPF>true</UseWPF>
+        <Description>F# MVU DSL for WPF — virtual tree, reconciler, props</Description>
+    </PropertyGroup>
+    <ItemGroup>
+        <Compile Include="VirtualTree.fs" />
+        <Compile Include="Props.fs" />
+        <Compile Include="Materializer.fs" />
+        <Compile Include="Dsl.fs" />
+    </ItemGroup>
+</Project>

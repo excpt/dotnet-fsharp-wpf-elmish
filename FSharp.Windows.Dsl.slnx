@@ -4,6 +4,9 @@
     <Platform Name="x64" />
     <Platform Name="x86" />
   </Configurations>
+  <Folder Name="/samples/">
+    <Project Path="samples/HelloDsl/HelloDsl.fsproj" />
+  </Folder>
   <Folder Name="/Solution Items/">
     <File Path="CLAUDE.md" />
     <File Path="CHANGELOG.md" />
@@ -11,5 +14,17 @@
     <File Path="Directory.Packages.props" />
     <File Path="dotnet-tools.json" />
     <File Path="LICENSE" />
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="src/FSharp.Windows.Dsl.Controls/FSharp.Windows.Dsl.Controls.fsproj" />
+    <Project Path="src/FSharp.Windows.Dsl/FSharp.Windows.Dsl.fsproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/FSharp.Windows.Dsl.Codegen.Tests/FSharp.Windows.Dsl.Codegen.Tests.fsproj" />
+    <Project Path="tests/FSharp.Windows.Dsl.Controls.Tests/FSharp.Windows.Dsl.Controls.Tests.fsproj" />
+    <Project Path="tests/FSharp.Windows.Dsl.Tests/FSharp.Windows.Dsl.Tests.fsproj" />
+  </Folder>
+  <Folder Name="/tools/">
+    <Project Path="tools/Codegen/Codegen.fsproj" />
   </Folder>
 </Solution>
