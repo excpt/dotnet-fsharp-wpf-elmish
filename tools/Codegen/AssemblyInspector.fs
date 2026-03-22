@@ -178,3 +178,15 @@ let findAllFrameworkElementSubtypes (_mlc: MetadataLoadContext) (assembly: Assem
     assembly.GetTypes()
     |> Array.filter (fun t -> t.IsPublic && isSubclassOfByName "System.Windows.FrameworkElement" t)
     |> Array.toList
+
+/// Find all UIElement subtypes (including UIElement, Visual ancestors with DPs) across multiple assemblies.
+let findAllUIElementSubtypes (_mlc: MetadataLoadContext) (assemblies: Assembly list) : Type list =
+    assemblies
+    |> List.collect (fun asm ->
+        asm.GetTypes()
+        |> Array.filter (fun t ->
+            t.IsPublic
+            && (isSubclassOfByName "System.Windows.UIElement" t
+                || t.FullName = "System.Windows.UIElement"))
+        |> Array.toList)
+    |> List.distinctBy (fun t -> t.FullName)

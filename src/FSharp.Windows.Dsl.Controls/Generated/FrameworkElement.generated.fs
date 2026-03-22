@@ -7,65 +7,45 @@ namespace FSharp.Windows.Dsl.Controls
 
 open System
 open System.Windows
-open System.Windows.Controls
 open FSharp.Windows.Dsl
 
 [<RequireQualifiedAccess>]
-type TabItemProp =
-    | Base of HeaderedContentControlProp
-    | IsSelected of bool
+type FrameworkElementProp =
+    | Base of UIElementProp
+    | Style of System.Windows.Style
+    | OverridesDefaultStyle of bool
+    | UseLayoutRounding of bool
+    | DataContext of obj
+    | BindingGroup of System.Windows.Data.BindingGroup
+    | Language of System.Windows.Markup.XmlLanguage
+    | Name of string
+    | Tag of obj
+    | InputScope of System.Windows.Input.InputScope
+    | LayoutTransform of System.Windows.Media.Transform
+    | Width of float
+    | MinWidth of float
+    | MaxWidth of float
+    | Height of float
+    | MinHeight of float
+    | MaxHeight of float
+    | Margin of System.Windows.Thickness
+    | HorizontalAlignment of System.Windows.HorizontalAlignment
+    | VerticalAlignment of System.Windows.VerticalAlignment
+    | FocusVisualStyle of System.Windows.Style
+    | Cursor of System.Windows.Input.Cursor
+    | ForceCursor of bool
+    | ToolTip of obj
+    | ContextMenu of System.Windows.Controls.ContextMenu
+    | OnRequestBringIntoView of System.Windows.RequestBringIntoViewEventHandler
+    | OnSizeChanged of System.Windows.SizeChangedEventHandler
+    | OnLoaded of System.Windows.RoutedEventHandler
+    | OnUnloaded of System.Windows.RoutedEventHandler
+    | OnToolTipOpening of System.Windows.Controls.ToolTipEventHandler
+    | OnToolTipClosing of System.Windows.Controls.ToolTipEventHandler
+    | OnContextMenuOpening of System.Windows.Controls.ContextMenuEventHandler
+    | OnContextMenuClosing of System.Windows.Controls.ContextMenuEventHandler
 
-module TabItem =
-    let isSelected v : obj = box (TabItemProp.IsSelected v)
-
-    let apply (el: System.Windows.Controls.TabItem) (prop: TabItemProp) =
-        match prop with
-        | TabItemProp.Base p -> HeaderedContentControl.apply el p
-        | TabItemProp.IsSelected v -> el.SetValue(System.Windows.Controls.TabItem.IsSelectedProperty, box v)
-
-    let header v : obj =
-        box (HeaderedContentControlProp.Header v)
-
-    let headerTemplate v : obj =
-        box (HeaderedContentControlProp.HeaderTemplate v)
-
-    let headerTemplateSelector v : obj =
-        box (HeaderedContentControlProp.HeaderTemplateSelector v)
-
-    let headerStringFormat v : obj =
-        box (HeaderedContentControlProp.HeaderStringFormat v)
-
-    let content v : obj = box (ContentControlProp.Content v)
-
-    let contentTemplate v : obj =
-        box (ContentControlProp.ContentTemplate v)
-
-    let contentTemplateSelector v : obj =
-        box (ContentControlProp.ContentTemplateSelector v)
-
-    let contentStringFormat v : obj =
-        box (ContentControlProp.ContentStringFormat v)
-
-    let borderBrush v : obj = box (ControlProp.BorderBrush v)
-    let borderThickness v : obj = box (ControlProp.BorderThickness v)
-    let background v : obj = box (ControlProp.Background v)
-    let foreground v : obj = box (ControlProp.Foreground v)
-    let fontFamily v : obj = box (ControlProp.FontFamily v)
-    let fontSize v : obj = box (ControlProp.FontSize v)
-    let fontStretch v : obj = box (ControlProp.FontStretch v)
-    let fontStyle v : obj = box (ControlProp.FontStyle v)
-    let fontWeight v : obj = box (ControlProp.FontWeight v)
-
-    let horizontalContentAlignment v : obj =
-        box (ControlProp.HorizontalContentAlignment v)
-
-    let verticalContentAlignment v : obj =
-        box (ControlProp.VerticalContentAlignment v)
-
-    let tabIndex v : obj = box (ControlProp.TabIndex v)
-    let isTabStop v : obj = box (ControlProp.IsTabStop v)
-    let padding v : obj = box (ControlProp.Padding v)
-    let template v : obj = box (ControlProp.Template v)
+module FrameworkElement =
     let style v : obj = box (FrameworkElementProp.Style v)
 
     let overridesDefaultStyle v : obj =
@@ -115,6 +95,70 @@ module TabItem =
     let contextMenu v : obj =
         box (FrameworkElementProp.ContextMenu v)
 
+    let onRequestBringIntoView v : obj =
+        box (FrameworkElementProp.OnRequestBringIntoView v)
+
+    let onSizeChanged v : obj =
+        box (FrameworkElementProp.OnSizeChanged v)
+
+    let onLoaded v : obj = box (FrameworkElementProp.OnLoaded v)
+    let onUnloaded v : obj = box (FrameworkElementProp.OnUnloaded v)
+
+    let onToolTipOpening v : obj =
+        box (FrameworkElementProp.OnToolTipOpening v)
+
+    let onToolTipClosing v : obj =
+        box (FrameworkElementProp.OnToolTipClosing v)
+
+    let onContextMenuOpening v : obj =
+        box (FrameworkElementProp.OnContextMenuOpening v)
+
+    let onContextMenuClosing v : obj =
+        box (FrameworkElementProp.OnContextMenuClosing v)
+
+    let apply (el: System.Windows.FrameworkElement) (prop: FrameworkElementProp) =
+        match prop with
+        | FrameworkElementProp.Base p -> UIElement.apply el p
+        | FrameworkElementProp.Style v -> el.SetValue(System.Windows.FrameworkElement.StyleProperty, box v)
+        | FrameworkElementProp.OverridesDefaultStyle v ->
+            el.SetValue(System.Windows.FrameworkElement.OverridesDefaultStyleProperty, box v)
+        | FrameworkElementProp.UseLayoutRounding v ->
+            el.SetValue(System.Windows.FrameworkElement.UseLayoutRoundingProperty, box v)
+        | FrameworkElementProp.DataContext v -> el.SetValue(System.Windows.FrameworkElement.DataContextProperty, box v)
+        | FrameworkElementProp.BindingGroup v ->
+            el.SetValue(System.Windows.FrameworkElement.BindingGroupProperty, box v)
+        | FrameworkElementProp.Language v -> el.SetValue(System.Windows.FrameworkElement.LanguageProperty, box v)
+        | FrameworkElementProp.Name v -> el.SetValue(System.Windows.FrameworkElement.NameProperty, box v)
+        | FrameworkElementProp.Tag v -> el.SetValue(System.Windows.FrameworkElement.TagProperty, box v)
+        | FrameworkElementProp.InputScope v -> el.SetValue(System.Windows.FrameworkElement.InputScopeProperty, box v)
+        | FrameworkElementProp.LayoutTransform v ->
+            el.SetValue(System.Windows.FrameworkElement.LayoutTransformProperty, box v)
+        | FrameworkElementProp.Width v -> el.SetValue(System.Windows.FrameworkElement.WidthProperty, box v)
+        | FrameworkElementProp.MinWidth v -> el.SetValue(System.Windows.FrameworkElement.MinWidthProperty, box v)
+        | FrameworkElementProp.MaxWidth v -> el.SetValue(System.Windows.FrameworkElement.MaxWidthProperty, box v)
+        | FrameworkElementProp.Height v -> el.SetValue(System.Windows.FrameworkElement.HeightProperty, box v)
+        | FrameworkElementProp.MinHeight v -> el.SetValue(System.Windows.FrameworkElement.MinHeightProperty, box v)
+        | FrameworkElementProp.MaxHeight v -> el.SetValue(System.Windows.FrameworkElement.MaxHeightProperty, box v)
+        | FrameworkElementProp.Margin v -> el.SetValue(System.Windows.FrameworkElement.MarginProperty, box v)
+        | FrameworkElementProp.HorizontalAlignment v ->
+            el.SetValue(System.Windows.FrameworkElement.HorizontalAlignmentProperty, box v)
+        | FrameworkElementProp.VerticalAlignment v ->
+            el.SetValue(System.Windows.FrameworkElement.VerticalAlignmentProperty, box v)
+        | FrameworkElementProp.FocusVisualStyle v ->
+            el.SetValue(System.Windows.FrameworkElement.FocusVisualStyleProperty, box v)
+        | FrameworkElementProp.Cursor v -> el.SetValue(System.Windows.FrameworkElement.CursorProperty, box v)
+        | FrameworkElementProp.ForceCursor v -> el.SetValue(System.Windows.FrameworkElement.ForceCursorProperty, box v)
+        | FrameworkElementProp.ToolTip v -> el.SetValue(System.Windows.FrameworkElement.ToolTipProperty, box v)
+        | FrameworkElementProp.ContextMenu v -> el.SetValue(System.Windows.FrameworkElement.ContextMenuProperty, box v)
+        | FrameworkElementProp.OnRequestBringIntoView h -> el.RequestBringIntoView.AddHandler(h)
+        | FrameworkElementProp.OnSizeChanged h -> el.SizeChanged.AddHandler(h)
+        | FrameworkElementProp.OnLoaded h -> el.Loaded.AddHandler(h)
+        | FrameworkElementProp.OnUnloaded h -> el.Unloaded.AddHandler(h)
+        | FrameworkElementProp.OnToolTipOpening h -> el.ToolTipOpening.AddHandler(h)
+        | FrameworkElementProp.OnToolTipClosing h -> el.ToolTipClosing.AddHandler(h)
+        | FrameworkElementProp.OnContextMenuOpening h -> el.ContextMenuOpening.AddHandler(h)
+        | FrameworkElementProp.OnContextMenuClosing h -> el.ContextMenuClosing.AddHandler(h)
+
     let allowDrop v : obj = box (UIElementProp.AllowDrop v)
     let renderTransform v : obj = box (UIElementProp.RenderTransform v)
 
@@ -141,32 +185,6 @@ module TabItem =
 
     let isManipulationEnabled v : obj =
         box (UIElementProp.IsManipulationEnabled v)
-
-    let onPreviewMouseDoubleClick v : obj =
-        box (ControlProp.OnPreviewMouseDoubleClick v)
-
-    let onMouseDoubleClick v : obj = box (ControlProp.OnMouseDoubleClick v)
-
-    let onRequestBringIntoView v : obj =
-        box (FrameworkElementProp.OnRequestBringIntoView v)
-
-    let onSizeChanged v : obj =
-        box (FrameworkElementProp.OnSizeChanged v)
-
-    let onLoaded v : obj = box (FrameworkElementProp.OnLoaded v)
-    let onUnloaded v : obj = box (FrameworkElementProp.OnUnloaded v)
-
-    let onToolTipOpening v : obj =
-        box (FrameworkElementProp.OnToolTipOpening v)
-
-    let onToolTipClosing v : obj =
-        box (FrameworkElementProp.OnToolTipClosing v)
-
-    let onContextMenuOpening v : obj =
-        box (FrameworkElementProp.OnContextMenuOpening v)
-
-    let onContextMenuClosing v : obj =
-        box (FrameworkElementProp.OnContextMenuClosing v)
 
     let onPreviewMouseDown v : obj =
         box (UIElementProp.OnPreviewMouseDown v)
@@ -326,7 +344,7 @@ module TabItem =
     let create (props: obj list) : VirtualNode =
         let cs, uk, ps = VirtualTree.extractSpecialProps props
 
-        { Type = typeof<System.Windows.Controls.TabItem>
+        { Type = typeof<System.Windows.FrameworkElement>
           Props = ps
           Children = cs
           UserKey = uk

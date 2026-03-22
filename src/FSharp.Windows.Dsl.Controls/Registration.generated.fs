@@ -8,13 +8,22 @@ open FSharp.Windows.Dsl
 module Registration =
     /// Register all generated apply functions with the Materializer.
     let register () =
+        Materializer.registerApply<System.Windows.UIElement, UIElementProp> UIElement.apply
+        Materializer.registerApply<System.Windows.FrameworkElement, FrameworkElementProp> FrameworkElement.apply
         Materializer.registerApply<System.Windows.Shapes.Shape, ShapeProp> Shape.apply
         Materializer.registerApply<System.Windows.Interop.HwndHost, HwndHostProp> HwndHost.apply
         Materializer.registerApply<System.Windows.Documents.Adorner, AdornerProp> Adorner.apply
         Materializer.registerApply<System.Windows.Documents.AdornerLayer, AdornerLayerProp> AdornerLayer.apply
-        Materializer.registerApply<System.Windows.Documents.DocumentReference, DocumentReferenceProp> DocumentReference.apply
+
+        Materializer.registerApply<System.Windows.Documents.DocumentReference, DocumentReferenceProp>
+            DocumentReference.apply
+
         Materializer.registerApply<System.Windows.Controls.AccessText, AccessTextProp> AccessText.apply
-        Materializer.registerApply<System.Windows.Controls.ContentPresenter, ContentPresenterProp> ContentPresenter.apply
+
+        Materializer.registerApply<System.Windows.Controls.ContentPresenter, ContentPresenterProp>
+            ContentPresenter.apply
+
+        Materializer.registerApply<System.Windows.Controls.Control, ControlProp> Control.apply
         Materializer.registerApply<System.Windows.Controls.Decorator, DecoratorProp> Decorator.apply
         Materializer.registerApply<System.Windows.Controls.Image, ImageProp> Image.apply
         Materializer.registerApply<System.Windows.Controls.InkCanvas, InkCanvasProp> InkCanvas.apply
@@ -25,7 +34,13 @@ module Registration =
         Materializer.registerApply<System.Windows.Controls.TextBlock, TextBlockProp> TextBlock.apply
         Materializer.registerApply<System.Windows.Controls.ToolBarTray, ToolBarTrayProp> ToolBarTray.apply
         Materializer.registerApply<System.Windows.Controls.Viewport3D, Viewport3DProp> Viewport3D.apply
-        Materializer.registerApply<System.Windows.Controls.Primitives.GridViewRowPresenterBase, GridViewRowPresenterBaseProp> GridViewRowPresenterBase.apply
+
+        Materializer.registerApply<
+            System.Windows.Controls.Primitives.GridViewRowPresenterBase,
+            GridViewRowPresenterBaseProp
+         >
+            GridViewRowPresenterBase.apply
+
         Materializer.registerApply<System.Windows.Controls.Primitives.Popup, PopupProp> Popup.apply
         Materializer.registerApply<System.Windows.Controls.Primitives.TickBar, TickBarProp> TickBar.apply
         Materializer.registerApply<System.Windows.Controls.Primitives.Track, TrackProp> Track.apply
@@ -36,76 +51,144 @@ module Registration =
         Materializer.registerApply<System.Windows.Shapes.Polyline, PolylineProp> Polyline.apply
         Materializer.registerApply<System.Windows.Shapes.Rectangle, RectangleProp> Rectangle.apply
         Materializer.registerApply<System.Windows.Interop.ActiveXHost, ActiveXHostProp> ActiveXHost.apply
-        Materializer.registerApply<System.Windows.Navigation.PageFunctionBase, PageFunctionBaseProp> PageFunctionBase.apply
+
+        Materializer.registerApply<System.Windows.Navigation.PageFunctionBase, PageFunctionBaseProp>
+            PageFunctionBase.apply
+
         Materializer.registerApply<System.Windows.Controls.Border, BorderProp> Border.apply
         Materializer.registerApply<System.Windows.Controls.Calendar, CalendarProp> Calendar.apply
         Materializer.registerApply<System.Windows.Controls.Canvas, CanvasProp> Canvas.apply
+        Materializer.registerApply<System.Windows.Controls.ContentControl, ContentControlProp> ContentControl.apply
         Materializer.registerApply<System.Windows.Controls.DataGridRow, DataGridRowProp> DataGridRow.apply
         Materializer.registerApply<System.Windows.Controls.DatePicker, DatePickerProp> DatePicker.apply
         Materializer.registerApply<System.Windows.Controls.DockPanel, DockPanelProp> DockPanel.apply
-        Materializer.registerApply<System.Windows.Controls.FlowDocumentReader, FlowDocumentReaderProp> FlowDocumentReader.apply
-        Materializer.registerApply<System.Windows.Controls.FlowDocumentScrollViewer, FlowDocumentScrollViewerProp> FlowDocumentScrollViewer.apply
+
+        Materializer.registerApply<System.Windows.Controls.FlowDocumentReader, FlowDocumentReaderProp>
+            FlowDocumentReader.apply
+
+        Materializer.registerApply<System.Windows.Controls.FlowDocumentScrollViewer, FlowDocumentScrollViewerProp>
+            FlowDocumentScrollViewer.apply
+
         Materializer.registerApply<System.Windows.Controls.Grid, GridProp> Grid.apply
-        Materializer.registerApply<System.Windows.Controls.GridViewHeaderRowPresenter, GridViewHeaderRowPresenterProp> GridViewHeaderRowPresenter.apply
-        Materializer.registerApply<System.Windows.Controls.GridViewRowPresenter, GridViewRowPresenterProp> GridViewRowPresenter.apply
+
+        Materializer.registerApply<System.Windows.Controls.GridViewHeaderRowPresenter, GridViewHeaderRowPresenterProp>
+            GridViewHeaderRowPresenter.apply
+
+        Materializer.registerApply<System.Windows.Controls.GridViewRowPresenter, GridViewRowPresenterProp>
+            GridViewRowPresenter.apply
+
         Materializer.registerApply<System.Windows.Controls.ItemsControl, ItemsControlProp> ItemsControl.apply
         Materializer.registerApply<System.Windows.Controls.PasswordBox, PasswordBoxProp> PasswordBox.apply
-        Materializer.registerApply<System.Windows.Controls.ScrollContentPresenter, ScrollContentPresenterProp> ScrollContentPresenter.apply
+
+        Materializer.registerApply<System.Windows.Controls.ScrollContentPresenter, ScrollContentPresenterProp>
+            ScrollContentPresenter.apply
+
         Materializer.registerApply<System.Windows.Controls.Separator, SeparatorProp> Separator.apply
         Materializer.registerApply<System.Windows.Controls.StackPanel, StackPanelProp> StackPanel.apply
         Materializer.registerApply<System.Windows.Controls.Viewbox, ViewboxProp> Viewbox.apply
-        Materializer.registerApply<System.Windows.Controls.VirtualizingPanel, VirtualizingPanelProp> VirtualizingPanel.apply
+
+        Materializer.registerApply<System.Windows.Controls.VirtualizingPanel, VirtualizingPanelProp>
+            VirtualizingPanel.apply
+
         Materializer.registerApply<System.Windows.Controls.WrapPanel, WrapPanelProp> WrapPanel.apply
-        Materializer.registerApply<System.Windows.Controls.Primitives.BulletDecorator, BulletDecoratorProp> BulletDecorator.apply
+
+        Materializer.registerApply<System.Windows.Controls.Primitives.BulletDecorator, BulletDecoratorProp>
+            BulletDecorator.apply
+
         Materializer.registerApply<System.Windows.Controls.Primitives.CalendarItem, CalendarItemProp> CalendarItem.apply
-        Materializer.registerApply<System.Windows.Controls.Primitives.DataGridDetailsPresenter, DataGridDetailsPresenterProp> DataGridDetailsPresenter.apply
-        Materializer.registerApply<System.Windows.Controls.Primitives.DocumentViewerBase, DocumentViewerBaseProp> DocumentViewerBase.apply
+
+        Materializer.registerApply<
+            System.Windows.Controls.Primitives.DataGridDetailsPresenter,
+            DataGridDetailsPresenterProp
+         >
+            DataGridDetailsPresenter.apply
+
+        Materializer.registerApply<System.Windows.Controls.Primitives.DocumentViewerBase, DocumentViewerBaseProp>
+            DocumentViewerBase.apply
+
         Materializer.registerApply<System.Windows.Controls.Primitives.RangeBase, RangeBaseProp> RangeBase.apply
         Materializer.registerApply<System.Windows.Controls.Primitives.ResizeGrip, ResizeGripProp> ResizeGrip.apply
         Materializer.registerApply<System.Windows.Controls.Primitives.TabPanel, TabPanelProp> TabPanel.apply
         Materializer.registerApply<System.Windows.Controls.Primitives.TextBoxBase, TextBoxBaseProp> TextBoxBase.apply
         Materializer.registerApply<System.Windows.Controls.Primitives.Thumb, ThumbProp> Thumb.apply
-        Materializer.registerApply<System.Windows.Controls.Primitives.ToolBarOverflowPanel, ToolBarOverflowPanelProp> ToolBarOverflowPanel.apply
+
+        Materializer.registerApply<System.Windows.Controls.Primitives.ToolBarOverflowPanel, ToolBarOverflowPanelProp>
+            ToolBarOverflowPanel.apply
+
         Materializer.registerApply<System.Windows.Controls.Primitives.UniformGrid, UniformGridProp> UniformGrid.apply
         Materializer.registerApply<System.Windows.Window, WindowProp> Window.apply
         Materializer.registerApply<System.Windows.Controls.DataGridCell, DataGridCellProp> DataGridCell.apply
-        Materializer.registerApply<System.Windows.Controls.DataGridCellsPanel, DataGridCellsPanelProp> DataGridCellsPanel.apply
+
+        Materializer.registerApply<System.Windows.Controls.DataGridCellsPanel, DataGridCellsPanelProp>
+            DataGridCellsPanel.apply
+
         Materializer.registerApply<System.Windows.Controls.DocumentViewer, DocumentViewerProp> DocumentViewer.apply
         Materializer.registerApply<System.Windows.Controls.Frame, FrameProp> Frame.apply
         Materializer.registerApply<System.Windows.Controls.GridSplitter, GridSplitterProp> GridSplitter.apply
         Materializer.registerApply<System.Windows.Controls.GroupItem, GroupItemProp> GroupItem.apply
-        Materializer.registerApply<System.Windows.Controls.HeaderedContentControl, HeaderedContentControlProp> HeaderedContentControl.apply
-        Materializer.registerApply<System.Windows.Controls.HeaderedItemsControl, HeaderedItemsControlProp> HeaderedItemsControl.apply
+
+        Materializer.registerApply<System.Windows.Controls.HeaderedContentControl, HeaderedContentControlProp>
+            HeaderedContentControl.apply
+
+        Materializer.registerApply<System.Windows.Controls.HeaderedItemsControl, HeaderedItemsControlProp>
+            HeaderedItemsControl.apply
+
         Materializer.registerApply<System.Windows.Controls.Label, LabelProp> Label.apply
         Materializer.registerApply<System.Windows.Controls.ListBoxItem, ListBoxItemProp> ListBoxItem.apply
         Materializer.registerApply<System.Windows.Controls.ProgressBar, ProgressBarProp> ProgressBar.apply
         Materializer.registerApply<System.Windows.Controls.RichTextBox, RichTextBoxProp> RichTextBox.apply
         Materializer.registerApply<System.Windows.Controls.ScrollViewer, ScrollViewerProp> ScrollViewer.apply
-        Materializer.registerApply<System.Windows.Controls.FlowDocumentPageViewer, FlowDocumentPageViewerProp> FlowDocumentPageViewer.apply
+
+        Materializer.registerApply<System.Windows.Controls.FlowDocumentPageViewer, FlowDocumentPageViewerProp>
+            FlowDocumentPageViewer.apply
+
         Materializer.registerApply<System.Windows.Controls.Slider, SliderProp> Slider.apply
         Materializer.registerApply<System.Windows.Controls.TextBox, TextBoxProp> TextBox.apply
         Materializer.registerApply<System.Windows.Controls.ToolTip, ToolTipProp> ToolTip.apply
         Materializer.registerApply<System.Windows.Controls.TreeView, TreeViewProp> TreeView.apply
         Materializer.registerApply<System.Windows.Controls.UserControl, UserControlProp> UserControl.apply
-        Materializer.registerApply<System.Windows.Controls.VirtualizingStackPanel, VirtualizingStackPanelProp> VirtualizingStackPanel.apply
+
+        Materializer.registerApply<System.Windows.Controls.VirtualizingStackPanel, VirtualizingStackPanelProp>
+            VirtualizingStackPanel.apply
+
         Materializer.registerApply<System.Windows.Controls.WebBrowser, WebBrowserProp> WebBrowser.apply
         Materializer.registerApply<System.Windows.Controls.Primitives.ButtonBase, ButtonBaseProp> ButtonBase.apply
-        Materializer.registerApply<System.Windows.Controls.Primitives.DataGridCellsPresenter, DataGridCellsPresenterProp> DataGridCellsPresenter.apply
-        Materializer.registerApply<System.Windows.Controls.Primitives.DataGridColumnHeadersPresenter, DataGridColumnHeadersPresenterProp> DataGridColumnHeadersPresenter.apply
+
+        Materializer.registerApply<System.Windows.Controls.Primitives.DataGridCellsPresenter, DataGridCellsPresenterProp>
+            DataGridCellsPresenter.apply
+
+        Materializer.registerApply<
+            System.Windows.Controls.Primitives.DataGridColumnHeadersPresenter,
+            DataGridColumnHeadersPresenterProp
+         >
+            DataGridColumnHeadersPresenter.apply
+
         Materializer.registerApply<System.Windows.Controls.Primitives.MenuBase, MenuBaseProp> MenuBase.apply
         Materializer.registerApply<System.Windows.Controls.Primitives.ScrollBar, ScrollBarProp> ScrollBar.apply
-        Materializer.registerApply<System.Windows.Controls.Primitives.SelectiveScrollingGrid, SelectiveScrollingGridProp> SelectiveScrollingGrid.apply
+
+        Materializer.registerApply<System.Windows.Controls.Primitives.SelectiveScrollingGrid, SelectiveScrollingGridProp>
+            SelectiveScrollingGrid.apply
+
         Materializer.registerApply<System.Windows.Controls.Primitives.Selector, SelectorProp> Selector.apply
         Materializer.registerApply<System.Windows.Controls.Primitives.StatusBar, StatusBarProp> StatusBar.apply
-        Materializer.registerApply<System.Windows.Controls.Primitives.StatusBarItem, StatusBarItemProp> StatusBarItem.apply
+
+        Materializer.registerApply<System.Windows.Controls.Primitives.StatusBarItem, StatusBarItemProp>
+            StatusBarItem.apply
+
         Materializer.registerApply<System.Windows.Controls.Primitives.ToolBarPanel, ToolBarPanelProp> ToolBarPanel.apply
-        Materializer.registerApply<System.Windows.Navigation.NavigationWindow, NavigationWindowProp> NavigationWindow.apply
+
+        Materializer.registerApply<System.Windows.Navigation.NavigationWindow, NavigationWindowProp>
+            NavigationWindow.apply
+
         Materializer.registerApply<System.Windows.Controls.Button, ButtonProp> Button.apply
         Materializer.registerApply<System.Windows.Controls.ComboBox, ComboBoxProp> ComboBox.apply
         Materializer.registerApply<System.Windows.Controls.ComboBoxItem, ComboBoxItemProp> ComboBoxItem.apply
         Materializer.registerApply<System.Windows.Controls.ContextMenu, ContextMenuProp> ContextMenu.apply
         Materializer.registerApply<System.Windows.Controls.Expander, ExpanderProp> Expander.apply
-        Materializer.registerApply<System.Windows.Controls.GridViewColumnHeader, GridViewColumnHeaderProp> GridViewColumnHeader.apply
+
+        Materializer.registerApply<System.Windows.Controls.GridViewColumnHeader, GridViewColumnHeaderProp>
+            GridViewColumnHeader.apply
+
         Materializer.registerApply<System.Windows.Controls.GroupBox, GroupBoxProp> GroupBox.apply
         Materializer.registerApply<System.Windows.Controls.ListBox, ListBoxProp> ListBox.apply
         Materializer.registerApply<System.Windows.Controls.ListViewItem, ListViewItemProp> ListViewItem.apply
@@ -115,16 +198,31 @@ module Registration =
         Materializer.registerApply<System.Windows.Controls.TabItem, TabItemProp> TabItem.apply
         Materializer.registerApply<System.Windows.Controls.ToolBar, ToolBarProp> ToolBar.apply
         Materializer.registerApply<System.Windows.Controls.TreeViewItem, TreeViewItemProp> TreeViewItem.apply
-        Materializer.registerApply<System.Windows.Controls.Primitives.DataGridColumnHeader, DataGridColumnHeaderProp> DataGridColumnHeader.apply
-        Materializer.registerApply<System.Windows.Controls.Primitives.DataGridRowHeader, DataGridRowHeaderProp> DataGridRowHeader.apply
-        Materializer.registerApply<System.Windows.Controls.Primitives.DataGridRowsPresenter, DataGridRowsPresenterProp> DataGridRowsPresenter.apply
-        Materializer.registerApply<System.Windows.Controls.Primitives.DatePickerTextBox, DatePickerTextBoxProp> DatePickerTextBox.apply
-        Materializer.registerApply<System.Windows.Controls.Primitives.MultiSelector, MultiSelectorProp> MultiSelector.apply
+
+        Materializer.registerApply<System.Windows.Controls.Primitives.DataGridColumnHeader, DataGridColumnHeaderProp>
+            DataGridColumnHeader.apply
+
+        Materializer.registerApply<System.Windows.Controls.Primitives.DataGridRowHeader, DataGridRowHeaderProp>
+            DataGridRowHeader.apply
+
+        Materializer.registerApply<System.Windows.Controls.Primitives.DataGridRowsPresenter, DataGridRowsPresenterProp>
+            DataGridRowsPresenter.apply
+
+        Materializer.registerApply<System.Windows.Controls.Primitives.DatePickerTextBox, DatePickerTextBoxProp>
+            DatePickerTextBox.apply
+
+        Materializer.registerApply<System.Windows.Controls.Primitives.MultiSelector, MultiSelectorProp>
+            MultiSelector.apply
+
         Materializer.registerApply<System.Windows.Controls.Primitives.RepeatButton, RepeatButtonProp> RepeatButton.apply
         Materializer.registerApply<System.Windows.Controls.Primitives.ToggleButton, ToggleButtonProp> ToggleButton.apply
         Materializer.registerApply<System.Windows.Controls.CheckBox, CheckBoxProp> CheckBox.apply
         Materializer.registerApply<System.Windows.Controls.DataGrid, DataGridProp> DataGrid.apply
         Materializer.registerApply<System.Windows.Controls.ListView, ListViewProp> ListView.apply
         Materializer.registerApply<System.Windows.Controls.RadioButton, RadioButtonProp> RadioButton.apply
-        Materializer.registerApply<System.Windows.Controls.Primitives.CalendarButton, CalendarButtonProp> CalendarButton.apply
-        Materializer.registerApply<System.Windows.Controls.Primitives.CalendarDayButton, CalendarDayButtonProp> CalendarDayButton.apply
+
+        Materializer.registerApply<System.Windows.Controls.Primitives.CalendarButton, CalendarButtonProp>
+            CalendarButton.apply
+
+        Materializer.registerApply<System.Windows.Controls.Primitives.CalendarDayButton, CalendarDayButtonProp>
+            CalendarDayButton.apply

@@ -11,41 +11,27 @@ open System.Windows.Controls
 open FSharp.Windows.Dsl
 
 [<RequireQualifiedAccess>]
-type TabItemProp =
-    | Base of HeaderedContentControlProp
-    | IsSelected of bool
+type ControlProp =
+    | Base of FrameworkElementProp
+    | BorderBrush of System.Windows.Media.Brush
+    | BorderThickness of System.Windows.Thickness
+    | Background of System.Windows.Media.Brush
+    | Foreground of System.Windows.Media.Brush
+    | FontFamily of System.Windows.Media.FontFamily
+    | FontSize of float
+    | FontStretch of System.Windows.FontStretch
+    | FontStyle of System.Windows.FontStyle
+    | FontWeight of System.Windows.FontWeight
+    | HorizontalContentAlignment of System.Windows.HorizontalAlignment
+    | VerticalContentAlignment of System.Windows.VerticalAlignment
+    | TabIndex of int
+    | IsTabStop of bool
+    | Padding of System.Windows.Thickness
+    | Template of System.Windows.Controls.ControlTemplate
+    | OnPreviewMouseDoubleClick of System.Windows.Input.MouseButtonEventHandler
+    | OnMouseDoubleClick of System.Windows.Input.MouseButtonEventHandler
 
-module TabItem =
-    let isSelected v : obj = box (TabItemProp.IsSelected v)
-
-    let apply (el: System.Windows.Controls.TabItem) (prop: TabItemProp) =
-        match prop with
-        | TabItemProp.Base p -> HeaderedContentControl.apply el p
-        | TabItemProp.IsSelected v -> el.SetValue(System.Windows.Controls.TabItem.IsSelectedProperty, box v)
-
-    let header v : obj =
-        box (HeaderedContentControlProp.Header v)
-
-    let headerTemplate v : obj =
-        box (HeaderedContentControlProp.HeaderTemplate v)
-
-    let headerTemplateSelector v : obj =
-        box (HeaderedContentControlProp.HeaderTemplateSelector v)
-
-    let headerStringFormat v : obj =
-        box (HeaderedContentControlProp.HeaderStringFormat v)
-
-    let content v : obj = box (ContentControlProp.Content v)
-
-    let contentTemplate v : obj =
-        box (ContentControlProp.ContentTemplate v)
-
-    let contentTemplateSelector v : obj =
-        box (ContentControlProp.ContentTemplateSelector v)
-
-    let contentStringFormat v : obj =
-        box (ContentControlProp.ContentStringFormat v)
-
+module Control =
     let borderBrush v : obj = box (ControlProp.BorderBrush v)
     let borderThickness v : obj = box (ControlProp.BorderThickness v)
     let background v : obj = box (ControlProp.Background v)
@@ -66,6 +52,35 @@ module TabItem =
     let isTabStop v : obj = box (ControlProp.IsTabStop v)
     let padding v : obj = box (ControlProp.Padding v)
     let template v : obj = box (ControlProp.Template v)
+
+    let onPreviewMouseDoubleClick v : obj =
+        box (ControlProp.OnPreviewMouseDoubleClick v)
+
+    let onMouseDoubleClick v : obj = box (ControlProp.OnMouseDoubleClick v)
+
+    let apply (el: System.Windows.Controls.Control) (prop: ControlProp) =
+        match prop with
+        | ControlProp.Base p -> FrameworkElement.apply el p
+        | ControlProp.BorderBrush v -> el.SetValue(System.Windows.Controls.Control.BorderBrushProperty, box v)
+        | ControlProp.BorderThickness v -> el.SetValue(System.Windows.Controls.Control.BorderThicknessProperty, box v)
+        | ControlProp.Background v -> el.SetValue(System.Windows.Controls.Control.BackgroundProperty, box v)
+        | ControlProp.Foreground v -> el.SetValue(System.Windows.Controls.Control.ForegroundProperty, box v)
+        | ControlProp.FontFamily v -> el.SetValue(System.Windows.Controls.Control.FontFamilyProperty, box v)
+        | ControlProp.FontSize v -> el.SetValue(System.Windows.Controls.Control.FontSizeProperty, box v)
+        | ControlProp.FontStretch v -> el.SetValue(System.Windows.Controls.Control.FontStretchProperty, box v)
+        | ControlProp.FontStyle v -> el.SetValue(System.Windows.Controls.Control.FontStyleProperty, box v)
+        | ControlProp.FontWeight v -> el.SetValue(System.Windows.Controls.Control.FontWeightProperty, box v)
+        | ControlProp.HorizontalContentAlignment v ->
+            el.SetValue(System.Windows.Controls.Control.HorizontalContentAlignmentProperty, box v)
+        | ControlProp.VerticalContentAlignment v ->
+            el.SetValue(System.Windows.Controls.Control.VerticalContentAlignmentProperty, box v)
+        | ControlProp.TabIndex v -> el.SetValue(System.Windows.Controls.Control.TabIndexProperty, box v)
+        | ControlProp.IsTabStop v -> el.SetValue(System.Windows.Controls.Control.IsTabStopProperty, box v)
+        | ControlProp.Padding v -> el.SetValue(System.Windows.Controls.Control.PaddingProperty, box v)
+        | ControlProp.Template v -> el.SetValue(System.Windows.Controls.Control.TemplateProperty, box v)
+        | ControlProp.OnPreviewMouseDoubleClick h -> el.PreviewMouseDoubleClick.AddHandler(h)
+        | ControlProp.OnMouseDoubleClick h -> el.MouseDoubleClick.AddHandler(h)
+
     let style v : obj = box (FrameworkElementProp.Style v)
 
     let overridesDefaultStyle v : obj =
@@ -141,11 +156,6 @@ module TabItem =
 
     let isManipulationEnabled v : obj =
         box (UIElementProp.IsManipulationEnabled v)
-
-    let onPreviewMouseDoubleClick v : obj =
-        box (ControlProp.OnPreviewMouseDoubleClick v)
-
-    let onMouseDoubleClick v : obj = box (ControlProp.OnMouseDoubleClick v)
 
     let onRequestBringIntoView v : obj =
         box (FrameworkElementProp.OnRequestBringIntoView v)
@@ -326,7 +336,7 @@ module TabItem =
     let create (props: obj list) : VirtualNode =
         let cs, uk, ps = VirtualTree.extractSpecialProps props
 
-        { Type = typeof<System.Windows.Controls.TabItem>
+        { Type = typeof<System.Windows.Controls.Control>
           Props = ps
           Children = cs
           UserKey = uk

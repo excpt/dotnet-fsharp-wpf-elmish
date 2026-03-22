@@ -7,5 +7,4 @@ module Dsl =
     let materialize (node: VirtualNode) : DependencyObject = Materializer.materialize node
 
     /// Materialize a VirtualNode tree into a typed WPF element.
-    let materializeAs<'T when 'T :> DependencyObject> (node: VirtualNode) : 'T =
-        Materializer.materialize node :?> 'T
+    let materializeAs<'T when 'T :> DependencyObject> (node: VirtualNode) : 'T = Materializer.materialize node :?> 'T

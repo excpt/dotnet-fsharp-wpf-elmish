@@ -113,8 +113,8 @@ let ``full app tree builds without error`` () =
     let tree =
         window
             [ Window.title "Test App"
-              box (FrameworkElementProp.Width 800.0)
-              box (FrameworkElementProp.Height 600.0)
+              Window.width 800.0
+              Window.height 600.0
               Window.contentChild (
                   stackPanel
                       [ StackPanel.children

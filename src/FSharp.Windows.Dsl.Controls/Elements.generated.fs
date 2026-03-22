@@ -8,10 +8,13 @@ module Elements =
 
     open FSharp.Windows.Dsl
 
+    let uIElement (props: obj list) : VirtualNode = UIElement.create props
+    let frameworkElement (props: obj list) : VirtualNode = FrameworkElement.create props
     let adornerLayer (props: obj list) : VirtualNode = AdornerLayer.create props
     let documentReference (props: obj list) : VirtualNode = DocumentReference.create props
     let accessText (props: obj list) : VirtualNode = AccessText.create props
     let contentPresenter (props: obj list) : VirtualNode = ContentPresenter.create props
+    let control (props: obj list) : VirtualNode = Control.create props
     let decorator (props: obj list) : VirtualNode = Decorator.create props
     let image (props: obj list) : VirtualNode = Image.create props
     let inkCanvas (props: obj list) : VirtualNode = InkCanvas.create props
@@ -34,6 +37,7 @@ module Elements =
     let border (props: obj list) : VirtualNode = Border.create props
     let calendar (props: obj list) : VirtualNode = Calendar.create props
     let canvas (props: obj list) : VirtualNode = Canvas.create props
+    let contentControl (props: obj list) : VirtualNode = ContentControl.create props
     let dataGridRow (props: obj list) : VirtualNode = DataGridRow.create props
     let datePicker (props: obj list) : VirtualNode = DatePicker.create props
     let dockPanel (props: obj list) : VirtualNode = DockPanel.create props
@@ -80,7 +84,10 @@ module Elements =
     let virtualizingStackPanel (props: obj list) : VirtualNode = VirtualizingStackPanel.create props
     let webBrowser (props: obj list) : VirtualNode = WebBrowser.create props
     let dataGridCellsPresenter (props: obj list) : VirtualNode = DataGridCellsPresenter.create props
-    let dataGridColumnHeadersPresenter (props: obj list) : VirtualNode = DataGridColumnHeadersPresenter.create props
+
+    let dataGridColumnHeadersPresenter (props: obj list) : VirtualNode =
+        DataGridColumnHeadersPresenter.create props
+
     let scrollBar (props: obj list) : VirtualNode = ScrollBar.create props
     let selectiveScrollingGrid (props: obj list) : VirtualNode = SelectiveScrollingGrid.create props
     let statusBar (props: obj list) : VirtualNode = StatusBar.create props

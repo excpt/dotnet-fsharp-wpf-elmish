@@ -32,12 +32,7 @@ let runSta (f: unit -> 'a) : 'a =
 
     result
 
-let private ensureRegistered =
-    lazy
-        (Registration.register ()
-         Materializer.registerApply<FrameworkElement, FrameworkElementProp> Props.applyFrameworkElementProp
-         Materializer.registerApply<Control, ControlProp> Props.applyControlProp
-         Materializer.registerApply<ContentControl, ContentControlProp> Props.applyContentControlProp)
+let private ensureRegistered = lazy (Registration.register ())
 
 let private register () = ensureRegistered.Force()
 
@@ -87,8 +82,7 @@ let ``materialize applies FrameworkElement props via hierarchy fallback`` () =
     runSta (fun () ->
         register ()
 
-        let el =
-            window [ box (FrameworkElementProp.Width 500.0) ] |> Materializer.materialize
+        let el = window [ Window.width 500.0 ] |> Materializer.materialize
 
         let w = el :?> Window
         w.Width |> should equal 500.0)
@@ -155,12 +149,12 @@ let ``full app tree materializes to live WPF elements`` () =
         let el =
             window
                 [ Window.title "Integration Test"
-                  box (FrameworkElementProp.Width 400.0)
+                  Window.width 400.0
                   Window.contentChild (
                       stackPanel
                           [ StackPanel.children
                                 [ textBlock [ TextBlock.text "Hello" ]
-                                  button [ box (ContentControlProp.Content(box "Click")); Button.isDefault true ] ] ]
+                                  button [ Button.content "Click"; Button.isDefault true ] ] ]
                   ) ]
             |> Materializer.materialize
 

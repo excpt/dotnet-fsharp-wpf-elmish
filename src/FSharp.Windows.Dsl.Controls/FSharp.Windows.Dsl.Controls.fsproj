@@ -6,6 +6,8 @@
     </PropertyGroup>
     <ItemGroup>
         <!-- Generated files in hierarchy order (base types first) -->
+        <Compile Include="Generated/UIElement.generated.fs" />
+        <Compile Include="Generated/FrameworkElement.generated.fs" />
         <Compile Include="Generated/Shape.generated.fs" />
         <Compile Include="Generated/HwndHost.generated.fs" />
         <Compile Include="Generated/Adorner.generated.fs" />
@@ -13,6 +15,7 @@
         <Compile Include="Generated/DocumentReference.generated.fs" />
         <Compile Include="Generated/AccessText.generated.fs" />
         <Compile Include="Generated/ContentPresenter.generated.fs" />
+        <Compile Include="Generated/Control.generated.fs" />
         <Compile Include="Generated/Decorator.generated.fs" />
         <Compile Include="Generated/Image.generated.fs" />
         <Compile Include="Generated/InkCanvas.generated.fs" />
@@ -38,6 +41,7 @@
         <Compile Include="Generated/Border.generated.fs" />
         <Compile Include="Generated/Calendar.generated.fs" />
         <Compile Include="Generated/Canvas.generated.fs" />
+        <Compile Include="Generated/ContentControl.generated.fs" />
         <Compile Include="Generated/DataGridRow.generated.fs" />
         <Compile Include="Generated/DatePicker.generated.fs" />
         <Compile Include="Generated/DockPanel.generated.fs" />

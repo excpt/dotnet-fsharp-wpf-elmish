@@ -30,23 +30,11 @@ let tfmToGuard (tfm: string) =
     | t when t.StartsWith("net8") -> "NET8_0_OR_GREATER"
     | _ -> failwith $"No guard symbol for TFM: {tfm}"
 
-/// Base types already hand-written in FSharp.Windows.Dsl — skip generation, reference existing.
-let baseTypes =
-    Map
-        [ "FrameworkElement", ("FrameworkElementProp", "Props.applyFrameworkElementProp")
-          "Control", ("ControlProp", "Props.applyControlProp")
-          "ContentControl", ("ContentControlProp", "Props.applyContentControlProp") ]
+/// No hand-written base types — everything is generated.
+let baseTypes = Map.empty<string, string * string>
 
-/// Known DU cases in hand-written base prop types. Only these can be referenced by inherited helpers.
-let knownBaseTypeDPCases =
-    set
-        [ "FrameworkElementProp.Width"
-          "FrameworkElementProp.Height"
-          "FrameworkElementProp.Margin"
-          "ControlProp.Background"
-          "ControlProp.Padding"
-          "ControlProp.FontSize"
-          "ContentControlProp.Content" ]
+/// The root of the hierarchy — UIElement has no parent prop DU.
+let hierarchyRoot = "UIElement"
 
 /// Map .NET type full names to F# type names.
 /// Uses F# aliases for primitives, fully qualified names for WPF types.
@@ -82,23 +70,22 @@ let excludedTypes =
 let isValidTypeName (name: string) = not (name.Contains('`'))
 
 /// Resolve the parent prop name and apply function for a type.
-let resolveParent (t: Type) =
+let resolveParent (generatedTypeNames: Set<string>) (t: Type) =
     if isNull t.BaseType then
         None, None
+    elif t.Name = hierarchyRoot then
+        None, None // UIElement is the root — no Base case
     else
         let parentName = t.BaseType.Name
 
-        match baseTypes |> Map.tryFind parentName with
-        | Some(propName, applyFn) -> Some propName, Some applyFn
-        | None ->
-            // Parent is another generated type
+        if generatedTypeNames |> Set.contains parentName then
             Some $"{parentName}Prop", Some $"{parentName}.apply"
+        else
+            // Parent is not generated (e.g., Visual, DependencyObject) — skip
+            None, None
 
 /// Map a WPF owner type name to its prop DU name.
-let propDUName (ownerTypeName: string) =
-    match baseTypes |> Map.tryFind ownerTypeName with
-    | Some(propName, _) -> propName
-    | None -> $"{ownerTypeName}Prop"
+let propDUName (ownerTypeName: string) = $"{ownerTypeName}Prop"
 
 /// Build inherited helpers: for each inherited DP, generate a helper that boxes
 /// at the ancestor's prop DU level. The materializer's hierarchy fallback handles apply.
@@ -118,14 +105,10 @@ let buildInheritedHelpers
         let duName = propDUName dp.OwnerTypeName
         let duCase = $"{duName}.{dp.Name}"
 
-        let isBaseType = baseTypes |> Map.containsKey dp.OwnerTypeName
         let isGeneratedType = generatedTypeNames |> Set.contains dp.OwnerTypeName
 
-        // Check if this DP case was actually emitted on the owner type
         let wasEmitted =
-            if isBaseType then
-                knownBaseTypeDPCases.Contains duCase
-            elif isGeneratedType then
+            if isGeneratedType then
                 match emittedDPsPerType |> Map.tryFind dp.OwnerTypeName with
                 | Some dps -> dps.Contains dp.Name
                 | None -> false
@@ -153,7 +136,7 @@ let buildEmitInput
     (assemblyInfo: string)
     (t: Type, ownDPs: DPInfo list, ownEvents: EventInfo list, _depth: int)
     =
-    let parentPropName, parentApplyFn = resolveParent t
+    let parentPropName, parentApplyFn = resolveParent generatedTypeNames t
 
     let emitDPs =
         ownDPs
@@ -265,25 +248,34 @@ let main argv =
         if not versionGuards.IsEmpty then
             printfn $"Found {versionGuards.Count} version-specific DPs"
 
-        // Create context and load
+        // Create context and load assemblies
         use ctx = AssemblyInspector.createContext runtimeDir
         let assembly = ctx.LoadFromAssemblyPath(assemblyPath)
         let assemblyVersion = assembly.GetName().Version
+
+        // Also load PresentationCore (has UIElement, FrameworkElement ancestor DPs)
+        let coreAssemblyPath = Path.Combine(runtimeDir, "PresentationCore.dll")
+
+        let assemblies =
+            if File.Exists(coreAssemblyPath) then
+                let coreAssembly = ctx.LoadFromAssemblyPath(coreAssemblyPath)
+                [ assembly; coreAssembly ]
+            else
+                [ assembly ]
 
         let assemblyInfo =
             match baseline with
             | Some b -> $"{assemblyName} {assemblyVersion} (baseline: {b})"
             | None -> $"{assemblyName} {assemblyVersion}"
 
-        // Find all types (including abstract for hierarchy chain)
-        let allTypes = AssemblyInspector.findAllFrameworkElementSubtypes ctx assembly
+        // Find all UIElement subtypes across all loaded assemblies
+        let allTypes = AssemblyInspector.findAllUIElementSubtypes ctx assemblies
 
-        printfn $"Found {allTypes.Length} FrameworkElement subtypes"
+        printfn $"Found {allTypes.Length} UIElement subtypes"
 
-        // Filter out base types and excluded types
+        // Filter out excluded types
         let typesToGenerate =
             allTypes
-            |> List.filter (fun t -> not (baseTypes |> Map.containsKey t.Name))
             |> List.filter (fun t -> not (excludedTypes |> Set.contains t.Name))
             |> List.filter (fun t -> isValidTypeName t.Name)
 

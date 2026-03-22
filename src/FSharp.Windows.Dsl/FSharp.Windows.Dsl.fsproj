@@ -6,7 +6,6 @@
     </PropertyGroup>
     <ItemGroup>
         <Compile Include="VirtualTree.fs" />
-        <Compile Include="Props.fs" />
         <Compile Include="Materializer.fs" />
         <Compile Include="Dsl.fs" />
     </ItemGroup>

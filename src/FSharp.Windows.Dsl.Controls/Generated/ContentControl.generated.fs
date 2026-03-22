@@ -11,30 +11,14 @@ open System.Windows.Controls
 open FSharp.Windows.Dsl
 
 [<RequireQualifiedAccess>]
-type TabItemProp =
-    | Base of HeaderedContentControlProp
-    | IsSelected of bool
+type ContentControlProp =
+    | Base of ControlProp
+    | Content of obj
+    | ContentTemplate of System.Windows.DataTemplate
+    | ContentTemplateSelector of System.Windows.Controls.DataTemplateSelector
+    | ContentStringFormat of string
 
-module TabItem =
-    let isSelected v : obj = box (TabItemProp.IsSelected v)
-
-    let apply (el: System.Windows.Controls.TabItem) (prop: TabItemProp) =
-        match prop with
-        | TabItemProp.Base p -> HeaderedContentControl.apply el p
-        | TabItemProp.IsSelected v -> el.SetValue(System.Windows.Controls.TabItem.IsSelectedProperty, box v)
-
-    let header v : obj =
-        box (HeaderedContentControlProp.Header v)
-
-    let headerTemplate v : obj =
-        box (HeaderedContentControlProp.HeaderTemplate v)
-
-    let headerTemplateSelector v : obj =
-        box (HeaderedContentControlProp.HeaderTemplateSelector v)
-
-    let headerStringFormat v : obj =
-        box (HeaderedContentControlProp.HeaderStringFormat v)
-
+module ContentControl =
     let content v : obj = box (ContentControlProp.Content v)
 
     let contentTemplate v : obj =
@@ -45,6 +29,17 @@ module TabItem =
 
     let contentStringFormat v : obj =
         box (ContentControlProp.ContentStringFormat v)
+
+    let apply (el: System.Windows.Controls.ContentControl) (prop: ContentControlProp) =
+        match prop with
+        | ContentControlProp.Base p -> Control.apply el p
+        | ContentControlProp.Content v -> el.SetValue(System.Windows.Controls.ContentControl.ContentProperty, box v)
+        | ContentControlProp.ContentTemplate v ->
+            el.SetValue(System.Windows.Controls.ContentControl.ContentTemplateProperty, box v)
+        | ContentControlProp.ContentTemplateSelector v ->
+            el.SetValue(System.Windows.Controls.ContentControl.ContentTemplateSelectorProperty, box v)
+        | ContentControlProp.ContentStringFormat v ->
+            el.SetValue(System.Windows.Controls.ContentControl.ContentStringFormatProperty, box v)
 
     let borderBrush v : obj = box (ControlProp.BorderBrush v)
     let borderThickness v : obj = box (ControlProp.BorderThickness v)
@@ -326,7 +321,7 @@ module TabItem =
     let create (props: obj list) : VirtualNode =
         let cs, uk, ps = VirtualTree.extractSpecialProps props
 
-        { Type = typeof<System.Windows.Controls.TabItem>
+        { Type = typeof<System.Windows.Controls.ContentControl>
           Props = ps
           Children = cs
           UserKey = uk
