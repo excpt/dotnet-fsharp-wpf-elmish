@@ -33,6 +33,23 @@ let tfmToGuard (tfm: string) =
     | t when t.StartsWith("net8") -> "NET8_0_OR_GREATER"
     | _ -> failwith $"No guard symbol for TFM: {tfm}"
 
+/// F# reserved keywords — must be escaped with double backticks.
+let private fsharpReserved =
+    set
+        [ "abstract"; "and"; "as"; "assert"; "base"; "begin"; "checked"; "class"; "default"
+          "delegate"; "do"; "done"; "downcast"; "downto"; "elif"; "else"; "end"; "exception"
+          "extern"; "false"; "finally"; "fixed"; "for"; "fun"; "function"; "global"; "if"
+          "in"; "inherit"; "inline"; "interface"; "internal"; "lazy"; "let"; "match"; "member"
+          "module"; "mutable"; "namespace"; "new"; "not"; "null"; "of"; "open"; "or"
+          "override"; "private"; "public"; "rec"; "return"; "select"; "static"; "struct"
+          "then"; "to"; "true"; "try"; "type"; "upcast"; "use"; "val"; "void"; "when"
+          "while"; "with"; "yield"; "process"; "checked"; "component"; "event"; "method"
+          "object"; "parallel"; "protected"; "sealed"; "virtual"; "volatile" ]
+
+let private toSafeCamelCase (name: string) =
+    let camel = string (Char.ToLowerInvariant(name.[0])) + name.[1..]
+    if fsharpReserved.Contains camel then $"``{camel}``" else camel
+
 /// No hand-written base types — everything is generated.
 let baseTypes = Map.empty<string, string * string>
 
@@ -121,9 +138,7 @@ let buildInheritedHelpers
         if not wasEmitted then
             None
         else
-            let fnName =
-                let n = dp.Name
-                string (Char.ToLowerInvariant(n.[0])) + n.[1..]
+            let fnName = toSafeCamelCase dp.Name
 
             Some
                 { FnName = fnName
@@ -158,7 +173,7 @@ let buildEmitInput
         |> List.choose (fun ev ->
             ev.HandlerTypeName
             |> Option.bind (fun handlerType ->
-                if handlerType.Contains('`') then
+                if handlerType.Contains('`') || handlerType.Contains('+') then
                     None
                 else
                     Some
@@ -173,9 +188,7 @@ let buildEmitInput
         |> List.filter (fun dp -> dp.IsAttached && not dp.IsReadOnly)
         |> List.filter (fun dp -> not (dp.PropertyTypeFullName.Contains('`')))
         |> List.map (fun dp ->
-            let fnName =
-                let n = dp.Name
-                string (Char.ToLowerInvariant(n.[0])) + n.[1..]
+            let fnName = toSafeCamelCase dp.Name
 
             { FnName = fnName
               DPExpression = $"{dp.OwnerTypeFullName}.{dp.FieldName}"

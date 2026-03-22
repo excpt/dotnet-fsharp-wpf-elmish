@@ -2,11 +2,30 @@ module FSharp.Windows.Dsl.Codegen.FSharpEmitter
 
 open System.Text
 
+let private fsharpReserved =
+    set
+        [ "abstract"; "and"; "as"; "assert"; "base"; "begin"; "checked"; "class"; "default"
+          "delegate"; "do"; "done"; "downcast"; "downto"; "elif"; "else"; "end"; "exception"
+          "extern"; "false"; "finally"; "fixed"; "for"; "fun"; "function"; "global"; "if"
+          "in"; "inherit"; "inline"; "interface"; "internal"; "lazy"; "let"; "match"; "member"
+          "module"; "mutable"; "namespace"; "new"; "not"; "null"; "of"; "open"; "or"
+          "override"; "private"; "public"; "rec"; "return"; "select"; "static"; "struct"
+          "then"; "to"; "true"; "try"; "type"; "upcast"; "use"; "val"; "void"; "when"
+          "while"; "with"; "yield"; "process"; "atomic"; "break"; "checked"; "component"
+          "const"; "constraint"; "constructor"; "continue"; "eager"; "event"; "external"
+          "fixed"; "method"; "mixin"; "object"; "parallel"; "protected"; "pure"; "sealed"
+          "tailcall"; "trait"; "virtual"; "volatile" ]
+
 let private toCamelCase (name: string) =
     if name.Length = 0 then
         name
     else
-        string (System.Char.ToLowerInvariant(name.[0])) + name.[1..]
+        let camel = string (System.Char.ToLowerInvariant(name.[0])) + name.[1..]
+
+        if fsharpReserved.Contains camel then
+            $"``{camel}``"
+        else
+            camel
 
 let private emitHeader (sb: StringBuilder) (input: EmitControlInput) =
     sb.AppendLine("// AUTO-GENERATED — do not edit manually") |> ignore
