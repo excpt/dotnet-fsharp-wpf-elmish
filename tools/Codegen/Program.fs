@@ -36,19 +36,91 @@ let tfmToGuard (tfm: string) =
 /// F# reserved keywords — must be escaped with double backticks.
 let private fsharpReserved =
     set
-        [ "abstract"; "and"; "as"; "assert"; "base"; "begin"; "checked"; "class"; "default"
-          "delegate"; "do"; "done"; "downcast"; "downto"; "elif"; "else"; "end"; "exception"
-          "extern"; "false"; "finally"; "fixed"; "for"; "fun"; "function"; "global"; "if"
-          "in"; "inherit"; "inline"; "interface"; "internal"; "lazy"; "let"; "match"; "member"
-          "module"; "mutable"; "namespace"; "new"; "not"; "null"; "of"; "open"; "or"
-          "override"; "private"; "public"; "rec"; "return"; "select"; "static"; "struct"
-          "then"; "to"; "true"; "try"; "type"; "upcast"; "use"; "val"; "void"; "when"
-          "while"; "with"; "yield"; "process"; "checked"; "component"; "event"; "method"
-          "object"; "parallel"; "protected"; "sealed"; "virtual"; "volatile" ]
+        [ "abstract"
+          "and"
+          "as"
+          "assert"
+          "base"
+          "begin"
+          "checked"
+          "class"
+          "default"
+          "delegate"
+          "do"
+          "done"
+          "downcast"
+          "downto"
+          "elif"
+          "else"
+          "end"
+          "exception"
+          "extern"
+          "false"
+          "finally"
+          "fixed"
+          "for"
+          "fun"
+          "function"
+          "global"
+          "if"
+          "in"
+          "inherit"
+          "inline"
+          "interface"
+          "internal"
+          "lazy"
+          "let"
+          "match"
+          "member"
+          "module"
+          "mutable"
+          "namespace"
+          "new"
+          "not"
+          "null"
+          "of"
+          "open"
+          "or"
+          "override"
+          "private"
+          "public"
+          "rec"
+          "return"
+          "select"
+          "static"
+          "struct"
+          "then"
+          "to"
+          "true"
+          "try"
+          "type"
+          "upcast"
+          "use"
+          "val"
+          "void"
+          "when"
+          "while"
+          "with"
+          "yield"
+          "process"
+          "checked"
+          "component"
+          "event"
+          "method"
+          "object"
+          "parallel"
+          "protected"
+          "sealed"
+          "virtual"
+          "volatile" ]
 
 let private toSafeCamelCase (name: string) =
     let camel = string (Char.ToLowerInvariant(name.[0])) + name.[1..]
-    if fsharpReserved.Contains camel then $"``{camel}``" else camel
+
+    if fsharpReserved.Contains camel then
+        $"``{camel}``"
+    else
+        camel
 
 /// No hand-written base types — everything is generated.
 let baseTypes = Map.empty<string, string * string>
@@ -246,21 +318,55 @@ let main argv =
     try
         let results = parser.Parse(argv)
 
+        let tfm = results.TryGetResult Tfm |> Option.defaultValue "net8.0-windows"
+
+        let extraPaths0 =
+            results.TryGetResult Assembly_Path
+            |> Option.map (fun p -> p.Split(',') |> Array.map (fun s -> s.Trim()) |> Array.toList)
+            |> Option.defaultValue []
+
+        // Resolve assembly names — support wildcards (e.g., DevExpress.Xpf.*)
         let assemblyNames =
             results.GetResult(Assembly).Split(',')
             |> Array.map (fun s -> s.Trim())
+            |> Array.collect (fun pattern ->
+                if pattern.Contains('*') then
+                    // Glob: search extra paths and runtime dirs for matching DLLs
+                    let dirs =
+                        extraPaths0
+                        @ [ try
+                                let major = tfm.Replace("net", "").Replace(".0-windows", "")
+                                yield AssemblyInspector.findRuntimeDir "Microsoft.WindowsDesktop.App" major
+                            with _ ->
+                                () ]
+
+                    dirs
+                    |> List.collect (fun dir ->
+                        if Directory.Exists(dir) then
+                            Directory.GetFiles(dir, $"{pattern}.dll")
+                            |> Array.map (fun f -> Path.GetFileNameWithoutExtension(f))
+                            |> Array.filter (fun n ->
+                                not (n.Contains("Design"))
+                                && not (n.Contains("resources"))
+                                && not (n.Contains("Themes"))
+                                && not (n.Contains("TypedStyles"))
+                                && not (n.Contains("DemoBase"))
+                                && not (n.Contains("CodeView")))
+                            |> Array.toList
+                        else
+                            [])
+                    |> List.toArray
+                else
+                    [| pattern |])
+            |> Array.distinct
             |> Array.toList
 
         let outputNamespace = results.GetResult Namespace
         let outputDir = results.GetResult Output
-        let tfm = results.TryGetResult Tfm |> Option.defaultValue "net8.0-windows"
         let baseline = results.TryGetResult Baseline
         let tfmsArg = results.TryGetResult Tfms
 
-        let extraPaths =
-            results.TryGetResult Assembly_Path
-            |> Option.map (fun p -> p.Split(',') |> Array.map (fun s -> s.Trim()) |> Array.toList)
-            |> Option.defaultValue []
+        let extraPaths = extraPaths0
 
         // Resolve first assembly to find the WPF runtime dir
         let firstAssemblyPath =
