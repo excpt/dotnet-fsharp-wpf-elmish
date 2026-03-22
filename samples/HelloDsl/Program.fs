@@ -10,9 +10,20 @@ Registration.register ()
 type Page =
     | Dashboard
     | Counter
+    | DataGridDemo
     | Settings
 
-type State = { Page: Page; Count: int }
+type Person =
+    { Id: int
+      FirstName: string
+      LastName: string
+      Age: int
+      City: string }
+
+type State =
+    { Page: Page
+      Count: int
+      People: Person list }
 
 let mutable renderCount = 0
 
@@ -71,6 +82,101 @@ let counterView count onIncrement onDecrement onReset =
                                   Button.fontSize 18.0
                                   Button.onClick onIncrement ] ] ] ] ]
 
+let firstNames =
+    [| "Alice"
+       "Bob"
+       "Charlie"
+       "Diana"
+       "Eve"
+       "Frank"
+       "Grace"
+       "Henry"
+       "Iris"
+       "Jack"
+       "Kate"
+       "Leo"
+       "Mia"
+       "Noah"
+       "Olivia"
+       "Paul"
+       "Quinn"
+       "Rose"
+       "Sam"
+       "Tina" |]
+
+let lastNames =
+    [| "Smith"
+       "Johnson"
+       "Brown"
+       "Taylor"
+       "Anderson"
+       "Thomas"
+       "Jackson"
+       "White"
+       "Harris"
+       "Martin"
+       "Garcia"
+       "Miller"
+       "Davis"
+       "Wilson"
+       "Moore"
+       "Clark" |]
+
+let cities =
+    [| "Berlin"
+       "Munich"
+       "Hamburg"
+       "Vienna"
+       "Zurich"
+       "London"
+       "Paris"
+       "Amsterdam"
+       "Prague"
+       "Stockholm"
+       "Copenhagen"
+       "Oslo"
+       "Helsinki"
+       "Dublin"
+       "Brussels" |]
+
+let generatePeople count =
+    let rng = Random()
+
+    [ for i in 1..count ->
+          { Id = i
+            FirstName = firstNames.[rng.Next(firstNames.Length)]
+            LastName = lastNames.[rng.Next(lastNames.Length)]
+            Age = rng.Next(18, 75)
+            City = cities.[rng.Next(cities.Length)] } ]
+
+let dataGridView (people: Person list) onGenerate =
+    dockPanel
+        [ DockPanel.lastChildFill true
+          DockPanel.children
+              [ DockPanel.dock
+                    Dock.Top
+                    (stackPanel
+                        [ StackPanel.orientation Orientation.Horizontal
+                          StackPanel.margin (Thickness(0.0, 0.0, 0.0, 8.0))
+                          StackPanel.children
+                              [ textBlock
+                                    [ TextBlock.text "DataGrid"
+                                      TextBlock.fontSize 20.0
+                                      TextBlock.fontWeight FontWeights.Bold
+                                      TextBlock.verticalAlignment VerticalAlignment.Center
+                                      TextBlock.margin (Thickness(0.0, 0.0, 16.0, 0.0)) ]
+                                button
+                                    [ Button.content $"Generate 10,000 records"
+                                      Button.padding (Thickness(12.0, 4.0, 12.0, 4.0))
+                                      Button.onClick onGenerate ]
+                                textBlock
+                                    [ TextBlock.text $"  ({people.Length} records)"
+                                      TextBlock.verticalAlignment VerticalAlignment.Center ] ] ])
+                dataGrid
+                    [ DataGrid.autoGenerateColumns true
+                      DataGrid.isReadOnly true
+                      DataGrid.itemsSource (people :> Collections.IEnumerable) ] ] ]
+
 let settingsView () =
     stackPanel
         [ StackPanel.children
@@ -85,7 +191,11 @@ let settingsView () =
 
 [<STAThread; EntryPoint>]
 let main _ =
-    let mutable state = { Page = Dashboard; Count = 0 }
+    let mutable state =
+        { Page = Dashboard
+          Count = 0
+          People = [] }
+
     let mutable live: LiveTree option = None
 
     let mutable renderPending = false
@@ -178,6 +288,15 @@ let main _ =
                                                                       RoutedEventHandler(fun _ _ ->
                                                                           dispatch (fun () ->
                                                                               state <- { state with Page = Settings }))
+                                                                  ) ]
+                                                            button
+                                                                [ Button.content "DataGrid"
+                                                                  Button.margin (Thickness 2.0)
+                                                                  Button.onClick (
+                                                                      RoutedEventHandler(fun _ _ ->
+                                                                          dispatch (fun () ->
+                                                                              state <-
+                                                                                  { state with Page = DataGridDemo }))
                                                                   ) ] ] ]
                                             ) ])
                                   border
@@ -196,6 +315,19 @@ let main _ =
                                                             state <- { state with Count = state.Count - 1 })))
                                                     (RoutedEventHandler(fun _ _ ->
                                                         dispatch (fun () -> state <- { state with Count = 0 })))
+                                            | DataGridDemo ->
+                                                dataGridView
+                                                    state.People
+                                                    (RoutedEventHandler(fun _ _ ->
+                                                        dispatch (fun () ->
+                                                            let sw = Stopwatch.StartNew()
+                                                            let people = generatePeople 10000
+                                                            sw.Stop()
+
+                                                            printfn
+                                                                $"[generate] 10,000 records in {sw.ElapsedMilliseconds}ms"
+
+                                                            state <- { state with People = people })))
                                             | Settings -> settingsView ()
                                         ) ] ] ]
                   ) ]
