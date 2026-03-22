@@ -1,4 +1,5 @@
 open System
+open System.Diagnostics
 open System.Windows
 open System.Windows.Controls
 open FSharp.Windows.Dsl
@@ -12,6 +13,8 @@ type Page =
     | Settings
 
 type State = { Page: Page; Count: int }
+
+let mutable renderCount = 0
 
 let dashboardView () =
     stackPanel
@@ -85,7 +88,29 @@ let main _ =
     let mutable state = { Page = Dashboard; Count = 0 }
     let mutable live: LiveTree option = None
 
-    let rec render () =
+    let mutable renderPending = false
+
+    let rec dispatch action =
+        let sw = Stopwatch.StartNew()
+        printfn $"[click] {action}"
+        action ()
+        sw.Stop()
+        printfn $"[click] done in {sw.ElapsedMilliseconds}ms"
+
+        if not renderPending then
+            renderPending <- true
+
+            Windows.Threading.Dispatcher.CurrentDispatcher.BeginInvoke(
+                Action(fun () ->
+                    renderPending <- false
+                    render ())
+            )
+            |> ignore
+
+    and render () =
+        renderCount <- renderCount + 1
+        let swTree = Stopwatch.StartNew()
+
         let view =
             window
                 [ Window.title $"F# DSL — {state.Page}"
@@ -135,27 +160,26 @@ let main _ =
                                                                   Button.margin (Thickness 2.0)
                                                                   Button.onClick (
                                                                       RoutedEventHandler(fun _ _ ->
-                                                                          state <- { state with Page = Dashboard }
-                                                                          render ())
+                                                                          dispatch (fun () ->
+                                                                              state <- { state with Page = Dashboard }))
                                                                   ) ]
                                                             button
                                                                 [ Button.content "Counter"
                                                                   Button.margin (Thickness 2.0)
                                                                   Button.onClick (
                                                                       RoutedEventHandler(fun _ _ ->
-                                                                          state <- { state with Page = Counter }
-                                                                          render ())
+                                                                          dispatch (fun () ->
+                                                                              state <- { state with Page = Counter }))
                                                                   ) ]
                                                             button
                                                                 [ Button.content "Settings"
                                                                   Button.margin (Thickness 2.0)
                                                                   Button.onClick (
                                                                       RoutedEventHandler(fun _ _ ->
-                                                                          state <- { state with Page = Settings }
-                                                                          render ())
+                                                                          dispatch (fun () ->
+                                                                              state <- { state with Page = Settings }))
                                                                   ) ] ] ]
                                             ) ])
-                                  // Main content — changes based on current page
                                   border
                                       [ Border.padding (Thickness 16.0)
                                         Border.contentChild (
@@ -165,21 +189,30 @@ let main _ =
                                                 counterView
                                                     state.Count
                                                     (RoutedEventHandler(fun _ _ ->
-                                                        state <- { state with Count = state.Count + 1 }
-                                                        render ()))
+                                                        dispatch (fun () ->
+                                                            state <- { state with Count = state.Count + 1 })))
                                                     (RoutedEventHandler(fun _ _ ->
-                                                        state <- { state with Count = state.Count - 1 }
-                                                        render ()))
+                                                        dispatch (fun () ->
+                                                            state <- { state with Count = state.Count - 1 })))
                                                     (RoutedEventHandler(fun _ _ ->
-                                                        state <- { state with Count = 0 }
-                                                        render ()))
+                                                        dispatch (fun () -> state <- { state with Count = 0 })))
                                             | Settings -> settingsView ()
                                         ) ] ] ]
                   ) ]
 
+        swTree.Stop()
+        let treeMs = swTree.ElapsedMilliseconds
+
+        let swReconcile = Stopwatch.StartNew()
+
         match live with
         | None -> live <- Some(Dsl.createLive view)
         | Some l -> Dsl.update l view
+
+        swReconcile.Stop()
+
+        printfn
+            $"[render #{renderCount}] tree={treeMs}ms reconcile={swReconcile.ElapsedMilliseconds}ms — {Reconciler.lastStats}"
 
     render ()
 

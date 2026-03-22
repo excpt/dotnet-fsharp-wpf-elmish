@@ -6,6 +6,29 @@ open System.Windows.Controls
 
 module Reconciler =
 
+    /// Reconciler statistics for the last update.
+    type Stats =
+        { mutable Skipped: int
+          mutable Replaced: int
+          mutable Created: int
+          mutable Removed: int
+          mutable ChildDiffs: int
+          mutable PropReapplied: int }
+
+        static member Zero() =
+            { Skipped = 0
+              Replaced = 0
+              Created = 0
+              Removed = 0
+              ChildDiffs = 0
+              PropReapplied = 0 }
+
+        override this.ToString() =
+            $"skip={this.Skipped} replace={this.Replaced} create={this.Created} remove={this.Removed} childDiff={this.ChildDiffs} propReapply={this.PropReapplied}"
+
+    let mutable lastStats = Stats.Zero()
+    let mutable private stats = Stats.Zero()
+
     /// Get the live child element at a given index from a parent.
     let private getChild (parent: DependencyObject) (index: int) : DependencyObject option =
         match parent with
@@ -63,27 +86,35 @@ module Reconciler =
         match oldNode, newNode with
 
         // Same reference — skip entire subtree
-        | Some old, Some newN when Object.ReferenceEquals(old, newN) -> ()
+        | Some old, Some newN when Object.ReferenceEquals(old, newN) -> stats.Skipped <- stats.Skipped + 1
 
         // Both None
         | None, None -> ()
 
         // New node — create
-        | None, Some newN -> insertChild parent index (Materializer.materialize newN)
+        | None, Some newN ->
+            stats.Created <- stats.Created + 1
+            insertChild parent index (Materializer.materialize newN)
 
         // Removed — destroy
-        | Some _, None -> removeChild parent index
+        | Some _, None ->
+            stats.Removed <- stats.Removed + 1
+            removeChild parent index
 
         // Different types — replace
         | Some old, Some newN when old.Type <> newN.Type ->
+            stats.Replaced <- stats.Replaced + 1
             replaceChild parent index (Materializer.materialize newN)
 
         // Same type, props changed — replace element (prevents duplicate event handlers)
         | Some old, Some newN when old.Props <> newN.Props ->
+            stats.Replaced <- stats.Replaced + 1
             replaceChild parent index (Materializer.materialize newN)
 
         // Same type, same props — just diff children
         | Some old, Some newN ->
+            stats.ChildDiffs <- stats.ChildDiffs + 1
+
             match getChild parent index with
             | Some el -> reconcileChildren el old.Children newN.Children
             | None -> ()
@@ -112,7 +143,15 @@ module Reconciler =
     /// Children are replaced when props change (safe for events).
     let update (rootElement: DependencyObject) (oldTree: VirtualNode) (newTree: VirtualNode) =
         if not (Object.ReferenceEquals(oldTree, newTree)) then
+            stats <- Stats.Zero()
+            let sw = System.Diagnostics.Stopwatch.StartNew()
+
             if oldTree.Props <> newTree.Props then
+                stats.PropReapplied <- stats.PropReapplied + 1
                 applyProps rootElement newTree.Props
 
             reconcileChildren rootElement oldTree.Children newTree.Children
+
+            sw.Stop()
+            lastStats <- stats
+            System.Diagnostics.Debug.WriteLine($"[Reconciler] {sw.ElapsedMilliseconds}ms — {stats}")
