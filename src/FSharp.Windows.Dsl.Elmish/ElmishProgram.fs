@@ -79,3 +79,38 @@ module Program =
         let win = getWindow ()
         win.Owner <- owner
         win.Show()
+
+    /// A child view window driven by the parent's Elmish loop.
+    /// Same model, same dispatch — just another view into the same state.
+    /// Returns an update function the parent calls on each setState.
+    type ChildView<'model, 'msg> =
+        { mutable Live: LiveTree option
+          View: 'model -> ('msg -> unit) -> VirtualNode
+          Window: Window }
+
+    /// Open a child view window driven by the parent's state.
+    /// Returns a ChildView that must be updated on each parent render.
+    let openChildView
+        (owner: Window)
+        (childView: 'model -> ('msg -> unit) -> VirtualNode)
+        (model: 'model)
+        (dispatch: 'msg -> unit)
+        =
+        let tree = childView model dispatch
+        let live = Dsl.createLive tree
+        let win = live.Root :?> Window
+        win.Owner <- owner
+        win.Show()
+
+        { Live = Some live
+          View = childView
+          Window = win }
+
+    /// Update a child view with new model/dispatch from the parent.
+    let updateChildView (child: ChildView<'model, 'msg>) (model: 'model) (dispatch: 'msg -> unit) =
+        if child.Window.IsLoaded then
+            let tree = child.View model dispatch
+
+            match child.Live with
+            | Some live -> Dsl.update live tree
+            | None -> child.Live <- Some(Dsl.createLive tree)

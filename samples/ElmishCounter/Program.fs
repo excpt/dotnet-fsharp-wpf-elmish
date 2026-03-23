@@ -136,19 +136,25 @@ type Page =
 type Model =
     { Page: Page
       Counter: Counter.Model
-      Settings: Settings.Model }
+      Settings: Settings.Model
+      ChildOpen: bool }
 
 type Msg =
     | Navigate of Page
     | CounterMsg of Counter.Msg
     | SettingsMsg of Settings.Msg
     | OpenChildWindow
+    | CloseChildWindow
 
 let init () =
     { Page = Dashboard
       Counter = Counter.init ()
-      Settings = Settings.init () },
+      Settings = Settings.init ()
+      ChildOpen = false },
     Cmd.none
+
+// Mutable child view — outside the model (side effect, managed by view)
+let mutable private childView: Program.ChildView<Model, Msg> option = None
 
 let update msg model =
     match msg with
@@ -161,25 +167,15 @@ let update msg model =
         { model with
             Settings = Settings.update msg model.Settings },
         Cmd.none
-    | OpenChildWindow ->
-        model,
-        Cmd.ofEffect (fun _ ->
-            // Child window on same UI thread, owned by main window
-            let mainWindow = Application.Current.MainWindow
+    | OpenChildWindow -> { model with ChildOpen = true }, Cmd.none
+    | CloseChildWindow ->
+        childView
+        |> Option.iter (fun c ->
+            if c.Window.IsLoaded then
+                c.Window.Close())
 
-            let childView model dispatch =
-                window
-                    [ Window.title "Counter (Independent Window)"
-                      Window.width 300.0
-                      Window.sizeToContent SizeToContent.Height
-                      Window.contentChild (
-                          border
-                              [ Border.padding (Thickness 16.0)
-                                Border.contentChild (Counter.view model dispatch) ]
-                      ) ]
-
-            Elmish.Program.mkSimple Counter.init Counter.update childView
-            |> Program.runChildWindow mainWindow)
+        childView <- None
+        { model with ChildOpen = false }, Cmd.none
 
 let dashboardView dispatch =
     stackPanel
@@ -278,6 +274,37 @@ let view model dispatch =
                                     | SettingsPage -> Settings.view model.Settings (SettingsMsg >> dispatch)
                                 ) ] ] ]
           ) ]
+
+    // Child window — same state, same dispatch. Opens/closes based on model.
+    |> fun tree ->
+        let counterChildView m (d: Msg -> unit) =
+            window
+                [ Window.title $"Counter: {m.Counter.Count} (Same State)"
+                  Window.width 350.0
+                  Window.sizeToContent SizeToContent.Height
+                  Window.contentChild (
+                      border
+                          [ Border.padding (Thickness 16.0)
+                            Border.contentChild (Counter.view m.Counter (CounterMsg >> d)) ]
+                  ) ]
+
+        if model.ChildOpen then
+            match childView with
+            | None ->
+                let mainWindow = Application.Current.MainWindow
+                let child = Program.openChildView mainWindow counterChildView model dispatch
+                child.Window.Closed.AddHandler(fun _ _ -> dispatch CloseChildWindow)
+                childView <- Some child
+            | Some child -> Program.updateChildView child model dispatch
+        else
+            childView
+            |> Option.iter (fun c ->
+                if c.Window.IsLoaded then
+                    c.Window.Close())
+
+            childView <- None
+
+        tree
 
 [<STAThread; EntryPoint>]
 let main _ =
