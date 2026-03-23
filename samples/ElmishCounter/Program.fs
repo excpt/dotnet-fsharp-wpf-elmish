@@ -180,8 +180,7 @@ let update msg model =
                                   ) ]
 
                         Elmish.Program.mkSimple Counter.init Counter.update childView
-                        |> Program.runWindow
-                        |> ignore)
+                        |> Program.runChildWindow)
                 )
 
             thread.SetApartmentState(Threading.ApartmentState.STA)

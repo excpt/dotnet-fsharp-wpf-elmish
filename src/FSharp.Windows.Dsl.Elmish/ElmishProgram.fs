@@ -10,18 +10,13 @@ open FSharp.Windows.Dsl
 [<RequireQualifiedAccess>]
 module Program =
 
-    /// Run an Elmish program in a WPF window.
-    /// The view function must return a VirtualNode whose root type is Window.
-    /// Handles: materialization, reconciliation, Dispatcher marshalling, frame coalescing.
-    let runWindow (program: Program<unit, 'model, 'msg, VirtualNode>) =
+    let private wireSetState (program: Program<_, 'model, 'msg, VirtualNode>) =
         let mutable live: LiveTree option = None
         let mutable renderPending = false
 
         let setState (model: 'model) (dispatch: 'msg -> unit) =
-            // Build virtual tree
             let tree = Program.view program model dispatch
 
-            // Coalesce: defer to next Dispatcher frame
             let doRender () =
                 match live with
                 | None -> live <- Some(Dsl.createLive tree)
@@ -41,39 +36,53 @@ module Program =
                 )
                 |> ignore
 
+        let getWindow () =
+            match live with
+            | Some l -> l.Root :?> Window
+            | None -> failwith "Program has not been initialized"
+
+        setState, getWindow
+
+    /// Run an Elmish program as the main application window.
+    /// Creates the Application and starts the message pump.
+    let runWindow (program: Program<unit, 'model, 'msg, VirtualNode>) =
+        let setState, getWindow = wireSetState program
         program |> Program.withSetState setState |> Program.run
 
         let app = Application()
-        app.Run(live.Value.Root :?> Window)
+        app.Run(getWindow ())
 
-    /// Run an Elmish program with an argument in a WPF window.
+    /// Run an Elmish program with an argument as the main application window.
     let runWindowWithArg (arg: 'arg) (program: Program<'arg, 'model, 'msg, VirtualNode>) =
-        let mutable live: LiveTree option = None
-        let mutable renderPending = false
-
-        let setState (model: 'model) (dispatch: 'msg -> unit) =
-            let tree = Program.view program model dispatch
-
-            let doRender () =
-                match live with
-                | None -> live <- Some(Dsl.createLive tree)
-                | Some l -> Dsl.update l tree
-
-            let dispatcher = Dispatcher.CurrentDispatcher
-
-            if dispatcher.CheckAccess() then
-                doRender ()
-            else if not renderPending then
-                renderPending <- true
-
-                dispatcher.BeginInvoke(
-                    Action(fun () ->
-                        renderPending <- false
-                        doRender ())
-                )
-                |> ignore
-
+        let setState, getWindow = wireSetState program
         program |> Program.withSetState setState |> Program.runWith arg
 
         let app = Application()
-        app.Run(live.Value.Root :?> Window)
+        app.Run(getWindow ())
+
+    /// Run an Elmish program as a child window (no new Application).
+    /// Use for multi-window scenarios where the main Application already exists.
+    /// The window is shown and a local Dispatcher frame runs until it closes.
+    let runChildWindow (program: Program<unit, 'model, 'msg, VirtualNode>) =
+        let setState, getWindow = wireSetState program
+        program |> Program.withSetState setState |> Program.run
+
+        let win = getWindow ()
+        win.Show()
+
+        // Run a local message pump until the window closes
+        let frame = DispatcherFrame()
+        win.Closed.AddHandler(fun _ _ -> frame.Continue <- false)
+        Dispatcher.PushFrame(frame)
+
+    /// Run an Elmish program as a child window with an argument.
+    let runChildWindowWithArg (arg: 'arg) (program: Program<'arg, 'model, 'msg, VirtualNode>) =
+        let setState, getWindow = wireSetState program
+        program |> Program.withSetState setState |> Program.runWith arg
+
+        let win = getWindow ()
+        win.Show()
+
+        let frame = DispatcherFrame()
+        win.Closed.AddHandler(fun _ _ -> frame.Continue <- false)
+        Dispatcher.PushFrame(frame)
