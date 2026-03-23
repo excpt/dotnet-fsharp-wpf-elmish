@@ -61,8 +61,8 @@ module Program =
         app.Run(getWindow ())
 
     /// Run an Elmish program as a child window owned by a parent.
-    /// Sets Window.Owner for proper minimizing/taskbar grouping.
-    /// The window is shown and a local Dispatcher frame runs until it closes.
+    /// Non-blocking — shows the window and returns immediately.
+    /// The child's Elmish loop runs on the same Dispatcher as the parent.
     let runChildWindow (owner: Window) (program: Program<unit, 'model, 'msg, VirtualNode>) =
         let setState, getWindow = wireSetState program
         program |> Program.withSetState setState |> Program.run
@@ -70,11 +70,6 @@ module Program =
         let win = getWindow ()
         win.Owner <- owner
         win.Show()
-
-        // Run a local message pump until the window closes
-        let frame = DispatcherFrame()
-        win.Closed.AddHandler(fun _ _ -> frame.Continue <- false)
-        Dispatcher.PushFrame(frame)
 
     /// Run an Elmish program as a child window with an argument.
     let runChildWindowWithArg (owner: Window) (arg: 'arg) (program: Program<'arg, 'model, 'msg, VirtualNode>) =
@@ -84,7 +79,3 @@ module Program =
         let win = getWindow ()
         win.Owner <- owner
         win.Show()
-
-        let frame = DispatcherFrame()
-        win.Closed.AddHandler(fun _ _ -> frame.Continue <- false)
-        Dispatcher.PushFrame(frame)
