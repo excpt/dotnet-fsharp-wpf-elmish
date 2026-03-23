@@ -164,27 +164,22 @@ let update msg model =
     | OpenChildWindow ->
         model,
         Cmd.ofEffect (fun _ ->
-            // Each window = its own Elmish loop on its own STA thread
-            let thread =
-                Threading.Thread(
-                    Threading.ThreadStart(fun () ->
-                        let childView model dispatch =
-                            window
-                                [ Window.title "Counter (Independent Window)"
-                                  Window.width 300.0
-                                  Window.sizeToContent SizeToContent.Height
-                                  Window.contentChild (
-                                      border
-                                          [ Border.padding (Thickness 16.0)
-                                            Border.contentChild (Counter.view model dispatch) ]
-                                  ) ]
+            // Child window on same UI thread, owned by main window
+            let mainWindow = Application.Current.MainWindow
 
-                        Elmish.Program.mkSimple Counter.init Counter.update childView
-                        |> Program.runChildWindow)
-                )
+            let childView model dispatch =
+                window
+                    [ Window.title "Counter (Independent Window)"
+                      Window.width 300.0
+                      Window.sizeToContent SizeToContent.Height
+                      Window.contentChild (
+                          border
+                              [ Border.padding (Thickness 16.0)
+                                Border.contentChild (Counter.view model dispatch) ]
+                      ) ]
 
-            thread.SetApartmentState(Threading.ApartmentState.STA)
-            thread.Start())
+            Elmish.Program.mkSimple Counter.init Counter.update childView
+            |> Program.runChildWindow mainWindow)
 
 let dashboardView dispatch =
     stackPanel

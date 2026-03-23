@@ -60,14 +60,15 @@ module Program =
         let app = Application()
         app.Run(getWindow ())
 
-    /// Run an Elmish program as a child window (no new Application).
-    /// Use for multi-window scenarios where the main Application already exists.
+    /// Run an Elmish program as a child window owned by a parent.
+    /// Sets Window.Owner for proper minimizing/taskbar grouping.
     /// The window is shown and a local Dispatcher frame runs until it closes.
-    let runChildWindow (program: Program<unit, 'model, 'msg, VirtualNode>) =
+    let runChildWindow (owner: Window) (program: Program<unit, 'model, 'msg, VirtualNode>) =
         let setState, getWindow = wireSetState program
         program |> Program.withSetState setState |> Program.run
 
         let win = getWindow ()
+        win.Owner <- owner
         win.Show()
 
         // Run a local message pump until the window closes
@@ -76,11 +77,12 @@ module Program =
         Dispatcher.PushFrame(frame)
 
     /// Run an Elmish program as a child window with an argument.
-    let runChildWindowWithArg (arg: 'arg) (program: Program<'arg, 'model, 'msg, VirtualNode>) =
+    let runChildWindowWithArg (owner: Window) (arg: 'arg) (program: Program<'arg, 'model, 'msg, VirtualNode>) =
         let setState, getWindow = wireSetState program
         program |> Program.withSetState setState |> Program.runWith arg
 
         let win = getWindow ()
+        win.Owner <- owner
         win.Show()
 
         let frame = DispatcherFrame()
