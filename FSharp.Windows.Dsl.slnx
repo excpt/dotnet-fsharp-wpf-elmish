@@ -5,6 +5,7 @@
     <Platform Name="x86" />
   </Configurations>
   <Folder Name="/samples/">
+    <Project Path="samples/ElmishCounter/ElmishCounter.fsproj" />
     <Project Path="samples/HelloDsl/HelloDsl.fsproj" />
   </Folder>
   <Folder Name="/Solution Items/">
@@ -17,6 +18,7 @@
   </Folder>
   <Folder Name="/src/">
     <Project Path="src/FSharp.Windows.Dsl.Controls/FSharp.Windows.Dsl.Controls.fsproj" />
+    <Project Path="src/FSharp.Windows.Dsl.Elmish/FSharp.Windows.Dsl.Elmish.fsproj" />
     <Project Path="src/FSharp.Windows.Dsl/FSharp.Windows.Dsl.fsproj" />
   </Folder>
   <Folder Name="/tests/">

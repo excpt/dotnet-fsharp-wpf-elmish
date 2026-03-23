@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <TargetFramework>net8.0-windows</TargetFramework>
+        <UseWPF>true</UseWPF>
+        <Description>Elmish MVU integration for FSharp.Windows.Dsl</Description>
+    </PropertyGroup>
+    <ItemGroup>
+        <Compile Include="Memo.fs" />
+        <Compile Include="ElmishProgram.fs" />
+    </ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="Elmish" />
+    </ItemGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\FSharp.Windows.Dsl\FSharp.Windows.Dsl.fsproj" />
+    </ItemGroup>
+</Project>
