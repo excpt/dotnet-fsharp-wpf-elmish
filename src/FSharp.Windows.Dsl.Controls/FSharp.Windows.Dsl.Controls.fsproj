@@ -134,6 +134,7 @@
         <Compile Include="Registration.generated.fs" />
         <Compile Include="Elements.generated.fs" />
         <Compile Include="Style.fs" />
+        <Compile Include="Build.fs" />
     </ItemGroup>
     <ItemGroup>
         <ProjectReference Include="..\FSharp.Windows.Dsl\FSharp.Windows.Dsl.fsproj" />
