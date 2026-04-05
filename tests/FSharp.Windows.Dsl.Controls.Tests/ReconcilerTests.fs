@@ -189,3 +189,122 @@ let ``reconcile updates full app tree`` () =
 
         Dsl.update live (view 42)
         (sp.Children.[0] :?> TextBlock).Text |> should equal "42")
+
+// --- Key-based reconciliation ---
+
+[<Fact>]
+let ``keyed children reorder without replacement`` () =
+    runSta (fun () ->
+        register ()
+
+        let tree1 =
+            stackPanel
+                [ StackPanel.children
+                      [ button [ Key "a"; Button.content "A" ]
+                        button [ Key "b"; Button.content "B" ]
+                        button [ Key "c"; Button.content "C" ] ] ]
+
+        let live = Dsl.createLive tree1
+        let sp = live.Root :?> StackPanel
+
+        let origA = sp.Children.[0]
+        let origB = sp.Children.[1]
+        let origC = sp.Children.[2]
+
+        // Reorder: C, A, B
+        let tree2 =
+            stackPanel
+                [ StackPanel.children
+                      [ button [ Key "c"; Button.content "C" ]
+                        button [ Key "a"; Button.content "A" ]
+                        button [ Key "b"; Button.content "B" ] ] ]
+
+        Dsl.update live tree2
+
+        sp.Children.Count |> should equal 3
+        // Elements should be reused (same instances, reordered)
+        Object.ReferenceEquals(sp.Children.[0], origC) |> should be True
+        Object.ReferenceEquals(sp.Children.[1], origA) |> should be True
+        Object.ReferenceEquals(sp.Children.[2], origB) |> should be True)
+
+[<Fact>]
+let ``keyed insert preserves existing children`` () =
+    runSta (fun () ->
+        register ()
+
+        let tree1 =
+            stackPanel
+                [ StackPanel.children
+                      [ button [ Key "a"; Button.content "A" ]
+                        button [ Key "c"; Button.content "C" ] ] ]
+
+        let live = Dsl.createLive tree1
+        let sp = live.Root :?> StackPanel
+
+        let origA = sp.Children.[0]
+        let origC = sp.Children.[1]
+
+        // Insert B between A and C
+        let tree2 =
+            stackPanel
+                [ StackPanel.children
+                      [ button [ Key "a"; Button.content "A" ]
+                        button [ Key "b"; Button.content "B" ]
+                        button [ Key "c"; Button.content "C" ] ] ]
+
+        Dsl.update live tree2
+
+        sp.Children.Count |> should equal 3
+        Object.ReferenceEquals(sp.Children.[0], origA) |> should be True
+        (sp.Children.[1] :?> Button).Content :?> string |> should equal "B"
+        Object.ReferenceEquals(sp.Children.[2], origC) |> should be True)
+
+[<Fact>]
+let ``keyed remove preserves remaining children`` () =
+    runSta (fun () ->
+        register ()
+
+        let tree1 =
+            stackPanel
+                [ StackPanel.children
+                      [ button [ Key "a"; Button.content "A" ]
+                        button [ Key "b"; Button.content "B" ]
+                        button [ Key "c"; Button.content "C" ] ] ]
+
+        let live = Dsl.createLive tree1
+        let sp = live.Root :?> StackPanel
+
+        let origA = sp.Children.[0]
+        let origC = sp.Children.[2]
+
+        // Remove B
+        let tree2 =
+            stackPanel
+                [ StackPanel.children
+                      [ button [ Key "a"; Button.content "A" ]
+                        button [ Key "c"; Button.content "C" ] ] ]
+
+        Dsl.update live tree2
+
+        sp.Children.Count |> should equal 2
+        Object.ReferenceEquals(sp.Children.[0], origA) |> should be True
+        Object.ReferenceEquals(sp.Children.[1], origC) |> should be True)
+
+[<Fact>]
+let ``keyed child prop update reuses element`` () =
+    runSta (fun () ->
+        register ()
+
+        let tree1 =
+            stackPanel [ StackPanel.children [ textBlock [ Key "title"; TextBlock.text "Old" ] ] ]
+
+        let live = Dsl.createLive tree1
+        let sp = live.Root :?> StackPanel
+
+        let tree2 =
+            stackPanel [ StackPanel.children [ textBlock [ Key "title"; TextBlock.text "New" ] ] ]
+
+        Dsl.update live tree2
+
+        sp.Children.Count |> should equal 1
+        (sp.Children.[0] :?> TextBlock).Text |> should equal "New")

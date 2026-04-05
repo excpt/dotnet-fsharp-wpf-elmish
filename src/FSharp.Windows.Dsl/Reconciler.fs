@@ -1,6 +1,7 @@
 namespace FSharp.Windows.Dsl
 
 open System
+open System.Collections.Generic
 open System.Windows
 open System.Windows.Controls
 
@@ -119,8 +120,59 @@ module Reconciler =
             | Some el -> reconcileChildren el old.Children newN.Children
             | None -> ()
 
-    /// Diff children lists by index.
-    and private reconcileChildren
+    /// Check if any children in the list have user keys.
+    and private hasKeys (children: VirtualNode list) =
+        children |> List.exists (fun c -> c.UserKey.IsSome)
+
+    /// Key-based children diffing — matches by UserKey, preserves element identity.
+    and private reconcileKeyedChildren
+        (parent: DependencyObject)
+        (oldChildren: VirtualNode list)
+        (newChildren: VirtualNode list)
+        =
+        match parent with
+        | :? Panel as panel ->
+            // Build map of old keyed children: key -> (index, node, element)
+            let oldMap = Dictionary<string, int * VirtualNode * UIElement>()
+
+            for i in 0 .. (oldChildren.Length - 1) do
+                match oldChildren.[i].UserKey with
+                | Some k -> oldMap.[k] <- (i, oldChildren.[i], panel.Children.[i])
+                | None -> ()
+
+            // Detach all old children (we'll re-insert in new order)
+            let detached = Array.init panel.Children.Count (fun i -> panel.Children.[i])
+            panel.Children.Clear()
+
+            // Process new children in order
+            for newChild in newChildren do
+                match newChild.UserKey with
+                | Some k when oldMap.ContainsKey(k) ->
+                    let (_oldIdx, oldNode, el) = oldMap.[k]
+                    // Reuse existing element — reconcile props/children in-place
+                    if oldNode.Props <> newChild.Props then
+                        stats.Replaced <- stats.Replaced + 1
+                        panel.Children.Add(Materializer.materialize newChild :?> UIElement) |> ignore
+                    else
+                        panel.Children.Add(el) |> ignore
+                        stats.ChildDiffs <- stats.ChildDiffs + 1
+                        reconcileChildren (el :> DependencyObject) oldNode.Children newChild.Children
+
+                    oldMap.Remove(k) |> ignore
+                | _ ->
+                    // New keyed child or unkeyed — create fresh
+                    stats.Created <- stats.Created + 1
+                    panel.Children.Add(Materializer.materialize newChild :?> UIElement) |> ignore
+
+            // Remaining old keys were removed
+            for kv in oldMap do
+                stats.Removed <- stats.Removed + 1
+        | _ ->
+            // Non-panel: fall back to index-based
+            reconcileIndexedChildren parent oldChildren newChildren
+
+    /// Index-based children diffing (original algorithm).
+    and private reconcileIndexedChildren
         (parent: DependencyObject)
         (oldChildren: VirtualNode list)
         (newChildren: VirtualNode list)
@@ -137,6 +189,17 @@ module Reconciler =
                     None
 
             reconcile parent i oldChild (Some newChildren.[i])
+
+    /// Diff children lists — key-based when keys present, index-based otherwise.
+    and private reconcileChildren
+        (parent: DependencyObject)
+        (oldChildren: VirtualNode list)
+        (newChildren: VirtualNode list)
+        =
+        if hasKeys oldChildren || hasKeys newChildren then
+            reconcileKeyedChildren parent oldChildren newChildren
+        else
+            reconcileIndexedChildren parent oldChildren newChildren
 
     /// Top-level: diff old tree against new tree.
     /// Root element props are re-applied in-place (root can't be replaced).
