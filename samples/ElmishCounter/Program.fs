@@ -114,14 +114,17 @@ module Settings =
                         [ CheckBox.content (
                               sprintf "Enable notifications (%s)" (if model.Notifications then "on" else "off")
                           )
+                          ToggleButton.isChecked (Nullable model.Notifications)
                           CheckBox.margin (Thickness 4.0)
                           CheckBox.onClick (RoutedEventHandler(fun _ _ -> dispatch ToggleNotifications)) ]
                     checkBox
                         [ CheckBox.content (sprintf "Dark mode (%s)" (if model.DarkMode then "on" else "off"))
+                          ToggleButton.isChecked (Nullable model.DarkMode)
                           CheckBox.margin (Thickness 4.0)
                           CheckBox.onClick (RoutedEventHandler(fun _ _ -> dispatch ToggleDarkMode)) ]
                     checkBox
                         [ CheckBox.content (sprintf "Auto-save (%s)" (if model.AutoSave then "on" else "off"))
+                          ToggleButton.isChecked (Nullable model.AutoSave)
                           CheckBox.margin (Thickness 4.0)
                           CheckBox.onClick (RoutedEventHandler(fun _ _ -> dispatch ToggleAutoSave)) ] ] ]
 
@@ -136,25 +139,19 @@ type Page =
 type Model =
     { Page: Page
       Counter: Counter.Model
-      Settings: Settings.Model
-      ChildOpen: bool }
+      Settings: Settings.Model }
 
 type Msg =
     | Navigate of Page
     | CounterMsg of Counter.Msg
     | SettingsMsg of Settings.Msg
     | OpenChildWindow
-    | CloseChildWindow
 
 let init () =
     { Page = Dashboard
       Counter = Counter.init ()
-      Settings = Settings.init ()
-      ChildOpen = false },
+      Settings = Settings.init () },
     Cmd.none
-
-// Mutable child view — outside the model (side effect, managed by view)
-let mutable private childView: Program.ChildView<Model, Msg> option = None
 
 let update msg model =
     match msg with
@@ -167,15 +164,22 @@ let update msg model =
         { model with
             Settings = Settings.update msg model.Settings },
         Cmd.none
-    | OpenChildWindow -> { model with ChildOpen = true }, Cmd.none
-    | CloseChildWindow ->
-        childView
-        |> Option.iter (fun c ->
-            if c.Window.IsLoaded then
-                c.Window.Close())
+    | OpenChildWindow ->
+        model,
+        Cmd.ofEffect (fun _ ->
+            let owner = Application.Current.MainWindow
 
-        childView <- None
-        { model with ChildOpen = false }, Cmd.none
+            Elmish.Program.mkSimple Counter.init Counter.update (fun m d ->
+                window
+                    [ Window.title $"Counter: {m.Count} (Independent Loop)"
+                      Window.width 350.0
+                      Window.sizeToContent SizeToContent.Height
+                      Window.contentChild (
+                          border
+                              [ Border.padding (Thickness 16.0)
+                                Border.contentChild (Counter.view m d) ]
+                      ) ])
+            |> Program.runChildWindow owner)
 
 let dashboardView dispatch =
     stackPanel
@@ -274,37 +278,6 @@ let view model dispatch =
                                     | SettingsPage -> Settings.view model.Settings (SettingsMsg >> dispatch)
                                 ) ] ] ]
           ) ]
-
-    // Child window — same state, same dispatch. Opens/closes based on model.
-    |> fun tree ->
-        let counterChildView m (d: Msg -> unit) =
-            window
-                [ Window.title $"Counter: {m.Counter.Count} (Same State)"
-                  Window.width 350.0
-                  Window.sizeToContent SizeToContent.Height
-                  Window.contentChild (
-                      border
-                          [ Border.padding (Thickness 16.0)
-                            Border.contentChild (Counter.view m.Counter (CounterMsg >> d)) ]
-                  ) ]
-
-        if model.ChildOpen then
-            match childView with
-            | None ->
-                let mainWindow = Application.Current.MainWindow
-                let child = Program.openChildView mainWindow counterChildView model dispatch
-                child.Window.Closed.AddHandler(fun _ _ -> dispatch CloseChildWindow)
-                childView <- Some child
-            | Some child -> Program.updateChildView child model dispatch
-        else
-            childView
-            |> Option.iter (fun c ->
-                if c.Window.IsLoaded then
-                    c.Window.Close())
-
-            childView <- None
-
-        tree
 
 [<STAThread; EntryPoint>]
 let main _ =
