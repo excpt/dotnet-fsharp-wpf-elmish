@@ -20,10 +20,12 @@
     <Project Path="src/FSharp.Windows.Dsl.Controls/FSharp.Windows.Dsl.Controls.fsproj" />
     <Project Path="src/FSharp.Windows.Dsl.Elmish/FSharp.Windows.Dsl.Elmish.fsproj" />
     <Project Path="src/FSharp.Windows.Dsl/FSharp.Windows.Dsl.fsproj" />
+    <Project Path="src/FSharp.Windows.Dsl.Testing/FSharp.Windows.Dsl.Testing.fsproj" />
   </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/FSharp.Windows.Dsl.Codegen.Tests/FSharp.Windows.Dsl.Codegen.Tests.fsproj" />
     <Project Path="tests/FSharp.Windows.Dsl.Controls.Tests/FSharp.Windows.Dsl.Controls.Tests.fsproj" />
+    <Project Path="tests/FSharp.Windows.Dsl.Elmish.Tests/FSharp.Windows.Dsl.Elmish.Tests.fsproj" />
     <Project Path="tests/FSharp.Windows.Dsl.Tests/FSharp.Windows.Dsl.Tests.fsproj" />
   </Folder>
   <Folder Name="/tools/">

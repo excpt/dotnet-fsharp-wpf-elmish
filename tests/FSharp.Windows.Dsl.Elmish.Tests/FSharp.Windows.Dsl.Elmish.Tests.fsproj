@@ -1,0 +1,31 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <TargetFramework>net8.0-windows</TargetFramework>
+        <UseWPF>true</UseWPF>
+        <IsPackable>false</IsPackable>
+    </PropertyGroup>
+    <ItemGroup>
+        <Compile Include="TestProgramTests.fs" />
+        <Compile Include="CmdTestTests.fs" />
+        <Compile Include="VirtualTreeQueryTests.fs" />
+        <Compile Include="AppBusTests.fs" />
+        <Compile Include="DebugStateTests.fs" />
+        <Compile Include="ComponentContextTests.fs" />
+        <Compile Include="DialogTests.fs" />
+        <Compile Include="CancellationTests.fs" />
+        <Compile Include="PermissionsTests.fs" />
+        <Compile Include="EntityMapTests.fs" />
+        <Compile Include="DataCacheTests.fs" />
+    </ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="xunit.v3" />
+        <PackageReference Include="xunit.runner.visualstudio" />
+        <PackageReference Include="FsUnit.xUnit" />
+    </ItemGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\..\src\FSharp.Windows.Dsl.Testing\FSharp.Windows.Dsl.Testing.fsproj" />
+        <ProjectReference Include="..\..\src\FSharp.Windows.Dsl.Controls\FSharp.Windows.Dsl.Controls.fsproj" />
+        <ProjectReference Include="..\..\src\FSharp.Windows.Dsl.Elmish\FSharp.Windows.Dsl.Elmish.fsproj" />
+    </ItemGroup>
+</Project>

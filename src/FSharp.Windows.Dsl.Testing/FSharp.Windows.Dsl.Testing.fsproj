@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <TargetFramework>net8.0-windows</TargetFramework>
+        <UseWPF>true</UseWPF>
+        <IsTestProject>false</IsTestProject>
+        <Description>Testing toolkit for FSharp.Windows.Dsl — TestProgram, CmdTest, VirtualTree queries</Description>
+    </PropertyGroup>
+    <ItemGroup>
+        <Compile Include="CmdTest.fs" />
+        <Compile Include="TestProgram.fs" />
+        <Compile Include="VirtualTreeQuery.fs" />
+    </ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="Elmish" />
+        <PackageReference Include="FsUnit.xUnit" />
+    </ItemGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\FSharp.Windows.Dsl\FSharp.Windows.Dsl.fsproj" />
+        <ProjectReference Include="..\FSharp.Windows.Dsl.Controls\FSharp.Windows.Dsl.Controls.fsproj" />
+    </ItemGroup>
+</Project>
