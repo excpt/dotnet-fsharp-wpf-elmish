@@ -18,3 +18,17 @@ module Style =
         let s = Style(typeof<'T>)
         setters |> List.iter (fun (prop, value) -> s.Setters.Add(Setter(prop, value)))
         s
+
+    /// Create a derived Style that inherits from a base Style.
+    let basedOn (baseStyle: Style) (setters: (DependencyProperty * obj) list) =
+        let s = Style(baseStyle.TargetType)
+        s.BasedOn <- baseStyle
+        setters |> List.iter (fun (prop, value) -> s.Setters.Add(Setter(prop, value)))
+        s
+
+    /// Register a typed Style as an implicit style in a ResourceDictionary.
+    let applyImplicit (resources: ResourceDictionary) (style: Style) = resources.[style.TargetType] <- style
+
+    /// Register multiple typed Styles as implicit styles.
+    let applyImplicits (resources: ResourceDictionary) (styles: Style list) =
+        styles |> List.iter (applyImplicit resources)
