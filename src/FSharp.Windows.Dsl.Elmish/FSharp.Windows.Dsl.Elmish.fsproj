@@ -5,7 +5,16 @@
         <Description>Elmish MVU integration for FSharp.Windows.Dsl</Description>
     </PropertyGroup>
     <ItemGroup>
+        <Compile Include="AppBus.fs" />
+        <Compile Include="ComponentContext.fs" />
+        <Compile Include="EntityMap.fs" />
+        <Compile Include="DataCache.fs" />
+        <Compile Include="Permissions.fs" />
+        <Compile Include="Cancellation.fs" />
+        <Compile Include="Dialog.fs" />
+        <Compile Include="DebugState.fs" />
         <Compile Include="Memo.fs" />
+        <Compile Include="HotReload.fs" />
         <Compile Include="ElmishProgram.fs" />
     </ItemGroup>
     <ItemGroup>
