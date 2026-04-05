@@ -56,3 +56,54 @@ module VirtualTree =
             else []
 
         (resolvedChildren, userKey, filtered |> Seq.toList)
+
+    // --- Query functions ---
+
+    /// Find first node of a given control type (depth-first).
+    let rec findByType (t: Type) (node: VirtualNode) : VirtualNode option =
+        if node.Type = t then
+            Some node
+        else
+            node.Children |> List.tryPick (findByType t)
+
+    /// Find all nodes of a given control type (depth-first).
+    let findAllByType (t: Type) (node: VirtualNode) : VirtualNode list =
+        let results = ResizeArray()
+
+        let rec collect (n: VirtualNode) =
+            if n.Type = t then
+                results.Add(n)
+
+            n.Children |> List.iter collect
+
+        collect node
+        results |> Seq.toList
+
+    /// Find a node by its user key (depth-first).
+    let rec findByKey (key: string) (node: VirtualNode) : VirtualNode option =
+        if node.UserKey = Some key then
+            Some node
+        else
+            node.Children |> List.tryPick (findByKey key)
+
+    /// Get children of a node.
+    let children (node: VirtualNode) : VirtualNode list = node.Children
+
+    /// Count children of a node.
+    let childCount (node: VirtualNode) : int = node.Children.Length
+
+    /// Check if a node matching the predicate exists in the tree (depth-first).
+    let rec exists (predicate: VirtualNode -> bool) (root: VirtualNode) : bool =
+        if predicate root then
+            true
+        else
+            root.Children |> List.exists (exists predicate)
+
+    /// Try to extract a value from a node's props using an extractor function.
+    /// Unwraps EventProp wrappers automatically.
+    let tryFindProp (extract: obj -> 'v option) (node: VirtualNode) : 'v option =
+        node.Props
+        |> List.tryPick (fun p ->
+            match p with
+            | :? EventProp as (EventProp inner) -> extract inner
+            | _ -> extract p)
