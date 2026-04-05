@@ -39,6 +39,10 @@ module Reconciler =
             | :? DependencyObject as d -> Some d
             | _ -> None
         | :? Decorator as d when index = 0 && not (isNull d.Child) -> Some d.Child
+        | :? Controls.ItemsControl as ic when index < ic.Items.Count ->
+            match ic.Items.[index] with
+            | :? DependencyObject as d -> Some d
+            | _ -> None
         | _ -> None
 
     /// Remove a child from a parent at the given index.
@@ -47,6 +51,7 @@ module Reconciler =
         | :? Panel as p when index < p.Children.Count -> p.Children.RemoveAt(index)
         | :? ContentControl as cc -> cc.Content <- null
         | :? Decorator as d -> d.Child <- null
+        | :? Controls.ItemsControl as ic when index < ic.Items.Count -> ic.Items.RemoveAt(index)
         | _ -> ()
 
     /// Insert a materialized child into a parent at the given index.
@@ -55,6 +60,7 @@ module Reconciler =
         | :? Panel as p -> p.Children.Insert(index, child :?> UIElement)
         | :? ContentControl as cc -> cc.Content <- child
         | :? Decorator as d -> d.Child <- child :?> UIElement
+        | :? Controls.ItemsControl as ic -> ic.Items.Insert(index, child)
         | _ -> ()
 
     /// Replace a child in a parent at the given index.
@@ -67,6 +73,11 @@ module Reconciler =
             p.Children.Insert(index, child :?> UIElement)
         | :? ContentControl as cc -> cc.Content <- child
         | :? Decorator as d -> d.Child <- child :?> UIElement
+        | :? Controls.ItemsControl as ic ->
+            if index < ic.Items.Count then
+                ic.Items.RemoveAt(index)
+
+            ic.Items.Insert(index, child)
         | _ -> ()
 
     /// Apply props to a live element (only safe for DP props on root elements).
@@ -130,45 +141,55 @@ module Reconciler =
         (oldChildren: VirtualNode list)
         (newChildren: VirtualNode list)
         =
-        match parent with
-        | :? Panel as panel ->
-            // Build map of old keyed children: key -> (index, node, element)
-            let oldMap = Dictionary<string, int * VirtualNode * UIElement>()
+        /// Keyed diffing for a collection with get/clear/add operations.
+        let inline keyedDiff
+            (count: int)
+            (getItem: int -> DependencyObject)
+            (clear: unit -> unit)
+            (add: DependencyObject -> unit)
+            =
+            let oldMap = Dictionary<string, int * VirtualNode * DependencyObject>()
 
             for i in 0 .. (oldChildren.Length - 1) do
                 match oldChildren.[i].UserKey with
-                | Some k -> oldMap.[k] <- (i, oldChildren.[i], panel.Children.[i])
-                | None -> ()
+                | Some k when i < count -> oldMap.[k] <- (i, oldChildren.[i], getItem i)
+                | _ -> ()
 
-            // Detach all old children (we'll re-insert in new order)
-            let detached = Array.init panel.Children.Count (fun i -> panel.Children.[i])
-            panel.Children.Clear()
+            clear ()
 
-            // Process new children in order
             for newChild in newChildren do
                 match newChild.UserKey with
                 | Some k when oldMap.ContainsKey(k) ->
                     let (_oldIdx, oldNode, el) = oldMap.[k]
-                    // Reuse existing element — reconcile props/children in-place
+
                     if oldNode.Props <> newChild.Props then
                         stats.Replaced <- stats.Replaced + 1
-                        panel.Children.Add(Materializer.materialize newChild :?> UIElement) |> ignore
+                        add (Materializer.materialize newChild)
                     else
-                        panel.Children.Add(el) |> ignore
+                        add el
                         stats.ChildDiffs <- stats.ChildDiffs + 1
-                        reconcileChildren (el :> DependencyObject) oldNode.Children newChild.Children
+                        reconcileChildren el oldNode.Children newChild.Children
 
                     oldMap.Remove(k) |> ignore
                 | _ ->
-                    // New keyed child or unkeyed — create fresh
                     stats.Created <- stats.Created + 1
-                    panel.Children.Add(Materializer.materialize newChild :?> UIElement) |> ignore
+                    add (Materializer.materialize newChild)
 
-            // Remaining old keys were removed
-            for kv in oldMap do
+            for _kv in oldMap do
                 stats.Removed <- stats.Removed + 1
+
+        match parent with
+        | :? Panel as panel ->
+            keyedDiff panel.Children.Count (fun i -> panel.Children.[i]) (fun () -> panel.Children.Clear()) (fun el ->
+                panel.Children.Add(el :?> UIElement) |> ignore)
+        | :? Controls.ItemsControl as ic ->
+            keyedDiff
+                ic.Items.Count
+                (fun i -> ic.Items.[i] :?> DependencyObject)
+                (fun () -> ic.Items.Clear())
+                (fun el -> ic.Items.Add(el) |> ignore)
         | _ ->
-            // Non-panel: fall back to index-based
+            // Non-collection: fall back to index-based
             reconcileIndexedChildren parent oldChildren newChildren
 
     /// Index-based children diffing (original algorithm).

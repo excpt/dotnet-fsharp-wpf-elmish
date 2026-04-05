@@ -41,6 +41,9 @@ module Materializer =
                     p.Children.Add(materialize child :?> UIElement) |> ignore
             | :? ContentControl as cc -> cc.Content <- materialize children.[0]
             | :? Decorator as d -> d.Child <- materialize children.[0] :?> UIElement
+            | :? Controls.ItemsControl as ic ->
+                for child in children do
+                    ic.Items.Add(materialize child) |> ignore
             | _ -> ()
 
     /// Recursively materialize a VirtualNode into a live WPF DependencyObject.
