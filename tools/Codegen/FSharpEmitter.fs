@@ -117,8 +117,16 @@ let private emitNamespaceAndOpens (sb: StringBuilder) (input: EmitControlInput) 
     sb.AppendLine($"namespace {input.OutputNamespace}") |> ignore
     sb.AppendLine() |> ignore
 
-    let opens =
+    let baseOpens =
         [ "System"; "System.Windows"; input.ControlNamespace; "FSharp.Windows.Dsl" ]
+
+    // When generating for a different namespace (e.g. DevExpress), open the base controls
+    // namespace so inherited prop types (UIElementProp, FrameworkElementProp, etc.) resolve.
+    let opens =
+        if input.OutputNamespace <> "FSharp.Windows.Dsl.Controls" then
+            baseOpens @ [ "FSharp.Windows.Dsl.Controls" ]
+        else
+            baseOpens
         |> List.distinct
 
     for ns in opens do
