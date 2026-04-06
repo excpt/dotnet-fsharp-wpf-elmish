@@ -46,6 +46,7 @@ module Ribbon =
 
     let createRibbon (pages: RibbonPage list) =
         let ribbon = RibbonControl()
+        ribbon.RibbonStyle <- RibbonStyle.Office2019
 
         for page in pages do
             ribbon.Items.Add(page)
@@ -228,7 +229,7 @@ let update msg model =
             let owner = Application.Current.MainWindow
 
             Elmish.Program.mkSimple Counter.init Counter.update (fun m d ->
-                window
+                FSharp.DevExpress.Wpf.Ribbon.DXRibbonWindow.create
                     [ Window.title $"Counter: {m.Count} (Independent Loop)"
                       Window.width 350.0
                       Window.sizeToContent SizeToContent.Height
