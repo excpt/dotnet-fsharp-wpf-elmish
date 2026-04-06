@@ -4,6 +4,8 @@
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
         <Authors>contributors</Authors>
         <RepositoryUrl>https://github.com/excpt/dotnet-fsharp-wpf-elmish</RepositoryUrl>
+        <PackageProjectUrl>https://github.com/excpt/dotnet-fsharp-wpf-elmish</PackageProjectUrl>
+        <PackageTags>fsharp;wpf;elmish;mvu;dsl;functional</PackageTags>
         <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
         <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
         <Version>0.1.0</Version>
@@ -18,5 +20,9 @@
     <ItemGroup>
         <PackageReference Include="FSharp.Core" />
         <PackageReference Include="Microsoft.SourceLink.GitHub" PrivateAssets="All" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <None Include="$(MSBuildThisFileDirectory)README.md" Pack="true" PackagePath="\" />
     </ItemGroup>
 </Project>

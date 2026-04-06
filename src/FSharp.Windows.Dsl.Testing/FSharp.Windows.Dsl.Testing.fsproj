@@ -3,6 +3,7 @@
         <TargetFramework>net8.0-windows</TargetFramework>
         <UseWPF>true</UseWPF>
         <IsTestProject>false</IsTestProject>
+        <IsPackable>true</IsPackable>
         <Description>Testing toolkit for FSharp.Windows.Dsl — TestProgram, CmdTest, VirtualTree queries</Description>
     </PropertyGroup>
     <ItemGroup>
