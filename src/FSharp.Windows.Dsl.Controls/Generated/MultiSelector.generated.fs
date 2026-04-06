@@ -20,6 +20,7 @@ module MultiSelector =
         match prop with
         | MultiSelectorProp.Base p -> Selector.apply el p
 
+    let isSynchronizedWithCurrentItem v : obj = box (SelectorProp.IsSynchronizedWithCurrentItem v)
     let selectedIndex v : obj = box (SelectorProp.SelectedIndex v)
     let selectedItem v : obj = box (SelectorProp.SelectedItem v)
     let selectedValue v : obj = box (SelectorProp.SelectedValue v)

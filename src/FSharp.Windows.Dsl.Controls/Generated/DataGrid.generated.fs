@@ -158,6 +158,7 @@ module DataGrid =
         | DataGridProp.DropLocationIndicatorStyle v -> el.SetValue(System.Windows.Controls.DataGrid.DropLocationIndicatorStyleProperty, box v)
         | DataGridProp.ClipboardCopyMode v -> el.SetValue(System.Windows.Controls.DataGrid.ClipboardCopyModeProperty, box v)
 
+    let isSynchronizedWithCurrentItem v : obj = box (SelectorProp.IsSynchronizedWithCurrentItem v)
     let selectedIndex v : obj = box (SelectorProp.SelectedIndex v)
     let selectedItem v : obj = box (SelectorProp.SelectedItem v)
     let selectedValue v : obj = box (SelectorProp.SelectedValue v)

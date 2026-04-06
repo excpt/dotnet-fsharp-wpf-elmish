@@ -114,17 +114,17 @@ module Settings =
                         [ CheckBox.content (
                               sprintf "Enable notifications (%s)" (if model.Notifications then "on" else "off")
                           )
-                          ToggleButton.isChecked (Nullable model.Notifications)
+                          CheckBox.isChecked (Nullable model.Notifications)
                           CheckBox.margin (Thickness 4.0)
                           CheckBox.onClick (RoutedEventHandler(fun _ _ -> dispatch ToggleNotifications)) ]
                     checkBox
                         [ CheckBox.content (sprintf "Dark mode (%s)" (if model.DarkMode then "on" else "off"))
-                          ToggleButton.isChecked (Nullable model.DarkMode)
+                          CheckBox.isChecked (Nullable model.DarkMode)
                           CheckBox.margin (Thickness 4.0)
                           CheckBox.onClick (RoutedEventHandler(fun _ _ -> dispatch ToggleDarkMode)) ]
                     checkBox
                         [ CheckBox.content (sprintf "Auto-save (%s)" (if model.AutoSave then "on" else "off"))
-                          ToggleButton.isChecked (Nullable model.AutoSave)
+                          CheckBox.isChecked (Nullable model.AutoSave)
                           CheckBox.margin (Thickness 4.0)
                           CheckBox.onClick (RoutedEventHandler(fun _ _ -> dispatch ToggleAutoSave)) ] ] ]
 
@@ -175,9 +175,7 @@ let update msg model =
                       Window.width 350.0
                       Window.sizeToContent SizeToContent.Height
                       Window.contentChild (
-                          border
-                              [ Border.padding (Thickness 16.0)
-                                Border.contentChild (Counter.view m d) ]
+                          border [ Border.padding (Thickness 16.0); Border.contentChild (Counter.view m d) ]
                       ) ])
             |> Program.runChildWindow owner)
 

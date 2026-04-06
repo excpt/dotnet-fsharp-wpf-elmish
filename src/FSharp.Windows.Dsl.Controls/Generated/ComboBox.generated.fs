@@ -41,6 +41,7 @@ module ComboBox =
         | ComboBoxProp.IsReadOnly v -> el.SetValue(System.Windows.Controls.ComboBox.IsReadOnlyProperty, box v)
         | ComboBoxProp.StaysOpenOnEdit v -> el.SetValue(System.Windows.Controls.ComboBox.StaysOpenOnEditProperty, box v)
 
+    let isSynchronizedWithCurrentItem v : obj = box (SelectorProp.IsSynchronizedWithCurrentItem v)
     let selectedIndex v : obj = box (SelectorProp.SelectedIndex v)
     let selectedItem v : obj = box (SelectorProp.SelectedItem v)
     let selectedValue v : obj = box (SelectorProp.SelectedValue v)

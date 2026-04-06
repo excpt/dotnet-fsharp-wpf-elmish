@@ -23,6 +23,7 @@ module RadioButton =
         | RadioButtonProp.Base p -> ToggleButton.apply el p
         | RadioButtonProp.GroupName v -> el.SetValue(System.Windows.Controls.RadioButton.GroupNameProperty, box v)
 
+    let isChecked v : obj = box (ToggleButtonProp.IsChecked v)
     let isThreeState v : obj = box (ToggleButtonProp.IsThreeState v)
     let command v : obj = box (ButtonBaseProp.Command v)
     let commandParameter v : obj = box (ButtonBaseProp.CommandParameter v)

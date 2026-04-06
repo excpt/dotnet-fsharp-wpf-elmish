@@ -26,6 +26,7 @@ module ListBox =
         | ListBoxProp.SelectionMode v -> el.SetValue(System.Windows.Controls.ListBox.SelectionModeProperty, box v)
         | ListBoxProp.SelectedItems v -> el.SetValue(System.Windows.Controls.ListBox.SelectedItemsProperty, box v)
 
+    let isSynchronizedWithCurrentItem v : obj = box (SelectorProp.IsSynchronizedWithCurrentItem v)
     let selectedIndex v : obj = box (SelectorProp.SelectedIndex v)
     let selectedItem v : obj = box (SelectorProp.SelectedItem v)
     let selectedValue v : obj = box (SelectorProp.SelectedValue v)

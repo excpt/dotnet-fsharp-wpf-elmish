@@ -192,7 +192,6 @@ let buildInheritedHelpers
     allDPs
     |> List.filter (fun dp -> not dp.IsAttached && not dp.IsReadOnly)
     |> List.filter (fun dp -> not (ownDPNames.Contains dp.Name))
-    |> List.filter (fun dp -> not (dp.PropertyTypeFullName.Contains('`')))
     |> List.choose (fun dp ->
         let duName = propDUName dp.OwnerTypeName
         let duCase = $"{duName}.{dp.Name}"
@@ -490,7 +489,6 @@ let main argv =
                 let emitted =
                     ownDPs
                     |> List.filter (fun dp -> not dp.IsAttached && not dp.IsReadOnly)
-                    |> List.filter (fun dp -> not (dp.PropertyTypeFullName.Contains('`')))
                     |> List.map (fun dp -> dp.Name)
                     |> Set.ofList
 
