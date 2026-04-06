@@ -63,6 +63,7 @@ generate_package() {
     fi
 
     echo -n "$PKG_NAME... "
+    rm -rf "$GEN_DIR"
     mkdir -p "$GEN_DIR"
 
     if ! dotnet run --project "$CODEGEN" -- \
@@ -220,10 +221,12 @@ generate_package "Office" \
     "DevExpress.Wpf.Office" \
     "Core"
 
-generate_package "DataAccess" \
-    "DevExpress.Xpf.DataAccess.$V" \
-    "DevExpress.Wpf.Core" \
-    "Core"
+# DataAccess skipped — wizard UI types reference non-WPF assemblies
+# and are not useful in a declarative DSL.
+# generate_package "DataAccess" \
+#     "DevExpress.Xpf.DataAccess.$V" \
+#     "DevExpress.Wpf.Core,DevExpress.DataAccess" \
+#     "Core"
 
 generate_package "ExpressionEditor" \
     "DevExpress.Xpf.ExpressionEditor.$V" \

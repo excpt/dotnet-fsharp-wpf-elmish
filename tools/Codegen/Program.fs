@@ -169,7 +169,14 @@ let excludedTypes =
           "DragWidget"
           "ThemedWindowSizeGrip"
           // Namespace collision — FlyoutBase exists in multiple DX namespaces
-          "MenuFlyout" ]
+          "MenuFlyout"
+          // Ruler hierarchy resolves to wrong parent (AdornerLayer) via MetadataLoadContext
+          "Ruler"
+          "HorizontalRuler"
+          "VerticalRuler"
+          // VerticalHeaderControl inherits from Scheduler.Drawing.HeaderControl, but dedup
+          // keeps Scheduling.Visual.HeaderControl (parent of more types) — incompatible
+          "VerticalHeaderControl" ]
 
 /// Skip types with backticks (generic types like PageFunction`1).
 let isValidTypeName (name: string) = not (name.Contains('`'))
@@ -184,13 +191,16 @@ let private isWpfType (t: Type) =
 /// Resolve the parent prop name and apply function for a type.
 /// Walks up the hierarchy to find the nearest generated ancestor —
 /// either from this generation run or from the base WPF Controls package.
+/// Skips candidates with the same short name as `t` to prevent self-referencing
+/// Base cases when two types share a short name (e.g., VisualElements.ControlBoxButton
+/// vs Docking.ControlBoxButton).
 let resolveParent (generatedTypeNames: Set<string>) (t: Type) =
     let rec findParent (candidate: Type) =
         if isNull candidate || candidate.Name = hierarchyRoot then
             None, None
-        elif generatedTypeNames |> Set.contains candidate.Name then
+        elif candidate.Name <> t.Name && generatedTypeNames |> Set.contains candidate.Name then
             Some $"{candidate.Name}Prop", Some $"{candidate.Name}.apply"
-        elif isWpfType candidate && isValidTypeName candidate.Name then
+        elif candidate.Name <> t.Name && isWpfType candidate && isValidTypeName candidate.Name then
             // Parent from the base Controls package (referenced via ProjectReference)
             Some $"{candidate.Name}Prop", Some $"{candidate.Name}.apply"
         else
@@ -496,7 +506,7 @@ let main argv =
         printfn $"Found {allTypes.Length} UIElement subtypes"
 
         // Filter out excluded types and types that can't be resolved at compile time
-        let typesToGenerate =
+        let filteredTypes =
             allTypes
             |> List.filter (fun t -> not (excludedTypes |> Set.contains t.Name))
             |> List.filter (fun t -> isValidTypeName t.Name)
@@ -510,10 +520,49 @@ let main argv =
                         || t.Namespace.Contains(".Native")
                         || t.Namespace.Contains(".Base"))
                 ))
-            // Deduplicate by short name — keep the shallowest type (most public)
+
+        // Count how many types reference each FullName as a parent.
+        // Used during dedup to prefer the variant that's actually in the hierarchy.
+        let parentRefCounts =
+            filteredTypes
+            |> List.collect (fun t ->
+                let mutable parents = []
+                let mutable curr = t.BaseType
+
+                while not (isNull curr) do
+                    if not (isNull curr.FullName) then
+                        parents <- curr.FullName :: parents
+
+                    curr <- curr.BaseType
+
+                parents)
+            |> List.countBy id
+            |> Map.ofList
+
+        // Deduplicate by short name — prefer the type that's actually used as a
+        // parent by the most other types (ensures child apply calls are compatible).
+        // Fall back to shortest FullName when neither is a parent.
+        let typesToGenerate =
+            filteredTypes
             |> List.groupBy (fun t -> t.Name)
             |> List.map (fun (_, types) ->
-                types |> List.minBy (fun t -> t.FullName.Length))
+                if types.Length = 1 then
+                    types.[0]
+                else
+                    let withCounts =
+                        types
+                        |> List.map (fun t ->
+                            let count =
+                                parentRefCounts |> Map.tryFind t.FullName |> Option.defaultValue 0
+
+                            t, count)
+
+                    let maxCount = withCounts |> List.maxBy snd |> snd
+
+                    if maxCount > 0 then
+                        withCounts |> List.maxBy snd |> fst
+                    else
+                        types |> List.minBy (fun t -> t.FullName.Length))
 
         printfn $"Generating {typesToGenerate.Length} types (excluding base types and excluded)"
 
