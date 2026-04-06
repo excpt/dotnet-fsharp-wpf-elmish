@@ -55,6 +55,18 @@ cat > "$(dirname "$OUTPUT_ROOT")/Directory.Build.props" << 'DBP'
 </Project>
 DBP
 
+# Shared output directory — all packages build into _build/ to avoid
+# duplicating DevExpress NuGet DLLs across 26 project bin dirs.
+cat > "$OUTPUT_ROOT/Directory.Build.props" << 'DBP'
+<Project>
+    <Import Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../'))" />
+    <PropertyGroup>
+        <BaseOutputPath>$(MSBuildThisFileDirectory)_build\bin\</BaseOutputPath>
+        <UseCommonOutputDirectory>true</UseCommonOutputDirectory>
+    </PropertyGroup>
+</Project>
+DBP
+
 TOTAL=0
 
 # ─── generate_package SUFFIX "codegen-assemblies" "nuget-packages" "dep-suffixes" ───

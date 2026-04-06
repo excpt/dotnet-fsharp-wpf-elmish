@@ -1,0 +1,63 @@
+<Solution>
+  <Configurations>
+    <Platform Name="Any CPU" />
+    <Platform Name="x64" />
+    <Platform Name="x86" />
+  </Configurations>
+  <Folder Name="/samples/">
+    <Project Path="samples/ElmishCounter/ElmishCounter.fsproj" />
+    <Project Path="samples/HelloDsl/HelloDsl.fsproj" />
+    <Project Path="samples/LobForm/LobForm.fsproj" />
+  </Folder>
+  <Folder Name="/Solution Items/">
+    <File Path="CLAUDE.md" />
+    <File Path="CHANGELOG.md" />
+    <File Path="Directory.Build.props" />
+    <File Path="Directory.Packages.props" />
+    <File Path="dotnet-tools.json" />
+    <File Path="LICENSE" />
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="src/FSharp.Windows.Dsl.Controls/FSharp.Windows.Dsl.Controls.fsproj" />
+    <Project Path="src/FSharp.Windows.Dsl.Elmish/FSharp.Windows.Dsl.Elmish.fsproj" />
+    <Project Path="src/FSharp.Windows.Dsl/FSharp.Windows.Dsl.fsproj" />
+    <Project Path="src/FSharp.Windows.Dsl.Testing/FSharp.Windows.Dsl.Testing.fsproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/FSharp.Windows.Dsl.Codegen.Tests/FSharp.Windows.Dsl.Codegen.Tests.fsproj" />
+    <Project Path="tests/FSharp.Windows.Dsl.Controls.Tests/FSharp.Windows.Dsl.Controls.Tests.fsproj" />
+    <Project Path="tests/FSharp.Windows.Dsl.Elmish.Tests/FSharp.Windows.Dsl.Elmish.Tests.fsproj" />
+    <Project Path="tests/FSharp.Windows.Dsl.Tests/FSharp.Windows.Dsl.Tests.fsproj" />
+  </Folder>
+  <Folder Name="/tools/">
+    <Project Path="tools/Codegen/FSharp.Windows.Dsl.Codegen.fsproj" />
+  </Folder>
+  <Folder Name="/vendor/DevExpress/">
+    <Project Path="vendor/FSharp.DevExpress.Wpf/FSharp.DevExpress.Wpf.Core/FSharp.DevExpress.Wpf.Core.fsproj" />
+    <Project Path="vendor/FSharp.DevExpress.Wpf/FSharp.DevExpress.Wpf.Grid/FSharp.DevExpress.Wpf.Grid.fsproj" />
+    <Project Path="vendor/FSharp.DevExpress.Wpf/FSharp.DevExpress.Wpf.Ribbon/FSharp.DevExpress.Wpf.Ribbon.fsproj" />
+    <Project Path="vendor/FSharp.DevExpress.Wpf/FSharp.DevExpress.Wpf.Docking/FSharp.DevExpress.Wpf.Docking.fsproj" />
+    <Project Path="vendor/FSharp.DevExpress.Wpf/FSharp.DevExpress.Wpf.Charts/FSharp.DevExpress.Wpf.Charts.fsproj" />
+    <Project Path="vendor/FSharp.DevExpress.Wpf/FSharp.DevExpress.Wpf.Diagram/FSharp.DevExpress.Wpf.Diagram.fsproj" />
+    <Project Path="vendor/FSharp.DevExpress.Wpf/FSharp.DevExpress.Wpf.Gauges/FSharp.DevExpress.Wpf.Gauges.fsproj" />
+    <Project Path="vendor/FSharp.DevExpress.Wpf/FSharp.DevExpress.Wpf.Map/FSharp.DevExpress.Wpf.Map.fsproj" />
+    <Project Path="vendor/FSharp.DevExpress.Wpf/FSharp.DevExpress.Wpf.NavBar/FSharp.DevExpress.Wpf.NavBar.fsproj" />
+    <Project Path="vendor/FSharp.DevExpress.Wpf/FSharp.DevExpress.Wpf.PivotGrid/FSharp.DevExpress.Wpf.PivotGrid.fsproj" />
+    <Project Path="vendor/FSharp.DevExpress.Wpf/FSharp.DevExpress.Wpf.Printing/FSharp.DevExpress.Wpf.Printing.fsproj" />
+    <Project Path="vendor/FSharp.DevExpress.Wpf/FSharp.DevExpress.Wpf.PropertyGrid/FSharp.DevExpress.Wpf.PropertyGrid.fsproj" />
+    <Project Path="vendor/FSharp.DevExpress.Wpf/FSharp.DevExpress.Wpf.Scheduler/FSharp.DevExpress.Wpf.Scheduler.fsproj" />
+    <Project Path="vendor/FSharp.DevExpress.Wpf/FSharp.DevExpress.Wpf.LayoutControl/FSharp.DevExpress.Wpf.LayoutControl.fsproj" />
+    <Project Path="vendor/FSharp.DevExpress.Wpf/FSharp.DevExpress.Wpf.Accordion/FSharp.DevExpress.Wpf.Accordion.fsproj" />
+    <Project Path="vendor/FSharp.DevExpress.Wpf/FSharp.DevExpress.Wpf.Carousel/FSharp.DevExpress.Wpf.Carousel.fsproj" />
+    <Project Path="vendor/FSharp.DevExpress.Wpf/FSharp.DevExpress.Wpf.SpellChecker/FSharp.DevExpress.Wpf.SpellChecker.fsproj" />
+    <Project Path="vendor/FSharp.DevExpress.Wpf/FSharp.DevExpress.Wpf.TreeMap/FSharp.DevExpress.Wpf.TreeMap.fsproj" />
+    <Project Path="vendor/FSharp.DevExpress.Wpf/FSharp.DevExpress.Wpf.Dialogs/FSharp.DevExpress.Wpf.Dialogs.fsproj" />
+    <Project Path="vendor/FSharp.DevExpress.Wpf/FSharp.DevExpress.Wpf.Office/FSharp.DevExpress.Wpf.Office.fsproj" />
+    <Project Path="vendor/FSharp.DevExpress.Wpf/FSharp.DevExpress.Wpf.ExpressionEditor/FSharp.DevExpress.Wpf.ExpressionEditor.fsproj" />
+    <Project Path="vendor/FSharp.DevExpress.Wpf/FSharp.DevExpress.Wpf.Gantt/FSharp.DevExpress.Wpf.Gantt.fsproj" />
+    <Project Path="vendor/FSharp.DevExpress.Wpf/FSharp.DevExpress.Wpf.PdfViewer/FSharp.DevExpress.Wpf.PdfViewer.fsproj" />
+    <Project Path="vendor/FSharp.DevExpress.Wpf/FSharp.DevExpress.Wpf.RichEdit/FSharp.DevExpress.Wpf.RichEdit.fsproj" />
+    <Project Path="vendor/FSharp.DevExpress.Wpf/FSharp.DevExpress.Wpf.Spreadsheet/FSharp.DevExpress.Wpf.Spreadsheet.fsproj" />
+    <Project Path="vendor/FSharp.DevExpress.Wpf/FSharp.DevExpress.Wpf.Dashboard/FSharp.DevExpress.Wpf.Dashboard.fsproj" />
+  </Folder>
+</Solution>
