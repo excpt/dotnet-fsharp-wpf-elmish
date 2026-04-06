@@ -7,7 +7,7 @@ open FSharp.Windows.Dsl.Controls
 open FSharp.Windows.Dsl.Elmish
 open FSharp.DevExpress.Wpf.Core
 
-Registration.register ()
+FSharp.Windows.Dsl.Controls.Registration.register ()
 FSharp.DevExpress.Wpf.Core.Registration.register ()
 
 // DX theme — must be set before any DX controls are created.
@@ -15,8 +15,6 @@ FSharp.DevExpress.Wpf.Core.Registration.register ()
 DevExpress.Xpf.Core.ApplicationThemeHelper.ApplicationThemeName <-
     DevExpress.Xpf.Core.Theme.Office2019ColorfulName
 
-// Ensure DX compatibility mode for standard WPF controls
-DevExpress.Xpf.Core.ClearAutomationEventsHelper.IsEnabled <- true
 
 // ============================================================
 // Counter Component — DX SimpleButton + DX SpinEdit

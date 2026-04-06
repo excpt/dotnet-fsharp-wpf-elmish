@@ -333,6 +333,10 @@ let emitElements (ns: string) (controls: (string * string) list) : string =
     sb.ToString()
 
 /// Generate the Registration.fs module (register all apply functions with Materializer).
+/// When generating for a third-party namespace (not FSharp.Windows.Dsl.Controls),
+/// WPF base types (System.Windows.*) are excluded — they're already registered
+/// by the base Controls package and re-registering would overwrite with incompatible
+/// prop types that share the same short name.
 let emitRegistration (ns: string) (controls: (string * string * string) list) : string =
     let sb = StringBuilder()
     sb.AppendLine("// AUTO-GENERATED — do not edit manually") |> ignore
@@ -349,8 +353,14 @@ let emitRegistration (ns: string) (controls: (string * string * string) list) : 
 
     sb.AppendLine("    let register () =") |> ignore
 
+    let isThirdParty = ns <> "FSharp.Windows.Dsl.Controls"
+
     for controlFullName, propTypeName, moduleName in controls do
-        sb.AppendLine($"        Materializer.registerApply<{controlFullName}, {propTypeName}> {moduleName}.apply")
-        |> ignore
+        // Skip WPF base types in third-party packages — already registered by base Controls
+        if not (isThirdParty && controlFullName.StartsWith("System.Windows.")) then
+            sb.AppendLine(
+                $"        Materializer.registerApply<{controlFullName}, {propTypeName}> {moduleName}.apply"
+            )
+            |> ignore
 
     sb.ToString()
