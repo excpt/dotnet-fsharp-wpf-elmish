@@ -2,6 +2,7 @@ namespace FSharp.Windows.Dsl
 
 open System
 open System.Collections.Generic
+open System.Reflection
 open System.Windows
 open System.Windows.Controls
 
@@ -97,9 +98,29 @@ module Reconciler =
         | :? EventProp as (EventProp inner) -> inner.GetType() :> obj
         | _ -> p.GetType() :> obj
 
+    /// Swap an event handler on a live element using reflection.
+    /// Extracts event name from F# DU case name (OnXxx → Xxx),
+    /// calls RemoveHandler(old) + AddHandler(new) via the CLR event.
+    let private swapEventHandler (el: DependencyObject) (oldInner: obj) (newInner: obj) =
+        let caseName = oldInner.GetType().Name
+
+        if caseName.StartsWith("On") && caseName.Length > 2 then
+            let eventName = caseName.Substring(2)
+            let evInfo = el.GetType().GetEvent(eventName)
+
+            if not (isNull evInfo) then
+                let itemProp = oldInner.GetType().GetProperty("Item")
+
+                if not (isNull itemProp) then
+                    match itemProp.GetValue(oldInner), itemProp.GetValue(newInner) with
+                    | (:? Delegate as oldH), (:? Delegate as newH) when not (Object.ReferenceEquals(oldH, newH)) ->
+                        evInfo.RemoveEventHandler(el, oldH)
+                        evInfo.AddEventHandler(el, newH)
+                    | _ -> ()
+
     /// Diff old and new props, applying only changes in-place.
     /// Value props: re-apply changed ones (SetValue is idempotent).
-    /// Event props: skip — applied on creation, handler captures stable dispatch.
+    /// Event props: swap handlers via RemoveHandler + AddHandler (solves stale closures).
     /// AttachedProps: re-apply changed ones (SetValue is idempotent).
     let private diffAndApplyProps (el: DependencyObject) (oldProps: obj list) (newProps: obj list) =
         // Build map of old props by key for O(1) lookup
@@ -111,7 +132,12 @@ module Reconciler =
         // Apply new props that differ from old
         for p in newProps do
             match p with
-            | :? EventProp -> () // Skip events — applied on element creation
+            | :? EventProp as (EventProp newInner) ->
+                let key = propKey p
+
+                match oldMap.TryGetValue(key) with
+                | true, (:? EventProp as (EventProp oldInner)) -> swapEventHandler el oldInner newInner
+                | _ -> Materializer.applyProp el newInner
             | :? AttachedProp as (AttachedProp(dp, value)) ->
                 match oldMap.TryGetValue(dp :> obj) with
                 | true, (:? AttachedProp as (AttachedProp(_, oldValue))) when oldValue = value -> ()

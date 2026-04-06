@@ -195,6 +195,31 @@ let discoverEvents (controlType: Type) : EventInfo list =
                     Some e.EventHandlerType.FullName) })
     |> Array.toList
 
+/// Discover CLR events on a type that don't have corresponding RoutedEvent fields.
+/// These are events like Window.Closing that are pure CLR events without a static RoutedEvent.
+let discoverClrEvents (controlType: Type) (routedEventNames: Set<string>) : EventInfo list =
+    controlType.GetEvents(BindingFlags.Public ||| BindingFlags.Instance)
+    |> Array.filter (fun e -> not (routedEventNames.Contains e.Name))
+    |> Array.map (fun e ->
+        { Name = e.Name
+          FieldName = ""
+          OwnerTypeName = e.DeclaringType.Name
+          HandlerTypeName =
+            if isNull e.EventHandlerType then
+                None
+            elif isNull e.EventHandlerType.FullName then
+                Some e.EventHandlerType.Name
+            else
+                Some e.EventHandlerType.FullName })
+    |> Array.toList
+
+/// Discover all events on a type — routed events plus CLR-only events, deduplicated.
+let discoverAllEvents (controlType: Type) : EventInfo list =
+    let routedEvents = discoverEvents controlType
+    let routedNames = routedEvents |> List.map (fun e -> e.Name) |> Set.ofList
+    let clrEvents = discoverClrEvents controlType routedNames
+    routedEvents @ clrEvents
+
 /// Check if a type is a subclass of the named base type (by walking BaseType chain).
 let rec private isSubclassOfByName (baseTypeName: string) (t: Type) =
     if isNull t then false

@@ -397,3 +397,65 @@ let ``keyed child value prop change preserves element identity`` () =
 
         Object.ReferenceEquals(sp.Children.[0], origTb) |> should be True
         (sp.Children.[0] :?> TextBlock).Text |> should equal "New")
+
+// --- Event handler refresh ---
+
+[<Fact>]
+let ``event handler is refreshed on reconciliation`` () =
+    runSta (fun () ->
+        register ()
+
+        let mutable lastValue = 0
+
+        let tree1 =
+            stackPanel
+                [ StackPanel.children
+                      [ button
+                            [ Button.content "Click"
+                              Button.onClick (RoutedEventHandler(fun _ _ -> lastValue <- 1)) ] ] ]
+
+        let live = Dsl.createLive tree1
+        let sp = live.Root :?> StackPanel
+        let btn = sp.Children.[0] :?> Button
+
+        // Raise click — should call first handler
+        btn.RaiseEvent(RoutedEventArgs(Controls.Primitives.ButtonBase.ClickEvent))
+        lastValue |> should equal 1
+
+        // Update with new handler that sets a different value
+        let tree2 =
+            stackPanel
+                [ StackPanel.children
+                      [ button
+                            [ Button.content "Click"
+                              Button.onClick (RoutedEventHandler(fun _ _ -> lastValue <- 2)) ] ] ]
+
+        Dsl.update live tree2
+
+        // Raise click — should call NEW handler only
+        btn.RaiseEvent(RoutedEventArgs(Controls.Primitives.ButtonBase.ClickEvent))
+        lastValue |> should equal 2)
+
+[<Fact>]
+let ``event handler refresh preserves element identity`` () =
+    runSta (fun () ->
+        register ()
+
+        let tree1 =
+            stackPanel
+                [ StackPanel.children
+                      [ button [ Button.content "A"; Button.onClick (RoutedEventHandler(fun _ _ -> ())) ] ] ]
+
+        let live = Dsl.createLive tree1
+        let sp = live.Root :?> StackPanel
+        let origBtn = sp.Children.[0]
+
+        let tree2 =
+            stackPanel
+                [ StackPanel.children
+                      [ button [ Button.content "A"; Button.onClick (RoutedEventHandler(fun _ _ -> ())) ] ] ]
+
+        Dsl.update live tree2
+
+        // Same element — event swap, not replacement
+        Object.ReferenceEquals(sp.Children.[0], origBtn) |> should be True)

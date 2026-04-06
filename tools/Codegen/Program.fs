@@ -186,7 +186,8 @@ let isValidTypeName (name: string) = not (name.Contains('`'))
 let private isWpfType (t: Type) =
     not (isNull t)
     && not (isNull t.Namespace)
-    && (t.Namespace.StartsWith("System.Windows") || t.Namespace.StartsWith("System.Windows.Controls"))
+    && (t.Namespace.StartsWith("System.Windows")
+        || t.Namespace.StartsWith("System.Windows.Controls"))
 
 /// Resolve the parent prop name and apply function for a type.
 /// Walks up the hierarchy to find the nearest generated ancestor —
@@ -200,18 +201,19 @@ let resolveParent (generatedTypeNames: Set<string>) (t: Type) =
             None, None
         elif candidate.Name <> t.Name && generatedTypeNames |> Set.contains candidate.Name then
             Some $"{candidate.Name}Prop", Some $"{candidate.Name}.apply"
-        elif candidate.Name <> t.Name && isWpfType candidate && isValidTypeName candidate.Name then
+        elif
+            candidate.Name <> t.Name
+            && isWpfType candidate
+            && isValidTypeName candidate.Name
+        then
             // Parent from the base Controls package (referenced via ProjectReference)
             Some $"{candidate.Name}Prop", Some $"{candidate.Name}.apply"
         else
             findParent candidate.BaseType
 
-    if isNull t.BaseType then
-        None, None
-    elif t.Name = hierarchyRoot then
-        None, None
-    else
-        findParent t.BaseType
+    if isNull t.BaseType then None, None
+    elif t.Name = hierarchyRoot then None, None
+    else findParent t.BaseType
 
 /// Map a WPF owner type name to its prop DU name.
 let propDUName (ownerTypeName: string) = $"{ownerTypeName}Prop"
@@ -313,7 +315,7 @@ let buildEmitInput
         buildInheritedHelpers generatedTypeNames emittedDPsPerType t ownDPNames
 
     // Inherited event helpers (e.g., Button gets onClick from ButtonBase)
-    let allEvents = AssemblyInspector.discoverEvents t
+    let allEvents = AssemblyInspector.discoverAllEvents t
 
     let inheritedEventHelpers =
         allEvents
@@ -552,8 +554,7 @@ let main argv =
                     let withCounts =
                         types
                         |> List.map (fun t ->
-                            let count =
-                                parentRefCounts |> Map.tryFind t.FullName |> Option.defaultValue 0
+                            let count = parentRefCounts |> Map.tryFind t.FullName |> Option.defaultValue 0
 
                             t, count)
 
@@ -570,7 +571,7 @@ let main argv =
         let hierarchy =
             HierarchyBuilder.buildHierarchy
                 AssemblyInspector.discoverDPs
-                AssemblyInspector.discoverEvents
+                AssemblyInspector.discoverAllEvents
                 typesToGenerate
 
         // Ensure output directory exists

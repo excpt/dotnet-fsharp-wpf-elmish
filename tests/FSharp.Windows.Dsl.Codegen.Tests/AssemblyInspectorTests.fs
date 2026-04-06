@@ -117,3 +117,65 @@ let ``findControlTypes excludes abstract types`` () =
     let types = AssemblyInspector.findControlTypes ctx assembly
     // ButtonBase is abstract — should NOT be in the list
     types |> List.exists (fun t -> t.Name = "ButtonBase") |> should be False
+
+// --- CLR event discovery ---
+
+[<Fact>]
+let ``discoverClrEvents finds Closing on Window`` () =
+    let pfPath =
+        AssemblyInspector.resolveAssembly "net8.0-windows" "PresentationFramework"
+
+    let runtimeDir = Path.GetDirectoryName(pfPath)
+    use ctx = AssemblyInspector.createContext runtimeDir []
+    let assembly = ctx.LoadFromAssemblyPath(pfPath)
+    let windowType = assembly.GetType("System.Windows.Window")
+    let routedEvents = AssemblyInspector.discoverEvents windowType
+    let routedNames = routedEvents |> List.map (fun e -> e.Name) |> Set.ofList
+    let clrEvents = AssemblyInspector.discoverClrEvents windowType routedNames
+    clrEvents |> List.exists (fun e -> e.Name = "Closing") |> should be True
+
+[<Fact>]
+let ``discoverClrEvents excludes routed events`` () =
+    let pfPath =
+        AssemblyInspector.resolveAssembly "net8.0-windows" "PresentationFramework"
+
+    let runtimeDir = Path.GetDirectoryName(pfPath)
+    use ctx = AssemblyInspector.createContext runtimeDir []
+    let assembly = ctx.LoadFromAssemblyPath(pfPath)
+
+    let buttonBaseType =
+        assembly.GetType("System.Windows.Controls.Primitives.ButtonBase")
+
+    let routedEvents = AssemblyInspector.discoverEvents buttonBaseType
+    let routedNames = routedEvents |> List.map (fun e -> e.Name) |> Set.ofList
+    let clrEvents = AssemblyInspector.discoverClrEvents buttonBaseType routedNames
+    // Click is a routed event — should NOT appear in CLR events
+    clrEvents |> List.exists (fun e -> e.Name = "Click") |> should be False
+
+[<Fact>]
+let ``discoverAllEvents includes both routed and CLR events`` () =
+    let pfPath =
+        AssemblyInspector.resolveAssembly "net8.0-windows" "PresentationFramework"
+
+    let runtimeDir = Path.GetDirectoryName(pfPath)
+    use ctx = AssemblyInspector.createContext runtimeDir []
+    let assembly = ctx.LoadFromAssemblyPath(pfPath)
+    let windowType = assembly.GetType("System.Windows.Window")
+    let allEvents = AssemblyInspector.discoverAllEvents windowType
+    // Routed event (from UIElement ancestor)
+    allEvents |> List.exists (fun e -> e.Name = "MouseDown") |> should be True
+    // CLR event (Window's own)
+    allEvents |> List.exists (fun e -> e.Name = "Closing") |> should be True
+
+[<Fact>]
+let ``discoverAllEvents has no duplicates`` () =
+    let pfPath =
+        AssemblyInspector.resolveAssembly "net8.0-windows" "PresentationFramework"
+
+    let runtimeDir = Path.GetDirectoryName(pfPath)
+    use ctx = AssemblyInspector.createContext runtimeDir []
+    let assembly = ctx.LoadFromAssemblyPath(pfPath)
+    let windowType = assembly.GetType("System.Windows.Window")
+    let allEvents = AssemblyInspector.discoverAllEvents windowType
+    let names = allEvents |> List.map (fun e -> e.Name)
+    names |> List.distinct |> List.length |> should equal (names |> List.length)

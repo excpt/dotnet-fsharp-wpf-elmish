@@ -329,6 +329,33 @@ let discoverEvents (controlType: Type) =
            Handler   = clrEvent |> Option.ofObj |> Option.map (fun e -> e.EventHandlerType) |})
 ```
 
+### Discovering CLR Events
+
+Pure CLR events (no backing `RoutedEvent` static field) are discovered separately via
+`Type.GetEvents()` and deduplicated against routed events by name:
+
+```fsharp
+let discoverClrEvents (controlType: Type) (routedEventNames: Set<string>) =
+    controlType.GetEvents(BindingFlags.Public ||| BindingFlags.Instance)
+    |> Array.filter (fun e -> not (routedEventNames.Contains e.Name))
+    |> Array.map (fun e ->
+        {| Name = e.Name; OwnerType = e.DeclaringType; Handler = e.EventHandlerType |})
+
+let discoverAllEvents (controlType: Type) =
+    let routed = discoverEvents controlType
+    let routedNames = routed |> Set.ofList |> Set.map (fun e -> e.Name)
+    let clr = discoverClrEvents controlType routedNames
+    routed @ clr
+```
+
+This catches events invisible to routed event discovery:
+- `Window.Closing` (`CancelEventHandler`)
+- `FrameworkElement.Initialized` (`EventHandler`)
+- DevExpress `BaseEdit.EditValueChanged` (`EditValueChangedEventHandler`)
+
+The same handler type filter applies: only `System.*` handler types are emitted
+(F# compiler limitation FS1091 with non-standard delegate types).
+
 ### Building the Type Hierarchy
 
 ```fsharp

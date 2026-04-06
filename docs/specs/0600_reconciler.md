@@ -110,6 +110,29 @@ let diffProps (old: ElementDef) (newDef: ElementDef) (patches: ResizeArray<Patch
 For a `TextBox` where only `Text` changed — `Width`, `Margin`, `Background`, `FontSize`
 all pass structural equality and emit nothing.
 
+### Event Handler Rebinding
+
+Event handlers (wrapped in `EventProp`) are **swapped on every reconciliation** via
+reflection-based `RemoveHandler` + `AddHandler`. This solves the stale closure problem:
+closures created in `view` capture the current model, so handlers must be refreshed
+each render to see the latest state.
+
+```fsharp
+// Reconciler extracts the event name from the F# DU case (OnClick → Click),
+// finds the CLR event via reflection, then swaps the delegate.
+let swapEventHandler (el: DependencyObject) (oldInner: obj) (newInner: obj) =
+    let caseName = oldInner.GetType().Name   // "OnClick"
+    let eventName = caseName.Substring(2)    // "Click"
+    let evInfo = el.GetType().GetEvent(eventName)
+    evInfo.RemoveEventHandler(el, oldHandler)
+    evInfo.AddEventHandler(el, newHandler)
+```
+
+**Performance:** Each swap is ~1 delegate list operation. A typical view with 30-50
+event handlers adds ~0.05ms per render — negligible vs WPF layout/render. Handlers
+with the same reference (defined outside the view function) are skipped via
+`Object.ReferenceEquals`.
+
 ## Tier 4 — Children Diffing Strategy
 
 Different strategies based on how children are used:
