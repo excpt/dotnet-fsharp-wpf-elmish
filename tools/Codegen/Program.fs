@@ -161,20 +161,34 @@ let excludedTypes =
 /// Skip types with backticks (generic types like PageFunction`1).
 let isValidTypeName (name: string) = not (name.Contains('`'))
 
+/// Check if a type is a WPF DependencyObject subclass from the System.Windows namespace.
+/// These types have generated prop types in FSharp.Windows.Dsl.Controls.
+let private isWpfType (t: Type) =
+    not (isNull t)
+    && not (isNull t.Namespace)
+    && (t.Namespace.StartsWith("System.Windows") || t.Namespace.StartsWith("System.Windows.Controls"))
+
 /// Resolve the parent prop name and apply function for a type.
+/// Walks up the hierarchy to find the nearest generated ancestor —
+/// either from this generation run or from the base WPF Controls package.
 let resolveParent (generatedTypeNames: Set<string>) (t: Type) =
+    let rec findParent (candidate: Type) =
+        if isNull candidate || candidate.Name = hierarchyRoot then
+            None, None
+        elif generatedTypeNames |> Set.contains candidate.Name then
+            Some $"{candidate.Name}Prop", Some $"{candidate.Name}.apply"
+        elif isWpfType candidate && isValidTypeName candidate.Name then
+            // Parent from the base Controls package (referenced via ProjectReference)
+            Some $"{candidate.Name}Prop", Some $"{candidate.Name}.apply"
+        else
+            findParent candidate.BaseType
+
     if isNull t.BaseType then
         None, None
     elif t.Name = hierarchyRoot then
-        None, None // UIElement is the root — no Base case
+        None, None
     else
-        let parentName = t.BaseType.Name
-
-        if generatedTypeNames |> Set.contains parentName then
-            Some $"{parentName}Prop", Some $"{parentName}.apply"
-        else
-            // Parent is not generated (e.g., Visual, DependencyObject) — skip
-            None, None
+        findParent t.BaseType
 
 /// Map a WPF owner type name to its prop DU name.
 let propDUName (ownerTypeName: string) = $"{ownerTypeName}Prop"
@@ -499,7 +513,7 @@ let main argv =
         let mutable generated = 0
 
         for entry in hierarchy do
-            let t, ownDPs, ownEvents, _ = entry
+            let t, ownDPs, ownEvents, depth = entry
 
             let input =
                 buildEmitInput generatedTypeNames emittedDPsPerType versionGuards outputNamespace assemblyInfo entry
@@ -511,7 +525,9 @@ let main argv =
                 || input.ParentPropName.IsSome
             then
                 let code = FSharpEmitter.emitControlFile input
-                let fileName = $"{t.Name}.generated.fs"
+                // Prefix with depth so alphabetical order matches hierarchy order.
+                // F# requires parent types compiled before children.
+                let fileName = $"%03d{depth}_{t.Name}.generated.fs"
                 let filePath = Path.Combine(outputDir, fileName)
                 File.WriteAllText(filePath, code)
                 generated <- generated + 1

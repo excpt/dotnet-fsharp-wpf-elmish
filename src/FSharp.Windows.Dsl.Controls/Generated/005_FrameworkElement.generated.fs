@@ -11,7 +11,6 @@ open FSharp.Windows.Dsl
 
 [<RequireQualifiedAccess>]
 type FrameworkElementProp =
-    | Base of UIElementProp
     | Style of System.Windows.Style
     | OverridesDefaultStyle of bool
     | UseLayoutRounding of bool
@@ -81,7 +80,6 @@ module FrameworkElement =
 
     let apply (el: System.Windows.FrameworkElement) (prop: FrameworkElementProp) =
         match prop with
-        | FrameworkElementProp.Base p -> UIElement.apply el p
         | FrameworkElementProp.Style v -> el.SetValue(System.Windows.FrameworkElement.StyleProperty, box v)
         | FrameworkElementProp.OverridesDefaultStyle v -> el.SetValue(System.Windows.FrameworkElement.OverridesDefaultStyleProperty, box v)
         | FrameworkElementProp.UseLayoutRounding v -> el.SetValue(System.Windows.FrameworkElement.UseLayoutRoundingProperty, box v)
