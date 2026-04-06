@@ -121,8 +121,8 @@ FSPROJ
 
 # Foundation
 generate_package "Core" \
-    "DevExpress.Xpf.Core.$V,DevExpress.Xpf.Controls.$V,DevExpress.Xpf.Layout.$V.Core" \
-    "DevExpress.Wpf.Core,DevExpress.Wpf.Controls"
+    "DevExpress.Xpf.Core.$V,DevExpress.Xpf.Core.$V.Extensions,DevExpress.Xpf.Controls.$V,DevExpress.Xpf.Layout.$V.Core" \
+    "DevExpress.Wpf.Core,DevExpress.Wpf.Core.Extensions,DevExpress.Wpf.Controls"
 
 # Product areas (depend on Core)
 generate_package "Grid" \

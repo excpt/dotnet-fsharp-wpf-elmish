@@ -156,7 +156,20 @@ let excludedTypes =
           "FixedPage"
           "Glyphs"
           "PageContent"
-          "StickyNoteControl" ]
+          "StickyNoteControl"
+          // Type-forwarded stubs — discoverable via metadata but not compilable
+          "ODataServerModeDataSource"
+          "ODataInstantFeedbackDataSource"
+          "WcfServerModeDataSource"
+          "WcfInstantFeedbackDataSource"
+          "WcfSimpleDataSource"
+          "WcfCollectionViewSource"
+          // Internal DevExpress controls with cross-package hierarchy issues
+          "DXThumb"
+          "DragWidget"
+          "ThemedWindowSizeGrip"
+          // Namespace collision — FlyoutBase exists in multiple DX namespaces
+          "MenuFlyout" ]
 
 /// Skip types with backticks (generic types like PageFunction`1).
 let isValidTypeName (name: string) = not (name.Contains('`'))
@@ -260,6 +273,10 @@ let buildEmitInput
             |> Option.bind (fun handlerType ->
                 if handlerType.Contains('`') || handlerType.Contains('+') then
                     None
+                // F# can't use .AddHandler on non-standard delegate types (FS1091).
+                // Only emit events with System.* handler types (RoutedEventHandler, etc.).
+                elif not (handlerType.StartsWith("System.")) then
+                    None
                 else
                     Some
                         { CaseName = $"On{ev.Name}"
@@ -297,12 +314,14 @@ let buildEmitInput
             |> Option.bind (fun ht ->
                 if ht.Contains('`') then
                     None
+                // Same filter as own events: F# can't AddHandler non-standard delegates
+                elif not (ht.StartsWith("System.")) then
+                    None
                 else
                     let duName = propDUName ev.OwnerTypeName
                     let caseName = $"On{ev.Name}"
                     let fnName = $"on{ev.Name}"
 
-                    // Check the event case was actually emitted on the owner
                     match emittedDPsPerType |> Map.tryFind ev.OwnerTypeName with
                     | _ ->
                         Some
@@ -476,11 +495,25 @@ let main argv =
 
         printfn $"Found {allTypes.Length} UIElement subtypes"
 
-        // Filter out excluded types
+        // Filter out excluded types and types that can't be resolved at compile time
         let typesToGenerate =
             allTypes
             |> List.filter (fun t -> not (excludedTypes |> Set.contains t.Name))
             |> List.filter (fun t -> isValidTypeName t.Name)
+            // Skip type-forwarded stubs (discoverable via metadata but not compilable)
+            |> List.filter (fun t -> not (isNull t.FullName))
+            // Skip types from internal/native namespaces that collide with public types
+            |> List.filter (fun t ->
+                not (
+                    t.Namespace <> null
+                    && (t.Namespace.Contains(".Internal")
+                        || t.Namespace.Contains(".Native")
+                        || t.Namespace.Contains(".Base"))
+                ))
+            // Deduplicate by short name — keep the shallowest type (most public)
+            |> List.groupBy (fun t -> t.Name)
+            |> List.map (fun (_, types) ->
+                types |> List.minBy (fun t -> t.FullName.Length))
 
         printfn $"Generating {typesToGenerate.Length} types (excluding base types and excluded)"
 
