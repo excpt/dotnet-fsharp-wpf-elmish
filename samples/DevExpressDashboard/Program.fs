@@ -229,7 +229,7 @@ let update msg model =
             let owner = Application.Current.MainWindow
 
             Elmish.Program.mkSimple Counter.init Counter.update (fun m d ->
-                FSharp.DevExpress.Wpf.Ribbon.DXRibbonWindow.create
+                ThemedWindow.create
                     [ Window.title $"Counter: {m.Count} (Independent Loop)"
                       Window.width 350.0
                       Window.sizeToContent SizeToContent.Height
