@@ -84,7 +84,10 @@ module Elements =
     let virtualizingStackPanel (props: obj list) : VirtualNode = VirtualizingStackPanel.create props
     let webBrowser (props: obj list) : VirtualNode = WebBrowser.create props
     let dataGridCellsPresenter (props: obj list) : VirtualNode = DataGridCellsPresenter.create props
-    let dataGridColumnHeadersPresenter (props: obj list) : VirtualNode = DataGridColumnHeadersPresenter.create props
+
+    let dataGridColumnHeadersPresenter (props: obj list) : VirtualNode =
+        DataGridColumnHeadersPresenter.create props
+
     let scrollBar (props: obj list) : VirtualNode = ScrollBar.create props
     let selectiveScrollingGrid (props: obj list) : VirtualNode = SelectiveScrollingGrid.create props
     let statusBar (props: obj list) : VirtualNode = StatusBar.create props

@@ -1,6 +1,7 @@
 module FSharp.Windows.Dsl.Codegen.Program
 
 open System
+open System.Diagnostics
 open System.IO
 open Argu
 
@@ -653,6 +654,32 @@ let main argv =
 
         File.WriteAllText(Path.Combine(parentDir, "Registration.generated.fs"), regCode)
         printfn $"  Generated Registration.generated.fs ({allControlsForReg.Count} registrations)"
+
+        // Format generated files with Fantomas
+        printfn "Running Fantomas on generated files..."
+
+        let fantomasArgs = $"\"{parentDir}\" --recurse"
+
+        let psi =
+            ProcessStartInfo(
+                "dotnet",
+                $"fantomas {fantomasArgs}",
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+                UseShellExecute = false
+            )
+
+        let proc = Process.Start(psi)
+        let stdout = proc.StandardOutput.ReadToEnd()
+        let stderr = proc.StandardError.ReadToEnd()
+        proc.WaitForExit()
+
+        if proc.ExitCode <> 0 then
+            eprintfn $"Fantomas failed (exit code {proc.ExitCode}):"
+            eprintfn $"{stderr}"
+            eprintfn $"{stdout}"
+        else
+            printfn "Fantomas formatting complete."
 
         printfn $"Done. Generated {generated} control files + Elements + Registration in {outputDir}"
         0

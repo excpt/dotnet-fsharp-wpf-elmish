@@ -358,9 +358,7 @@ let emitRegistration (ns: string) (controls: (string * string * string) list) : 
     for controlFullName, propTypeName, moduleName in controls do
         // Skip WPF base types in third-party packages — already registered by base Controls
         if not (isThirdParty && controlFullName.StartsWith("System.Windows.")) then
-            sb.AppendLine(
-                $"        Materializer.registerApply<{controlFullName}, {propTypeName}> {moduleName}.apply"
-            )
+            sb.AppendLine($"        Materializer.registerApply<{controlFullName}, {propTypeName}> {moduleName}.apply")
             |> ignore
 
     sb.ToString()

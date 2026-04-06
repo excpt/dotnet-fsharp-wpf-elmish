@@ -12,8 +12,7 @@ FSharp.DevExpress.Wpf.Core.Registration.register ()
 FSharp.DevExpress.Wpf.Ribbon.Registration.register ()
 FSharp.DevExpress.Wpf.Accordion.Registration.register ()
 
-DevExpress.Xpf.Core.ApplicationThemeHelper.ApplicationThemeName <-
-    DevExpress.Xpf.Core.Theme.Office2019ColorfulName
+DevExpress.Xpf.Core.ApplicationThemeHelper.ApplicationThemeName <- DevExpress.Xpf.Core.Theme.Office2019ColorfulName
 
 // ============================================================
 // Ribbon helpers — RibbonPage/Group/BarButtonItem are data models,
@@ -139,9 +138,15 @@ module Settings =
 
     let update msg model =
         match msg with
-        | ToggleNotifications -> { model with Notifications = not model.Notifications }
-        | ToggleDarkMode -> { model with DarkMode = not model.DarkMode }
-        | ToggleAutoSave -> { model with AutoSave = not model.AutoSave }
+        | ToggleNotifications ->
+            { model with
+                Notifications = not model.Notifications }
+        | ToggleDarkMode ->
+            { model with
+                DarkMode = not model.DarkMode }
+        | ToggleAutoSave ->
+            { model with
+                AutoSave = not model.AutoSave }
 
     let view model dispatch =
         stackPanel
@@ -160,17 +165,13 @@ module Settings =
                           CheckEdit.onChecked (RoutedEventHandler(fun _ _ -> dispatch ToggleNotifications))
                           CheckEdit.onUnchecked (RoutedEventHandler(fun _ _ -> dispatch ToggleNotifications)) ]
                     CheckEdit.create
-                        [ CheckEdit.content (
-                              sprintf "Dark mode (%s)" (if model.DarkMode then "on" else "off")
-                          )
+                        [ CheckEdit.content (sprintf "Dark mode (%s)" (if model.DarkMode then "on" else "off"))
                           CheckEdit.isChecked (Nullable model.DarkMode)
                           FrameworkElement.margin (Thickness 4.0)
                           CheckEdit.onChecked (RoutedEventHandler(fun _ _ -> dispatch ToggleDarkMode))
                           CheckEdit.onUnchecked (RoutedEventHandler(fun _ _ -> dispatch ToggleDarkMode)) ]
                     CheckEdit.create
-                        [ CheckEdit.content (
-                              sprintf "Auto-save (%s)" (if model.AutoSave then "on" else "off")
-                          )
+                        [ CheckEdit.content (sprintf "Auto-save (%s)" (if model.AutoSave then "on" else "off"))
                           CheckEdit.isChecked (Nullable model.AutoSave)
                           FrameworkElement.margin (Thickness 4.0)
                           CheckEdit.onChecked (RoutedEventHandler(fun _ _ -> dispatch ToggleAutoSave))
@@ -220,9 +221,13 @@ let update msg model =
     match msg with
     | Navigate page -> { model with Page = page }, Cmd.none
     | CounterMsg msg ->
-        { model with Counter = Counter.update msg model.Counter }, Cmd.none
+        { model with
+            Counter = Counter.update msg model.Counter },
+        Cmd.none
     | SettingsMsg msg ->
-        { model with Settings = Settings.update msg model.Settings }, Cmd.none
+        { model with
+            Settings = Settings.update msg model.Settings },
+        Cmd.none
     | OpenChildWindow ->
         model,
         Cmd.ofEffect (fun _ ->
@@ -248,7 +253,8 @@ let dashboardView dispatch =
                       TextBlock.margin (Thickness(0.0, 0.0, 0.0, 16.0)) ]
                 textBlock [ TextBlock.text "Each page is an independent component with own init/update/view." ]
                 textBlock
-                    [ TextBlock.text "Counter uses DX SimpleButton + SpinEdit. Settings uses DX CheckEdit + DateEdit + TextEdit."
+                    [ TextBlock.text
+                          "Counter uses DX SimpleButton + SpinEdit. Settings uses DX CheckEdit + DateEdit + TextEdit."
                       TextBlock.margin (Thickness(0.0, 8.0, 0.0, 0.0))
                       TextBlock.textWrapping TextWrapping.Wrap ]
                 SimpleButton.create
@@ -267,14 +273,13 @@ let buildRibbon (dispatch: Msg -> unit) =
                     [ Ribbon.createButton "Dashboard" (fun () -> dispatch (Navigate Dashboard))
                       Ribbon.createButton "Counter" (fun () -> dispatch (Navigate CounterPage))
                       Ribbon.createButton "Settings" (fun () -> dispatch (Navigate SettingsPage)) ]
-                Ribbon.createGroup
-                    "Actions"
-                    [ Ribbon.createButton "New Window" (fun () -> dispatch OpenChildWindow) ] ]
+                Ribbon.createGroup "Actions" [ Ribbon.createButton "New Window" (fun () -> dispatch OpenChildWindow) ] ]
           Ribbon.createPage
               "View"
               [ Ribbon.createGroup
                     "Options"
-                    [ Ribbon.createButton "Toggle Notifications" (fun () -> dispatch (SettingsMsg Settings.ToggleNotifications)) ] ] ]
+                    [ Ribbon.createButton "Toggle Notifications" (fun () ->
+                          dispatch (SettingsMsg Settings.ToggleNotifications)) ] ] ]
 
 /// Build an Outlook-style AccordionControl for left navigation
 let buildNavPanel (dispatch: Msg -> unit) =
@@ -315,25 +320,23 @@ let view model dispatch =
                   [ DockPanel.lastChildFill true
                     DockPanel.children
                         [ // Ribbon at top — pre-built DX control
-                          DockPanel.dock Dock.Top (
+                          DockPanel.dock
+                              Dock.Top
+                              (
                               // Wrap in a ContentControl to embed the pre-built ribbon
-                              contentControl
-                                  [ ContentControl.content ribbon ]
-                          )
+                              contentControl [ ContentControl.content ribbon ])
                           // Outlook-style accordion nav on left
-                          DockPanel.dock Dock.Left (
-                              border
+                          DockPanel.dock
+                              Dock.Left
+                              (border
                                   [ Border.width 180.0
                                     Border.borderThickness (Thickness(0.0, 0.0, 1.0, 0.0))
                                     Border.borderBrush SystemColors.ActiveBorderBrush
-                                    Border.contentChild (
-                                        contentControl
-                                            [ ContentControl.content navPanel ]
-                                    ) ]
-                          )
+                                    Border.contentChild (contentControl [ ContentControl.content navPanel ]) ])
                           // Status bar
-                          DockPanel.dock Dock.Bottom (
-                              border
+                          DockPanel.dock
+                              Dock.Bottom
+                              (border
                                   [ Border.padding (Thickness(8.0, 4.0, 8.0, 4.0))
                                     Border.borderThickness (Thickness(0.0, 1.0, 0.0, 0.0))
                                     Border.borderBrush SystemColors.ActiveBorderBrush
@@ -341,8 +344,7 @@ let view model dispatch =
                                         textBlock
                                             [ TextBlock.text
                                                   $"Page: {model.Page} | Counter: {model.Counter.Count} | AutoSave: {model.Settings.AutoSave}" ]
-                                    ) ]
-                          )
+                                    ) ])
                           // Content area
                           border
                               [ Border.padding (Thickness 16.0)
