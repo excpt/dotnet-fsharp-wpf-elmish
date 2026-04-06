@@ -308,3 +308,92 @@ let ``keyed child prop update reuses element`` () =
 
         sp.Children.Count |> should equal 1
         (sp.Children.[0] :?> TextBlock).Text |> should equal "New")
+
+// --- In-place prop diffing (element preservation) ---
+
+[<Fact>]
+let ``value prop change preserves element identity`` () =
+    runSta (fun () ->
+        register ()
+
+        let tree1 =
+            stackPanel [ StackPanel.children [ textBlock [ TextBlock.text "Old" ] ] ]
+
+        let live = Dsl.createLive tree1
+        let sp = live.Root :?> StackPanel
+        let origTb = sp.Children.[0]
+
+        let tree2 =
+            stackPanel [ StackPanel.children [ textBlock [ TextBlock.text "New" ] ] ]
+
+        Dsl.update live tree2
+
+        // Same element instance, just updated text
+        Object.ReferenceEquals(sp.Children.[0], origTb) |> should be True
+        (sp.Children.[0] :?> TextBlock).Text |> should equal "New")
+
+[<Fact>]
+let ``multiple value prop changes preserve element identity`` () =
+    runSta (fun () ->
+        register ()
+
+        let tree1 =
+            stackPanel [ StackPanel.children [ button [ Button.content "Old"; Button.fontSize 12.0 ] ] ]
+
+        let live = Dsl.createLive tree1
+        let sp = live.Root :?> StackPanel
+        let origBtn = sp.Children.[0]
+
+        let tree2 =
+            stackPanel [ StackPanel.children [ button [ Button.content "New"; Button.fontSize 24.0 ] ] ]
+
+        Dsl.update live tree2
+
+        Object.ReferenceEquals(sp.Children.[0], origBtn) |> should be True
+        (sp.Children.[0] :?> Button).Content :?> string |> should equal "New"
+        (sp.Children.[0] :?> Button).FontSize |> should equal 24.0)
+
+[<Fact>]
+let ``value prop change with event handler preserves element`` () =
+    runSta (fun () ->
+        register ()
+
+        let tree1 =
+            stackPanel
+                [ StackPanel.children
+                      [ button [ Button.content "Old"; Button.onClick (RoutedEventHandler(fun _ _ -> ())) ] ] ]
+
+        let live = Dsl.createLive tree1
+        let sp = live.Root :?> StackPanel
+        let origBtn = sp.Children.[0]
+
+        let tree2 =
+            stackPanel
+                [ StackPanel.children
+                      [ button [ Button.content "New"; Button.onClick (RoutedEventHandler(fun _ _ -> ())) ] ] ]
+
+        Dsl.update live tree2
+
+        // Element preserved even though both value and event props "changed"
+        Object.ReferenceEquals(sp.Children.[0], origBtn) |> should be True
+        (sp.Children.[0] :?> Button).Content :?> string |> should equal "New")
+
+[<Fact>]
+let ``keyed child value prop change preserves element identity`` () =
+    runSta (fun () ->
+        register ()
+
+        let tree1 =
+            stackPanel [ StackPanel.children [ textBlock [ Key "title"; TextBlock.text "Old" ] ] ]
+
+        let live = Dsl.createLive tree1
+        let sp = live.Root :?> StackPanel
+        let origTb = sp.Children.[0]
+
+        let tree2 =
+            stackPanel [ StackPanel.children [ textBlock [ Key "title"; TextBlock.text "New" ] ] ]
+
+        Dsl.update live tree2
+
+        Object.ReferenceEquals(sp.Children.[0], origTb) |> should be True
+        (sp.Children.[0] :?> TextBlock).Text |> should equal "New")

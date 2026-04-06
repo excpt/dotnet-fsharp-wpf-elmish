@@ -80,13 +80,48 @@ module Reconciler =
             ic.Items.Insert(index, child)
         | _ -> ()
 
-    /// Apply props to a live element (only safe for DP props on root elements).
+    /// Apply all props to a live element (used for initial creation and root).
     let private applyProps (el: DependencyObject) (props: obj list) =
         for prop in props do
             match prop with
             | :? AttachedProp as (AttachedProp(dp, value)) -> el.SetValue(dp, value)
             | :? EventProp as (EventProp inner) -> Materializer.applyProp el inner
             | _ -> Materializer.applyProp el prop
+
+    /// Prop identity key — uniquely identifies a prop "slot" regardless of value.
+    /// Each F# DU case compiles to a distinct nested type. AttachedProps share
+    /// the AttachedProp type, so they key by DependencyProperty identity instead.
+    let private propKey (p: obj) =
+        match p with
+        | :? AttachedProp as (AttachedProp(dp, _)) -> dp :> obj
+        | :? EventProp as (EventProp inner) -> inner.GetType() :> obj
+        | _ -> p.GetType() :> obj
+
+    /// Diff old and new props, applying only changes in-place.
+    /// Value props: re-apply changed ones (SetValue is idempotent).
+    /// Event props: skip — applied on creation, handler captures stable dispatch.
+    /// AttachedProps: re-apply changed ones (SetValue is idempotent).
+    let private diffAndApplyProps (el: DependencyObject) (oldProps: obj list) (newProps: obj list) =
+        // Build map of old props by key for O(1) lookup
+        let oldMap = Dictionary<obj, obj>()
+
+        for p in oldProps do
+            oldMap.[propKey p] <- p
+
+        // Apply new props that differ from old
+        for p in newProps do
+            match p with
+            | :? EventProp -> () // Skip events — applied on element creation
+            | :? AttachedProp as (AttachedProp(dp, value)) ->
+                match oldMap.TryGetValue(dp :> obj) with
+                | true, (:? AttachedProp as (AttachedProp(_, oldValue))) when oldValue = value -> ()
+                | _ -> el.SetValue(dp, value)
+            | _ ->
+                let key = propKey p
+
+                match oldMap.TryGetValue(key) with
+                | true, oldP when oldP = p -> () // Unchanged — skip
+                | _ -> Materializer.applyProp el p // Changed or new — apply
 
     /// Recursively diff old and new virtual trees, applying changes to the live WPF tree.
     let rec private reconcile
@@ -118,10 +153,15 @@ module Reconciler =
             stats.Replaced <- stats.Replaced + 1
             replaceChild parent index (Materializer.materialize newN)
 
-        // Same type, props changed — replace element (prevents duplicate event handlers)
+        // Same type, props changed — diff and apply in-place (preserves element identity)
         | Some old, Some newN when old.Props <> newN.Props ->
-            stats.Replaced <- stats.Replaced + 1
-            replaceChild parent index (Materializer.materialize newN)
+            stats.PropReapplied <- stats.PropReapplied + 1
+
+            match getChild parent index with
+            | Some el ->
+                diffAndApplyProps el old.Props newN.Props
+                reconcileChildren el old.Children newN.Children
+            | None -> ()
 
         // Same type, same props — just diff children
         | Some old, Some newN ->
@@ -163,12 +203,12 @@ module Reconciler =
                     let (_oldIdx, oldNode, el) = oldMap.[k]
 
                     if oldNode.Props <> newChild.Props then
-                        stats.Replaced <- stats.Replaced + 1
-                        add (Materializer.materialize newChild)
-                    else
-                        add el
-                        stats.ChildDiffs <- stats.ChildDiffs + 1
-                        reconcileChildren el oldNode.Children newChild.Children
+                        stats.PropReapplied <- stats.PropReapplied + 1
+                        diffAndApplyProps el oldNode.Props newChild.Props
+
+                    add el
+                    stats.ChildDiffs <- stats.ChildDiffs + 1
+                    reconcileChildren el oldNode.Children newChild.Children
 
                     oldMap.Remove(k) |> ignore
                 | _ ->
@@ -223,8 +263,8 @@ module Reconciler =
             reconcileIndexedChildren parent oldChildren newChildren
 
     /// Top-level: diff old tree against new tree.
-    /// Root element props are re-applied in-place (root can't be replaced).
-    /// Children are replaced when props change (safe for events).
+    /// Root element props are diffed in-place (root can't be replaced).
+    /// Child elements are preserved when only props change.
     let update (rootElement: DependencyObject) (oldTree: VirtualNode) (newTree: VirtualNode) =
         if not (Object.ReferenceEquals(oldTree, newTree)) then
             stats <- Stats.Zero()
@@ -232,7 +272,7 @@ module Reconciler =
 
             if oldTree.Props <> newTree.Props then
                 stats.PropReapplied <- stats.PropReapplied + 1
-                applyProps rootElement newTree.Props
+                diffAndApplyProps rootElement oldTree.Props newTree.Props
 
             reconcileChildren rootElement oldTree.Children newTree.Children
 
