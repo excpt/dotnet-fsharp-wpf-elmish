@@ -73,6 +73,22 @@ let ``Validation.pattern returns error for non-matching`` () =
 let ``Validation.pattern returns None for matching`` () =
     Validation.pattern "Email" @"^.+@.+\..+$" "a@b.com" |> should equal None
 
+// --- Range ---
+
+[<Fact>]
+let ``Validation.range returns error for below minimum`` () =
+    Validation.range "Age" 18 65 10
+    |> should equal (Some("Age", "Age must be between 18 and 65"))
+
+[<Fact>]
+let ``Validation.range returns error for above maximum`` () =
+    Validation.range "Age" 18 65 70
+    |> should equal (Some("Age", "Age must be between 18 and 65"))
+
+[<Fact>]
+let ``Validation.range returns None for value in range`` () =
+    Validation.range "Age" 18 65 30 |> should equal None
+
 // --- Error map ---
 
 [<Fact>]

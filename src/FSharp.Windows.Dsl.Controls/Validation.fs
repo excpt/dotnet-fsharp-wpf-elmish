@@ -30,6 +30,13 @@ module Validation =
         else
             None
 
+    /// Fails if the value is outside the inclusive range [min, max].
+    let inline range (field: string) (min: 'a) (max: 'a) (value: 'a) : (string * string) option when 'a: comparison =
+        if value < min || value > max then
+            Some(field, $"{field} must be between {min} and {max}")
+        else
+            None
+
     /// Fails if the value does not match the regex pattern.
     let pattern (field: string) (regex: string) (value: string) : (string * string) option =
         if Regex.IsMatch(value, regex) then

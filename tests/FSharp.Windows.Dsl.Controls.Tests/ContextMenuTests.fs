@@ -211,3 +211,13 @@ let ``Build.contextMenu attaches to button via prop`` () =
         let btn = live.Root :?> Button
         btn.ContextMenu |> should not' (be null)
         btn.ContextMenu.Items.Count |> should equal 1)
+
+[<Fact>]
+let ``Build.toolTip produces concrete ToolTip`` () =
+    runSta (fun () ->
+        Registration.register ()
+
+        let tt = Build.toolTip [ ToolTip.content "Help text" ]
+
+        tt |> should be instanceOfType<ToolTip>
+        tt.Content :?> string |> should equal "Help text")
