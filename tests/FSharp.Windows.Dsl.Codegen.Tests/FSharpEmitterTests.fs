@@ -82,7 +82,7 @@ let ``emitControlFile generates module with helper functions`` () =
     |> should haveSubstring "let isCancel v : obj = box (ButtonProp.IsCancel v)"
 
     output
-    |> should haveSubstring "let onClick v : obj = box (ButtonProp.OnClick v)"
+    |> should haveSubstring "let onClick v : obj = box (EventProp(box (ButtonProp.OnClick v)))"
 
 [<Fact>]
 let ``emitControlFile generates apply function`` () =
