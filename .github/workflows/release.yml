@@ -1,0 +1,37 @@
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+
+jobs:
+  publish:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: "8.0.x"
+
+      - name: Restore
+        run: dotnet restore FSharp.Windows.Dsl.slnx
+
+      - name: Build
+        run: dotnet build FSharp.Windows.Dsl.slnx --no-restore -c Release
+
+      - name: Test
+        run: dotnet test FSharp.Windows.Dsl.slnx --no-build -c Release
+
+      - name: Pack
+        run: >
+          dotnet pack src/FSharp.Windows.Dsl/FSharp.Windows.Dsl.fsproj -c Release --no-build --output ./nupkgs;
+          dotnet pack src/FSharp.Windows.Dsl.Elmish/FSharp.Windows.Dsl.Elmish.fsproj -c Release --no-build --output ./nupkgs;
+          dotnet pack src/FSharp.Windows.Dsl.Controls/FSharp.Windows.Dsl.Controls.fsproj -c Release --no-build --output ./nupkgs;
+          dotnet pack src/FSharp.Windows.Dsl.Testing/FSharp.Windows.Dsl.Testing.fsproj -c Release --no-build --output ./nupkgs
+
+      - name: Push to NuGet
+        run: >
+          dotnet nuget push ./nupkgs/*.nupkg
+          --source "https://api.nuget.org/v3/index.json"
+          --api-key ${{ secrets.NUGET_API_KEY }}
