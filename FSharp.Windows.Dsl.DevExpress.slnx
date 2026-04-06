@@ -8,6 +8,7 @@
     <Project Path="samples/ElmishCounter/ElmishCounter.fsproj" />
     <Project Path="samples/HelloDsl/HelloDsl.fsproj" />
     <Project Path="samples/LobForm/LobForm.fsproj" />
+    <Project Path="samples/DevExpressDashboard/DevExpressDashboard.fsproj" />
   </Folder>
   <Folder Name="/Solution Items/">
     <File Path="CLAUDE.md" />

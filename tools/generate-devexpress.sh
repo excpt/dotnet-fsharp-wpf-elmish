@@ -137,6 +137,8 @@ generate_package() {
     </PropertyGroup>
     <ItemGroup>
         <Compile Include="Generated\*.generated.fs" />
+        <Compile Include="Registration.generated.fs" />
+        <Compile Include="Elements.generated.fs" />
     </ItemGroup>
     <ItemGroup>
         <ProjectReference Include="..\\..\\..\\src\\FSharp.Windows.Dsl\\FSharp.Windows.Dsl.fsproj" />
