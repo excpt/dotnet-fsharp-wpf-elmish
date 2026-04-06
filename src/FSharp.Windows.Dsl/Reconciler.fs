@@ -175,62 +175,106 @@ module Reconciler =
     and private hasKeys (children: VirtualNode list) =
         children |> List.exists (fun c -> c.UserKey.IsSome)
 
-    /// Key-based children diffing — matches by UserKey, preserves element identity.
+    /// Key-based children diffing — matches by UserKey, uses minimal moves.
+    /// Elements already at the correct position are never detached.
     and private reconcileKeyedChildren
         (parent: DependencyObject)
         (oldChildren: VirtualNode list)
         (newChildren: VirtualNode list)
         =
-        /// Keyed diffing for a collection with get/clear/add operations.
-        let inline keyedDiff
+        let inline keyedDiffMinimal
             (count: int)
             (getItem: int -> DependencyObject)
-            (clear: unit -> unit)
-            (add: DependencyObject -> unit)
+            (indexOf: DependencyObject -> int)
+            (removeAt: int -> unit)
+            (insertAt: int -> DependencyObject -> unit)
             =
-            let oldMap = Dictionary<string, int * VirtualNode * DependencyObject>()
+            // Phase 1: Build map of old keyed children
+            let oldMap = Dictionary<string, VirtualNode * DependencyObject>()
 
             for i in 0 .. (oldChildren.Length - 1) do
                 match oldChildren.[i].UserKey with
-                | Some k when i < count -> oldMap.[k] <- (i, oldChildren.[i], getItem i)
+                | Some k when i < count -> oldMap.[k] <- (oldChildren.[i], getItem i)
                 | _ -> ()
 
-            clear ()
+            // Phase 2: Resolve target list — diff props, collect elements
+            let target = ResizeArray<DependencyObject>(newChildren.Length)
 
             for newChild in newChildren do
                 match newChild.UserKey with
                 | Some k when oldMap.ContainsKey(k) ->
-                    let (_oldIdx, oldNode, el) = oldMap.[k]
+                    let (oldNode, el) = oldMap.[k]
 
                     if oldNode.Props <> newChild.Props then
                         stats.PropReapplied <- stats.PropReapplied + 1
                         diffAndApplyProps el oldNode.Props newChild.Props
 
-                    add el
                     stats.ChildDiffs <- stats.ChildDiffs + 1
                     reconcileChildren el oldNode.Children newChild.Children
-
+                    target.Add(el)
                     oldMap.Remove(k) |> ignore
                 | _ ->
                     stats.Created <- stats.Created + 1
-                    add (Materializer.materialize newChild)
+                    target.Add(Materializer.materialize newChild)
 
-            for _kv in oldMap do
+            // Phase 3: Remove old items not in new list (reverse order)
+            let removals =
+                oldMap.Values
+                |> Seq.map (fun (_, el) -> indexOf el)
+                |> Seq.sortDescending
+                |> Seq.toList
+
+            for idx in removals do
+                removeAt idx
                 stats.Removed <- stats.Removed + 1
+
+            // Phase 4: Sync collection to target order using minimal moves.
+            // At each position, if the current element matches target, skip.
+            // Otherwise, find the target element and move/insert it.
+            for i in 0 .. target.Count - 1 do
+                let targetEl = target.[i]
+                let currentIdx = indexOf targetEl
+
+                if currentIdx = i then
+                    () // Already in correct position — no move needed
+                elif currentIdx >= 0 then
+                    // Element exists at wrong position — move it
+                    removeAt currentIdx
+                    insertAt i targetEl
+                else
+                    // New element — insert at target position
+                    insertAt i targetEl
 
         match parent with
         | :? Panel as panel ->
-            keyedDiff panel.Children.Count (fun i -> panel.Children.[i]) (fun () -> panel.Children.Clear()) (fun el ->
-                panel.Children.Add(el :?> UIElement) |> ignore)
+            keyedDiffMinimal
+                panel.Children.Count
+                (fun i -> panel.Children.[i])
+                (fun el ->
+                    let mutable idx = -1
+
+                    for j in 0 .. panel.Children.Count - 1 do
+                        if idx < 0 && Object.ReferenceEquals(panel.Children.[j], el) then
+                            idx <- j
+
+                    idx)
+                (fun i -> panel.Children.RemoveAt(i))
+                (fun i el -> panel.Children.Insert(i, el :?> UIElement))
         | :? Controls.ItemsControl as ic ->
-            keyedDiff
+            keyedDiffMinimal
                 ic.Items.Count
                 (fun i -> ic.Items.[i] :?> DependencyObject)
-                (fun () -> ic.Items.Clear())
-                (fun el -> ic.Items.Add(el) |> ignore)
-        | _ ->
-            // Non-collection: fall back to index-based
-            reconcileIndexedChildren parent oldChildren newChildren
+                (fun el ->
+                    let mutable idx = -1
+
+                    for j in 0 .. ic.Items.Count - 1 do
+                        if idx < 0 && Object.ReferenceEquals(ic.Items.[j], el) then
+                            idx <- j
+
+                    idx)
+                (fun i -> ic.Items.RemoveAt(i))
+                (fun i el -> ic.Items.Insert(i, el))
+        | _ -> reconcileIndexedChildren parent oldChildren newChildren
 
     /// Index-based children diffing (original algorithm).
     and private reconcileIndexedChildren
