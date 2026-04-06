@@ -17,6 +17,8 @@
         <Compile Include="PermissionsTests.fs" />
         <Compile Include="EntityMapTests.fs" />
         <Compile Include="DataCacheTests.fs" />
+        <Compile Include="FocusTests.fs" />
+        <Compile Include="KeyBindingsTests.fs" />
     </ItemGroup>
     <ItemGroup>
         <PackageReference Include="xunit.v3" />

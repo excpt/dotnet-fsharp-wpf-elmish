@@ -13,6 +13,8 @@
         <Compile Include="Cancellation.fs" />
         <Compile Include="Dialog.fs" />
         <Compile Include="DebugState.fs" />
+        <Compile Include="Focus.fs" />
+        <Compile Include="KeyBindings.fs" />
         <Compile Include="Memo.fs" />
         <Compile Include="HotReload.fs" />
         <Compile Include="ElmishProgram.fs" />
