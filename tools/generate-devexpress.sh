@@ -104,6 +104,8 @@ generate_package() {
     <PropertyGroup>
         <TargetFramework>net8.0-windows</TargetFramework>
         <UseWPF>true</UseWPF>
+        <Version>$DX_NUGET_VERSION</Version>
+        <Description>F# DSL wrappers for DevExpress WPF $SUFFIX controls (v$DX_NUGET_VERSION)</Description>
     </PropertyGroup>
     <ItemGroup>
         <Compile Include="Generated\*.generated.fs" />
