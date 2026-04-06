@@ -43,7 +43,6 @@ type Model =
     { Page: Page
       Products: Product list
       SearchText: string
-      // Settings
       CompanyName: string
       NotificationsEnabled: bool
       MaxResults: float }
@@ -62,46 +61,14 @@ type Msg =
 // ============================================================
 
 let sampleProducts =
-    [ { Name = "Laptop Pro 16"
-        Category = "Electronics"
-        Price = 1899.99
-        Stock = 42
-        Rating = 4.7 }
-      { Name = "Wireless Mouse"
-        Category = "Electronics"
-        Price = 29.99
-        Stock = 150
-        Rating = 4.3 }
-      { Name = "Standing Desk"
-        Category = "Furniture"
-        Price = 549.00
-        Stock = 23
-        Rating = 4.5 }
-      { Name = "Monitor 27\""
-        Category = "Electronics"
-        Price = 449.99
-        Stock = 67
-        Rating = 4.6 }
-      { Name = "Ergonomic Chair"
-        Category = "Furniture"
-        Price = 899.00
-        Stock = 15
-        Rating = 4.8 }
-      { Name = "USB-C Hub"
-        Category = "Electronics"
-        Price = 59.99
-        Stock = 200
-        Rating = 4.1 }
-      { Name = "Desk Lamp"
-        Category = "Furniture"
-        Price = 79.99
-        Stock = 88
-        Rating = 4.4 }
-      { Name = "Mechanical Keyboard"
-        Category = "Electronics"
-        Price = 149.99
-        Stock = 95
-        Rating = 4.9 } ]
+    [ { Name = "Laptop Pro 16"; Category = "Electronics"; Price = 1899.99; Stock = 42; Rating = 4.7 }
+      { Name = "Wireless Mouse"; Category = "Electronics"; Price = 29.99; Stock = 150; Rating = 4.3 }
+      { Name = "Standing Desk"; Category = "Furniture"; Price = 549.00; Stock = 23; Rating = 4.5 }
+      { Name = "Monitor 27\""; Category = "Electronics"; Price = 449.99; Stock = 67; Rating = 4.6 }
+      { Name = "Ergonomic Chair"; Category = "Furniture"; Price = 899.00; Stock = 15; Rating = 4.8 }
+      { Name = "USB-C Hub"; Category = "Electronics"; Price = 59.99; Stock = 200; Rating = 4.1 }
+      { Name = "Desk Lamp"; Category = "Furniture"; Price = 79.99; Stock = 88; Rating = 4.4 }
+      { Name = "Mechanical Keyboard"; Category = "Electronics"; Price = 149.99; Stock = 95; Rating = 4.9 } ]
 
 let init () =
     { Page = Products
@@ -123,11 +90,7 @@ let update msg model =
     | AddProduct ->
         let p =
             { Name = $"New Product #{model.Products.Length + 1}"
-              Category = "Misc"
-              Price = 19.99
-              Stock = 10
-              Rating = 3.0 }
-
+              Category = "Misc"; Price = 19.99; Stock = 10; Rating = 3.0 }
         { model with Products = model.Products @ [ p ] }, Cmd.none
     | RemoveFirst ->
         match model.Products with
@@ -135,8 +98,7 @@ let update msg model =
         | [] -> model, Cmd.none
 
 // ============================================================
-// Views — DevExpress controls use Module.prop for own props,
-// WPF base modules (FrameworkElement, Control, etc.) for inherited
+// Views
 // ============================================================
 
 open FSharp.DevExpress.Wpf.Core
@@ -144,8 +106,6 @@ open FSharp.DevExpress.Wpf.Core
 let navButton label page currentPage dispatch =
     SimpleButton.create
         [ ContentControl.content label
-          FrameworkElement.width 180.0
-          FrameworkElement.height 36.0
           FrameworkElement.margin (Thickness(4.0, 2.0, 4.0, 2.0))
           Control.horizontalContentAlignment HorizontalAlignment.Left
           UIElement.isEnabled (currentPage <> page)
@@ -181,47 +141,56 @@ let productsView model dispatch =
                 p.Name.Contains(model.SearchText, StringComparison.OrdinalIgnoreCase)
                 || p.Category.Contains(model.SearchText, StringComparison.OrdinalIgnoreCase))
 
+    let total = filtered |> List.sumBy (fun p -> p.Price * float p.Stock)
+
     dockPanel
-        [ DockPanel.children
-              [ // Toolbar
-                stackPanel
-                    [ DockPanel.dock Dock.Top
-                      StackPanel.orientation Orientation.Horizontal
-                      StackPanel.margin (Thickness 8.0)
-                      StackPanel.children
-                          [ textBox
-                                [ TextBox.width 250.0
-                                  TextBox.margin (Thickness(0.0, 0.0, 8.0, 0.0))
-                                  TextBox.text model.SearchText
-                                  TextBox.onTextChanged
-                                      (TextChangedEventHandler(fun s _ ->
-                                          dispatch (SearchChanged((s :?> TextBox).Text)))) ]
-                            SimpleButton.create
-                                [ ContentControl.content "Add Product"
-                                  FrameworkElement.margin (Thickness(0.0, 0.0, 4.0, 0.0))
-                                  ButtonBase.onClick (RoutedEventHandler(fun _ _ -> dispatch AddProduct)) ]
-                            SimpleButton.create
-                                [ ContentControl.content "Remove First"
-                                  ButtonBase.onClick (RoutedEventHandler(fun _ _ -> dispatch RemoveFirst)) ] ] ]
-                // Status bar
-                stackPanel
-                    [ DockPanel.dock Dock.Bottom
-                      StackPanel.orientation Orientation.Horizontal
-                      StackPanel.margin (Thickness 8.0)
-                      StackPanel.children
-                          [ textBlock
-                                [ TextBlock.text $"{filtered.Length} products"
-                                  TextBlock.foreground (Media.SolidColorBrush(Media.Colors.Gray))
-                                  TextBlock.margin (Thickness(0.0, 0.0, 16.0, 0.0)) ]
-                            textBlock
-                                [ let total = filtered |> List.sumBy (fun p -> p.Price * float p.Stock)
-                                  TextBlock.text $"Total value: ${total:N0}"
-                                  TextBlock.foreground (Media.SolidColorBrush(Media.Colors.Gray)) ] ] ]
-                // Data grid (standard WPF DataGrid — GridControl is abstract in codegen)
+        [ DockPanel.lastChildFill true
+          DockPanel.children
+              [ // Toolbar at top
+                DockPanel.dock
+                    Dock.Top
+                    (border
+                        [ Border.padding (Thickness 8.0)
+                          Border.borderThickness (Thickness(0.0, 0.0, 0.0, 1.0))
+                          Border.borderBrush (Media.SolidColorBrush(Media.Color.FromRgb(220uy, 220uy, 225uy)))
+                          Border.contentChild (
+                              stackPanel
+                                  [ StackPanel.orientation Orientation.Horizontal
+                                    StackPanel.children
+                                        [ textBox
+                                              [ TextBox.width 250.0
+                                                TextBox.margin (Thickness(0.0, 0.0, 8.0, 0.0))
+                                                TextBox.text model.SearchText
+                                                TextBox.onTextChanged
+                                                    (TextChangedEventHandler(fun s _ ->
+                                                        dispatch (SearchChanged((s :?> TextBox).Text)))) ]
+                                          SimpleButton.create
+                                              [ ContentControl.content "Add Product"
+                                                FrameworkElement.margin (Thickness(0.0, 0.0, 4.0, 0.0))
+                                                ButtonBase.onClick
+                                                    (RoutedEventHandler(fun _ _ -> dispatch AddProduct)) ]
+                                          SimpleButton.create
+                                              [ ContentControl.content "Remove First"
+                                                ButtonBase.onClick
+                                                    (RoutedEventHandler(fun _ _ -> dispatch RemoveFirst)) ] ] ]
+                          ) ])
+                // Status bar at bottom
+                DockPanel.dock
+                    Dock.Bottom
+                    (border
+                        [ Border.padding (Thickness(8.0, 4.0, 8.0, 4.0))
+                          Border.borderThickness (Thickness(0.0, 1.0, 0.0, 0.0))
+                          Border.borderBrush (Media.SolidColorBrush(Media.Color.FromRgb(220uy, 220uy, 225uy)))
+                          Border.contentChild (
+                              textBlock
+                                  [ TextBlock.text $"{filtered.Length} products — Total value: ${total:N0}"
+                                    TextBlock.foreground (Media.SolidColorBrush(Media.Colors.Gray)) ]
+                          ) ])
+                // Data grid fills remaining space
                 dataGrid
                     [ DataGrid.autoGenerateColumns true
                       DataGrid.isReadOnly true
-                      DataGrid.margin (Thickness 8.0)
+                      DataGrid.margin (Thickness 4.0)
                       DataGrid.itemsSource (filtered :> IEnumerable) ] ] ]
 
 let analyticsView model _dispatch =
@@ -231,68 +200,70 @@ let analyticsView model _dispatch =
         |> List.map (fun (cat, items) ->
             cat, List.length items, items |> List.sumBy (fun p -> p.Price * float p.Stock))
 
-    dockPanel
-        [ DockPanel.children
-              [ textBlock
-                    [ DockPanel.dock Dock.Top
-                      TextBlock.text "Analytics"
-                      TextBlock.fontSize 18.0
-                      TextBlock.fontWeight FontWeights.SemiBold
-                      TextBlock.margin (Thickness(16.0, 12.0, 16.0, 8.0)) ]
-                // Summary cards
-                uniformGrid
-                    [ DockPanel.dock Dock.Top
-                      UniformGrid.columns 3
-                      UniformGrid.margin (Thickness 8.0)
-                      UniformGrid.children
-                          ([ ("Total Products", $"{model.Products.Length}")
-                             ("Categories", $"{byCategory.Length}")
-                             ("Total Stock",
-                              $"{model.Products |> List.sumBy (fun p -> p.Stock)}") ]
-                           |> List.map (fun (label, value) ->
-                               border
-                                   [ Border.margin (Thickness 4.0)
-                                     Border.padding (Thickness 16.0)
-                                     Border.cornerRadius (CornerRadius 6.0)
-                                     Border.background
-                                         (Media.SolidColorBrush(Media.Color.FromRgb(245uy, 245uy, 250uy)))
-                                     Border.borderBrush
-                                         (Media.SolidColorBrush(Media.Color.FromRgb(220uy, 220uy, 225uy)))
-                                     Border.borderThickness (Thickness 1.0)
-                                     Border.contentChild (
-                                         stackPanel
-                                             [ StackPanel.children
-                                                   [ textBlock
-                                                         [ TextBlock.text label
-                                                           TextBlock.foreground
-                                                               (Media.SolidColorBrush(Media.Colors.Gray))
-                                                           TextBlock.fontSize 12.0 ]
-                                                     textBlock
-                                                         [ TextBlock.text value
-                                                           TextBlock.fontSize 28.0
-                                                           TextBlock.fontWeight FontWeights.Bold ] ] ]
-                                     ) ])) ]
-                // Category breakdown
-                groupBox
-                    [ GroupBox.header "By Category"
-                      GroupBox.margin (Thickness 12.0)
-                      GroupBox.contentChild (
+    scrollViewer
+        [ ScrollViewer.verticalScrollBarVisibility ScrollBarVisibility.Auto
+          ScrollViewer.contentChild (
+              stackPanel
+                  [ StackPanel.margin (Thickness 16.0)
+                    StackPanel.children
+                        [ textBlock
+                              [ TextBlock.text "Analytics"
+                                TextBlock.fontSize 18.0
+                                TextBlock.fontWeight FontWeights.SemiBold
+                                TextBlock.margin (Thickness(0.0, 0.0, 0.0, 12.0)) ]
+                          // Summary cards
+                          uniformGrid
+                              [ UniformGrid.columns 3
+                                UniformGrid.margin (Thickness(0.0, 0.0, 0.0, 16.0))
+                                UniformGrid.children
+                                    ([ ("Total Products", $"{model.Products.Length}")
+                                       ("Categories", $"{byCategory.Length}")
+                                       ("Total Stock", $"{model.Products |> List.sumBy (fun p -> p.Stock)}") ]
+                                     |> List.map (fun (label, value) ->
+                                         border
+                                             [ Border.margin (Thickness 4.0)
+                                               Border.padding (Thickness 16.0)
+                                               Border.cornerRadius (CornerRadius 6.0)
+                                               Border.background
+                                                   (Media.SolidColorBrush(Media.Color.FromRgb(245uy, 245uy, 250uy)))
+                                               Border.borderBrush
+                                                   (Media.SolidColorBrush(Media.Color.FromRgb(220uy, 220uy, 225uy)))
+                                               Border.borderThickness (Thickness 1.0)
+                                               Border.contentChild (
+                                                   stackPanel
+                                                       [ StackPanel.children
+                                                             [ textBlock
+                                                                   [ TextBlock.text label
+                                                                     TextBlock.foreground
+                                                                         (Media.SolidColorBrush(Media.Colors.Gray))
+                                                                     TextBlock.fontSize 12.0 ]
+                                                               textBlock
+                                                                   [ TextBlock.text value
+                                                                     TextBlock.fontSize 28.0
+                                                                     TextBlock.fontWeight FontWeights.Bold ] ] ]
+                                               ) ])) ]
+                          // Category table
+                          textBlock
+                              [ TextBlock.text "By Category"
+                                TextBlock.fontSize 14.0
+                                TextBlock.fontWeight FontWeights.SemiBold
+                                TextBlock.margin (Thickness(0.0, 0.0, 0.0, 8.0)) ]
                           dataGrid
                               [ DataGrid.autoGenerateColumns true
                                 DataGrid.isReadOnly true
+                                DataGrid.height 200.0
                                 DataGrid.itemsSource (
                                     byCategory
                                     |> List.map (fun (cat, count, value) ->
-                                        {| Category = cat
-                                           Products = count
-                                           TotalValue = value |})
+                                        {| Category = cat; Products = count; TotalValue = value |})
                                     :> IEnumerable
-                                ) ]
-                      ) ] ] ]
+                                ) ] ] ]
+          ) ]
 
 let settingsView model dispatch =
     scrollViewer
-        [ ScrollViewer.contentChild (
+        [ ScrollViewer.verticalScrollBarVisibility ScrollBarVisibility.Auto
+          ScrollViewer.contentChild (
               stackPanel
                   [ StackPanel.margin (Thickness 16.0)
                     StackPanel.maxWidth 500.0
@@ -303,7 +274,7 @@ let settingsView model dispatch =
                                 TextBlock.fontSize 18.0
                                 TextBlock.fontWeight FontWeights.SemiBold
                                 TextBlock.margin (Thickness(0.0, 0.0, 0.0, 16.0)) ]
-                          // Company name — DevExpress TextEdit (themed)
+                          // Company name
                           textBlock
                               [ TextBlock.text "Company Name"
                                 TextBlock.margin (Thickness(0.0, 0.0, 0.0, 4.0)) ]
@@ -313,7 +284,7 @@ let settingsView model dispatch =
                                 TextBox.onTextChanged
                                     (TextChangedEventHandler(fun s _ ->
                                         dispatch (CompanyNameChanged((s :?> TextBox).Text)))) ]
-                          // Notifications — DevExpress CheckEdit (themed)
+                          // Notifications
                           checkBox
                               [ CheckBox.margin (Thickness(0.0, 0.0, 0.0, 16.0))
                                 CheckBox.content "Enable notifications"
@@ -322,7 +293,7 @@ let settingsView model dispatch =
                                     (RoutedEventHandler(fun _ _ -> dispatch ToggleNotifications))
                                 CheckBox.onUnchecked
                                     (RoutedEventHandler(fun _ _ -> dispatch ToggleNotifications)) ]
-                          // Max results — DevExpress SpinEdit (display only, themed)
+                          // Max results — DevExpress SpinEdit
                           textBlock
                               [ TextBlock.text "Max Results"
                                 TextBlock.margin (Thickness(0.0, 0.0, 0.0, 4.0)) ]
@@ -342,7 +313,6 @@ let settingsView model dispatch =
                                 Border.contentChild (
                                     let notif =
                                         if model.NotificationsEnabled then "On" else "Off"
-
                                     textBlock
                                         [ TextBlock.text
                                               $"Company: {model.CompanyName} | Notifications: {notif} | Max: {model.MaxResults:F0}" ]
@@ -360,31 +330,30 @@ let view model dispatch =
           Window.height 700.0
           Window.contentChild (
               dockPanel
-                  [ DockPanel.children
-                        [ // Header
-                          border
-                              [ DockPanel.dock Dock.Top
-                                Border.padding (Thickness(16.0, 10.0, 16.0, 10.0))
-                                Border.background
-                                    (Media.SolidColorBrush(Media.Color.FromRgb(50uy, 50uy, 80uy)))
-                                Border.contentChild (
-                                    textBlock
-                                        [ TextBlock.text "F# DevExpress WPF Dashboard"
-                                          TextBlock.fontSize 16.0
-                                          TextBlock.fontWeight FontWeights.SemiBold
-                                          TextBlock.foreground
-                                              (Media.SolidColorBrush(Media.Colors.White)) ]
-                                ) ]
-                          // Sidebar
-                          sidebar model dispatch
-                          // Main content
-                          border
-                              [ Border.contentChild (
-                                    match model.Page with
-                                    | Products -> productsView model dispatch
-                                    | Analytics -> analyticsView model dispatch
-                                    | Settings -> settingsView model dispatch
-                                ) ] ] ]
+                  [ DockPanel.lastChildFill true
+                    DockPanel.children
+                        [ // Header bar at top
+                          DockPanel.dock
+                              Dock.Top
+                              (border
+                                  [ Border.padding (Thickness(16.0, 10.0, 16.0, 10.0))
+                                    Border.background
+                                        (Media.SolidColorBrush(Media.Color.FromRgb(50uy, 50uy, 80uy)))
+                                    Border.contentChild (
+                                        textBlock
+                                            [ TextBlock.text "F# DevExpress WPF Dashboard"
+                                              TextBlock.fontSize 16.0
+                                              TextBlock.fontWeight FontWeights.SemiBold
+                                              TextBlock.foreground
+                                                  (Media.SolidColorBrush(Media.Colors.White)) ]
+                                    ) ])
+                          // Sidebar on left
+                          DockPanel.dock Dock.Left (sidebar model dispatch)
+                          // Main content fills rest
+                          match model.Page with
+                          | Products -> productsView model dispatch
+                          | Analytics -> analyticsView model dispatch
+                          | Settings -> settingsView model dispatch ] ]
           ) ]
 
 // ============================================================
