@@ -9,15 +9,51 @@ open FSharp.DevExpress.Wpf.Core
 
 FSharp.Windows.Dsl.Controls.Registration.register ()
 FSharp.DevExpress.Wpf.Core.Registration.register ()
+FSharp.DevExpress.Wpf.Ribbon.Registration.register ()
+FSharp.DevExpress.Wpf.Accordion.Registration.register ()
 
-// DX theme — must be set before any DX controls are created.
-// The theme applies automatically to all DX controls via ApplicationThemeHelper.
 DevExpress.Xpf.Core.ApplicationThemeHelper.ApplicationThemeName <-
     DevExpress.Xpf.Core.Theme.Office2019ColorfulName
 
+// ============================================================
+// Ribbon helpers — RibbonPage/Group/BarButtonItem are data models,
+// not UIElements, so we build them imperatively.
+// ============================================================
+module Ribbon =
+    open DevExpress.Xpf.Ribbon
+    open DevExpress.Xpf.Bars
+
+    let createButton caption (onClick: unit -> unit) =
+        let item = BarButtonItem(Content = caption)
+        item.ItemClick.Add(fun _ -> onClick ())
+        item
+
+    let createGroup caption (items: BarButtonItem list) =
+        let group = RibbonPageGroup(Caption = caption)
+
+        for item in items do
+            group.Items.Add(item)
+
+        group
+
+    let createPage caption (groups: RibbonPageGroup list) =
+        let page = RibbonPage(Caption = caption)
+
+        for group in groups do
+            page.Groups.Add(group)
+
+        page
+
+    let createRibbon (pages: RibbonPage list) =
+        let ribbon = RibbonControl()
+
+        for page in pages do
+            ribbon.Items.Add(page)
+
+        ribbon
 
 // ============================================================
-// Counter Component — DX SimpleButton + DX SpinEdit
+// Counter Component — DX SimpleButton + SpinEdit
 // ============================================================
 module Counter =
     type Model = { Count: int }
@@ -43,7 +79,6 @@ module Counter =
                           TextBlock.fontSize 20.0
                           TextBlock.fontWeight FontWeights.Bold
                           TextBlock.margin (Thickness(0.0, 0.0, 0.0, 16.0)) ]
-                    // DX SpinEdit as read-only display
                     SpinEdit.create
                         [ BaseEdit.editValue (box (decimal model.Count))
                           SpinEdit.minValue -999.0m
@@ -57,8 +92,7 @@ module Counter =
                         [ StackPanel.orientation Orientation.Horizontal
                           StackPanel.horizontalAlignment HorizontalAlignment.Center
                           StackPanel.children
-                              [ // DX SimpleButtons instead of WPF Button
-                                SimpleButton.create
+                              [ SimpleButton.create
                                     [ ContentControl.content " - "
                                       FrameworkElement.width 80.0
                                       FrameworkElement.height 36.0
@@ -80,7 +114,7 @@ module Counter =
                                       ButtonBase.onClick (RoutedEventHandler(fun _ _ -> dispatch Increment)) ] ] ] ] ]
 
 // ============================================================
-// Settings Component — DX CheckEdit + DX DateEdit + DX TextEdit
+// Settings Component — DX CheckEdit + TextEdit + DateEdit
 // ============================================================
 module Settings =
     type Model =
@@ -116,7 +150,6 @@ module Settings =
                           TextBlock.fontSize 20.0
                           TextBlock.fontWeight FontWeights.Bold
                           TextBlock.margin (Thickness(0.0, 0.0, 0.0, 16.0)) ]
-                    // DX CheckEdits instead of WPF CheckBox
                     CheckEdit.create
                         [ CheckEdit.content (
                               sprintf "Enable notifications (%s)" (if model.Notifications then "on" else "off")
@@ -141,7 +174,6 @@ module Settings =
                           FrameworkElement.margin (Thickness 4.0)
                           CheckEdit.onChecked (RoutedEventHandler(fun _ _ -> dispatch ToggleAutoSave))
                           CheckEdit.onUnchecked (RoutedEventHandler(fun _ _ -> dispatch ToggleAutoSave)) ]
-                    // DX TextEdit
                     textBlock
                         [ TextBlock.text "User Name"
                           TextBlock.margin (Thickness(4.0, 16.0, 0.0, 4.0)) ]
@@ -149,7 +181,6 @@ module Settings =
                         [ TextEditBase.text model.UserName
                           BaseEdit.nullText "Enter user name..."
                           FrameworkElement.margin (Thickness 4.0) ]
-                    // DX DateEdit
                     textBlock
                         [ TextBlock.text "Report Date"
                           TextBlock.margin (Thickness(4.0, 12.0, 0.0, 4.0)) ]
@@ -160,7 +191,7 @@ module Settings =
                           FrameworkElement.margin (Thickness 4.0) ] ] ]
 
 // ============================================================
-// Shell — composes child components (same pattern as ElmishCounter)
+// Shell — DXRibbonWindow + Ribbon + AccordionControl nav
 // ============================================================
 type Page =
     | Dashboard
@@ -219,37 +250,89 @@ let dashboardView dispatch =
                     [ TextBlock.text "Counter uses DX SimpleButton + SpinEdit. Settings uses DX CheckEdit + DateEdit + TextEdit."
                       TextBlock.margin (Thickness(0.0, 8.0, 0.0, 0.0))
                       TextBlock.textWrapping TextWrapping.Wrap ]
-                // DX SimpleButton instead of WPF Button
                 SimpleButton.create
                     [ ContentControl.content "Open Counter in New Window (independent loop)"
                       FrameworkElement.margin (Thickness(0.0, 16.0, 0.0, 0.0))
                       Control.padding (Thickness(12.0, 6.0, 12.0, 6.0))
                       ButtonBase.onClick (RoutedEventHandler(fun _ _ -> dispatch OpenChildWindow)) ] ] ]
 
+/// Build the Ribbon with toolbar buttons wired to dispatch
+let buildRibbon (dispatch: Msg -> unit) =
+    Ribbon.createRibbon
+        [ Ribbon.createPage
+              "Home"
+              [ Ribbon.createGroup
+                    "Navigate"
+                    [ Ribbon.createButton "Dashboard" (fun () -> dispatch (Navigate Dashboard))
+                      Ribbon.createButton "Counter" (fun () -> dispatch (Navigate CounterPage))
+                      Ribbon.createButton "Settings" (fun () -> dispatch (Navigate SettingsPage)) ]
+                Ribbon.createGroup
+                    "Actions"
+                    [ Ribbon.createButton "New Window" (fun () -> dispatch OpenChildWindow) ] ]
+          Ribbon.createPage
+              "View"
+              [ Ribbon.createGroup
+                    "Options"
+                    [ Ribbon.createButton "Toggle Notifications" (fun () -> dispatch (SettingsMsg Settings.ToggleNotifications)) ] ] ]
+
+/// Build an Outlook-style AccordionControl for left navigation
+let buildNavPanel (dispatch: Msg -> unit) =
+    let acc = DevExpress.Xpf.Accordion.AccordionControl()
+    acc.ExpandMode <- DevExpress.Xpf.Accordion.ExpandMode.Single
+    acc.ExpandItemOnHeaderClick <- true
+
+    let addItem (parent: DevExpress.Xpf.Accordion.AccordionItem) header (onClick: unit -> unit) =
+        let item = DevExpress.Xpf.Accordion.AccordionItem(Header = header)
+        item.MouseLeftButtonUp.Add(fun _ -> onClick ())
+        parent.Items.Add(item)
+
+    let pages = DevExpress.Xpf.Accordion.AccordionItem(Header = "Pages")
+    addItem pages "Dashboard" (fun () -> dispatch (Navigate Dashboard))
+    addItem pages "Counter" (fun () -> dispatch (Navigate CounterPage))
+    addItem pages "Settings" (fun () -> dispatch (Navigate SettingsPage))
+    pages.IsExpanded <- true
+    acc.Items.Add(pages)
+
+    let actions = DevExpress.Xpf.Accordion.AccordionItem(Header = "Actions")
+    addItem actions "Open New Window" (fun () -> dispatch OpenChildWindow)
+    acc.Items.Add(actions)
+
+    acc
+
+/// Create the DXRibbonWindow with embedded Ribbon + AccordionControl nav
 let view model dispatch =
-    window
-        [ Window.title $"DevExpress Elmish Components \u2014 {model.Page}"
-          Window.width 600.0
-          Window.height 450.0
+    // Build imperative DX controls and embed in the view tree
+    let ribbon = buildRibbon dispatch
+    let navPanel = buildNavPanel dispatch
+
+    FSharp.DevExpress.Wpf.Ribbon.DXRibbonWindow.create
+        [ Window.title $"DevExpress Elmish \u2014 {model.Page}"
+          Window.width 900.0
+          Window.height 600.0
           Window.contentChild (
               dockPanel
                   [ DockPanel.lastChildFill true
                     DockPanel.children
-                        [ DockPanel.dock
-                              Dock.Top
-                              (border
-                                  [ Border.padding (Thickness 8.0)
-                                    Border.borderThickness (Thickness(0.0, 0.0, 0.0, 1.0))
+                        [ // Ribbon at top — pre-built DX control
+                          DockPanel.dock Dock.Top (
+                              // Wrap in a ContentControl to embed the pre-built ribbon
+                              contentControl
+                                  [ ContentControl.content ribbon ]
+                          )
+                          // Outlook-style accordion nav on left
+                          DockPanel.dock Dock.Left (
+                              border
+                                  [ Border.width 180.0
+                                    Border.borderThickness (Thickness(0.0, 0.0, 1.0, 0.0))
                                     Border.borderBrush SystemColors.ActiveBorderBrush
                                     Border.contentChild (
-                                        textBlock
-                                            [ TextBlock.text
-                                                  "FSharp.Windows.Dsl + Elmish + DevExpress"
-                                              TextBlock.fontWeight FontWeights.Bold ]
-                                    ) ])
-                          DockPanel.dock
-                              Dock.Bottom
-                              (border
+                                        contentControl
+                                            [ ContentControl.content navPanel ]
+                                    ) ]
+                          )
+                          // Status bar
+                          DockPanel.dock Dock.Bottom (
+                              border
                                   [ Border.padding (Thickness(8.0, 4.0, 8.0, 4.0))
                                     Border.borderThickness (Thickness(0.0, 1.0, 0.0, 0.0))
                                     Border.borderBrush SystemColors.ActiveBorderBrush
@@ -257,42 +340,9 @@ let view model dispatch =
                                         textBlock
                                             [ TextBlock.text
                                                   $"Page: {model.Page} | Counter: {model.Counter.Count} | AutoSave: {model.Settings.AutoSave}" ]
-                                    ) ])
-                          DockPanel.dock
-                              Dock.Left
-                              (border
-                                  [ Border.width 160.0
-                                    Border.padding (Thickness 8.0)
-                                    Border.borderThickness (Thickness(0.0, 0.0, 1.0, 0.0))
-                                    Border.borderBrush SystemColors.ActiveBorderBrush
-                                    Border.contentChild (
-                                        stackPanel
-                                            [ StackPanel.children
-                                                  [ textBlock
-                                                        [ TextBlock.text "Navigation"
-                                                          TextBlock.fontWeight FontWeights.Bold
-                                                          TextBlock.margin (Thickness(0.0, 0.0, 0.0, 8.0)) ]
-                                                    // DX SimpleButtons for nav
-                                                    SimpleButton.create
-                                                        [ ContentControl.content "Dashboard"
-                                                          FrameworkElement.margin (Thickness 2.0)
-                                                          ButtonBase.onClick
-                                                              (RoutedEventHandler(fun _ _ ->
-                                                                  dispatch (Navigate Dashboard))) ]
-                                                    SimpleButton.create
-                                                        [ ContentControl.content "Counter"
-                                                          FrameworkElement.margin (Thickness 2.0)
-                                                          ButtonBase.onClick
-                                                              (RoutedEventHandler(fun _ _ ->
-                                                                  dispatch (Navigate CounterPage))) ]
-                                                    SimpleButton.create
-                                                        [ ContentControl.content "Settings"
-                                                          FrameworkElement.margin (Thickness 2.0)
-                                                          ButtonBase.onClick
-                                                              (RoutedEventHandler(fun _ _ ->
-                                                                  dispatch (Navigate SettingsPage))) ] ] ]
-                                    ) ])
-                          // Content area — each page delegates to its component's view
+                                    ) ]
+                          )
+                          // Content area
                           border
                               [ Border.padding (Thickness 16.0)
                                 Border.contentChild (

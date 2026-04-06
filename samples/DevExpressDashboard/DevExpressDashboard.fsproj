@@ -12,15 +12,13 @@
         <ProjectReference Include="..\..\src\FSharp.Windows.Dsl.Controls\FSharp.Windows.Dsl.Controls.fsproj" />
         <ProjectReference Include="..\..\src\FSharp.Windows.Dsl.Elmish\FSharp.Windows.Dsl.Elmish.fsproj" />
         <ProjectReference Include="..\..\vendor\FSharp.DevExpress.Wpf\FSharp.DevExpress.Wpf.Core\FSharp.DevExpress.Wpf.Core.fsproj" />
-        <ProjectReference Include="..\..\vendor\FSharp.DevExpress.Wpf\FSharp.DevExpress.Wpf.Grid\FSharp.DevExpress.Wpf.Grid.fsproj" />
-        <ProjectReference Include="..\..\vendor\FSharp.DevExpress.Wpf\FSharp.DevExpress.Wpf.Charts\FSharp.DevExpress.Wpf.Charts.fsproj" />
+        <ProjectReference Include="..\..\vendor\FSharp.DevExpress.Wpf\FSharp.DevExpress.Wpf.Ribbon\FSharp.DevExpress.Wpf.Ribbon.fsproj" />
         <ProjectReference Include="..\..\vendor\FSharp.DevExpress.Wpf\FSharp.DevExpress.Wpf.Accordion\FSharp.DevExpress.Wpf.Accordion.fsproj" />
     </ItemGroup>
     <ItemGroup>
         <PackageReference Include="Elmish" VersionOverride="4.2.0" />
         <PackageReference Include="DevExpress.Wpf.Core" VersionOverride="25.2.4" />
-        <PackageReference Include="DevExpress.Wpf.Grid" VersionOverride="25.2.4" />
-        <PackageReference Include="DevExpress.Wpf.Charts" VersionOverride="25.2.4" />
+        <PackageReference Include="DevExpress.Wpf.Ribbon" VersionOverride="25.2.4" />
         <PackageReference Include="DevExpress.Wpf.Accordion" VersionOverride="25.2.4" />
         <PackageReference Include="DevExpress.Wpf.Themes.Office2019Colorful" VersionOverride="25.2.4" />
     </ItemGroup>
