@@ -31,6 +31,7 @@ jobs:
           dotnet pack src/FSharp.Windows.Dsl.Testing/FSharp.Windows.Dsl.Testing.fsproj -c Release --no-build --output ./nupkgs
 
       - name: Push to NuGet
+        shell: bash
         run: >
           dotnet nuget push ./nupkgs/*.nupkg
           --source "https://api.nuget.org/v3/index.json"
