@@ -6,7 +6,7 @@
 #
 # Usage: ./tools/generate-devexpress.sh [output-dir]
 #
-# Requires: DevExpress 25.2 installed at the default path.
+# Auto-detects the latest DevExpress installation and version.
 # The output is NOT committed to the public repo (EULA Section 7).
 
 set -euo pipefail
@@ -14,17 +14,33 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 CODEGEN="$REPO_ROOT/tools/Codegen"
-DX_PATH="C:/Program Files/DevExpress 25.2/Components/Bin/Framework"
-V="v25.2"
-DX_NUGET_VERSION="25.2.4"
-OUTPUT_ROOT="${1:-$REPO_ROOT/vendor/FSharp.DevExpress.Wpf}"
 
-if [ ! -d "$DX_PATH" ]; then
-    echo "ERROR: DevExpress not found at $DX_PATH"
+# Auto-detect latest DevExpress installation
+DX_INSTALL=$(ls -d "/c/Program Files/DevExpress"* 2>/dev/null | sort -V | tail -1)
+if [ -z "$DX_INSTALL" ]; then
+    echo "ERROR: No DevExpress installation found in /c/Program Files/"
     exit 1
 fi
 
+DX_PATH="$DX_INSTALL/Components/Bin/Framework"
+if [ ! -d "$DX_PATH" ]; then
+    echo "ERROR: DevExpress framework not found at $DX_PATH"
+    exit 1
+fi
+
+# Extract major.minor from install dir name (e.g. "DevExpress 25.2" -> "25.2")
+DX_MAJOR_MINOR="${DX_INSTALL##*DevExpress }"
+V="v${DX_MAJOR_MINOR}"
+
+# Extract full version (e.g. 25.2.4) from DLL file version
+DX_CORE_DLL="$DX_PATH/DevExpress.Xpf.Core.$V.dll"
+DX_WIN_PATH=$(cygpath -w "$DX_CORE_DLL")
+DX_NUGET_VERSION=$(powershell -c "[System.Diagnostics.FileVersionInfo]::GetVersionInfo('$DX_WIN_PATH').FileVersion" | tr -d '\r' | sed 's/\.[0-9]*$//')
+
+OUTPUT_ROOT="${1:-$REPO_ROOT/vendor/FSharp.DevExpress.Wpf}"
+
 echo "=== FSharp.DevExpress.Wpf Generator ==="
+echo "DevExpress: $DX_MAJOR_MINOR (v$DX_NUGET_VERSION)"
 echo "Output: $OUTPUT_ROOT"
 echo ""
 
