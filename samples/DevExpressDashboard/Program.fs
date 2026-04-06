@@ -6,16 +6,11 @@ open Elmish
 open FSharp.Windows.Dsl
 open FSharp.Windows.Dsl.Controls
 open FSharp.Windows.Dsl.Elmish
+open FSharp.DevExpress.Wpf.Core
 
-// Register base WPF control apply functions
 Registration.register ()
-// Register DevExpress control apply functions
 FSharp.DevExpress.Wpf.Core.Registration.register ()
-FSharp.DevExpress.Wpf.Grid.Registration.register ()
-FSharp.DevExpress.Wpf.Charts.Registration.register ()
-FSharp.DevExpress.Wpf.Accordion.Registration.register ()
 
-// Apply DevExpress Office2019Colorful theme
 DevExpress.Xpf.Core.ApplicationThemeHelper.ApplicationThemeName <-
     DevExpress.Xpf.Core.Theme.Office2019ColorfulName
 
@@ -45,14 +40,18 @@ type Model =
       SearchText: string
       CompanyName: string
       NotificationsEnabled: bool
-      MaxResults: float }
+      AutoSave: bool
+      MaxResults: float
+      SelectedDate: DateTime }
 
 type Msg =
     | NavigateTo of Page
     | SearchChanged of string
     | CompanyNameChanged of string
     | ToggleNotifications
+    | ToggleAutoSave
     | MaxResultsChanged of float
+    | DateChanged of DateTime
     | AddProduct
     | RemoveFirst
 
@@ -76,7 +75,9 @@ let init () =
       SearchText = ""
       CompanyName = "Contoso Ltd."
       NotificationsEnabled = true
-      MaxResults = 100.0 },
+      AutoSave = false
+      MaxResults = 100.0
+      SelectedDate = DateTime.Today },
     Cmd.none
 
 let update msg model =
@@ -86,7 +87,10 @@ let update msg model =
     | CompanyNameChanged name -> { model with CompanyName = name }, Cmd.none
     | ToggleNotifications ->
         { model with NotificationsEnabled = not model.NotificationsEnabled }, Cmd.none
+    | ToggleAutoSave ->
+        { model with AutoSave = not model.AutoSave }, Cmd.none
     | MaxResultsChanged v -> { model with MaxResults = v }, Cmd.none
+    | DateChanged d -> { model with SelectedDate = d }, Cmd.none
     | AddProduct ->
         let p =
             { Name = $"New Product #{model.Products.Length + 1}"
@@ -98,10 +102,8 @@ let update msg model =
         | [] -> model, Cmd.none
 
 // ============================================================
-// Views
+// Views — All DevExpress controls
 // ============================================================
-
-open FSharp.DevExpress.Wpf.Core
 
 let navButton label page currentPage dispatch =
     SimpleButton.create
@@ -113,19 +115,18 @@ let navButton label page currentPage dispatch =
 
 let sidebar model dispatch =
     border
-        [ Border.background (Media.SolidColorBrush(Media.Color.FromRgb(240uy, 240uy, 245uy)))
-          Border.borderBrush (Media.SolidColorBrush(Media.Color.FromRgb(220uy, 220uy, 225uy)))
+        [ Border.width 200.0
+          Border.padding (Thickness 8.0)
           Border.borderThickness (Thickness(0.0, 0.0, 1.0, 0.0))
-          Border.width 200.0
+          Border.borderBrush (Media.SolidColorBrush(Media.Color.FromRgb(200uy, 200uy, 210uy)))
           Border.contentChild (
               stackPanel
-                  [ StackPanel.margin (Thickness 8.0)
-                    StackPanel.children
+                  [ StackPanel.children
                         [ textBlock
                               [ TextBlock.text "Navigation"
                                 TextBlock.fontSize 14.0
                                 TextBlock.fontWeight FontWeights.SemiBold
-                                TextBlock.margin (Thickness(8.0, 12.0, 8.0, 12.0)) ]
+                                TextBlock.margin (Thickness(4.0, 8.0, 4.0, 12.0)) ]
                           navButton "Products" Products model.Page dispatch
                           navButton "Analytics" Analytics model.Page dispatch
                           navButton "Settings" Settings model.Page dispatch ] ]
@@ -146,7 +147,7 @@ let productsView model dispatch =
     dockPanel
         [ DockPanel.lastChildFill true
           DockPanel.children
-              [ // Toolbar at top
+              [ // Toolbar — DX TextEdit + SimpleButtons
                 DockPanel.dock
                     Dock.Top
                     (border
@@ -157,13 +158,13 @@ let productsView model dispatch =
                               stackPanel
                                   [ StackPanel.orientation Orientation.Horizontal
                                     StackPanel.children
-                                        [ textBox
-                                              [ TextBox.width 250.0
-                                                TextBox.margin (Thickness(0.0, 0.0, 8.0, 0.0))
-                                                TextBox.text model.SearchText
-                                                TextBox.onTextChanged
-                                                    (TextChangedEventHandler(fun s _ ->
-                                                        dispatch (SearchChanged((s :?> TextBox).Text)))) ]
+                                        [ // DX TextEdit with nullText placeholder
+                                          TextEdit.create
+                                              [ FrameworkElement.width 250.0
+                                                FrameworkElement.margin (Thickness(0.0, 0.0, 8.0, 0.0))
+                                                TextEditBase.text model.SearchText
+                                                BaseEdit.nullText "Search products..." ]
+                                          // DX SimpleButtons
                                           SimpleButton.create
                                               [ ContentControl.content "Add Product"
                                                 FrameworkElement.margin (Thickness(0.0, 0.0, 4.0, 0.0))
@@ -174,17 +175,36 @@ let productsView model dispatch =
                                                 ButtonBase.onClick
                                                     (RoutedEventHandler(fun _ _ -> dispatch RemoveFirst)) ] ] ]
                           ) ])
-                // Status bar at bottom
+                // Status bar — DX ProgressBarEdit showing stock level
                 DockPanel.dock
                     Dock.Bottom
                     (border
-                        [ Border.padding (Thickness(8.0, 4.0, 8.0, 4.0))
+                        [ Border.padding (Thickness 8.0)
                           Border.borderThickness (Thickness(0.0, 1.0, 0.0, 0.0))
                           Border.borderBrush (Media.SolidColorBrush(Media.Color.FromRgb(220uy, 220uy, 225uy)))
                           Border.contentChild (
-                              textBlock
-                                  [ TextBlock.text $"{filtered.Length} products — Total value: ${total:N0}"
-                                    TextBlock.foreground (Media.SolidColorBrush(Media.Colors.Gray)) ]
+                              stackPanel
+                                  [ StackPanel.orientation Orientation.Horizontal
+                                    StackPanel.children
+                                        [ textBlock
+                                              [ TextBlock.text
+                                                    $"{filtered.Length} products \u2014 Total: ${total:N0}"
+                                                TextBlock.verticalAlignment VerticalAlignment.Center
+                                                TextBlock.margin (Thickness(0.0, 0.0, 16.0, 0.0)) ]
+                                          // DX ProgressBarEdit as stock indicator
+                                          ProgressBarEdit.create
+                                              [ FrameworkElement.width 200.0
+                                                FrameworkElement.height 20.0
+                                                FrameworkElement.verticalAlignment VerticalAlignment.Center
+                                                RangeBaseEdit.minimum 0.0
+                                                RangeBaseEdit.maximum 1000.0
+                                                RangeBaseEdit.value
+                                                    (filtered
+                                                     |> List.sumBy (fun p -> float p.Stock)
+                                                     |> min 1000.0)
+                                                ProgressBarEdit.isPercent false
+                                                ProgressBarEdit.contentDisplayMode
+                                                    DevExpress.Xpf.Editors.ContentDisplayMode.Value ] ] ]
                           ) ])
                 // Data grid fills remaining space
                 dataGrid
@@ -200,65 +220,100 @@ let analyticsView model _dispatch =
         |> List.map (fun (cat, items) ->
             cat, List.length items, items |> List.sumBy (fun p -> p.Price * float p.Stock))
 
-    scrollViewer
-        [ ScrollViewer.verticalScrollBarVisibility ScrollBarVisibility.Auto
-          ScrollViewer.contentChild (
-              stackPanel
-                  [ StackPanel.margin (Thickness 16.0)
-                    StackPanel.children
-                        [ textBlock
-                              [ TextBlock.text "Analytics"
-                                TextBlock.fontSize 18.0
-                                TextBlock.fontWeight FontWeights.SemiBold
-                                TextBlock.margin (Thickness(0.0, 0.0, 0.0, 12.0)) ]
-                          // Summary cards
-                          uniformGrid
-                              [ UniformGrid.columns 3
-                                UniformGrid.margin (Thickness(0.0, 0.0, 0.0, 16.0))
-                                UniformGrid.children
-                                    ([ ("Total Products", $"{model.Products.Length}")
-                                       ("Categories", $"{byCategory.Length}")
-                                       ("Total Stock", $"{model.Products |> List.sumBy (fun p -> p.Stock)}") ]
-                                     |> List.map (fun (label, value) ->
-                                         border
-                                             [ Border.margin (Thickness 4.0)
-                                               Border.padding (Thickness 16.0)
-                                               Border.cornerRadius (CornerRadius 6.0)
-                                               Border.background
-                                                   (Media.SolidColorBrush(Media.Color.FromRgb(245uy, 245uy, 250uy)))
-                                               Border.borderBrush
-                                                   (Media.SolidColorBrush(Media.Color.FromRgb(220uy, 220uy, 225uy)))
-                                               Border.borderThickness (Thickness 1.0)
-                                               Border.contentChild (
-                                                   stackPanel
-                                                       [ StackPanel.children
-                                                             [ textBlock
-                                                                   [ TextBlock.text label
-                                                                     TextBlock.foreground
-                                                                         (Media.SolidColorBrush(Media.Colors.Gray))
-                                                                     TextBlock.fontSize 12.0 ]
-                                                               textBlock
-                                                                   [ TextBlock.text value
-                                                                     TextBlock.fontSize 28.0
-                                                                     TextBlock.fontWeight FontWeights.Bold ] ] ]
-                                               ) ])) ]
-                          // Category table
-                          textBlock
-                              [ TextBlock.text "By Category"
-                                TextBlock.fontSize 14.0
-                                TextBlock.fontWeight FontWeights.SemiBold
-                                TextBlock.margin (Thickness(0.0, 0.0, 0.0, 8.0)) ]
+    // DX DXTabControl with DXTabItems for tabbed analytics
+    DXTabControl.create
+        [ FrameworkElement.margin (Thickness 8.0)
+          DXTabControl.children
+              [ // Tab 1: Summary cards
+                DXTabItem.create
+                    [ HeaderedContentControl.header "Overview"
+                      DXTabItem.contentChild (
+                          scrollViewer
+                              [ ScrollViewer.contentChild (
+                                    stackPanel
+                                        [ StackPanel.margin (Thickness 12.0)
+                                          StackPanel.children
+                                              [ uniformGrid
+                                                    [ UniformGrid.columns 3
+                                                      UniformGrid.margin (Thickness(0.0, 0.0, 0.0, 16.0))
+                                                      UniformGrid.children
+                                                          ([ ("Total Products", $"{model.Products.Length}")
+                                                             ("Categories", $"{byCategory.Length}")
+                                                             ("Total Stock",
+                                                              $"{model.Products |> List.sumBy (fun p -> p.Stock)}") ]
+                                                           |> List.map (fun (label, value) ->
+                                                               border
+                                                                   [ Border.margin (Thickness 4.0)
+                                                                     Border.padding (Thickness 16.0)
+                                                                     Border.cornerRadius (CornerRadius 6.0)
+                                                                     Border.borderBrush
+                                                                         (Media.SolidColorBrush(
+                                                                             Media.Color.FromRgb(200uy, 200uy, 210uy)
+                                                                         ))
+                                                                     Border.borderThickness (Thickness 1.0)
+                                                                     Border.contentChild (
+                                                                         stackPanel
+                                                                             [ StackPanel.children
+                                                                                   [ textBlock
+                                                                                         [ TextBlock.text label
+                                                                                           TextBlock.fontSize 12.0
+                                                                                           TextBlock.foreground
+                                                                                               (Media.SolidColorBrush(
+                                                                                                   Media.Colors.Gray
+                                                                                               )) ]
+                                                                                     textBlock
+                                                                                         [ TextBlock.text value
+                                                                                           TextBlock.fontSize 28.0
+                                                                                           TextBlock.fontWeight
+                                                                                               FontWeights.Bold ] ] ]
+                                                                     ) ])) ]
+                                                // Per-category progress bars
+                                                textBlock
+                                                    [ TextBlock.text "Stock by Category"
+                                                      TextBlock.fontWeight FontWeights.SemiBold
+                                                      TextBlock.margin (Thickness(4.0, 0.0, 0.0, 8.0)) ]
+                                                stackPanel
+                                                    [ StackPanel.children
+                                                          (byCategory
+                                                           |> List.map (fun (cat, _, value) ->
+                                                               stackPanel
+                                                                   [ StackPanel.margin (Thickness(4.0, 2.0, 4.0, 2.0))
+                                                                     StackPanel.children
+                                                                         [ textBlock
+                                                                               [ TextBlock.text
+                                                                                     $"{cat}: ${value:N0}" ]
+                                                                           ProgressBarEdit.create
+                                                                               [ FrameworkElement.height 22.0
+                                                                                 RangeBaseEdit.minimum 0.0
+                                                                                 RangeBaseEdit.maximum
+                                                                                     (byCategory
+                                                                                      |> List.map (fun (_, _, v) -> v)
+                                                                                      |> List.max)
+                                                                                 RangeBaseEdit.value value
+                                                                                 ProgressBarEdit.isPercent false
+                                                                                 ProgressBarEdit.contentDisplayMode
+                                                                                     DevExpress.Xpf.Editors
+                                                                                         .ContentDisplayMode
+                                                                                         .Value ] ] ])) ] ] ]
+                                ) ]
+                      ) ]
+                // Tab 2: Data table
+                DXTabItem.create
+                    [ HeaderedContentControl.header "Data"
+                      DXTabItem.contentChild (
                           dataGrid
                               [ DataGrid.autoGenerateColumns true
                                 DataGrid.isReadOnly true
-                                DataGrid.height 200.0
+                                DataGrid.margin (Thickness 8.0)
                                 DataGrid.itemsSource (
                                     byCategory
                                     |> List.map (fun (cat, count, value) ->
-                                        {| Category = cat; Products = count; TotalValue = value |})
+                                        {| Category = cat
+                                           Products = count
+                                           TotalValue = value |})
                                     :> IEnumerable
-                                ) ] ] ]
-          ) ]
+                                ) ]
+                      ) ] ] ]
 
 let settingsView model dispatch =
     scrollViewer
@@ -274,53 +329,76 @@ let settingsView model dispatch =
                                 TextBlock.fontSize 18.0
                                 TextBlock.fontWeight FontWeights.SemiBold
                                 TextBlock.margin (Thickness(0.0, 0.0, 0.0, 16.0)) ]
-                          // Company name
+                          // DX TextEdit — company name with placeholder
                           textBlock
                               [ TextBlock.text "Company Name"
                                 TextBlock.margin (Thickness(0.0, 0.0, 0.0, 4.0)) ]
-                          textBox
-                              [ TextBox.text model.CompanyName
-                                TextBox.margin (Thickness(0.0, 0.0, 0.0, 16.0))
-                                TextBox.onTextChanged
-                                    (TextChangedEventHandler(fun s _ ->
-                                        dispatch (CompanyNameChanged((s :?> TextBox).Text)))) ]
-                          // Notifications
-                          checkBox
-                              [ CheckBox.margin (Thickness(0.0, 0.0, 0.0, 16.0))
-                                CheckBox.content "Enable notifications"
-                                CheckBox.isChecked (Nullable model.NotificationsEnabled)
-                                CheckBox.onChecked
-                                    (RoutedEventHandler(fun _ _ -> dispatch ToggleNotifications))
-                                CheckBox.onUnchecked
-                                    (RoutedEventHandler(fun _ _ -> dispatch ToggleNotifications)) ]
-                          // Max results — DevExpress SpinEdit
+                          TextEdit.create
+                              [ TextEditBase.text model.CompanyName
+                                BaseEdit.nullText "Enter company name..."
+                                FrameworkElement.margin (Thickness(0.0, 0.0, 0.0, 12.0)) ]
+                          // DX DateEdit — date picker
                           textBlock
-                              [ TextBlock.text "Max Results"
+                              [ TextBlock.text "Report Date"
+                                TextBlock.margin (Thickness(0.0, 0.0, 0.0, 4.0)) ]
+                          DateEdit.create
+                              [ DateEdit.dateTime model.SelectedDate
+                                DateEdit.showClearButton true
+                                DateEdit.showToday true
+                                DateEdit.showWeekNumbers true
+                                FrameworkElement.margin (Thickness(0.0, 0.0, 0.0, 12.0)) ]
+                          // DX CheckEdits — toggles
+                          textBlock
+                              [ TextBlock.text "Options"
+                                TextBlock.fontWeight FontWeights.SemiBold
+                                TextBlock.margin (Thickness(0.0, 4.0, 0.0, 8.0)) ]
+                          CheckEdit.create
+                              [ CheckEdit.content "Enable email notifications"
+                                CheckEdit.isChecked (Nullable model.NotificationsEnabled)
+                                CheckEdit.onChecked
+                                    (RoutedEventHandler(fun _ _ -> dispatch ToggleNotifications))
+                                CheckEdit.onUnchecked
+                                    (RoutedEventHandler(fun _ _ -> dispatch ToggleNotifications))
+                                FrameworkElement.margin (Thickness(0.0, 0.0, 0.0, 4.0)) ]
+                          CheckEdit.create
+                              [ CheckEdit.content "Auto-save changes"
+                                CheckEdit.isChecked (Nullable model.AutoSave)
+                                CheckEdit.onChecked
+                                    (RoutedEventHandler(fun _ _ -> dispatch ToggleAutoSave))
+                                CheckEdit.onUnchecked
+                                    (RoutedEventHandler(fun _ _ -> dispatch ToggleAutoSave))
+                                FrameworkElement.margin (Thickness(0.0, 0.0, 0.0, 12.0)) ]
+                          // DX SpinEdit — numeric input
+                          textBlock
+                              [ TextBlock.text "Max Results per Page"
                                 TextBlock.margin (Thickness(0.0, 0.0, 0.0, 4.0)) ]
                           SpinEdit.create
-                              [ FrameworkElement.margin (Thickness(0.0, 0.0, 0.0, 16.0))
-                                SpinEdit.minValue 10.0m
+                              [ SpinEdit.minValue 10.0m
                                 SpinEdit.maxValue 1000.0m
                                 SpinEdit.increment 10.0m
-                                BaseEdit.editValue (box model.MaxResults) ]
-                          // Summary
+                                BaseEdit.editValue (box model.MaxResults)
+                                FrameworkElement.margin (Thickness(0.0, 0.0, 0.0, 16.0)) ]
+                          // Summary panel
                           border
-                              [ Border.margin (Thickness(0.0, 8.0, 0.0, 0.0))
-                                Border.padding (Thickness 12.0)
+                              [ Border.padding (Thickness 12.0)
                                 Border.cornerRadius (CornerRadius 4.0)
-                                Border.background
-                                    (Media.SolidColorBrush(Media.Color.FromRgb(235uy, 245uy, 235uy)))
+                                Border.borderBrush
+                                    (Media.SolidColorBrush(Media.Color.FromRgb(200uy, 200uy, 210uy)))
+                                Border.borderThickness (Thickness 1.0)
                                 Border.contentChild (
                                     let notif =
                                         if model.NotificationsEnabled then "On" else "Off"
+
+                                    let save = if model.AutoSave then "On" else "Off"
+
                                     textBlock
                                         [ TextBlock.text
-                                              $"Company: {model.CompanyName} | Notifications: {notif} | Max: {model.MaxResults:F0}" ]
+                                              $"{model.CompanyName} | Notifications: {notif} | AutoSave: {save} | Max: {model.MaxResults:F0} | Date: {model.SelectedDate:d}" ]
                                 ) ] ] ]
           ) ]
 
 // ============================================================
-// Main view
+// Main — DX ThemedWindow
 // ============================================================
 
 let view model dispatch =
@@ -328,12 +406,12 @@ let view model dispatch =
         [ Window.title $"DevExpress Dashboard \u2014 {model.CompanyName}"
           Window.width 1024.0
           Window.height 700.0
+          ThemedWindow.showTitle true
           Window.contentChild (
               dockPanel
                   [ DockPanel.lastChildFill true
                     DockPanel.children
-                        [ // Header bar at top
-                          DockPanel.dock
+                        [ DockPanel.dock
                               Dock.Top
                               (border
                                   [ Border.padding (Thickness(16.0, 10.0, 16.0, 10.0))
@@ -347,18 +425,12 @@ let view model dispatch =
                                               TextBlock.foreground
                                                   (Media.SolidColorBrush(Media.Colors.White)) ]
                                     ) ])
-                          // Sidebar on left
                           DockPanel.dock Dock.Left (sidebar model dispatch)
-                          // Main content fills rest
                           match model.Page with
                           | Products -> productsView model dispatch
                           | Analytics -> analyticsView model dispatch
                           | Settings -> settingsView model dispatch ] ]
           ) ]
-
-// ============================================================
-// Entry point
-// ============================================================
 
 [<STAThread; EntryPoint>]
 let main _ =
