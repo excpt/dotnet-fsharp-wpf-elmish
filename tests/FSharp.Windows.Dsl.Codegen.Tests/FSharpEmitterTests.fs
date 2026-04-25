@@ -138,6 +138,104 @@ let ``emitControlFile handles version guards in DU`` () =
     output |> should haveSubstring "| ThemeMode of ThemeMode"
     output |> should haveSubstring "#endif"
 
+// --- isEmittableEvent (Gap 4) ---
+
+[<Fact>]
+let ``isEmittableEvent accepts DependencyPropertyChangedEventHandler`` () =
+    let ev =
+        { Name = "DataContextChanged"
+          FieldName = ""
+          OwnerTypeName = "FrameworkElement"
+          HandlerTypeName = Some "System.Windows.DependencyPropertyChangedEventHandler"
+          IsStandardDelegate = true
+          IsObsolete = false }
+
+    Program.isEmittableEvent ev |> should be True
+
+[<Fact>]
+let ``isEmittableEvent accepts third-party EventHandler delegates (e.g. DevExpress)`` () =
+    let ev =
+        { Name = "CurrentItemChanged"
+          FieldName = ""
+          OwnerTypeName = "DataControlBase"
+          HandlerTypeName = Some "DevExpress.Xpf.Grid.CurrentItemChangedEventHandler"
+          IsStandardDelegate = true
+          IsObsolete = false }
+
+    Program.isEmittableEvent ev |> should be True
+
+[<Fact>]
+let ``isEmittableEvent rejects HwndSourceHook (non-standard signature)`` () =
+    let ev =
+        { Name = "MessageHook"
+          FieldName = ""
+          OwnerTypeName = "HwndHost"
+          HandlerTypeName = Some "System.Windows.Interop.HwndSourceHook"
+          IsStandardDelegate = false
+          IsObsolete = false }
+
+    Program.isEmittableEvent ev |> should be False
+
+[<Fact>]
+let ``isEmittableEvent rejects ImageFailedEventHandler with non-standard arg count`` () =
+    let ev =
+        { Name = "ImageFailed"
+          FieldName = ""
+          OwnerTypeName = "PopupImageEdit"
+          HandlerTypeName = Some "DevExpress.Xpf.Editors.ImageFailedEventHandler"
+          IsStandardDelegate = false
+          IsObsolete = false }
+
+    Program.isEmittableEvent ev |> should be False
+
+[<Fact>]
+let ``isEmittableEvent rejects generic and nested handler types`` () =
+    let generic =
+        { Name = "X"
+          FieldName = ""
+          OwnerTypeName = "T"
+          HandlerTypeName = Some "System.EventHandler`1"
+          IsStandardDelegate = true
+          IsObsolete = false }
+
+    Program.isEmittableEvent generic |> should be False
+
+    let nested =
+        { Name = "Y"
+          FieldName = ""
+          OwnerTypeName = "T"
+          HandlerTypeName = Some "Outer+InnerEventHandler"
+          IsStandardDelegate = true
+          IsObsolete = false }
+
+    Program.isEmittableEvent nested |> should be False
+
+[<Fact>]
+let ``isEmittableEvent rejects events whose delegate is marked Obsolete`` () =
+    // RichEditControl.PreparePopupMenu uses an obsolete delegate; F# refuses to compile
+    // a wrapper that names it (FS0101). Drop these at codegen time instead.
+    let ev =
+        { Name = "PreparePopupMenu"
+          FieldName = ""
+          OwnerTypeName = "RichEditControl"
+          HandlerTypeName = Some "DevExpress.Xpf.RichEdit.PreparePopupMenuEventHandler"
+          IsStandardDelegate = true
+          IsObsolete = true }
+
+    Program.isEmittableEvent ev |> should be False
+
+[<Fact>]
+let ``isEmittableEvent rejects events with no handler type`` () =
+    let ev =
+        { Name = "Z"
+          FieldName = ""
+          OwnerTypeName = "T"
+          HandlerTypeName = None
+          IsStandardDelegate = false
+          IsObsolete = false }
+
+    Program.isEmittableEvent ev |> should be False
+
 [<Fact>]
 let ``emitControlFile without parent generates no Base case`` () =
     let input =

@@ -31,7 +31,6 @@ type FrameworkContentElementProp =
     | OnToolTipClosing of System.Windows.Controls.ToolTipEventHandler
     | OnContextMenuOpening of System.Windows.Controls.ContextMenuEventHandler
     | OnContextMenuClosing of System.Windows.Controls.ContextMenuEventHandler
-    | OnDataContextChanged of System.Windows.DependencyPropertyChangedEventHandler
     | OnInitialized of System.EventHandler
 
 module FrameworkContentElement =
@@ -91,9 +90,6 @@ module FrameworkContentElement =
     let onContextMenuClosing v : obj =
         box (EventProp(box (FrameworkContentElementProp.OnContextMenuClosing v)))
 
-    let onDataContextChanged v : obj =
-        box (EventProp(box (FrameworkContentElementProp.OnDataContextChanged v)))
-
     let onInitialized v : obj =
         box (EventProp(box (FrameworkContentElementProp.OnInitialized v)))
 
@@ -130,7 +126,6 @@ module FrameworkContentElement =
         | FrameworkContentElementProp.OnToolTipClosing h -> el.ToolTipClosing.AddHandler(h)
         | FrameworkContentElementProp.OnContextMenuOpening h -> el.ContextMenuOpening.AddHandler(h)
         | FrameworkContentElementProp.OnContextMenuClosing h -> el.ContextMenuClosing.AddHandler(h)
-        | FrameworkContentElementProp.OnDataContextChanged h -> el.DataContextChanged.AddHandler(h)
         | FrameworkContentElementProp.OnInitialized h -> el.Initialized.AddHandler(h)
 
     let isMouseDirectlyOver v : obj =
@@ -377,36 +372,6 @@ module FrameworkContentElement =
 
     let onLostFocus v : obj =
         box (EventProp(box (ContentElementProp.OnLostFocus v)))
-
-    let onIsMouseDirectlyOverChanged v : obj =
-        box (EventProp(box (ContentElementProp.OnIsMouseDirectlyOverChanged v)))
-
-    let onIsKeyboardFocusWithinChanged v : obj =
-        box (EventProp(box (ContentElementProp.OnIsKeyboardFocusWithinChanged v)))
-
-    let onIsMouseCapturedChanged v : obj =
-        box (EventProp(box (ContentElementProp.OnIsMouseCapturedChanged v)))
-
-    let onIsMouseCaptureWithinChanged v : obj =
-        box (EventProp(box (ContentElementProp.OnIsMouseCaptureWithinChanged v)))
-
-    let onIsStylusDirectlyOverChanged v : obj =
-        box (EventProp(box (ContentElementProp.OnIsStylusDirectlyOverChanged v)))
-
-    let onIsStylusCapturedChanged v : obj =
-        box (EventProp(box (ContentElementProp.OnIsStylusCapturedChanged v)))
-
-    let onIsStylusCaptureWithinChanged v : obj =
-        box (EventProp(box (ContentElementProp.OnIsStylusCaptureWithinChanged v)))
-
-    let onIsKeyboardFocusedChanged v : obj =
-        box (EventProp(box (ContentElementProp.OnIsKeyboardFocusedChanged v)))
-
-    let onIsEnabledChanged v : obj =
-        box (EventProp(box (ContentElementProp.OnIsEnabledChanged v)))
-
-    let onFocusableChanged v : obj =
-        box (EventProp(box (ContentElementProp.OnFocusableChanged v)))
 
     let children (cs: VirtualNode list) : obj = box (Children cs)
     let contentChild (c: VirtualNode) : obj = box (ContentChild c)

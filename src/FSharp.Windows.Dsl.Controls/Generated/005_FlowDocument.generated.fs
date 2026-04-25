@@ -429,41 +429,8 @@ module FlowDocument =
     let onLostFocus v : obj =
         box (EventProp(box (ContentElementProp.OnLostFocus v)))
 
-    let onDataContextChanged v : obj =
-        box (EventProp(box (FrameworkContentElementProp.OnDataContextChanged v)))
-
     let onInitialized v : obj =
         box (EventProp(box (FrameworkContentElementProp.OnInitialized v)))
-
-    let onIsMouseDirectlyOverChanged v : obj =
-        box (EventProp(box (ContentElementProp.OnIsMouseDirectlyOverChanged v)))
-
-    let onIsKeyboardFocusWithinChanged v : obj =
-        box (EventProp(box (ContentElementProp.OnIsKeyboardFocusWithinChanged v)))
-
-    let onIsMouseCapturedChanged v : obj =
-        box (EventProp(box (ContentElementProp.OnIsMouseCapturedChanged v)))
-
-    let onIsMouseCaptureWithinChanged v : obj =
-        box (EventProp(box (ContentElementProp.OnIsMouseCaptureWithinChanged v)))
-
-    let onIsStylusDirectlyOverChanged v : obj =
-        box (EventProp(box (ContentElementProp.OnIsStylusDirectlyOverChanged v)))
-
-    let onIsStylusCapturedChanged v : obj =
-        box (EventProp(box (ContentElementProp.OnIsStylusCapturedChanged v)))
-
-    let onIsStylusCaptureWithinChanged v : obj =
-        box (EventProp(box (ContentElementProp.OnIsStylusCaptureWithinChanged v)))
-
-    let onIsKeyboardFocusedChanged v : obj =
-        box (EventProp(box (ContentElementProp.OnIsKeyboardFocusedChanged v)))
-
-    let onIsEnabledChanged v : obj =
-        box (EventProp(box (ContentElementProp.OnIsEnabledChanged v)))
-
-    let onFocusableChanged v : obj =
-        box (EventProp(box (ContentElementProp.OnFocusableChanged v)))
 
     let children (cs: VirtualNode list) : obj = box (Children cs)
     let contentChild (c: VirtualNode) : obj = box (ContentChild c)

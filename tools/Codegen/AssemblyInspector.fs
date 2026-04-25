@@ -92,6 +92,51 @@ let createFrameworkContext (assemblyPath: string) : MetadataLoadContext =
     let resolver = PathAssemblyResolver(allDlls)
     new MetadataLoadContext(resolver, coreAssemblyName = "mscorlib")
 
+/// True when a member (event, type, etc.) carries an [Obsolete] custom attribute. We
+/// match by the attribute type's FullName so the check works under MetadataLoadContext,
+/// where attribute instances aren't constructible.
+let private hasObsoleteAttribute (member': MemberInfo) =
+    if isNull member' then
+        false
+    else
+        try
+            member'.GetCustomAttributesData()
+            |> Seq.exists (fun a ->
+                let n = a.AttributeType.FullName
+                n = "System.ObsoleteAttribute")
+        with _ ->
+            false
+
+/// True when the delegate type has the strict `void Invoke(System.Object, System.EventArgs)`
+/// shape that F# `el.MyEvent.AddHandler(h)` accepts (via the IEvent<_,_> projection).
+/// First parameter must be exactly System.Object (not a derived sender type) and the
+/// second must descend from System.EventArgs — otherwise F# refuses with FS1091, even if
+/// the delegate name ends with EventHandler.
+let private isStandardEventDelegate (delegateType: Type) =
+    let rec inheritsEventArgs (t: Type) =
+        if isNull t then false
+        elif t.FullName = "System.EventArgs" then true
+        else inheritsEventArgs t.BaseType
+
+    if isNull delegateType then
+        false
+    else
+        try
+            let invoke = delegateType.GetMethod("Invoke")
+
+            if isNull invoke then
+                false
+            elif invoke.ReturnType.FullName <> "System.Void" then
+                false
+            else
+                let parms = invoke.GetParameters()
+
+                parms.Length = 2
+                && parms.[0].ParameterType.FullName = "System.Object"
+                && inheritsEventArgs parms.[1].ParameterType
+        with _ ->
+            false
+
 /// Check if a DP field represents an attached property by looking for a static SetXxx method.
 let private isAttached (field: FieldInfo) =
     let propName = field.Name.Replace("Property", "")
@@ -188,19 +233,19 @@ let discoverEvents (controlType: Type) : EventInfo list =
                 f.Name
         let clrEvent = controlType.GetEvent(eventName)
 
+        let handlerType =
+            clrEvent |> Option.ofObj |> Option.bind (fun e -> Option.ofObj e.EventHandlerType)
+
         { Name = eventName
           FieldName = f.Name
           OwnerTypeName = f.DeclaringType.Name
           HandlerTypeName =
-            clrEvent
-            |> Option.ofObj
-            |> Option.bind (fun e ->
-                if isNull e.EventHandlerType then
-                    None
-                elif isNull e.EventHandlerType.FullName then
-                    Some e.EventHandlerType.Name
-                else
-                    Some e.EventHandlerType.FullName) })
+            handlerType
+            |> Option.map (fun ht -> if isNull ht.FullName then ht.Name else ht.FullName)
+          IsStandardDelegate = handlerType |> Option.exists isStandardEventDelegate
+          IsObsolete =
+            hasObsoleteAttribute (clrEvent :> MemberInfo)
+            || (handlerType |> Option.exists (fun ht -> hasObsoleteAttribute (ht :> MemberInfo))) })
     |> Array.toList
 
 /// Discover CLR events on a type that don't have corresponding RoutedEvent fields.
@@ -212,6 +257,10 @@ let discoverClrEvents (controlType: Type) (routedEventNames: Set<string>) : Even
         { Name = e.Name
           FieldName = ""
           OwnerTypeName = e.DeclaringType.Name
+          IsStandardDelegate = isStandardEventDelegate e.EventHandlerType
+          IsObsolete =
+            hasObsoleteAttribute (e :> MemberInfo)
+            || hasObsoleteAttribute (e.EventHandlerType :> MemberInfo)
           HandlerTypeName =
             if isNull e.EventHandlerType then
                 None

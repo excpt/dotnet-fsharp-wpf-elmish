@@ -96,16 +96,6 @@ type ContentElementProp =
     | OnDrop of System.Windows.DragEventHandler
     | OnGotFocus of System.Windows.RoutedEventHandler
     | OnLostFocus of System.Windows.RoutedEventHandler
-    | OnIsMouseDirectlyOverChanged of System.Windows.DependencyPropertyChangedEventHandler
-    | OnIsKeyboardFocusWithinChanged of System.Windows.DependencyPropertyChangedEventHandler
-    | OnIsMouseCapturedChanged of System.Windows.DependencyPropertyChangedEventHandler
-    | OnIsMouseCaptureWithinChanged of System.Windows.DependencyPropertyChangedEventHandler
-    | OnIsStylusDirectlyOverChanged of System.Windows.DependencyPropertyChangedEventHandler
-    | OnIsStylusCapturedChanged of System.Windows.DependencyPropertyChangedEventHandler
-    | OnIsStylusCaptureWithinChanged of System.Windows.DependencyPropertyChangedEventHandler
-    | OnIsKeyboardFocusedChanged of System.Windows.DependencyPropertyChangedEventHandler
-    | OnIsEnabledChanged of System.Windows.DependencyPropertyChangedEventHandler
-    | OnFocusableChanged of System.Windows.DependencyPropertyChangedEventHandler
 
 module ContentElement =
     let isMouseDirectlyOver v : obj =
@@ -353,36 +343,6 @@ module ContentElement =
     let onLostFocus v : obj =
         box (EventProp(box (ContentElementProp.OnLostFocus v)))
 
-    let onIsMouseDirectlyOverChanged v : obj =
-        box (EventProp(box (ContentElementProp.OnIsMouseDirectlyOverChanged v)))
-
-    let onIsKeyboardFocusWithinChanged v : obj =
-        box (EventProp(box (ContentElementProp.OnIsKeyboardFocusWithinChanged v)))
-
-    let onIsMouseCapturedChanged v : obj =
-        box (EventProp(box (ContentElementProp.OnIsMouseCapturedChanged v)))
-
-    let onIsMouseCaptureWithinChanged v : obj =
-        box (EventProp(box (ContentElementProp.OnIsMouseCaptureWithinChanged v)))
-
-    let onIsStylusDirectlyOverChanged v : obj =
-        box (EventProp(box (ContentElementProp.OnIsStylusDirectlyOverChanged v)))
-
-    let onIsStylusCapturedChanged v : obj =
-        box (EventProp(box (ContentElementProp.OnIsStylusCapturedChanged v)))
-
-    let onIsStylusCaptureWithinChanged v : obj =
-        box (EventProp(box (ContentElementProp.OnIsStylusCaptureWithinChanged v)))
-
-    let onIsKeyboardFocusedChanged v : obj =
-        box (EventProp(box (ContentElementProp.OnIsKeyboardFocusedChanged v)))
-
-    let onIsEnabledChanged v : obj =
-        box (EventProp(box (ContentElementProp.OnIsEnabledChanged v)))
-
-    let onFocusableChanged v : obj =
-        box (EventProp(box (ContentElementProp.OnFocusableChanged v)))
-
     let apply (el: System.Windows.ContentElement) (prop: ContentElementProp) =
         match prop with
         | ContentElementProp.IsMouseDirectlyOver v ->
@@ -482,16 +442,6 @@ module ContentElement =
         | ContentElementProp.OnDrop h -> el.Drop.AddHandler(h)
         | ContentElementProp.OnGotFocus h -> el.GotFocus.AddHandler(h)
         | ContentElementProp.OnLostFocus h -> el.LostFocus.AddHandler(h)
-        | ContentElementProp.OnIsMouseDirectlyOverChanged h -> el.IsMouseDirectlyOverChanged.AddHandler(h)
-        | ContentElementProp.OnIsKeyboardFocusWithinChanged h -> el.IsKeyboardFocusWithinChanged.AddHandler(h)
-        | ContentElementProp.OnIsMouseCapturedChanged h -> el.IsMouseCapturedChanged.AddHandler(h)
-        | ContentElementProp.OnIsMouseCaptureWithinChanged h -> el.IsMouseCaptureWithinChanged.AddHandler(h)
-        | ContentElementProp.OnIsStylusDirectlyOverChanged h -> el.IsStylusDirectlyOverChanged.AddHandler(h)
-        | ContentElementProp.OnIsStylusCapturedChanged h -> el.IsStylusCapturedChanged.AddHandler(h)
-        | ContentElementProp.OnIsStylusCaptureWithinChanged h -> el.IsStylusCaptureWithinChanged.AddHandler(h)
-        | ContentElementProp.OnIsKeyboardFocusedChanged h -> el.IsKeyboardFocusedChanged.AddHandler(h)
-        | ContentElementProp.OnIsEnabledChanged h -> el.IsEnabledChanged.AddHandler(h)
-        | ContentElementProp.OnFocusableChanged h -> el.FocusableChanged.AddHandler(h)
 
 
     let children (cs: VirtualNode list) : obj = box (Children cs)

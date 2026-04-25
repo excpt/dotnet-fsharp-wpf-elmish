@@ -96,19 +96,7 @@ type UIElementProp =
     | OnDrop of System.Windows.DragEventHandler
     | OnGotFocus of System.Windows.RoutedEventHandler
     | OnLostFocus of System.Windows.RoutedEventHandler
-    | OnIsMouseDirectlyOverChanged of System.Windows.DependencyPropertyChangedEventHandler
-    | OnIsKeyboardFocusWithinChanged of System.Windows.DependencyPropertyChangedEventHandler
-    | OnIsMouseCapturedChanged of System.Windows.DependencyPropertyChangedEventHandler
-    | OnIsMouseCaptureWithinChanged of System.Windows.DependencyPropertyChangedEventHandler
-    | OnIsStylusDirectlyOverChanged of System.Windows.DependencyPropertyChangedEventHandler
-    | OnIsStylusCapturedChanged of System.Windows.DependencyPropertyChangedEventHandler
-    | OnIsStylusCaptureWithinChanged of System.Windows.DependencyPropertyChangedEventHandler
-    | OnIsKeyboardFocusedChanged of System.Windows.DependencyPropertyChangedEventHandler
     | OnLayoutUpdated of System.EventHandler
-    | OnIsEnabledChanged of System.Windows.DependencyPropertyChangedEventHandler
-    | OnIsHitTestVisibleChanged of System.Windows.DependencyPropertyChangedEventHandler
-    | OnIsVisibleChanged of System.Windows.DependencyPropertyChangedEventHandler
-    | OnFocusableChanged of System.Windows.DependencyPropertyChangedEventHandler
 
 module UIElement =
     let allowDrop v : obj = box (UIElementProp.AllowDrop v)
@@ -339,44 +327,8 @@ module UIElement =
     let onLostFocus v : obj =
         box (EventProp(box (UIElementProp.OnLostFocus v)))
 
-    let onIsMouseDirectlyOverChanged v : obj =
-        box (EventProp(box (UIElementProp.OnIsMouseDirectlyOverChanged v)))
-
-    let onIsKeyboardFocusWithinChanged v : obj =
-        box (EventProp(box (UIElementProp.OnIsKeyboardFocusWithinChanged v)))
-
-    let onIsMouseCapturedChanged v : obj =
-        box (EventProp(box (UIElementProp.OnIsMouseCapturedChanged v)))
-
-    let onIsMouseCaptureWithinChanged v : obj =
-        box (EventProp(box (UIElementProp.OnIsMouseCaptureWithinChanged v)))
-
-    let onIsStylusDirectlyOverChanged v : obj =
-        box (EventProp(box (UIElementProp.OnIsStylusDirectlyOverChanged v)))
-
-    let onIsStylusCapturedChanged v : obj =
-        box (EventProp(box (UIElementProp.OnIsStylusCapturedChanged v)))
-
-    let onIsStylusCaptureWithinChanged v : obj =
-        box (EventProp(box (UIElementProp.OnIsStylusCaptureWithinChanged v)))
-
-    let onIsKeyboardFocusedChanged v : obj =
-        box (EventProp(box (UIElementProp.OnIsKeyboardFocusedChanged v)))
-
     let onLayoutUpdated v : obj =
         box (EventProp(box (UIElementProp.OnLayoutUpdated v)))
-
-    let onIsEnabledChanged v : obj =
-        box (EventProp(box (UIElementProp.OnIsEnabledChanged v)))
-
-    let onIsHitTestVisibleChanged v : obj =
-        box (EventProp(box (UIElementProp.OnIsHitTestVisibleChanged v)))
-
-    let onIsVisibleChanged v : obj =
-        box (EventProp(box (UIElementProp.OnIsVisibleChanged v)))
-
-    let onFocusableChanged v : obj =
-        box (EventProp(box (UIElementProp.OnFocusableChanged v)))
 
     let apply (el: System.Windows.UIElement) (prop: UIElementProp) =
         match prop with
@@ -468,19 +420,7 @@ module UIElement =
         | UIElementProp.OnDrop h -> el.Drop.AddHandler(h)
         | UIElementProp.OnGotFocus h -> el.GotFocus.AddHandler(h)
         | UIElementProp.OnLostFocus h -> el.LostFocus.AddHandler(h)
-        | UIElementProp.OnIsMouseDirectlyOverChanged h -> el.IsMouseDirectlyOverChanged.AddHandler(h)
-        | UIElementProp.OnIsKeyboardFocusWithinChanged h -> el.IsKeyboardFocusWithinChanged.AddHandler(h)
-        | UIElementProp.OnIsMouseCapturedChanged h -> el.IsMouseCapturedChanged.AddHandler(h)
-        | UIElementProp.OnIsMouseCaptureWithinChanged h -> el.IsMouseCaptureWithinChanged.AddHandler(h)
-        | UIElementProp.OnIsStylusDirectlyOverChanged h -> el.IsStylusDirectlyOverChanged.AddHandler(h)
-        | UIElementProp.OnIsStylusCapturedChanged h -> el.IsStylusCapturedChanged.AddHandler(h)
-        | UIElementProp.OnIsStylusCaptureWithinChanged h -> el.IsStylusCaptureWithinChanged.AddHandler(h)
-        | UIElementProp.OnIsKeyboardFocusedChanged h -> el.IsKeyboardFocusedChanged.AddHandler(h)
         | UIElementProp.OnLayoutUpdated h -> el.LayoutUpdated.AddHandler(h)
-        | UIElementProp.OnIsEnabledChanged h -> el.IsEnabledChanged.AddHandler(h)
-        | UIElementProp.OnIsHitTestVisibleChanged h -> el.IsHitTestVisibleChanged.AddHandler(h)
-        | UIElementProp.OnIsVisibleChanged h -> el.IsVisibleChanged.AddHandler(h)
-        | UIElementProp.OnFocusableChanged h -> el.FocusableChanged.AddHandler(h)
 
 
     let children (cs: VirtualNode list) : obj = box (Children cs)

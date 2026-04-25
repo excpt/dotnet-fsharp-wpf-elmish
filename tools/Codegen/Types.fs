@@ -16,7 +16,16 @@ type EventInfo =
     { Name: string
       FieldName: string
       OwnerTypeName: string
-      HandlerTypeName: string option }
+      HandlerTypeName: string option
+      // True when the handler delegate has the canonical `void Invoke(object, T)` shape.
+      // F# `.AddHandler` requires this; non-standard signatures (extra parameters, non-void
+      // return) trigger FS1091. Captured at discovery time so we can filter without
+      // re-reflecting on the delegate type.
+      IsStandardDelegate: bool
+      // True when the event itself or its delegate type is marked [Obsolete]. F# raises
+      // FS0101 when the generated wrapper references an obsolete construct, even via
+      // a member access; safer to drop these.
+      IsObsolete: bool }
 
 /// Input for emitting a single DP case in generated code.
 type EmitDP =

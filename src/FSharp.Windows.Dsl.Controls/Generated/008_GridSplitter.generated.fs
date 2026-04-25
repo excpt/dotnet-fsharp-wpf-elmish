@@ -385,50 +385,11 @@ module GridSplitter =
     let onLostFocus v : obj =
         box (EventProp(box (UIElementProp.OnLostFocus v)))
 
-    let onDataContextChanged v : obj =
-        box (EventProp(box (FrameworkElementProp.OnDataContextChanged v)))
-
     let onInitialized v : obj =
         box (EventProp(box (FrameworkElementProp.OnInitialized v)))
 
-    let onIsMouseDirectlyOverChanged v : obj =
-        box (EventProp(box (UIElementProp.OnIsMouseDirectlyOverChanged v)))
-
-    let onIsKeyboardFocusWithinChanged v : obj =
-        box (EventProp(box (UIElementProp.OnIsKeyboardFocusWithinChanged v)))
-
-    let onIsMouseCapturedChanged v : obj =
-        box (EventProp(box (UIElementProp.OnIsMouseCapturedChanged v)))
-
-    let onIsMouseCaptureWithinChanged v : obj =
-        box (EventProp(box (UIElementProp.OnIsMouseCaptureWithinChanged v)))
-
-    let onIsStylusDirectlyOverChanged v : obj =
-        box (EventProp(box (UIElementProp.OnIsStylusDirectlyOverChanged v)))
-
-    let onIsStylusCapturedChanged v : obj =
-        box (EventProp(box (UIElementProp.OnIsStylusCapturedChanged v)))
-
-    let onIsStylusCaptureWithinChanged v : obj =
-        box (EventProp(box (UIElementProp.OnIsStylusCaptureWithinChanged v)))
-
-    let onIsKeyboardFocusedChanged v : obj =
-        box (EventProp(box (UIElementProp.OnIsKeyboardFocusedChanged v)))
-
     let onLayoutUpdated v : obj =
         box (EventProp(box (UIElementProp.OnLayoutUpdated v)))
-
-    let onIsEnabledChanged v : obj =
-        box (EventProp(box (UIElementProp.OnIsEnabledChanged v)))
-
-    let onIsHitTestVisibleChanged v : obj =
-        box (EventProp(box (UIElementProp.OnIsHitTestVisibleChanged v)))
-
-    let onIsVisibleChanged v : obj =
-        box (EventProp(box (UIElementProp.OnIsVisibleChanged v)))
-
-    let onFocusableChanged v : obj =
-        box (EventProp(box (UIElementProp.OnFocusableChanged v)))
 
     let children (cs: VirtualNode list) : obj = box (Children cs)
     let contentChild (c: VirtualNode) : obj = box (ContentChild c)

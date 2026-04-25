@@ -303,19 +303,20 @@ let private isWpfType (t: Type) =
 /// A DP is emittable when it isn't attached and isn't read-only.
 let isEmittableDP (dp: DPInfo) = not dp.IsAttached && not dp.IsReadOnly
 
-/// An event is emittable when its handler type is a non-generic, non-nested System.* delegate
-/// whose name follows the standard EventHandler convention. F# can only `.AddHandler` for
-/// delegates whose Invoke returns void; HwndSourceHook (returns IntPtr) and similar fail
-/// FS1091 even though they're under System.*. The name suffix is a robust proxy for the
-/// signature shape across WPF and major third-party libraries.
+/// An event is emittable when its handler delegate has the canonical
+/// `void Invoke(object, T)` shape that F# `.AddHandler` accepts. Anything else trips
+/// FS1091 in the generated wrapper. Captured at discovery time as IsStandardDelegate so
+/// non-standard signatures (HwndSourceHook returning IntPtr, ImageFailedEventHandler with
+/// extra parameters, etc.) are filtered out without re-reflecting on the delegate type.
+/// We also reject generic and nested types since the codegen emits FullName as F# source.
 let isEmittableEvent (ev: EventInfo) =
     match ev.HandlerTypeName with
     | None -> false
     | Some ht ->
-        not (ht.Contains('`'))
+        ev.IsStandardDelegate
+        && not ev.IsObsolete
+        && not (ht.Contains('`'))
         && not (ht.Contains('+'))
-        && ht.StartsWith("System.")
-        && ht.EndsWith("EventHandler")
 
 /// Predicate matching the emit skip rule: a type produces a file iff it has at least one
 /// emittable DP or emittable event *declared on itself*. Pass-through types (only
