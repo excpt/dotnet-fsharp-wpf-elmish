@@ -8,15 +8,26 @@ open FSharp.Windows.Dsl
 module Registration =
     /// Register all generated apply functions with the Materializer.
     let register () =
+        Materializer.registerApply<System.Windows.Data.CollectionContainer, CollectionContainerProp>
+            CollectionContainer.apply
+
+        Materializer.registerApply<System.Windows.Data.CollectionViewSource, CollectionViewSourceProp>
+            CollectionViewSource.apply
+
         Materializer.registerApply<System.Windows.Controls.DataGridColumn, DataGridColumnProp> DataGridColumn.apply
         Materializer.registerApply<System.Windows.Controls.GridViewColumn, GridViewColumnProp> GridViewColumn.apply
         Materializer.registerApply<System.Windows.ContentElement, ContentElementProp> ContentElement.apply
+        Materializer.registerApply<System.Windows.Media.Media3D.Visual3D, Visual3DProp> Visual3D.apply
         Materializer.registerApply<System.Windows.Freezable, FreezableProp> Freezable.apply
 
         Materializer.registerApply<System.Windows.FrameworkContentElement, FrameworkContentElementProp>
             FrameworkContentElement.apply
 
         Materializer.registerApply<System.Windows.Shell.TaskbarItemInfo, TaskbarItemInfoProp> TaskbarItemInfo.apply
+        Materializer.registerApply<System.Windows.Shell.ThumbButtonInfo, ThumbButtonInfoProp> ThumbButtonInfo.apply
+
+        Materializer.registerApply<System.Windows.Media.Animation.BeginStoryboard, BeginStoryboardProp>
+            BeginStoryboard.apply
 
         Materializer.registerApply<System.Windows.Controls.DataGridBoundColumn, DataGridBoundColumnProp>
             DataGridBoundColumn.apply
@@ -28,12 +39,31 @@ module Registration =
             DataGridTemplateColumn.apply
 
         Materializer.registerApply<System.Windows.Controls.GridView, GridViewProp> GridView.apply
+
+        Materializer.registerApply<System.Windows.Controls.SoundPlayerAction, SoundPlayerActionProp>
+            SoundPlayerAction.apply
+
         Materializer.registerApply<System.Windows.UIElement, UIElementProp> UIElement.apply
+        Materializer.registerApply<System.Windows.UIElement3D, UIElement3DProp> UIElement3D.apply
         Materializer.registerApply<System.Windows.Media.PointCollection, PointCollectionProp> PointCollection.apply
         Materializer.registerApply<System.Windows.Media.DoubleCollection, DoubleCollectionProp> DoubleCollection.apply
+        Materializer.registerApply<System.Windows.Media.Int32Collection, Int32CollectionProp> Int32Collection.apply
+        Materializer.registerApply<System.Windows.Media.Media3D.ModelVisual3D, ModelVisual3DProp> ModelVisual3D.apply
+
+        Materializer.registerApply<System.Windows.Media.Media3D.Point3DCollection, Point3DCollectionProp>
+            Point3DCollection.apply
+
+        Materializer.registerApply<System.Windows.Media.Media3D.Vector3DCollection, Vector3DCollectionProp>
+            Vector3DCollection.apply
+
+        Materializer.registerApply<System.Windows.Media.Media3D.Viewport2DVisual3D, Viewport2DVisual3DProp>
+            Viewport2DVisual3D.apply
+
         Materializer.registerApply<System.Windows.Media.Animation.Animatable, AnimatableProp> Animatable.apply
         Materializer.registerApply<System.Windows.FrameworkElement, FrameworkElementProp> FrameworkElement.apply
         Materializer.registerApply<System.Windows.Documents.FlowDocument, FlowDocumentProp> FlowDocument.apply
+        Materializer.registerApply<System.Windows.Documents.TableColumn, TableColumnProp> TableColumn.apply
+        Materializer.registerApply<System.Windows.Documents.TextElement, TextElementProp> TextElement.apply
 
         Materializer.registerApply<System.Windows.Controls.DataGridCheckBoxColumn, DataGridCheckBoxColumnProp>
             DataGridCheckBoxColumn.apply
@@ -43,6 +73,9 @@ module Registration =
 
         Materializer.registerApply<System.Windows.Controls.DataGridTextColumn, DataGridTextColumnProp>
             DataGridTextColumn.apply
+
+        Materializer.registerApply<System.Windows.Controls.DefinitionBase, DefinitionBaseProp> DefinitionBase.apply
+        Materializer.registerApply<System.Windows.TextDecoration, TextDecorationProp> TextDecoration.apply
 
         Materializer.registerApply<System.Windows.TextDecorationCollection, TextDecorationCollectionProp>
             TextDecorationCollection.apply
@@ -61,14 +94,22 @@ module Registration =
         Materializer.registerApply<System.Windows.Media.GeometryCollection, GeometryCollectionProp>
             GeometryCollection.apply
 
+        Materializer.registerApply<System.Windows.Media.GradientStop, GradientStopProp> GradientStop.apply
         Materializer.registerApply<System.Windows.Media.GuidelineSet, GuidelineSetProp> GuidelineSet.apply
         Materializer.registerApply<System.Windows.Media.ImageSource, ImageSourceProp> ImageSource.apply
         Materializer.registerApply<System.Windows.Media.MediaPlayer, MediaPlayerProp> MediaPlayer.apply
+        Materializer.registerApply<System.Windows.Media.PathFigure, PathFigureProp> PathFigure.apply
 
         Materializer.registerApply<System.Windows.Media.PathFigureCollection, PathFigureCollectionProp>
             PathFigureCollection.apply
 
+        Materializer.registerApply<System.Windows.Media.PathSegment, PathSegmentProp> PathSegment.apply
+
+        Materializer.registerApply<System.Windows.Media.PathSegmentCollection, PathSegmentCollectionProp>
+            PathSegmentCollection.apply
+
         Materializer.registerApply<System.Windows.Media.Pen, PenProp> Pen.apply
+        Materializer.registerApply<System.Windows.Media.TextEffect, TextEffectProp> TextEffect.apply
 
         Materializer.registerApply<System.Windows.Media.TextEffectCollection, TextEffectCollectionProp>
             TextEffectCollection.apply
@@ -81,13 +122,34 @@ module Registration =
 
         Materializer.registerApply<System.Windows.Media.Media3D.Camera, CameraProp> Camera.apply
 
+        Materializer.registerApply<System.Windows.Media.Media3D.ContainerUIElement3D, ContainerUIElement3DProp>
+            ContainerUIElement3D.apply
+
         Materializer.registerApply<System.Windows.Media.Media3D.GeneralTransform3D, GeneralTransform3DProp>
             GeneralTransform3D.apply
 
+        Materializer.registerApply<System.Windows.Media.Media3D.Geometry3D, Geometry3DProp> Geometry3D.apply
+        Materializer.registerApply<System.Windows.Media.Media3D.Material, MaterialProp> Material.apply
+        Materializer.registerApply<System.Windows.Media.Media3D.Model3D, Model3DProp> Model3D.apply
+
+        Materializer.registerApply<System.Windows.Media.Media3D.ModelUIElement3D, ModelUIElement3DProp>
+            ModelUIElement3D.apply
+
         Materializer.registerApply<System.Windows.Media.Media3D.Rotation3D, Rotation3DProp> Rotation3D.apply
+
+        Materializer.registerApply<System.Windows.Media.Media3D.MaterialCollection, MaterialCollectionProp>
+            MaterialCollection.apply
+
+        Materializer.registerApply<System.Windows.Media.Media3D.Model3DCollection, Model3DCollectionProp>
+            Model3DCollection.apply
 
         Materializer.registerApply<System.Windows.Media.Media3D.Transform3DCollection, Transform3DCollectionProp>
             Transform3DCollection.apply
+
+        Materializer.registerApply<System.Windows.Media.Animation.Timeline, TimelineProp> Timeline.apply
+
+        Materializer.registerApply<System.Windows.Media.Animation.TimelineCollection, TimelineCollectionProp>
+            TimelineCollection.apply
 
         Materializer.registerApply<System.Windows.Media.Effects.BitmapEffect, BitmapEffectProp> BitmapEffect.apply
 
@@ -106,11 +168,20 @@ module Registration =
         Materializer.registerApply<System.Windows.Interop.HwndHost, HwndHostProp> HwndHost.apply
         Materializer.registerApply<System.Windows.Documents.Adorner, AdornerProp> Adorner.apply
         Materializer.registerApply<System.Windows.Documents.AdornerLayer, AdornerLayerProp> AdornerLayer.apply
+        Materializer.registerApply<System.Windows.Documents.Block, BlockProp> Block.apply
 
         Materializer.registerApply<System.Windows.Documents.DocumentReference, DocumentReferenceProp>
             DocumentReference.apply
 
+        Materializer.registerApply<System.Windows.Documents.Inline, InlineProp> Inline.apply
+        Materializer.registerApply<System.Windows.Documents.ListItem, ListItemProp> ListItem.apply
+        Materializer.registerApply<System.Windows.Documents.TableCell, TableCellProp> TableCell.apply
+        Materializer.registerApply<System.Windows.Documents.TableRow, TableRowProp> TableRow.apply
+        Materializer.registerApply<System.Windows.Documents.TableRowGroup, TableRowGroupProp> TableRowGroup.apply
         Materializer.registerApply<System.Windows.Controls.AccessText, AccessTextProp> AccessText.apply
+
+        Materializer.registerApply<System.Windows.Controls.ColumnDefinition, ColumnDefinitionProp>
+            ColumnDefinition.apply
 
         Materializer.registerApply<System.Windows.Controls.ContentPresenter, ContentPresenterProp>
             ContentPresenter.apply
@@ -123,6 +194,7 @@ module Registration =
         Materializer.registerApply<System.Windows.Controls.MediaElement, MediaElementProp> MediaElement.apply
         Materializer.registerApply<System.Windows.Controls.Page, PageProp> Page.apply
         Materializer.registerApply<System.Windows.Controls.Panel, PanelProp> Panel.apply
+        Materializer.registerApply<System.Windows.Controls.RowDefinition, RowDefinitionProp> RowDefinition.apply
         Materializer.registerApply<System.Windows.Controls.TextBlock, TextBlockProp> TextBlock.apply
         Materializer.registerApply<System.Windows.Controls.ToolBarTray, ToolBarTrayProp> ToolBarTray.apply
         Materializer.registerApply<System.Windows.Controls.Viewport3D, Viewport3DProp> Viewport3D.apply
@@ -137,6 +209,8 @@ module Registration =
         Materializer.registerApply<System.Windows.Controls.Primitives.TickBar, TickBarProp> TickBar.apply
         Materializer.registerApply<System.Windows.Controls.Primitives.Track, TrackProp> Track.apply
         Materializer.registerApply<System.Windows.Interop.D3DImage, D3DImageProp> D3DImage.apply
+        Materializer.registerApply<System.Windows.Media.ArcSegment, ArcSegmentProp> ArcSegment.apply
+        Materializer.registerApply<System.Windows.Media.BezierSegment, BezierSegmentProp> BezierSegment.apply
         Materializer.registerApply<System.Windows.Media.BitmapCache, BitmapCacheProp> BitmapCache.apply
         Materializer.registerApply<System.Windows.Media.BitmapCacheBrush, BitmapCacheBrushProp> BitmapCacheBrush.apply
         Materializer.registerApply<System.Windows.Media.CombinedGeometry, CombinedGeometryProp> CombinedGeometry.apply
@@ -149,7 +223,19 @@ module Registration =
         Materializer.registerApply<System.Windows.Media.GradientBrush, GradientBrushProp> GradientBrush.apply
         Materializer.registerApply<System.Windows.Media.ImageDrawing, ImageDrawingProp> ImageDrawing.apply
         Materializer.registerApply<System.Windows.Media.LineGeometry, LineGeometryProp> LineGeometry.apply
+        Materializer.registerApply<System.Windows.Media.LineSegment, LineSegmentProp> LineSegment.apply
         Materializer.registerApply<System.Windows.Media.PathGeometry, PathGeometryProp> PathGeometry.apply
+
+        Materializer.registerApply<System.Windows.Media.PolyBezierSegment, PolyBezierSegmentProp>
+            PolyBezierSegment.apply
+
+        Materializer.registerApply<System.Windows.Media.PolyLineSegment, PolyLineSegmentProp> PolyLineSegment.apply
+
+        Materializer.registerApply<System.Windows.Media.PolyQuadraticBezierSegment, PolyQuadraticBezierSegmentProp>
+            PolyQuadraticBezierSegment.apply
+
+        Materializer.registerApply<System.Windows.Media.QuadraticBezierSegment, QuadraticBezierSegmentProp>
+            QuadraticBezierSegment.apply
 
         Materializer.registerApply<System.Windows.Media.RectangleGeometry, RectangleGeometryProp>
             RectangleGeometry.apply
@@ -163,7 +249,20 @@ module Registration =
         Materializer.registerApply<System.Windows.Media.Media3D.AxisAngleRotation3D, AxisAngleRotation3DProp>
             AxisAngleRotation3D.apply
 
+        Materializer.registerApply<System.Windows.Media.Media3D.DiffuseMaterial, DiffuseMaterialProp>
+            DiffuseMaterial.apply
+
+        Materializer.registerApply<System.Windows.Media.Media3D.EmissiveMaterial, EmissiveMaterialProp>
+            EmissiveMaterial.apply
+
+        Materializer.registerApply<System.Windows.Media.Media3D.GeometryModel3D, GeometryModel3DProp>
+            GeometryModel3D.apply
+
+        Materializer.registerApply<System.Windows.Media.Media3D.Light, LightProp> Light.apply
+        Materializer.registerApply<System.Windows.Media.Media3D.MaterialGroup, MaterialGroupProp> MaterialGroup.apply
         Materializer.registerApply<System.Windows.Media.Media3D.MatrixCamera, MatrixCameraProp> MatrixCamera.apply
+        Materializer.registerApply<System.Windows.Media.Media3D.MeshGeometry3D, MeshGeometry3DProp> MeshGeometry3D.apply
+        Materializer.registerApply<System.Windows.Media.Media3D.Model3DGroup, Model3DGroupProp> Model3DGroup.apply
 
         Materializer.registerApply<System.Windows.Media.Media3D.ProjectionCamera, ProjectionCameraProp>
             ProjectionCamera.apply
@@ -171,7 +270,11 @@ module Registration =
         Materializer.registerApply<System.Windows.Media.Media3D.QuaternionRotation3D, QuaternionRotation3DProp>
             QuaternionRotation3D.apply
 
+        Materializer.registerApply<System.Windows.Media.Media3D.SpecularMaterial, SpecularMaterialProp>
+            SpecularMaterial.apply
+
         Materializer.registerApply<System.Windows.Media.Media3D.Transform3D, Transform3DProp> Transform3D.apply
+        Materializer.registerApply<System.Windows.Media.Animation.TimelineGroup, TimelineGroupProp> TimelineGroup.apply
         Materializer.registerApply<System.Windows.Media.Imaging.BitmapSource, BitmapSourceProp> BitmapSource.apply
 
         Materializer.registerApply<System.Windows.Media.Effects.BevelBitmapEffect, BevelBitmapEffectProp>
@@ -209,6 +312,21 @@ module Registration =
         Materializer.registerApply<System.Windows.Navigation.PageFunctionBase, PageFunctionBaseProp>
             PageFunctionBase.apply
 
+        Materializer.registerApply<System.Windows.Documents.AnchoredBlock, AnchoredBlockProp> AnchoredBlock.apply
+
+        Materializer.registerApply<System.Windows.Documents.BlockUIContainer, BlockUIContainerProp>
+            BlockUIContainer.apply
+
+        Materializer.registerApply<System.Windows.Documents.InlineUIContainer, InlineUIContainerProp>
+            InlineUIContainer.apply
+
+        Materializer.registerApply<System.Windows.Documents.LineBreak, LineBreakProp> LineBreak.apply
+        Materializer.registerApply<System.Windows.Documents.List, ListProp> List.apply
+        Materializer.registerApply<System.Windows.Documents.Paragraph, ParagraphProp> Paragraph.apply
+        Materializer.registerApply<System.Windows.Documents.Run, RunProp> Run.apply
+        Materializer.registerApply<System.Windows.Documents.Section, SectionProp> Section.apply
+        Materializer.registerApply<System.Windows.Documents.Span, SpanProp> Span.apply
+        Materializer.registerApply<System.Windows.Documents.Table, TableProp> Table.apply
         Materializer.registerApply<System.Windows.Controls.Border, BorderProp> Border.apply
         Materializer.registerApply<System.Windows.Controls.Calendar, CalendarProp> Calendar.apply
         Materializer.registerApply<System.Windows.Controls.Canvas, CanvasProp> Canvas.apply
@@ -295,6 +413,11 @@ module Registration =
         Materializer.registerApply<System.Windows.Media.Media3D.AffineTransform3D, AffineTransform3DProp>
             AffineTransform3D.apply
 
+        Materializer.registerApply<System.Windows.Media.Media3D.AmbientLight, AmbientLightProp> AmbientLight.apply
+
+        Materializer.registerApply<System.Windows.Media.Media3D.DirectionalLight, DirectionalLightProp>
+            DirectionalLight.apply
+
         Materializer.registerApply<System.Windows.Media.Media3D.MatrixTransform3D, MatrixTransform3DProp>
             MatrixTransform3D.apply
 
@@ -304,8 +427,13 @@ module Registration =
         Materializer.registerApply<System.Windows.Media.Media3D.PerspectiveCamera, PerspectiveCameraProp>
             PerspectiveCamera.apply
 
+        Materializer.registerApply<System.Windows.Media.Media3D.PointLightBase, PointLightBaseProp> PointLightBase.apply
+
         Materializer.registerApply<System.Windows.Media.Media3D.Transform3DGroup, Transform3DGroupProp>
             Transform3DGroup.apply
+
+        Materializer.registerApply<System.Windows.Media.Animation.ParallelTimeline, ParallelTimelineProp>
+            ParallelTimeline.apply
 
         Materializer.registerApply<System.Windows.Media.Imaging.BitmapFrame, BitmapFrameProp> BitmapFrame.apply
         Materializer.registerApply<System.Windows.Media.Imaging.BitmapImage, BitmapImageProp> BitmapImage.apply
@@ -329,6 +457,13 @@ module Registration =
             WriteableBitmap.apply
 
         Materializer.registerApply<System.Windows.Window, WindowProp> Window.apply
+        Materializer.registerApply<System.Windows.Media.Animation.Storyboard, StoryboardProp> Storyboard.apply
+        Materializer.registerApply<System.Windows.Documents.Bold, BoldProp> Bold.apply
+        Materializer.registerApply<System.Windows.Documents.Figure, FigureProp> Figure.apply
+        Materializer.registerApply<System.Windows.Documents.Floater, FloaterProp> Floater.apply
+        Materializer.registerApply<System.Windows.Documents.Hyperlink, HyperlinkProp> Hyperlink.apply
+        Materializer.registerApply<System.Windows.Documents.Italic, ItalicProp> Italic.apply
+        Materializer.registerApply<System.Windows.Documents.Underline, UnderlineProp> Underline.apply
         Materializer.registerApply<System.Windows.Controls.DataGridCell, DataGridCellProp> DataGridCell.apply
 
         Materializer.registerApply<System.Windows.Controls.DataGridCellsPanel, DataGridCellsPanelProp>
@@ -388,12 +523,15 @@ module Registration =
             StatusBarItem.apply
 
         Materializer.registerApply<System.Windows.Controls.Primitives.ToolBarPanel, ToolBarPanelProp> ToolBarPanel.apply
+        Materializer.registerApply<System.Windows.Media.Media3D.PointLight, PointLightProp> PointLight.apply
 
         Materializer.registerApply<System.Windows.Media.Media3D.RotateTransform3D, RotateTransform3DProp>
             RotateTransform3D.apply
 
         Materializer.registerApply<System.Windows.Media.Media3D.ScaleTransform3D, ScaleTransform3DProp>
             ScaleTransform3D.apply
+
+        Materializer.registerApply<System.Windows.Media.Media3D.SpotLight, SpotLightProp> SpotLight.apply
 
         Materializer.registerApply<System.Windows.Media.Media3D.TranslateTransform3D, TranslateTransform3DProp>
             TranslateTransform3D.apply

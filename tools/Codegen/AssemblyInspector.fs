@@ -146,13 +146,34 @@ let private isAttached (field: FieldInfo) =
 
     setMethod <> null
 
-/// Check if there is a matching ReadOnly key for this DP.
+/// Check if there is a matching ReadOnly key for this DP. We walk the BaseType chain
+/// manually because `BindingFlags.NonPublic ||| FlattenHierarchy` does not surface
+/// non-public static fields declared on inherited classes — so e.g. CalculatorGauge
+/// (deep in the DevExpress hierarchy) wouldn't see FrameworkElement.ActualWidthPropertyKey
+/// that way and would incorrectly classify ActualWidth as writable.
 let private hasReadOnlyKey (controlType: Type) (fieldName: string) =
-    let keyName = fieldName.Replace("Property", "PropertyKey")
+    let keyName =
+        if fieldName.EndsWith("Property") then
+            fieldName.Substring(0, fieldName.Length - "Property".Length) + "PropertyKey"
+        else
+            fieldName + "PropertyKey"
 
-    controlType.GetField(keyName, BindingFlags.NonPublic ||| BindingFlags.Static ||| BindingFlags.FlattenHierarchy)
-    |> isNull
-    |> not
+    let rec walk (t: Type) =
+        if isNull t then
+            false
+        else
+            let f =
+                t.GetField(
+                    keyName,
+                    BindingFlags.Public
+                    ||| BindingFlags.NonPublic
+                    ||| BindingFlags.Static
+                    ||| BindingFlags.DeclaredOnly
+                )
+
+            if not (isNull f) then true else walk t.BaseType
+
+    walk controlType
 
 /// Discover DependencyProperties on a type.
 let discoverDPs (controlType: Type) : DPInfo list =
@@ -239,6 +260,8 @@ let discoverEvents (controlType: Type) : EventInfo list =
         { Name = eventName
           FieldName = f.Name
           OwnerTypeName = f.DeclaringType.Name
+          OwnerTypeFullName =
+            if isNull f.DeclaringType.FullName then f.DeclaringType.Name else f.DeclaringType.FullName
           HandlerTypeName =
             handlerType
             |> Option.map (fun ht -> if isNull ht.FullName then ht.Name else ht.FullName)
@@ -257,6 +280,8 @@ let discoverClrEvents (controlType: Type) (routedEventNames: Set<string>) : Even
         { Name = e.Name
           FieldName = ""
           OwnerTypeName = e.DeclaringType.Name
+          OwnerTypeFullName =
+            if isNull e.DeclaringType.FullName then e.DeclaringType.Name else e.DeclaringType.FullName
           IsStandardDelegate = isStandardEventDelegate e.EventHandlerType
           IsObsolete =
             hasObsoleteAttribute (e :> MemberInfo)
@@ -278,7 +303,7 @@ let discoverAllEvents (controlType: Type) : EventInfo list =
     routedEvents @ clrEvents
 
 /// Check if a type is a subclass of the named base type (by walking BaseType chain).
-let rec private isSubclassOfByName (baseTypeName: string) (t: Type) =
+let rec isSubclassOfByName (baseTypeName: string) (t: Type) =
     if isNull t then false
     elif t.FullName = baseTypeName then true
     else isSubclassOfByName baseTypeName t.BaseType

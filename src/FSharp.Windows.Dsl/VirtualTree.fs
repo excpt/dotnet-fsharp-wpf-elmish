@@ -31,6 +31,13 @@ type AttachedProp = AttachedProp of System.Windows.DependencyProperty * obj
 /// The reconciler uses this to know an element must be replaced, not patched.
 type EventProp = EventProp of obj
 
+/// Collection marker — for CLR properties that are auto-initialized collections of
+/// DependencyObject elements (e.g. GridControl.Columns : ObservableCollection<ColumnBase>).
+/// At materialize time the Materializer reflects the named property, gets the live
+/// collection, and adds materialized children. The reconciler treats it like AttachedProp:
+/// keyed by the property name, re-applied by clear+add when contents differ.
+type CollectionProp = CollectionProp of name: string * children: VirtualNode list
+
 module VirtualTree =
     /// Generate a stable position-based internal ID for reconciler matching.
     let makeId (parentId: string) (index: int) (t: Type) : string = $"{parentId}.{index}.{t.Name}"

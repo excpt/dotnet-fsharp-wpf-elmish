@@ -1,7 +1,9 @@
 namespace FSharp.Windows.Dsl
 
 open System
+open System.Collections
 open System.Collections.Concurrent
+open System.Reflection
 open System.Windows
 open System.Windows.Controls
 
@@ -46,15 +48,34 @@ module Materializer =
                     ic.Items.Add(materialize child) |> ignore
             | _ -> ()
 
+    /// Apply a collection prop: reflect the named CLR property on the parent, expect a
+    /// non-generic IList (which IList<T> / ObservableCollection<T> implement), clear it
+    /// and add the materialized children. Silently ignores unknown property names or
+    /// non-IList collections — the codegen only emits CollectionProp for properties it
+    /// already verified are auto-initialized list collections of DependencyObject.
+    and applyCollectionProp (parent: DependencyObject) (name: string) (children: VirtualNode list) =
+        let prop =
+            parent.GetType().GetProperty(name, BindingFlags.Public ||| BindingFlags.Instance)
+
+        if not (isNull prop) && prop.CanRead then
+            match prop.GetValue(parent) with
+            | :? IList as list ->
+                list.Clear()
+
+                for child in children do
+                    list.Add(materialize child) |> ignore
+            | _ -> ()
+
     /// Recursively materialize a VirtualNode into a live WPF DependencyObject.
     and materialize (node: VirtualNode) : DependencyObject =
         let el = Activator.CreateInstance(node.Type) :?> DependencyObject
 
-        // Apply props — attached props via SetValue, events unwrapped, typed props via registry
+        // Apply props — attached/collection/event markers handled inline, typed props via registry
         node.Props
         |> List.iter (fun prop ->
             match prop with
             | :? AttachedProp as (AttachedProp(dp, value)) -> el.SetValue(dp, value)
+            | :? CollectionProp as (CollectionProp(name, cs)) -> applyCollectionProp el name cs
             | :? EventProp as (EventProp inner) -> tryApplyProp el node.Type inner
             | _ -> tryApplyProp el node.Type prop)
 

@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-04-25
+// Generated: 2026-04-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -405,6 +405,8 @@ module FrameworkElement =
             Props =
                 box (AttachedProp(System.Windows.FrameworkElement.FlowDirectionProperty, box v))
                 :: node.Props }
+
+    let triggers (cs: VirtualNode list) : obj = box (CollectionProp("Triggers", cs))
 
     let create (props: obj list) : VirtualNode =
         let cs, uk, ps = VirtualTree.extractSpecialProps props

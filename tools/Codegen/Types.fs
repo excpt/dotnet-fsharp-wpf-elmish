@@ -16,6 +16,7 @@ type EventInfo =
     { Name: string
       FieldName: string
       OwnerTypeName: string
+      OwnerTypeFullName: string
       HandlerTypeName: string option
       // True when the handler delegate has the canonical `void Invoke(object, T)` shape.
       // F# `.AddHandler` requires this; non-standard signatures (extra parameters, non-void
@@ -53,6 +54,14 @@ type EmitAttachedDP =
       DPExpression: string
       ValueType: string }
 
+/// Input for emitting a collection-property helper. Generates a single-arg helper
+/// `let foo (cs: VirtualNode list) : obj = box (CollectionProp("Foo", cs))` so the DSL
+/// can populate auto-initialized collection properties (GridControl.Columns, etc.)
+/// without imperative .Add calls.
+type EmitCollectionProp =
+    { FnName: string
+      PropertyName: string }
+
 /// Complete input for generating one control's F# source file.
 type EmitControlInput =
     { OutputNamespace: string
@@ -65,6 +74,7 @@ type EmitControlInput =
       OwnEvents: EmitEvent list
       InheritedHelpers: EmitInheritedHelper list
       AttachedDPs: EmitAttachedDP list
+      CollectionProps: EmitCollectionProp list
       IsAbstract: bool
       AssemblyInfo: string
       GeneratedDate: string }

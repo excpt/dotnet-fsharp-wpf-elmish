@@ -27,6 +27,7 @@ let simpleButtonInput =
             Guard = None } ]
       InheritedHelpers = []
       AttachedDPs = []
+      CollectionProps = []
       IsAbstract = false
       AssemblyInfo = "PresentationFramework 8.0.0"
       GeneratedDate = "2026-03-22" }
@@ -146,6 +147,7 @@ let ``isEmittableEvent accepts DependencyPropertyChangedEventHandler`` () =
         { Name = "DataContextChanged"
           FieldName = ""
           OwnerTypeName = "FrameworkElement"
+          OwnerTypeFullName = ""
           HandlerTypeName = Some "System.Windows.DependencyPropertyChangedEventHandler"
           IsStandardDelegate = true
           IsObsolete = false }
@@ -158,6 +160,7 @@ let ``isEmittableEvent accepts third-party EventHandler delegates (e.g. DevExpre
         { Name = "CurrentItemChanged"
           FieldName = ""
           OwnerTypeName = "DataControlBase"
+          OwnerTypeFullName = ""
           HandlerTypeName = Some "DevExpress.Xpf.Grid.CurrentItemChangedEventHandler"
           IsStandardDelegate = true
           IsObsolete = false }
@@ -170,6 +173,7 @@ let ``isEmittableEvent rejects HwndSourceHook (non-standard signature)`` () =
         { Name = "MessageHook"
           FieldName = ""
           OwnerTypeName = "HwndHost"
+          OwnerTypeFullName = ""
           HandlerTypeName = Some "System.Windows.Interop.HwndSourceHook"
           IsStandardDelegate = false
           IsObsolete = false }
@@ -182,6 +186,7 @@ let ``isEmittableEvent rejects ImageFailedEventHandler with non-standard arg cou
         { Name = "ImageFailed"
           FieldName = ""
           OwnerTypeName = "PopupImageEdit"
+          OwnerTypeFullName = ""
           HandlerTypeName = Some "DevExpress.Xpf.Editors.ImageFailedEventHandler"
           IsStandardDelegate = false
           IsObsolete = false }
@@ -194,6 +199,7 @@ let ``isEmittableEvent rejects generic and nested handler types`` () =
         { Name = "X"
           FieldName = ""
           OwnerTypeName = "T"
+          OwnerTypeFullName = ""
           HandlerTypeName = Some "System.EventHandler`1"
           IsStandardDelegate = true
           IsObsolete = false }
@@ -204,11 +210,29 @@ let ``isEmittableEvent rejects generic and nested handler types`` () =
         { Name = "Y"
           FieldName = ""
           OwnerTypeName = "T"
+          OwnerTypeFullName = ""
           HandlerTypeName = Some "Outer+InnerEventHandler"
           IsStandardDelegate = true
           IsObsolete = false }
 
     Program.isEmittableEvent nested |> should be False
+
+// --- Collection helpers (Gap 2) ---
+
+[<Fact>]
+let ``emitControlFile generates collection helper for CLR collection property`` () =
+    let input =
+        { simpleButtonInput with
+            ControlName = "DataGrid"
+            ControlFullName = "System.Windows.Controls.DataGrid"
+            CollectionProps =
+                [ { FnName = "columns"
+                    PropertyName = "Columns" } ] }
+
+    let output = FSharpEmitter.emitControlFile input
+
+    output
+    |> should haveSubstring "let columns (cs: VirtualNode list) : obj = box (CollectionProp(\"Columns\", cs))"
 
 [<Fact>]
 let ``isEmittableEvent rejects events whose delegate is marked Obsolete`` () =
@@ -218,6 +242,7 @@ let ``isEmittableEvent rejects events whose delegate is marked Obsolete`` () =
         { Name = "PreparePopupMenu"
           FieldName = ""
           OwnerTypeName = "RichEditControl"
+          OwnerTypeFullName = ""
           HandlerTypeName = Some "DevExpress.Xpf.RichEdit.PreparePopupMenuEventHandler"
           IsStandardDelegate = true
           IsObsolete = true }
@@ -230,6 +255,7 @@ let ``isEmittableEvent rejects events with no handler type`` () =
         { Name = "Z"
           FieldName = ""
           OwnerTypeName = "T"
+          OwnerTypeFullName = ""
           HandlerTypeName = None
           IsStandardDelegate = false
           IsObsolete = false }

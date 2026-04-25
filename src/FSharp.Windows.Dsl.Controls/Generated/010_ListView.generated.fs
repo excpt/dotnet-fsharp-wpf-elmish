@@ -1,13 +1,12 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-04-25
+// Generated: 2026-04-26
 
 namespace FSharp.Windows.Dsl.Controls
 
 open System
 open System.Windows
-open System.Windows.Controls
 open FSharp.Windows.Dsl
 
 [<RequireQualifiedAccess>]
@@ -24,7 +23,6 @@ module ListView =
         | ListViewProp.View v -> el.SetValue(System.Windows.Controls.ListView.ViewProperty, box v)
 
     let selectionMode v : obj = box (ListBoxProp.SelectionMode v)
-    let selectedItems v : obj = box (ListBoxProp.SelectedItems v)
 
     let isSynchronizedWithCurrentItem v : obj =
         box (SelectorProp.IsSynchronizedWithCurrentItem v)

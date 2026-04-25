@@ -60,13 +60,10 @@ Write-Host ''
 
 New-Item -ItemType Directory -Force -Path $OutputDir | Out-Null
 
-# Wipe the shared _build cache so the next dotnet build starts from a clean state —
-# avoids stale DLLs from earlier runs whose codegen output no longer matches.
-$BuildDir = Join-Path $OutputDir '_build'
-if (Test-Path $BuildDir) {
-    Write-Host "Clearing $BuildDir..."
-    Remove-Item -Recurse -Force $BuildDir
-}
+# Note: we deliberately do NOT wipe $OutputDir/_build/ between runs. dotnet/MSBuild
+# tracks the regenerated source files and rebuilds only the packages that actually
+# changed, so leaving the cache in place skips most of the work on incremental codegen
+# tweaks. Pass -Force or `dotnet clean` manually for a from-scratch rebuild.
 
 # ─── Directory.Build.props files ────────────────────────────────
 # Vendor parent: disables CPM from repo root.

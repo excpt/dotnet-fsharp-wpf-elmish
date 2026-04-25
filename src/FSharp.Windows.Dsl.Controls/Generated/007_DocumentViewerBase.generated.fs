@@ -1,13 +1,12 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-04-25
+// Generated: 2026-04-26
 
 namespace FSharp.Windows.Dsl.Controls
 
 open System
 open System.Windows
-open System.Windows.Controls.Primitives
 open FSharp.Windows.Dsl
 
 [<RequireQualifiedAccess>]
@@ -371,3 +370,5 @@ module DocumentViewerBase =
             Props =
                 box (AttachedProp(System.Windows.Controls.Primitives.DocumentViewerBase.IsMasterPageProperty, box v))
                 :: node.Props }
+
+    let pageViews (cs: VirtualNode list) : obj = box (CollectionProp("PageViews", cs))

@@ -1,30 +1,26 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-04-25
+// Generated: 2026-04-26
 
 namespace FSharp.Windows.Dsl.Controls
 
 open System
 open System.Windows
-open System.Windows.Controls
 open FSharp.Windows.Dsl
 
 [<RequireQualifiedAccess>]
 type ListBoxProp =
     | Base of SelectorProp
     | SelectionMode of System.Windows.Controls.SelectionMode
-    | SelectedItems of System.Collections.IList
 
 module ListBox =
     let selectionMode v : obj = box (ListBoxProp.SelectionMode v)
-    let selectedItems v : obj = box (ListBoxProp.SelectedItems v)
 
     let apply (el: System.Windows.Controls.ListBox) (prop: ListBoxProp) =
         match prop with
         | ListBoxProp.Base p -> Selector.apply el p
         | ListBoxProp.SelectionMode v -> el.SetValue(System.Windows.Controls.ListBox.SelectionModeProperty, box v)
-        | ListBoxProp.SelectedItems v -> el.SetValue(System.Windows.Controls.ListBox.SelectedItemsProperty, box v)
 
     let isSynchronizedWithCurrentItem v : obj =
         box (SelectorProp.IsSynchronizedWithCurrentItem v)

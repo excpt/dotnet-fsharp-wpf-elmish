@@ -86,15 +86,19 @@ module Reconciler =
         for prop in props do
             match prop with
             | :? AttachedProp as (AttachedProp(dp, value)) -> el.SetValue(dp, value)
+            | :? CollectionProp as (CollectionProp(name, cs)) -> Materializer.applyCollectionProp el name cs
             | :? EventProp as (EventProp inner) -> Materializer.applyProp el inner
             | _ -> Materializer.applyProp el prop
 
     /// Prop identity key — uniquely identifies a prop "slot" regardless of value.
     /// Each F# DU case compiles to a distinct nested type. AttachedProps share
-    /// the AttachedProp type, so they key by DependencyProperty identity instead.
+    /// the AttachedProp type, so they key by DependencyProperty identity instead;
+    /// CollectionProps share their type but address different CLR properties, so they
+    /// key by property name.
     let private propKey (p: obj) =
         match p with
         | :? AttachedProp as (AttachedProp(dp, _)) -> dp :> obj
+        | :? CollectionProp as (CollectionProp(name, _)) -> ("CollectionProp", name) :> obj
         | :? EventProp as (EventProp inner) -> inner.GetType() :> obj
         | _ -> p.GetType() :> obj
 
@@ -142,6 +146,10 @@ module Reconciler =
                 match oldMap.TryGetValue(dp :> obj) with
                 | true, (:? AttachedProp as (AttachedProp(_, oldValue))) when oldValue = value -> ()
                 | _ -> el.SetValue(dp, value)
+            | :? CollectionProp as (CollectionProp(name, cs)) ->
+                match oldMap.TryGetValue(propKey p) with
+                | true, (:? CollectionProp as (CollectionProp(_, oldCs))) when oldCs = cs -> ()
+                | _ -> Materializer.applyCollectionProp el name cs
             | _ ->
                 let key = propKey p
 

@@ -171,3 +171,24 @@ let ``full app tree materializes to live WPF elements`` () =
         let btn = sp.Children.[1] :?> Button
         btn.IsDefault |> should be True
         btn.Content :?> string |> should equal "Click")
+
+[<Fact>]
+let ``materialize DataGrid with columns populates Columns collection`` () =
+    runSta (fun () ->
+        register ()
+
+        let el =
+            dataGrid
+                [ DataGrid.columns
+                      [ dataGridTextColumn [ DataGridTextColumn.header (box "Name") ]
+                        dataGridTextColumn [ DataGridTextColumn.header (box "Age") ] ] ]
+            |> Materializer.materialize
+
+        let dg = el :?> DataGrid
+        dg.Columns.Count |> should equal 2
+        dg.Columns.[0] |> should be instanceOfType<DataGridTextColumn>
+        (dg.Columns.[0] :?> DataGridTextColumn).Header :?> string
+        |> should equal "Name"
+
+        (dg.Columns.[1] :?> DataGridTextColumn).Header :?> string
+        |> should equal "Age")

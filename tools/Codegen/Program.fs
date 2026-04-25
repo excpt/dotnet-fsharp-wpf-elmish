@@ -193,16 +193,40 @@ let excludedTypes =
 /// Skip types with backticks (generic types like PageFunction`1).
 let isValidTypeName (name: string) = not (name.Contains('`'))
 
-/// First generic argument of a constructed generic type, or the element type for arrays —
-/// the typical "T" in IEnumerable<T> / ObservableCollection<T> / T[].
+/// Element type "T" for collection-like types — the array element, the first generic
+/// argument of a constructed generic, or the T of an IList<T>/ICollection<T>/IEnumerable<T>
+/// interface implementation. The interface walk is what catches concrete subclasses like
+/// DevExpress.Xpf.Grid.GridColumnCollection (extends ObservableCollection<GridColumn>) —
+/// non-generic at the surface but generic in its inheritance.
 let private collectionElementType (pt: Type) : Type option =
-    if isNull pt then None
-    elif pt.IsArray then Option.ofObj (pt.GetElementType())
+    let collectionInterfaces =
+        Set.ofList
+            [ "System.Collections.Generic.IList`1"
+              "System.Collections.Generic.ICollection`1"
+              "System.Collections.Generic.IEnumerable`1" ]
+
+    if isNull pt then
+        None
+    elif pt.IsArray then
+        Option.ofObj (pt.GetElementType())
     elif pt.IsGenericType then
         let args = pt.GetGenericArguments()
         if args.Length >= 1 then Some args.[0] else None
     else
-        None
+        try
+            pt.GetInterfaces()
+            |> Array.tryPick (fun i ->
+                if i.IsGenericType then
+                    let def = i.GetGenericTypeDefinition()
+
+                    if collectionInterfaces.Contains(def.FullName) then
+                        Some(i.GetGenericArguments().[0])
+                    else
+                        None
+                else
+                    None)
+        with _ ->
+            None
 
 /// Reachability closure: starting from the seed UIElement subtypes, follow DP value types
 /// and CLR collection element types until no new DependencyObject is discovered. When a
@@ -334,11 +358,31 @@ let willEmitType (t: Type) =
     (ownDPs |> List.exists isEmittableDP)
     || (ownEvents |> List.exists isEmittableEvent)
 
-let resolveParent (generatedTypeNames: Set<string>) (isThirdParty: bool) (t: Type) =
+/// Resolve the parent's Prop DU and apply function. Both the local and cross-package
+/// branches emit fully-qualified names so the generated F# code never needs to rely on
+/// `open`-precedence to disambiguate same-named modules (DragAndDrop.Thumb vs WPF.Thumb,
+/// Gauges.RangeBase vs WPF.RangeBase, etc.). `generatedFullNames` gates the local match
+/// on the candidate being the exact dedup'd variant — without it we'd pick any same-name
+/// type as parent regardless of where it sits in the actual BaseType chain.
+let resolveParent
+    (generatedTypeNames: Set<string>)
+    (generatedFullNames: Set<string>)
+    (outputNamespace: string)
+    (isThirdParty: bool)
+    (t: Type)
+    =
+    // Local references stay unqualified — the wrapper module sits in the same namespace
+    // as the caller and resolves via implicit-namespace lookup. We removed the
+    // `open <ControlNamespace>` that previously brought in same-named CLR types like
+    // `Diagram`, `Brush`, `Palette`, so there's nothing to shadow the local module.
     let rec findParent (candidate: Type) =
         if isNull candidate || hierarchyRoots.Contains(candidate.Name) then
             None, None
-        elif candidate.Name <> t.Name && generatedTypeNames |> Set.contains candidate.Name then
+        elif
+            candidate.Name <> t.Name
+            && generatedTypeNames |> Set.contains candidate.Name
+            && generatedFullNames |> Set.contains candidate.FullName
+        then
             Some $"{candidate.Name}Prop", Some $"{candidate.Name}.apply"
         elif
             isThirdParty
@@ -347,11 +391,10 @@ let resolveParent (generatedTypeNames: Set<string>) (isThirdParty: bool) (t: Typ
             && isValidTypeName candidate.Name
             && willEmitType candidate
         then
-            // Cross-package fallback: parent from the base Controls package, referenced via
-            // ProjectReference. Only fires for third-party generation runs (DevExpress etc.).
-            // Gated on willEmitType so we don't reference a XxxProp that the base run also
-            // skipped (e.g. Freezable, BindingGroup — DOs without own DPs/events).
-            Some $"{candidate.Name}Prop", Some $"{candidate.Name}.apply"
+            // Cross-package fallback: parent lives in the base Controls package, referenced
+            // via ProjectReference. Only fires for third-party generation runs.
+            Some $"FSharp.Windows.Dsl.Controls.{candidate.Name}Prop",
+            Some $"FSharp.Windows.Dsl.Controls.{candidate.Name}.apply"
         else
             findParent candidate.BaseType
 
@@ -366,6 +409,9 @@ let propDUName (ownerTypeName: string) = $"{ownerTypeName}Prop"
 /// at the ancestor's prop DU level. The materializer's hierarchy fallback handles apply.
 let buildInheritedHelpers
     (generatedTypeNames: Set<string>)
+    (generatedFullNames: Set<string>)
+    (outputNamespace: string)
+    (isThirdParty: bool)
     (emittedDPsPerType: Map<string, Set<string>>)
     (t: Type)
     (ownDPNames: Set<string>)
@@ -373,36 +419,51 @@ let buildInheritedHelpers
     let allDPs = AssemblyInspector.discoverDPs t
 
     allDPs
-    |> List.filter (fun dp -> not dp.IsAttached && not dp.IsReadOnly)
+    |> List.filter isEmittableDP
     |> List.filter (fun dp -> not (ownDPNames.Contains dp.Name))
     |> List.choose (fun dp ->
         let duName = propDUName dp.OwnerTypeName
-        let duCase = $"{duName}.{dp.Name}"
 
-        let isGeneratedType = generatedTypeNames |> Set.contains dp.OwnerTypeName
+        // Owner-resolution strictly by FullName so name collisions (DragAndDrop.Thumb
+        // vs WPF.Thumb) don't pull in helpers that belong to a different DU.
+        let ownerIsLocal =
+            generatedFullNames |> Set.contains dp.OwnerTypeFullName
+
+        let isWpfOwner =
+            not (isNull dp.OwnerTypeFullName)
+            && dp.OwnerTypeFullName.StartsWith("System.Windows.")
 
         let wasEmitted =
-            if isGeneratedType then
+            if ownerIsLocal then
                 match emittedDPsPerType |> Map.tryFind dp.OwnerTypeName with
                 | Some dps -> dps.Contains dp.Name
                 | None -> false
             else
-                false
+                // Cross-package: base Controls emits the DP iff the owner would be
+                // emitted there and the DP itself is emittable.
+                isWpfOwner && isValidTypeName dp.OwnerTypeName
 
         if not wasEmitted then
             None
         else
+            // Cross-package references must be fully-qualified (the open of base Controls
+            // is gone). Local ones stay unqualified — same-namespace siblings are visible
+            // and we don't open ControlNamespace anymore so the CLR class can't shadow.
+            let qualifier =
+                if not ownerIsLocal then "FSharp.Windows.Dsl.Controls." else ""
+
             let fnName = toSafeCamelCase dp.Name
 
             Some
                 { FnName = fnName
-                  PropDUExpression = duCase
+                  PropDUExpression = $"{qualifier}{duName}.{dp.Name}"
                   IsEvent = false })
     |> List.distinctBy (fun h -> h.FnName)
 
 /// Build EmitControlInput from a type and its own DPs/events.
 let buildEmitInput
     (generatedTypeNames: Set<string>)
+    (generatedFullNames: Set<string>)
     (emittedDPsPerType: Map<string, Set<string>>)
     (versionGuards: Map<string, string>)
     (outputNamespace: string)
@@ -410,7 +471,9 @@ let buildEmitInput
     (t: Type, ownDPs: DPInfo list, ownEvents: EventInfo list, _depth: int)
     =
     let isThirdParty = outputNamespace <> "FSharp.Windows.Dsl.Controls"
-    let parentPropName, parentApplyFn = resolveParent generatedTypeNames isThirdParty t
+
+    let parentPropName, parentApplyFn =
+        resolveParent generatedTypeNames generatedFullNames outputNamespace isThirdParty t
 
     let emitDPs =
         ownDPs
@@ -432,6 +495,34 @@ let buildEmitInput
               EventExpression = $"el.{ev.Name}"
               Guard = None })
 
+    // Collection CLR properties: auto-initialized list-of-DependencyObject collections
+    // declared on this type (e.g. GridControl.Columns : ObservableCollection<ColumnBase>).
+    // Skipped: properties whose names collide with the visual-tree mechanism (Children,
+    // Content, Items handled by Materializer.attachChildren); read-only-ish wrappers
+    // without a backing list; and properties whose element type isn't a DependencyObject.
+    let collectionPropExclusions =
+        Set.ofList [ "Children"; "Content"; "Items"; "Resources" ]
+
+    let collectionProps =
+        try
+            t.GetProperties(
+                System.Reflection.BindingFlags.Public
+                ||| System.Reflection.BindingFlags.Instance
+                ||| System.Reflection.BindingFlags.DeclaredOnly
+            )
+            |> Array.filter (fun p ->
+                p.CanRead && not (collectionPropExclusions.Contains p.Name))
+            |> Array.choose (fun p ->
+                match collectionElementType p.PropertyType with
+                | Some elem when AssemblyInspector.isSubclassOfByName "System.Windows.DependencyObject" elem ->
+                    Some
+                        { FnName = toSafeCamelCase p.Name
+                          PropertyName = p.Name }
+                | _ -> None)
+            |> Array.toList
+        with _ ->
+            []
+
     // Attached DPs — defined on this type, set on children
     let attachedDPs =
         ownDPs
@@ -448,7 +539,7 @@ let buildEmitInput
     let ownEventNames = ownEvents |> List.map (fun ev -> ev.Name) |> Set.ofList
 
     let inherited =
-        buildInheritedHelpers generatedTypeNames emittedDPsPerType t ownDPNames
+        buildInheritedHelpers generatedTypeNames generatedFullNames outputNamespace isThirdParty emittedDPsPerType t ownDPNames
 
     // Inherited event helpers (e.g., Button gets onClick from ButtonBase)
     let allEvents = AssemblyInspector.discoverAllEvents t
@@ -456,12 +547,27 @@ let buildEmitInput
     let inheritedEventHelpers =
         allEvents
         |> List.filter (fun ev -> not (ownEventNames.Contains ev.Name))
-        |> List.filter (fun ev -> generatedTypeNames |> Set.contains ev.OwnerTypeName)
         |> List.filter isEmittableEvent
-        |> List.map (fun ev ->
-            { FnName = $"on{ev.Name}"
-              PropDUExpression = $"{propDUName ev.OwnerTypeName}.On{ev.Name}"
-              IsEvent = true })
+        |> List.choose (fun ev ->
+            let ownerIsLocal =
+                generatedFullNames |> Set.contains ev.OwnerTypeFullName
+
+            let isWpfOwner =
+                not (isNull ev.OwnerTypeFullName)
+                && ev.OwnerTypeFullName.StartsWith("System.Windows.")
+
+            // Same gate as inherited DPs: owner must match by FullName, either as a
+            // generated local type or a base Controls type that would have emitted it.
+            if not ownerIsLocal && not isWpfOwner then
+                None
+            else
+                let qualifier =
+                    if not ownerIsLocal then "FSharp.Windows.Dsl.Controls." else ""
+
+                Some
+                    { FnName = $"on{ev.Name}"
+                      PropDUExpression = $"{qualifier}{propDUName ev.OwnerTypeName}.On{ev.Name}"
+                      IsEvent = true })
 
     { OutputNamespace = outputNamespace
       ControlName = t.Name
@@ -473,6 +579,7 @@ let buildEmitInput
       OwnEvents = emitEvents
       InheritedHelpers = inherited @ inheritedEventHelpers
       AttachedDPs = attachedDPs
+      CollectionProps = collectionProps
       IsAbstract = t.IsAbstract
       AssemblyInfo = assemblyInfo
       GeneratedDate = DateTime.Now.ToString("yyyy-MM-dd") }
@@ -746,11 +853,16 @@ let main argv =
         // name as `Base of XxxProp`. Restrict it to types that will actually have a file
         // emitted (see willEmitType) — otherwise a parent reference may resolve to a type
         // whose Prop DU is never written (e.g. Freezable, BindingGroup).
-        let generatedTypeNames =
-            typesToGenerate
-            |> List.filter willEmitType
-            |> List.map (fun t -> t.Name)
-            |> Set.ofList
+        // Only types with their own DPs/events get a Prop DU. Pure pass-through wrappers
+        // (CheckBox, Separator, Diagram2D, …) are still emitted with a `create` function
+        // so the DSL has them as constructors, but resolveParent skips past them to the
+        // nearest ancestor in this set — references like `Diagram.apply` then dispatch
+        // correctly via Materializer's runtime hierarchy walk.
+        let willEmitTypes = typesToGenerate |> List.filter willEmitType
+        let generatedTypeNames = willEmitTypes |> List.map (fun t -> t.Name) |> Set.ofList
+
+        let generatedFullNames =
+            willEmitTypes |> List.map (fun t -> t.FullName) |> Set.ofList
 
         let emittedDPsPerType =
             hierarchy
@@ -771,7 +883,7 @@ let main argv =
             let t, ownDPs, ownEvents, depth = entry
 
             let input =
-                buildEmitInput generatedTypeNames emittedDPsPerType versionGuards outputNamespace assemblyInfo entry
+                buildEmitInput generatedTypeNames generatedFullNames emittedDPsPerType versionGuards outputNamespace assemblyInfo entry
 
             // Emit when the type contributes its own DPs/events, or when it has a generated
             // parent (preserves concrete shorthands like checkBox / separator that inherit
@@ -799,7 +911,7 @@ let main argv =
             let t, _, _, _ = entry
 
             let input =
-                buildEmitInput generatedTypeNames emittedDPsPerType versionGuards outputNamespace assemblyInfo entry
+                buildEmitInput generatedTypeNames generatedFullNames emittedDPsPerType versionGuards outputNamespace assemblyInfo entry
 
             if
                 input.OwnDPs.Length > 0

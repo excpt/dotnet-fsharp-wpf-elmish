@@ -117,17 +117,14 @@ let private emitNamespaceAndOpens (sb: StringBuilder) (input: EmitControlInput) 
     sb.AppendLine($"namespace {input.OutputNamespace}") |> ignore
     sb.AppendLine() |> ignore
 
-    let baseOpens =
-        [ "System"; "System.Windows"; input.ControlNamespace; "FSharp.Windows.Dsl" ]
-
-    // When generating for a different namespace (e.g. DevExpress), open the base controls
-    // namespace so inherited prop types (UIElementProp, FrameworkElementProp, etc.) resolve.
-    let opens =
-        if input.OutputNamespace <> "FSharp.Windows.Dsl.Controls" then
-            baseOpens @ [ "FSharp.Windows.Dsl.Controls" ]
-        else
-            baseOpens
-        |> List.distinct
+    // We deliberately do NOT open the ControlNamespace nor FSharp.Windows.Dsl.Controls.
+    // The ControlNamespace would bring in the WPF/vendor CLR class as `Palette`, `Brush`,
+    // `Pen`, `Thumb` … and shadow our wrapper module of the same name; F# then resolves
+    // `Palette.apply` to the type's static lookup and fails. Base Controls' wrappers would
+    // similarly shadow same-named third-party modules. Every reference that crosses a
+    // package boundary is emitted fully-qualified (DPFieldExpression, ControlFullName,
+    // PropDUExpression, parent's apply path) so the open is unnecessary.
+    let opens = [ "System"; "System.Windows"; "FSharp.Windows.Dsl" ]
 
     for ns in opens do
         sb.AppendLine($"open {ns}") |> ignore
@@ -269,7 +266,11 @@ let private emitModule (sb: StringBuilder) (input: EmitControlInput) =
 
     // Children/content helpers — skip names that collide with own DPs/events or inherited
     // helpers (e.g. KeyBinding has its own `Key` DP, BitmapEffectGroup has a `Children` DP).
-    let usedNames =
+    // Names already taken by DP/event helpers and inherited helpers. Used to suppress
+    // duplicate definitions for the special children/contentChild/key helpers and to
+    // filter collection-prop helpers whose name collides with a same-named DP setter
+    // (e.g. TextBlock.TextEffects exists as both a DP and an auto-init list collection).
+    let dpAndEventNames =
         seq {
             for dp in input.OwnDPs do
                 yield toCamelCase dp.CaseName
@@ -279,6 +280,14 @@ let private emitModule (sb: StringBuilder) (input: EmitControlInput) =
                 yield h.FnName
         }
         |> Set.ofSeq
+
+    let collectionPropsToEmit =
+        input.CollectionProps
+        |> List.filter (fun col -> not (dpAndEventNames.Contains col.FnName))
+
+    let usedNames =
+        dpAndEventNames
+        |> Set.union (collectionPropsToEmit |> List.map (fun c -> c.FnName) |> Set.ofList)
 
     if not (usedNames.Contains "children") then
         sb.AppendLine($"    let children (cs: VirtualNode list) : obj = box (Children cs)")
@@ -302,6 +311,15 @@ let private emitModule (sb: StringBuilder) (input: EmitControlInput) =
         |> ignore
 
     if not input.AttachedDPs.IsEmpty then
+        sb.AppendLine() |> ignore
+
+    // Collection helpers — for auto-initialized DO-element CLR collections (GridControl.Columns).
+    // Materializer/Reconciler reflect the named property and add materialized children.
+    for col in collectionPropsToEmit do
+        sb.AppendLine($"    let {col.FnName} (cs: VirtualNode list) : obj = box (CollectionProp(\"{col.PropertyName}\", cs))")
+        |> ignore
+
+    if not collectionPropsToEmit.IsEmpty then
         sb.AppendLine() |> ignore
 
     // Create function (only for concrete types)
