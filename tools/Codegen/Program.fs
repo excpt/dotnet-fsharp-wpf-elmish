@@ -145,7 +145,7 @@ let mapToFSharpType (fullName: string) =
     | "System.Char" -> "char"
     | name when name.Contains('`') -> "obj"
     | null -> "obj"
-    | name -> name
+    | name -> name.Replace('+', '.')
 
 /// Types to exclude from generation (internal, utility, or not useful in DSL).
 let excludedTypes =
@@ -471,7 +471,7 @@ let main argv =
             // Try extra paths first, then runtime dir
             let candidates =
                 [ for p in extraPaths do
-                      yield! Directory.GetFiles(p, $"{name}*.dll")
+                      yield Path.Combine(p, $"{name}.dll")
                   yield Path.Combine(runtimeDir, $"{name}.dll") ]
 
             let found = candidates |> List.tryFind File.Exists
@@ -658,7 +658,7 @@ let main argv =
         // Format generated files with Fantomas
         printfn "Running Fantomas on generated files..."
 
-        let fantomasArgs = $"\"{parentDir}\" --recurse"
+        let fantomasArgs = $"\"{parentDir}\""
 
         let psi =
             ProcessStartInfo(
