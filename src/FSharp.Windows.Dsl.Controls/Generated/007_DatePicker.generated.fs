@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-04-06
+// Generated: 2026-04-25
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -23,6 +23,8 @@ type DatePickerProp =
     | SelectedDate of obj
     | SelectedDateFormat of System.Windows.Controls.DatePickerFormat
     | Text of string
+    | OnCalendarClosed of System.Windows.RoutedEventHandler
+    | OnCalendarOpened of System.Windows.RoutedEventHandler
 
 module DatePicker =
     let calendarStyle v : obj = box (DatePickerProp.CalendarStyle v)
@@ -41,6 +43,12 @@ module DatePicker =
         box (DatePickerProp.SelectedDateFormat v)
 
     let text v : obj = box (DatePickerProp.Text v)
+
+    let onCalendarClosed v : obj =
+        box (EventProp(box (DatePickerProp.OnCalendarClosed v)))
+
+    let onCalendarOpened v : obj =
+        box (EventProp(box (DatePickerProp.OnCalendarOpened v)))
 
     let apply (el: System.Windows.Controls.DatePicker) (prop: DatePickerProp) =
         match prop with
@@ -61,6 +69,8 @@ module DatePicker =
         | DatePickerProp.SelectedDateFormat v ->
             el.SetValue(System.Windows.Controls.DatePicker.SelectedDateFormatProperty, box v)
         | DatePickerProp.Text v -> el.SetValue(System.Windows.Controls.DatePicker.TextProperty, box v)
+        | DatePickerProp.OnCalendarClosed h -> el.CalendarClosed.AddHandler(h)
+        | DatePickerProp.OnCalendarOpened h -> el.CalendarOpened.AddHandler(h)
 
     let borderBrush v : obj = box (ControlProp.BorderBrush v)
     let borderThickness v : obj = box (ControlProp.BorderThickness v)
@@ -388,6 +398,51 @@ module DatePicker =
 
     let onLostFocus v : obj =
         box (EventProp(box (UIElementProp.OnLostFocus v)))
+
+    let onDataContextChanged v : obj =
+        box (EventProp(box (FrameworkElementProp.OnDataContextChanged v)))
+
+    let onInitialized v : obj =
+        box (EventProp(box (FrameworkElementProp.OnInitialized v)))
+
+    let onIsMouseDirectlyOverChanged v : obj =
+        box (EventProp(box (UIElementProp.OnIsMouseDirectlyOverChanged v)))
+
+    let onIsKeyboardFocusWithinChanged v : obj =
+        box (EventProp(box (UIElementProp.OnIsKeyboardFocusWithinChanged v)))
+
+    let onIsMouseCapturedChanged v : obj =
+        box (EventProp(box (UIElementProp.OnIsMouseCapturedChanged v)))
+
+    let onIsMouseCaptureWithinChanged v : obj =
+        box (EventProp(box (UIElementProp.OnIsMouseCaptureWithinChanged v)))
+
+    let onIsStylusDirectlyOverChanged v : obj =
+        box (EventProp(box (UIElementProp.OnIsStylusDirectlyOverChanged v)))
+
+    let onIsStylusCapturedChanged v : obj =
+        box (EventProp(box (UIElementProp.OnIsStylusCapturedChanged v)))
+
+    let onIsStylusCaptureWithinChanged v : obj =
+        box (EventProp(box (UIElementProp.OnIsStylusCaptureWithinChanged v)))
+
+    let onIsKeyboardFocusedChanged v : obj =
+        box (EventProp(box (UIElementProp.OnIsKeyboardFocusedChanged v)))
+
+    let onLayoutUpdated v : obj =
+        box (EventProp(box (UIElementProp.OnLayoutUpdated v)))
+
+    let onIsEnabledChanged v : obj =
+        box (EventProp(box (UIElementProp.OnIsEnabledChanged v)))
+
+    let onIsHitTestVisibleChanged v : obj =
+        box (EventProp(box (UIElementProp.OnIsHitTestVisibleChanged v)))
+
+    let onIsVisibleChanged v : obj =
+        box (EventProp(box (UIElementProp.OnIsVisibleChanged v)))
+
+    let onFocusableChanged v : obj =
+        box (EventProp(box (UIElementProp.OnFocusableChanged v)))
 
     let children (cs: VirtualNode list) : obj = box (Children cs)
     let contentChild (c: VirtualNode) : obj = box (ContentChild c)

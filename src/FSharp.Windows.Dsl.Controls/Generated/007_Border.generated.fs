@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-04-06
+// Generated: 2026-04-25
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -12,7 +12,7 @@ open FSharp.Windows.Dsl
 
 [<RequireQualifiedAccess>]
 type BorderProp =
-    | Base of DecoratorProp
+    | Base of FrameworkElementProp
     | BorderThickness of System.Windows.Thickness
     | Padding of System.Windows.Thickness
     | CornerRadius of System.Windows.CornerRadius
@@ -28,7 +28,7 @@ module Border =
 
     let apply (el: System.Windows.Controls.Border) (prop: BorderProp) =
         match prop with
-        | BorderProp.Base p -> Decorator.apply el p
+        | BorderProp.Base p -> FrameworkElement.apply el p
         | BorderProp.BorderThickness v -> el.SetValue(System.Windows.Controls.Border.BorderThicknessProperty, box v)
         | BorderProp.Padding v -> el.SetValue(System.Windows.Controls.Border.PaddingProperty, box v)
         | BorderProp.CornerRadius v -> el.SetValue(System.Windows.Controls.Border.CornerRadiusProperty, box v)
@@ -335,6 +335,51 @@ module Border =
 
     let onLostFocus v : obj =
         box (EventProp(box (UIElementProp.OnLostFocus v)))
+
+    let onDataContextChanged v : obj =
+        box (EventProp(box (FrameworkElementProp.OnDataContextChanged v)))
+
+    let onInitialized v : obj =
+        box (EventProp(box (FrameworkElementProp.OnInitialized v)))
+
+    let onIsMouseDirectlyOverChanged v : obj =
+        box (EventProp(box (UIElementProp.OnIsMouseDirectlyOverChanged v)))
+
+    let onIsKeyboardFocusWithinChanged v : obj =
+        box (EventProp(box (UIElementProp.OnIsKeyboardFocusWithinChanged v)))
+
+    let onIsMouseCapturedChanged v : obj =
+        box (EventProp(box (UIElementProp.OnIsMouseCapturedChanged v)))
+
+    let onIsMouseCaptureWithinChanged v : obj =
+        box (EventProp(box (UIElementProp.OnIsMouseCaptureWithinChanged v)))
+
+    let onIsStylusDirectlyOverChanged v : obj =
+        box (EventProp(box (UIElementProp.OnIsStylusDirectlyOverChanged v)))
+
+    let onIsStylusCapturedChanged v : obj =
+        box (EventProp(box (UIElementProp.OnIsStylusCapturedChanged v)))
+
+    let onIsStylusCaptureWithinChanged v : obj =
+        box (EventProp(box (UIElementProp.OnIsStylusCaptureWithinChanged v)))
+
+    let onIsKeyboardFocusedChanged v : obj =
+        box (EventProp(box (UIElementProp.OnIsKeyboardFocusedChanged v)))
+
+    let onLayoutUpdated v : obj =
+        box (EventProp(box (UIElementProp.OnLayoutUpdated v)))
+
+    let onIsEnabledChanged v : obj =
+        box (EventProp(box (UIElementProp.OnIsEnabledChanged v)))
+
+    let onIsHitTestVisibleChanged v : obj =
+        box (EventProp(box (UIElementProp.OnIsHitTestVisibleChanged v)))
+
+    let onIsVisibleChanged v : obj =
+        box (EventProp(box (UIElementProp.OnIsVisibleChanged v)))
+
+    let onFocusableChanged v : obj =
+        box (EventProp(box (UIElementProp.OnFocusableChanged v)))
 
     let children (cs: VirtualNode list) : obj = box (Children cs)
     let contentChild (c: VirtualNode) : obj = box (ContentChild c)

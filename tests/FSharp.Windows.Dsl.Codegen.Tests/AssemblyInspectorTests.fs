@@ -167,6 +167,112 @@ let ``discoverAllEvents includes both routed and CLR events`` () =
     // CLR event (Window's own)
     allEvents |> List.exists (fun e -> e.Name = "Closing") |> should be True
 
+// --- DependencyObject discovery (Gap 1) ---
+
+[<Fact>]
+let ``findAllDependencyObjectSubtypes includes DataGridColumn (DO not UIElement)`` () =
+    let pfPath =
+        AssemblyInspector.resolveAssembly "net8.0-windows" "PresentationFramework"
+
+    let runtimeDir = Path.GetDirectoryName(pfPath)
+    use ctx = AssemblyInspector.createContext runtimeDir []
+    let assembly = ctx.LoadFromAssemblyPath(pfPath)
+
+    let doTypes =
+        AssemblyInspector.findAllDependencyObjectSubtypes ctx [ assembly ]
+
+    let uiTypes = AssemblyInspector.findAllUIElementSubtypes ctx [ assembly ]
+
+    doTypes
+    |> List.exists (fun t -> t.Name = "DataGridColumn")
+    |> should be True
+
+    uiTypes
+    |> List.exists (fun t -> t.Name = "DataGridColumn")
+    |> should be False
+
+[<Fact>]
+let ``findAllDependencyObjectSubtypes is a superset of findAllUIElementSubtypes`` () =
+    let pfPath =
+        AssemblyInspector.resolveAssembly "net8.0-windows" "PresentationFramework"
+
+    let runtimeDir = Path.GetDirectoryName(pfPath)
+    use ctx = AssemblyInspector.createContext runtimeDir []
+    let assembly = ctx.LoadFromAssemblyPath(pfPath)
+
+    let doNames =
+        AssemblyInspector.findAllDependencyObjectSubtypes ctx [ assembly ]
+        |> List.map (fun t -> t.FullName)
+        |> Set.ofList
+
+    let uiNames =
+        AssemblyInspector.findAllUIElementSubtypes ctx [ assembly ]
+        |> List.map (fun t -> t.FullName)
+        |> Set.ofList
+
+    Set.isSubset uiNames doNames |> should be True
+
+[<Fact>]
+let ``computeReachableDOTypes pulls DataGridColumn in via DataGrid.Columns`` () =
+    let pfPath =
+        AssemblyInspector.resolveAssembly "net8.0-windows" "PresentationFramework"
+
+    let runtimeDir = Path.GetDirectoryName(pfPath)
+    use ctx = AssemblyInspector.createContext runtimeDir []
+    let assembly = ctx.LoadFromAssemblyPath(pfPath)
+    // Also load PresentationCore + WindowsBase so Brush/Freezable show up where reachable
+    let coreAsm =
+        ctx.LoadFromAssemblyPath(Path.Combine(runtimeDir, "PresentationCore.dll"))
+
+    let baseAsm =
+        ctx.LoadFromAssemblyPath(Path.Combine(runtimeDir, "WindowsBase.dll"))
+
+    let allDO =
+        AssemblyInspector.findAllDependencyObjectSubtypes ctx [ assembly; coreAsm; baseAsm ]
+
+    let seed =
+        AssemblyInspector.findAllUIElementSubtypes ctx [ assembly; coreAsm; baseAsm ]
+
+    let reachable = FSharp.Windows.Dsl.Codegen.Program.computeReachableDOTypes allDO seed
+
+    // DataGridColumn is a non-UIElement DO reached via DataGrid.Columns (collection)
+    reachable
+    |> Set.contains "System.Windows.Controls.DataGridColumn"
+    |> should be True
+
+    // Brush is a non-UIElement DO reached via FrameworkElement.Background (DP value)
+    reachable |> Set.contains "System.Windows.Media.Brush" |> should be True
+
+    // UIElement itself is in the reachable set (it's a seed)
+    reachable |> Set.contains "System.Windows.UIElement" |> should be True
+
+    // DataGridTextColumn is a leaf descendant of DataGridColumn — it must come along when
+    // DataGrid.Columns (collection of DataGridColumn) pulls the parent type in.
+    reachable
+    |> Set.contains "System.Windows.Controls.DataGridTextColumn"
+    |> should be True
+
+    // SolidColorBrush is a leaf descendant of Brush — must come along when a DP whose
+    // value type is Brush pulls the parent type in.
+    reachable
+    |> Set.contains "System.Windows.Media.SolidColorBrush"
+    |> should be True
+
+[<Fact>]
+let ``discoverDPs finds CanUserSort on DataGridColumn`` () =
+    let pfPath =
+        AssemblyInspector.resolveAssembly "net8.0-windows" "PresentationFramework"
+
+    let runtimeDir = Path.GetDirectoryName(pfPath)
+    use ctx = AssemblyInspector.createContext runtimeDir []
+    let assembly = ctx.LoadFromAssemblyPath(pfPath)
+    let dgcType = assembly.GetType("System.Windows.Controls.DataGridColumn")
+    let dps = AssemblyInspector.discoverDPs dgcType
+
+    dps
+    |> List.exists (fun dp -> dp.Name = "CanUserSort")
+    |> should be True
+
 [<Fact>]
 let ``discoverAllEvents has no duplicates`` () =
     let pfPath =

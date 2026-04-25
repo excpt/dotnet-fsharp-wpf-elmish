@@ -60,6 +60,14 @@ Write-Host ''
 
 New-Item -ItemType Directory -Force -Path $OutputDir | Out-Null
 
+# Wipe the shared _build cache so the next dotnet build starts from a clean state —
+# avoids stale DLLs from earlier runs whose codegen output no longer matches.
+$BuildDir = Join-Path $OutputDir '_build'
+if (Test-Path $BuildDir) {
+    Write-Host "Clearing $BuildDir..."
+    Remove-Item -Recurse -Force $BuildDir
+}
+
 # ─── Directory.Build.props files ────────────────────────────────
 # Vendor parent: disables CPM from repo root.
 $VendorParentProps = @'

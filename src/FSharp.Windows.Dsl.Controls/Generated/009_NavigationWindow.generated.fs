@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-04-06
+// Generated: 2026-04-25
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -20,6 +20,13 @@ type NavigationWindowProp =
     | CanGoBack of bool
     | CanGoForward of bool
     | Source of System.Uri
+    | OnNavigating of System.Windows.Navigation.NavigatingCancelEventHandler
+    | OnNavigationProgress of System.Windows.Navigation.NavigationProgressEventHandler
+    | OnNavigationFailed of System.Windows.Navigation.NavigationFailedEventHandler
+    | OnNavigated of System.Windows.Navigation.NavigatedEventHandler
+    | OnLoadCompleted of System.Windows.Navigation.LoadCompletedEventHandler
+    | OnNavigationStopped of System.Windows.Navigation.NavigationStoppedEventHandler
+    | OnFragmentNavigation of System.Windows.Navigation.FragmentNavigationEventHandler
 
 module NavigationWindow =
     let sandboxExternalContent v : obj =
@@ -40,6 +47,27 @@ module NavigationWindow =
 
     let source v : obj = box (NavigationWindowProp.Source v)
 
+    let onNavigating v : obj =
+        box (EventProp(box (NavigationWindowProp.OnNavigating v)))
+
+    let onNavigationProgress v : obj =
+        box (EventProp(box (NavigationWindowProp.OnNavigationProgress v)))
+
+    let onNavigationFailed v : obj =
+        box (EventProp(box (NavigationWindowProp.OnNavigationFailed v)))
+
+    let onNavigated v : obj =
+        box (EventProp(box (NavigationWindowProp.OnNavigated v)))
+
+    let onLoadCompleted v : obj =
+        box (EventProp(box (NavigationWindowProp.OnLoadCompleted v)))
+
+    let onNavigationStopped v : obj =
+        box (EventProp(box (NavigationWindowProp.OnNavigationStopped v)))
+
+    let onFragmentNavigation v : obj =
+        box (EventProp(box (NavigationWindowProp.OnFragmentNavigation v)))
+
     let apply (el: System.Windows.Navigation.NavigationWindow) (prop: NavigationWindowProp) =
         match prop with
         | NavigationWindowProp.Base p -> Window.apply el p
@@ -56,6 +84,13 @@ module NavigationWindow =
         | NavigationWindowProp.CanGoForward v ->
             el.SetValue(System.Windows.Navigation.NavigationWindow.CanGoForwardProperty, box v)
         | NavigationWindowProp.Source v -> el.SetValue(System.Windows.Navigation.NavigationWindow.SourceProperty, box v)
+        | NavigationWindowProp.OnNavigating h -> el.Navigating.AddHandler(h)
+        | NavigationWindowProp.OnNavigationProgress h -> el.NavigationProgress.AddHandler(h)
+        | NavigationWindowProp.OnNavigationFailed h -> el.NavigationFailed.AddHandler(h)
+        | NavigationWindowProp.OnNavigated h -> el.Navigated.AddHandler(h)
+        | NavigationWindowProp.OnLoadCompleted h -> el.LoadCompleted.AddHandler(h)
+        | NavigationWindowProp.OnNavigationStopped h -> el.NavigationStopped.AddHandler(h)
+        | NavigationWindowProp.OnFragmentNavigation h -> el.FragmentNavigation.AddHandler(h)
 
     let taskbarItemInfo v : obj = box (WindowProp.TaskbarItemInfo v)
     let allowsTransparency v : obj = box (WindowProp.AllowsTransparency v)
@@ -410,6 +445,75 @@ module NavigationWindow =
 
     let onLostFocus v : obj =
         box (EventProp(box (UIElementProp.OnLostFocus v)))
+
+    let onSourceInitialized v : obj =
+        box (EventProp(box (WindowProp.OnSourceInitialized v)))
+
+    let onActivated v : obj =
+        box (EventProp(box (WindowProp.OnActivated v)))
+
+    let onDeactivated v : obj =
+        box (EventProp(box (WindowProp.OnDeactivated v)))
+
+    let onStateChanged v : obj =
+        box (EventProp(box (WindowProp.OnStateChanged v)))
+
+    let onLocationChanged v : obj =
+        box (EventProp(box (WindowProp.OnLocationChanged v)))
+
+    let onClosing v : obj =
+        box (EventProp(box (WindowProp.OnClosing v)))
+
+    let onClosed v : obj =
+        box (EventProp(box (WindowProp.OnClosed v)))
+
+    let onContentRendered v : obj =
+        box (EventProp(box (WindowProp.OnContentRendered v)))
+
+    let onDataContextChanged v : obj =
+        box (EventProp(box (FrameworkElementProp.OnDataContextChanged v)))
+
+    let onInitialized v : obj =
+        box (EventProp(box (FrameworkElementProp.OnInitialized v)))
+
+    let onIsMouseDirectlyOverChanged v : obj =
+        box (EventProp(box (UIElementProp.OnIsMouseDirectlyOverChanged v)))
+
+    let onIsKeyboardFocusWithinChanged v : obj =
+        box (EventProp(box (UIElementProp.OnIsKeyboardFocusWithinChanged v)))
+
+    let onIsMouseCapturedChanged v : obj =
+        box (EventProp(box (UIElementProp.OnIsMouseCapturedChanged v)))
+
+    let onIsMouseCaptureWithinChanged v : obj =
+        box (EventProp(box (UIElementProp.OnIsMouseCaptureWithinChanged v)))
+
+    let onIsStylusDirectlyOverChanged v : obj =
+        box (EventProp(box (UIElementProp.OnIsStylusDirectlyOverChanged v)))
+
+    let onIsStylusCapturedChanged v : obj =
+        box (EventProp(box (UIElementProp.OnIsStylusCapturedChanged v)))
+
+    let onIsStylusCaptureWithinChanged v : obj =
+        box (EventProp(box (UIElementProp.OnIsStylusCaptureWithinChanged v)))
+
+    let onIsKeyboardFocusedChanged v : obj =
+        box (EventProp(box (UIElementProp.OnIsKeyboardFocusedChanged v)))
+
+    let onLayoutUpdated v : obj =
+        box (EventProp(box (UIElementProp.OnLayoutUpdated v)))
+
+    let onIsEnabledChanged v : obj =
+        box (EventProp(box (UIElementProp.OnIsEnabledChanged v)))
+
+    let onIsHitTestVisibleChanged v : obj =
+        box (EventProp(box (UIElementProp.OnIsHitTestVisibleChanged v)))
+
+    let onIsVisibleChanged v : obj =
+        box (EventProp(box (UIElementProp.OnIsVisibleChanged v)))
+
+    let onFocusableChanged v : obj =
+        box (EventProp(box (UIElementProp.OnFocusableChanged v)))
 
     let children (cs: VirtualNode list) : obj = box (Children cs)
     let contentChild (c: VirtualNode) : obj = box (ContentChild c)

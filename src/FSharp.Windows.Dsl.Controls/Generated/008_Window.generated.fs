@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-04-06
+// Generated: 2026-04-25
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -26,6 +26,14 @@ type WindowProp =
     | Topmost of bool
     | ShowActivated of bool
     | OnDpiChanged of System.Windows.DpiChangedEventHandler
+    | OnSourceInitialized of System.EventHandler
+    | OnActivated of System.EventHandler
+    | OnDeactivated of System.EventHandler
+    | OnStateChanged of System.EventHandler
+    | OnLocationChanged of System.EventHandler
+    | OnClosing of System.ComponentModel.CancelEventHandler
+    | OnClosed of System.EventHandler
+    | OnContentRendered of System.EventHandler
 
 module Window =
     let taskbarItemInfo v : obj = box (WindowProp.TaskbarItemInfo v)
@@ -45,6 +53,30 @@ module Window =
     let onDpiChanged v : obj =
         box (EventProp(box (WindowProp.OnDpiChanged v)))
 
+    let onSourceInitialized v : obj =
+        box (EventProp(box (WindowProp.OnSourceInitialized v)))
+
+    let onActivated v : obj =
+        box (EventProp(box (WindowProp.OnActivated v)))
+
+    let onDeactivated v : obj =
+        box (EventProp(box (WindowProp.OnDeactivated v)))
+
+    let onStateChanged v : obj =
+        box (EventProp(box (WindowProp.OnStateChanged v)))
+
+    let onLocationChanged v : obj =
+        box (EventProp(box (WindowProp.OnLocationChanged v)))
+
+    let onClosing v : obj =
+        box (EventProp(box (WindowProp.OnClosing v)))
+
+    let onClosed v : obj =
+        box (EventProp(box (WindowProp.OnClosed v)))
+
+    let onContentRendered v : obj =
+        box (EventProp(box (WindowProp.OnContentRendered v)))
+
     let apply (el: System.Windows.Window) (prop: WindowProp) =
         match prop with
         | WindowProp.Base p -> ContentControl.apply el p
@@ -62,6 +94,14 @@ module Window =
         | WindowProp.Topmost v -> el.SetValue(System.Windows.Window.TopmostProperty, box v)
         | WindowProp.ShowActivated v -> el.SetValue(System.Windows.Window.ShowActivatedProperty, box v)
         | WindowProp.OnDpiChanged h -> el.DpiChanged.AddHandler(h)
+        | WindowProp.OnSourceInitialized h -> el.SourceInitialized.AddHandler(h)
+        | WindowProp.OnActivated h -> el.Activated.AddHandler(h)
+        | WindowProp.OnDeactivated h -> el.Deactivated.AddHandler(h)
+        | WindowProp.OnStateChanged h -> el.StateChanged.AddHandler(h)
+        | WindowProp.OnLocationChanged h -> el.LocationChanged.AddHandler(h)
+        | WindowProp.OnClosing h -> el.Closing.AddHandler(h)
+        | WindowProp.OnClosed h -> el.Closed.AddHandler(h)
+        | WindowProp.OnContentRendered h -> el.ContentRendered.AddHandler(h)
 
     let content v : obj = box (ContentControlProp.Content v)
 
@@ -400,6 +440,51 @@ module Window =
 
     let onLostFocus v : obj =
         box (EventProp(box (UIElementProp.OnLostFocus v)))
+
+    let onDataContextChanged v : obj =
+        box (EventProp(box (FrameworkElementProp.OnDataContextChanged v)))
+
+    let onInitialized v : obj =
+        box (EventProp(box (FrameworkElementProp.OnInitialized v)))
+
+    let onIsMouseDirectlyOverChanged v : obj =
+        box (EventProp(box (UIElementProp.OnIsMouseDirectlyOverChanged v)))
+
+    let onIsKeyboardFocusWithinChanged v : obj =
+        box (EventProp(box (UIElementProp.OnIsKeyboardFocusWithinChanged v)))
+
+    let onIsMouseCapturedChanged v : obj =
+        box (EventProp(box (UIElementProp.OnIsMouseCapturedChanged v)))
+
+    let onIsMouseCaptureWithinChanged v : obj =
+        box (EventProp(box (UIElementProp.OnIsMouseCaptureWithinChanged v)))
+
+    let onIsStylusDirectlyOverChanged v : obj =
+        box (EventProp(box (UIElementProp.OnIsStylusDirectlyOverChanged v)))
+
+    let onIsStylusCapturedChanged v : obj =
+        box (EventProp(box (UIElementProp.OnIsStylusCapturedChanged v)))
+
+    let onIsStylusCaptureWithinChanged v : obj =
+        box (EventProp(box (UIElementProp.OnIsStylusCaptureWithinChanged v)))
+
+    let onIsKeyboardFocusedChanged v : obj =
+        box (EventProp(box (UIElementProp.OnIsKeyboardFocusedChanged v)))
+
+    let onLayoutUpdated v : obj =
+        box (EventProp(box (UIElementProp.OnLayoutUpdated v)))
+
+    let onIsEnabledChanged v : obj =
+        box (EventProp(box (UIElementProp.OnIsEnabledChanged v)))
+
+    let onIsHitTestVisibleChanged v : obj =
+        box (EventProp(box (UIElementProp.OnIsHitTestVisibleChanged v)))
+
+    let onIsVisibleChanged v : obj =
+        box (EventProp(box (UIElementProp.OnIsVisibleChanged v)))
+
+    let onFocusableChanged v : obj =
+        box (EventProp(box (UIElementProp.OnFocusableChanged v)))
 
     let children (cs: VirtualNode list) : obj = box (Children cs)
     let contentChild (c: VirtualNode) : obj = box (ContentChild c)

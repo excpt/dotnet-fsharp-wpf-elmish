@@ -267,14 +267,30 @@ let private emitModule (sb: StringBuilder) (input: EmitControlInput) =
 
     sb.AppendLine() |> ignore
 
-    // Children/content helpers
-    sb.AppendLine($"    let children (cs: VirtualNode list) : obj = box (Children cs)")
-    |> ignore
+    // Children/content helpers — skip names that collide with own DPs/events or inherited
+    // helpers (e.g. KeyBinding has its own `Key` DP, BitmapEffectGroup has a `Children` DP).
+    let usedNames =
+        seq {
+            for dp in input.OwnDPs do
+                yield toCamelCase dp.CaseName
+            for ev in input.OwnEvents do
+                yield toCamelCase ev.CaseName
+            for h in input.InheritedHelpers do
+                yield h.FnName
+        }
+        |> Set.ofSeq
 
-    sb.AppendLine($"    let contentChild (c: VirtualNode) : obj = box (ContentChild c)")
-    |> ignore
+    if not (usedNames.Contains "children") then
+        sb.AppendLine($"    let children (cs: VirtualNode list) : obj = box (Children cs)")
+        |> ignore
 
-    sb.AppendLine($"    let key (k: string) : obj = box (Key k)") |> ignore
+    if not (usedNames.Contains "contentChild") then
+        sb.AppendLine($"    let contentChild (c: VirtualNode) : obj = box (ContentChild c)")
+        |> ignore
+
+    if not (usedNames.Contains "key") then
+        sb.AppendLine($"    let key (k: string) : obj = box (Key k)") |> ignore
+
     sb.AppendLine() |> ignore
 
     // Attached property helpers (wrap a VirtualNode, adding the attached prop)

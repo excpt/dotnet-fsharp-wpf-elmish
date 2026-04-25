@@ -116,7 +116,11 @@ let discoverDPs (controlType: Type) : DPInfo list =
         f.FieldType.FullName = "System.Windows.DependencyProperty"
         && f.Name.EndsWith("Property"))
     |> Array.map (fun f ->
-        let propName = f.Name.Replace("Property", "")
+        let propName =
+            if f.Name.EndsWith("Property") then
+                f.Name.Substring(0, f.Name.Length - "Property".Length)
+            else
+                f.Name
 
         { Name = propName
           FieldName = f.Name
@@ -177,7 +181,11 @@ let discoverEvents (controlType: Type) : EventInfo list =
     controlType.GetFields(BindingFlags.Public ||| BindingFlags.Static ||| BindingFlags.FlattenHierarchy)
     |> Array.filter (fun f -> f.FieldType.FullName = "System.Windows.RoutedEvent" && f.Name.EndsWith("Event"))
     |> Array.map (fun f ->
-        let eventName = f.Name.Replace("Event", "")
+        let eventName =
+            if f.Name.EndsWith("Event") then
+                f.Name.Substring(0, f.Name.Length - "Event".Length)
+            else
+                f.Name
         let clrEvent = controlType.GetEvent(eventName)
 
         { Name = eventName
@@ -250,5 +258,18 @@ let findAllUIElementSubtypes (_mlc: MetadataLoadContext) (assemblies: Assembly l
             t.IsPublic
             && (isSubclassOfByName "System.Windows.UIElement" t
                 || t.FullName = "System.Windows.UIElement"))
+        |> Array.toList)
+    |> List.distinctBy (fun t -> t.FullName)
+
+/// Find all DependencyObject subtypes across multiple assemblies — superset of UIElement
+/// subtypes that also includes non-visual DOs like DataGridColumn, BaseColumn, GridColumn.
+let findAllDependencyObjectSubtypes (_mlc: MetadataLoadContext) (assemblies: Assembly list) : Type list =
+    assemblies
+    |> List.collect (fun asm ->
+        asm.GetTypes()
+        |> Array.filter (fun t ->
+            t.IsPublic
+            && (isSubclassOfByName "System.Windows.DependencyObject" t
+                || t.FullName = "System.Windows.DependencyObject"))
         |> Array.toList)
     |> List.distinctBy (fun t -> t.FullName)

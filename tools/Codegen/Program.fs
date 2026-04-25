@@ -126,7 +126,11 @@ let private toSafeCamelCase (name: string) =
 /// No hand-written base types — everything is generated.
 let baseTypes = Map.empty<string, string * string>
 
-/// The root of the hierarchy — UIElement has no parent prop DU.
+/// Roots of the inheritance hierarchy — these have no parent Prop DU.
+/// DependencyObject is the absolute root (every wrapper-eligible type descends from it
+/// and it has no DPs of its own). UIElement is kept for backwards compatibility:
+/// its file is generated with no Base case so consumers can call apply directly.
+let hierarchyRoots = Set.ofList [ "DependencyObject"; "UIElement" ]
 let hierarchyRoot = "UIElement"
 
 /// Map .NET type full names to F# type names.
@@ -177,10 +181,110 @@ let excludedTypes =
           "VerticalRuler"
           // VerticalHeaderControl inherits from Scheduler.Drawing.HeaderControl, but dedup
           // keeps Scheduling.Visual.HeaderControl (parent of more types) — incompatible
-          "VerticalHeaderControl" ]
+          "VerticalHeaderControl"
+          // Present in DevExpress.Mvvm.UI inside the install-dir DLL but absent from the
+          // surface of every published NuGet package — referencing it fails F# compile.
+          "ApplicationJumpListService"
+          // Scheduling.DayViewBase parallels Scheduler.DayViewBase via separate hierarchies;
+          // dedup keeps the Scheduler.* SchedulerViewBase, so Scheduling.DayViewBase.apply
+          // can't be cast to it.
+          "DayViewBase" ]
 
 /// Skip types with backticks (generic types like PageFunction`1).
 let isValidTypeName (name: string) = not (name.Contains('`'))
+
+/// First generic argument of a constructed generic type, or the element type for arrays —
+/// the typical "T" in IEnumerable<T> / ObservableCollection<T> / T[].
+let private collectionElementType (pt: Type) : Type option =
+    if isNull pt then None
+    elif pt.IsArray then Option.ofObj (pt.GetElementType())
+    elif pt.IsGenericType then
+        let args = pt.GetGenericArguments()
+        if args.Length >= 1 then Some args.[0] else None
+    else
+        None
+
+/// Reachability closure: starting from the seed UIElement subtypes, follow DP value types
+/// and CLR collection element types until no new DependencyObject is discovered. When a
+/// type is pulled in we also add its DependencyObject ancestors (so resolveParent finds
+/// a generated Base) and all its descendants present in the type pool (so concrete leaf
+/// types like GridColumn / DataGridTextColumn / SolidColorBrush are reachable when the
+/// edge only mentions an abstract parent like ColumnBase / DataGridColumn / Brush).
+let computeReachableDOTypes (allDOTypes: Type list) (seed: Type list) : Set<string> =
+    let byFullName =
+        allDOTypes
+        |> List.filter (fun t -> not (isNull t.FullName))
+        |> List.map (fun t -> t.FullName, t)
+        |> Map.ofList
+
+    let childrenByParent =
+        allDOTypes
+        |> List.filter (fun t ->
+            not (isNull t.BaseType)
+            && not (isNull t.BaseType.FullName))
+        |> List.groupBy (fun t -> t.BaseType.FullName)
+        |> Map.ofList
+
+    let reachable = System.Collections.Generic.HashSet<string>()
+    let queue = System.Collections.Generic.Queue<Type>()
+
+    let rec addDescendants (t: Type) =
+        if
+            not (isNull t.FullName)
+            && byFullName.ContainsKey(t.FullName)
+            && reachable.Add(t.FullName)
+        then
+            queue.Enqueue(t)
+
+            match childrenByParent |> Map.tryFind t.FullName with
+            | Some children ->
+                for c in children do
+                    addDescendants c
+            | None -> ()
+
+    // Walk ancestors but do not cascade to their other descendants — only the immediate
+    // chain stays in scope (otherwise pulling Brush would drag every Pen / Geometry too).
+    let addAncestorsOf (t: Type) =
+        let mutable curr = t.BaseType
+
+        while not (isNull curr) && curr.Name <> "DependencyObject" do
+            if
+                not (isNull curr.FullName)
+                && byFullName.ContainsKey(curr.FullName)
+                && reachable.Add(curr.FullName)
+            then
+                queue.Enqueue(curr)
+
+            curr <- curr.BaseType
+
+    let pull (t: Type) =
+        addDescendants t
+        addAncestorsOf t
+
+    for t in seed do
+        pull t
+
+    while queue.Count > 0 do
+        let t = queue.Dequeue()
+
+        for dp in AssemblyInspector.discoverDPs t do
+            match byFullName |> Map.tryFind dp.PropertyTypeFullName with
+            | Some candidate -> pull candidate
+            | None -> ()
+
+        try
+            for p in
+                t.GetProperties(
+                    System.Reflection.BindingFlags.Public ||| System.Reflection.BindingFlags.Instance
+                ) do
+                match collectionElementType p.PropertyType with
+                | Some elem when not (isNull elem.FullName) && byFullName.ContainsKey(elem.FullName) ->
+                    pull (byFullName.[elem.FullName])
+                | _ -> ()
+        with _ ->
+            ()
+
+    reachable :> seq<string> |> Set.ofSeq
 
 /// Check if a type is a WPF DependencyObject subclass from the System.Windows namespace.
 /// These types have generated prop types in FSharp.Windows.Dsl.Controls.
@@ -196,24 +300,62 @@ let private isWpfType (t: Type) =
 /// Skips candidates with the same short name as `t` to prevent self-referencing
 /// Base cases when two types share a short name (e.g., VisualElements.ControlBoxButton
 /// vs Docking.ControlBoxButton).
-let resolveParent (generatedTypeNames: Set<string>) (t: Type) =
+/// A DP is emittable when it isn't attached and isn't read-only.
+let isEmittableDP (dp: DPInfo) = not dp.IsAttached && not dp.IsReadOnly
+
+/// An event is emittable when its handler type is a non-generic, non-nested System.* delegate
+/// whose name follows the standard EventHandler convention. F# can only `.AddHandler` for
+/// delegates whose Invoke returns void; HwndSourceHook (returns IntPtr) and similar fail
+/// FS1091 even though they're under System.*. The name suffix is a robust proxy for the
+/// signature shape across WPF and major third-party libraries.
+let isEmittableEvent (ev: EventInfo) =
+    match ev.HandlerTypeName with
+    | None -> false
+    | Some ht ->
+        not (ht.Contains('`'))
+        && not (ht.Contains('+'))
+        && ht.StartsWith("System.")
+        && ht.EndsWith("EventHandler")
+
+/// Predicate matching the emit skip rule: a type produces a file iff it has at least one
+/// emittable DP or emittable event *declared on itself*. Pass-through types (only
+/// `Base of XxxProp`) add no API surface — their parent's apply already handles them via
+/// the Materializer's hierarchy walk. Inherited DPs/events don't qualify.
+let willEmitType (t: Type) =
+    let ownDPs =
+        AssemblyInspector.discoverDPs t
+        |> List.filter (fun dp -> dp.OwnerTypeName = t.Name)
+
+    let ownEvents =
+        AssemblyInspector.discoverAllEvents t
+        |> List.filter (fun ev -> ev.OwnerTypeName = t.Name)
+
+    (ownDPs |> List.exists isEmittableDP)
+    || (ownEvents |> List.exists isEmittableEvent)
+
+let resolveParent (generatedTypeNames: Set<string>) (isThirdParty: bool) (t: Type) =
     let rec findParent (candidate: Type) =
-        if isNull candidate || candidate.Name = hierarchyRoot then
+        if isNull candidate || hierarchyRoots.Contains(candidate.Name) then
             None, None
         elif candidate.Name <> t.Name && generatedTypeNames |> Set.contains candidate.Name then
             Some $"{candidate.Name}Prop", Some $"{candidate.Name}.apply"
         elif
-            candidate.Name <> t.Name
+            isThirdParty
+            && candidate.Name <> t.Name
             && isWpfType candidate
             && isValidTypeName candidate.Name
+            && willEmitType candidate
         then
-            // Parent from the base Controls package (referenced via ProjectReference)
+            // Cross-package fallback: parent from the base Controls package, referenced via
+            // ProjectReference. Only fires for third-party generation runs (DevExpress etc.).
+            // Gated on willEmitType so we don't reference a XxxProp that the base run also
+            // skipped (e.g. Freezable, BindingGroup — DOs without own DPs/events).
             Some $"{candidate.Name}Prop", Some $"{candidate.Name}.apply"
         else
             findParent candidate.BaseType
 
     if isNull t.BaseType then None, None
-    elif t.Name = hierarchyRoot then None, None
+    elif hierarchyRoots.Contains(t.Name) then None, None
     else findParent t.BaseType
 
 /// Map a WPF owner type name to its prop DU name.
@@ -266,11 +408,12 @@ let buildEmitInput
     (assemblyInfo: string)
     (t: Type, ownDPs: DPInfo list, ownEvents: EventInfo list, _depth: int)
     =
-    let parentPropName, parentApplyFn = resolveParent generatedTypeNames t
+    let isThirdParty = outputNamespace <> "FSharp.Windows.Dsl.Controls"
+    let parentPropName, parentApplyFn = resolveParent generatedTypeNames isThirdParty t
 
     let emitDPs =
         ownDPs
-        |> List.filter (fun dp -> not dp.IsAttached && not dp.IsReadOnly)
+        |> List.filter isEmittableDP
         |> List.map (fun dp ->
             let guardKey = $"{dp.OwnerTypeFullName}.{dp.Name}"
 
@@ -281,21 +424,12 @@ let buildEmitInput
 
     let emitEvents =
         ownEvents
-        |> List.choose (fun ev ->
-            ev.HandlerTypeName
-            |> Option.bind (fun handlerType ->
-                if handlerType.Contains('`') || handlerType.Contains('+') then
-                    None
-                // F# can't use .AddHandler on non-standard delegate types (FS1091).
-                // Only emit events with System.* handler types (RoutedEventHandler, etc.).
-                elif not (handlerType.StartsWith("System.")) then
-                    None
-                else
-                    Some
-                        { CaseName = $"On{ev.Name}"
-                          HandlerType = mapToFSharpType handlerType
-                          EventExpression = $"el.{ev.Name}"
-                          Guard = None }))
+        |> List.filter isEmittableEvent
+        |> List.map (fun ev ->
+            { CaseName = $"On{ev.Name}"
+              HandlerType = mapToFSharpType ev.HandlerTypeName.Value
+              EventExpression = $"el.{ev.Name}"
+              Guard = None })
 
     // Attached DPs — defined on this type, set on children
     let attachedDPs =
@@ -322,25 +456,11 @@ let buildEmitInput
         allEvents
         |> List.filter (fun ev -> not (ownEventNames.Contains ev.Name))
         |> List.filter (fun ev -> generatedTypeNames |> Set.contains ev.OwnerTypeName)
-        |> List.choose (fun ev ->
-            ev.HandlerTypeName
-            |> Option.bind (fun ht ->
-                if ht.Contains('`') then
-                    None
-                // Same filter as own events: F# can't AddHandler non-standard delegates
-                elif not (ht.StartsWith("System.")) then
-                    None
-                else
-                    let duName = propDUName ev.OwnerTypeName
-                    let caseName = $"On{ev.Name}"
-                    let fnName = $"on{ev.Name}"
-
-                    match emittedDPsPerType |> Map.tryFind ev.OwnerTypeName with
-                    | _ ->
-                        Some
-                            { FnName = fnName
-                              PropDUExpression = $"{duName}.{caseName}"
-                              IsEvent = true }))
+        |> List.filter isEmittableEvent
+        |> List.map (fun ev ->
+            { FnName = $"on{ev.Name}"
+              PropDUExpression = $"{propDUName ev.OwnerTypeName}.On{ev.Name}"
+              IsEvent = true })
 
     { OutputNamespace = outputNamespace
       ControlName = t.Name
@@ -484,17 +604,36 @@ let main argv =
                 printfn $"  WARNING: {name} not found"
                 None
 
-        let assemblies = assemblyNames |> List.choose loadAssembly
+        let packageAssemblies = assemblyNames |> List.choose loadAssembly
 
-        // Also load PresentationCore for UIElement hierarchy
-        let coreAssemblyPath = Path.Combine(wpfRuntimeDir, "PresentationCore.dll")
+        // Always load PresentationCore (UIElement hierarchy) and WindowsBase
+        // (Freezable, DispatcherObject) so the DependencyObject scope reaches every
+        // ancestor referenced by the requested assemblies. Without WindowsBase, types
+        // descended from Freezable end up with `Base of FreezableProp` referring to a
+        // wrapper that was never written.
+        let alwaysLoad = [ "PresentationCore.dll"; "WindowsBase.dll" ]
 
-        let assemblies =
-            if File.Exists(coreAssemblyPath) then
-                let coreAssembly = ctx.LoadFromAssemblyPath(coreAssemblyPath)
-                assemblies @ [ coreAssembly ]
-            else
-                assemblies
+        let supportAssemblies =
+            (([], alwaysLoad)
+             ||> List.fold (fun acc dllName ->
+                 let path = Path.Combine(wpfRuntimeDir, dllName)
+
+                 if
+                     File.Exists(path)
+                     && not (packageAssemblies |> List.exists (fun a -> a.Location = path))
+                 then
+                     acc @ [ ctx.LoadFromAssemblyPath(path) ]
+                 else
+                     acc))
+
+        // assemblies = everything available for type resolution; packageAssemblies = the
+        // subset whose types we actually emit wrappers for. In a third-party run we keep
+        // WPF base types out of the generated package — base Controls already provides them.
+        let assemblies = packageAssemblies @ supportAssemblies
+        let isThirdParty = outputNamespace <> "FSharp.Windows.Dsl.Controls"
+
+        let emitFromAssemblies =
+            if isThirdParty then packageAssemblies else assemblies
 
         let assemblyInfo =
             let names = assemblyNames |> String.concat ", "
@@ -503,10 +642,30 @@ let main argv =
             | Some b -> $"{names} (baseline: {b})"
             | None -> names
 
-        // Find all UIElement subtypes across all loaded assemblies
-        let allTypes = AssemblyInspector.findAllUIElementSubtypes ctx assemblies
+        // Find all DependencyObject subtypes across the assemblies we emit for.
+        // Includes UIElement subtypes plus non-visual DOs (e.g. GridColumn, DataGridColumn,
+        // ValidationRule). Non-visual types get the same wrapper shape — DPs only, the
+        // children/contentChild helpers exist but are no-ops for parents that aren't
+        // Panel/ContentControl/Decorator/ItemsControl.
+        let allTypes =
+            AssemblyInspector.findAllDependencyObjectSubtypes ctx emitFromAssemblies
 
-        printfn $"Found {allTypes.Length} UIElement subtypes"
+        // allDOTypes spans every loaded assembly and powers reachability lookups (a DX DP
+        // value type may be Brush, declared in PresentationCore — we still need to know
+        // it's a DO when deciding whether to follow the edge).
+        let allDOTypes = AssemblyInspector.findAllDependencyObjectSubtypes ctx assemblies
+
+        printfn $"Found {allTypes.Length} DependencyObject subtypes (emit) / {allDOTypes.Length} total"
+
+        // Reachability seed: every UIElement subtype in the assemblies we emit for. Closure
+        // pulls in DOs referenced by their DPs and CLR collection properties (e.g. GridColumn
+        // via GridControl.Columns). Pure-utility DOs that nothing visual references stay out.
+        let reachableSeed =
+            AssemblyInspector.findAllUIElementSubtypes ctx emitFromAssemblies
+
+        let reachable = computeReachableDOTypes allDOTypes reachableSeed
+
+        printfn $"Reachable types from UIElement seed: {reachable.Count}"
 
         // Filter out excluded types and types that can't be resolved at compile time
         let filteredTypes =
@@ -523,6 +682,10 @@ let main argv =
                         || t.Namespace.Contains(".Native")
                         || t.Namespace.Contains(".Base"))
                 ))
+            // Reachability cull: only emit DOs that are reachable from a UIElement seed via
+            // DPs or collection properties. Drops animation key frames, transforms, brushes
+            // that no UI control actually references.
+            |> List.filter (fun t -> reachable.Contains(t.FullName))
 
         // Count how many types reference each FullName as a parent.
         // Used during dedup to prefer the variant that's actually in the hierarchy.
@@ -578,8 +741,15 @@ let main argv =
         // Ensure output directory exists
         Directory.CreateDirectory(outputDir) |> ignore
 
-        // Build map of actually-emitted DP names per type (excludes attached, read-only, generic)
-        let generatedTypeNames = typesToGenerate |> List.map (fun t -> t.Name) |> Set.ofList
+        // generatedTypeNames is consulted by resolveParent to decide which ancestor to
+        // name as `Base of XxxProp`. Restrict it to types that will actually have a file
+        // emitted (see willEmitType) — otherwise a parent reference may resolve to a type
+        // whose Prop DU is never written (e.g. Freezable, BindingGroup).
+        let generatedTypeNames =
+            typesToGenerate
+            |> List.filter willEmitType
+            |> List.map (fun t -> t.Name)
+            |> Set.ofList
 
         let emittedDPsPerType =
             hierarchy
@@ -602,7 +772,10 @@ let main argv =
             let input =
                 buildEmitInput generatedTypeNames emittedDPsPerType versionGuards outputNamespace assemblyInfo entry
 
-            // Skip types with no own DPs, events, or parent (nothing to generate)
+            // Emit when the type contributes its own DPs/events, or when it has a generated
+            // parent (preserves concrete shorthands like checkBox / separator that inherit
+            // everything from ancestors). resolveParent already gates the parent reference
+            // through willEmitType, so we never name a XxxProp that wasn't actually written.
             if
                 input.OwnDPs.Length > 0
                 || input.OwnEvents.Length > 0

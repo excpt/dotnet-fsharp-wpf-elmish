@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-04-06
+// Generated: 2026-04-25
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -24,6 +24,15 @@ type InkCanvasProp =
     | OnEditingModeChanged of System.Windows.RoutedEventHandler
     | OnEditingModeInvertedChanged of System.Windows.RoutedEventHandler
     | OnStrokeErased of System.Windows.RoutedEventHandler
+    | OnStrokesReplaced of System.Windows.Controls.InkCanvasStrokesReplacedEventHandler
+    | OnDefaultDrawingAttributesReplaced of System.Windows.Ink.DrawingAttributesReplacedEventHandler
+    | OnSelectionMoving of System.Windows.Controls.InkCanvasSelectionEditingEventHandler
+    | OnSelectionMoved of System.EventHandler
+    | OnStrokeErasing of System.Windows.Controls.InkCanvasStrokeErasingEventHandler
+    | OnSelectionResizing of System.Windows.Controls.InkCanvasSelectionEditingEventHandler
+    | OnSelectionResized of System.EventHandler
+    | OnSelectionChanging of System.Windows.Controls.InkCanvasSelectionChangingEventHandler
+    | OnSelectionChanged of System.EventHandler
 
 module InkCanvas =
     let background v : obj = box (InkCanvasProp.Background v)
@@ -55,6 +64,33 @@ module InkCanvas =
     let onStrokeErased v : obj =
         box (EventProp(box (InkCanvasProp.OnStrokeErased v)))
 
+    let onStrokesReplaced v : obj =
+        box (EventProp(box (InkCanvasProp.OnStrokesReplaced v)))
+
+    let onDefaultDrawingAttributesReplaced v : obj =
+        box (EventProp(box (InkCanvasProp.OnDefaultDrawingAttributesReplaced v)))
+
+    let onSelectionMoving v : obj =
+        box (EventProp(box (InkCanvasProp.OnSelectionMoving v)))
+
+    let onSelectionMoved v : obj =
+        box (EventProp(box (InkCanvasProp.OnSelectionMoved v)))
+
+    let onStrokeErasing v : obj =
+        box (EventProp(box (InkCanvasProp.OnStrokeErasing v)))
+
+    let onSelectionResizing v : obj =
+        box (EventProp(box (InkCanvasProp.OnSelectionResizing v)))
+
+    let onSelectionResized v : obj =
+        box (EventProp(box (InkCanvasProp.OnSelectionResized v)))
+
+    let onSelectionChanging v : obj =
+        box (EventProp(box (InkCanvasProp.OnSelectionChanging v)))
+
+    let onSelectionChanged v : obj =
+        box (EventProp(box (InkCanvasProp.OnSelectionChanged v)))
+
     let apply (el: System.Windows.Controls.InkCanvas) (prop: InkCanvasProp) =
         match prop with
         | InkCanvasProp.Base p -> FrameworkElement.apply el p
@@ -71,6 +107,15 @@ module InkCanvas =
         | InkCanvasProp.OnEditingModeChanged h -> el.EditingModeChanged.AddHandler(h)
         | InkCanvasProp.OnEditingModeInvertedChanged h -> el.EditingModeInvertedChanged.AddHandler(h)
         | InkCanvasProp.OnStrokeErased h -> el.StrokeErased.AddHandler(h)
+        | InkCanvasProp.OnStrokesReplaced h -> el.StrokesReplaced.AddHandler(h)
+        | InkCanvasProp.OnDefaultDrawingAttributesReplaced h -> el.DefaultDrawingAttributesReplaced.AddHandler(h)
+        | InkCanvasProp.OnSelectionMoving h -> el.SelectionMoving.AddHandler(h)
+        | InkCanvasProp.OnSelectionMoved h -> el.SelectionMoved.AddHandler(h)
+        | InkCanvasProp.OnStrokeErasing h -> el.StrokeErasing.AddHandler(h)
+        | InkCanvasProp.OnSelectionResizing h -> el.SelectionResizing.AddHandler(h)
+        | InkCanvasProp.OnSelectionResized h -> el.SelectionResized.AddHandler(h)
+        | InkCanvasProp.OnSelectionChanging h -> el.SelectionChanging.AddHandler(h)
+        | InkCanvasProp.OnSelectionChanged h -> el.SelectionChanged.AddHandler(h)
 
     let style v : obj = box (FrameworkElementProp.Style v)
 
@@ -372,6 +417,51 @@ module InkCanvas =
 
     let onLostFocus v : obj =
         box (EventProp(box (UIElementProp.OnLostFocus v)))
+
+    let onDataContextChanged v : obj =
+        box (EventProp(box (FrameworkElementProp.OnDataContextChanged v)))
+
+    let onInitialized v : obj =
+        box (EventProp(box (FrameworkElementProp.OnInitialized v)))
+
+    let onIsMouseDirectlyOverChanged v : obj =
+        box (EventProp(box (UIElementProp.OnIsMouseDirectlyOverChanged v)))
+
+    let onIsKeyboardFocusWithinChanged v : obj =
+        box (EventProp(box (UIElementProp.OnIsKeyboardFocusWithinChanged v)))
+
+    let onIsMouseCapturedChanged v : obj =
+        box (EventProp(box (UIElementProp.OnIsMouseCapturedChanged v)))
+
+    let onIsMouseCaptureWithinChanged v : obj =
+        box (EventProp(box (UIElementProp.OnIsMouseCaptureWithinChanged v)))
+
+    let onIsStylusDirectlyOverChanged v : obj =
+        box (EventProp(box (UIElementProp.OnIsStylusDirectlyOverChanged v)))
+
+    let onIsStylusCapturedChanged v : obj =
+        box (EventProp(box (UIElementProp.OnIsStylusCapturedChanged v)))
+
+    let onIsStylusCaptureWithinChanged v : obj =
+        box (EventProp(box (UIElementProp.OnIsStylusCaptureWithinChanged v)))
+
+    let onIsKeyboardFocusedChanged v : obj =
+        box (EventProp(box (UIElementProp.OnIsKeyboardFocusedChanged v)))
+
+    let onLayoutUpdated v : obj =
+        box (EventProp(box (UIElementProp.OnLayoutUpdated v)))
+
+    let onIsEnabledChanged v : obj =
+        box (EventProp(box (UIElementProp.OnIsEnabledChanged v)))
+
+    let onIsHitTestVisibleChanged v : obj =
+        box (EventProp(box (UIElementProp.OnIsHitTestVisibleChanged v)))
+
+    let onIsVisibleChanged v : obj =
+        box (EventProp(box (UIElementProp.OnIsVisibleChanged v)))
+
+    let onFocusableChanged v : obj =
+        box (EventProp(box (UIElementProp.OnFocusableChanged v)))
 
     let children (cs: VirtualNode list) : obj = box (Children cs)
     let contentChild (c: VirtualNode) : obj = box (ContentChild c)
