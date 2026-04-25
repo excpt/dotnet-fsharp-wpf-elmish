@@ -17,7 +17,7 @@ type GridViewHeaderRowPresenterProp =
     | ColumnHeaderTemplateSelector of System.Windows.Controls.DataTemplateSelector
     | ColumnHeaderStringFormat of string
     | AllowsColumnReorder of bool
-    | ColumnHeaderContextMenu of System.Windows.Controls.ContextMenu
+    | ColumnHeaderContextMenu of VirtualNode
     | ColumnHeaderToolTip of obj
 
 module GridViewHeaderRowPresenter =
@@ -56,7 +56,10 @@ module GridViewHeaderRowPresenter =
         | GridViewHeaderRowPresenterProp.AllowsColumnReorder v ->
             el.SetValue(System.Windows.Controls.GridViewHeaderRowPresenter.AllowsColumnReorderProperty, box v)
         | GridViewHeaderRowPresenterProp.ColumnHeaderContextMenu v ->
-            el.SetValue(System.Windows.Controls.GridViewHeaderRowPresenter.ColumnHeaderContextMenuProperty, box v)
+            el.SetValue(
+                System.Windows.Controls.GridViewHeaderRowPresenter.ColumnHeaderContextMenuProperty,
+                Materializer.materialize v |> box
+            )
         | GridViewHeaderRowPresenterProp.ColumnHeaderToolTip v ->
             el.SetValue(System.Windows.Controls.GridViewHeaderRowPresenter.ColumnHeaderToolTipProperty, box v)
 

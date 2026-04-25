@@ -15,7 +15,7 @@ type ContextMenuProp =
     | HorizontalOffset of float
     | VerticalOffset of float
     | IsOpen of bool
-    | PlacementTarget of System.Windows.UIElement
+    | PlacementTarget of VirtualNode
     | PlacementRectangle of System.Windows.Rect
     | Placement of System.Windows.Controls.Primitives.PlacementMode
     | HasDropShadow of bool
@@ -58,7 +58,7 @@ module ContextMenu =
             el.SetValue(System.Windows.Controls.ContextMenu.VerticalOffsetProperty, box v)
         | ContextMenuProp.IsOpen v -> el.SetValue(System.Windows.Controls.ContextMenu.IsOpenProperty, box v)
         | ContextMenuProp.PlacementTarget v ->
-            el.SetValue(System.Windows.Controls.ContextMenu.PlacementTargetProperty, box v)
+            el.SetValue(System.Windows.Controls.ContextMenu.PlacementTargetProperty, Materializer.materialize v |> box)
         | ContextMenuProp.PlacementRectangle v ->
             el.SetValue(System.Windows.Controls.ContextMenu.PlacementRectangleProperty, box v)
         | ContextMenuProp.Placement v -> el.SetValue(System.Windows.Controls.ContextMenu.PlacementProperty, box v)

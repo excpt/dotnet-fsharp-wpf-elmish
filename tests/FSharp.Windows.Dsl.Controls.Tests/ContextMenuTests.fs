@@ -204,7 +204,7 @@ let ``Build.contextMenu attaches to button via prop`` () =
             button
                 [ Button.content "Right-click me"
                   Button.contextMenu (
-                      Build.contextMenu [ ContextMenu.children [ menuItem [ MenuItem.header "Action" ] ] ]
+                      contextMenu [ ContextMenu.children [ menuItem [ MenuItem.header "Action" ] ] ]
                   ) ]
 
         let live = Dsl.createLive tree

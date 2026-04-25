@@ -24,7 +24,7 @@ type FrameworkContentElementProp =
     | DataContext of obj
     | BindingGroup of System.Windows.Data.BindingGroup
     | ToolTip of obj
-    | ContextMenu of System.Windows.Controls.ContextMenu
+    | ContextMenu of VirtualNode
     | OnLoaded of System.Windows.RoutedEventHandler
     | OnUnloaded of System.Windows.RoutedEventHandler
     | OnToolTipOpening of System.Windows.Controls.ToolTipEventHandler
@@ -119,7 +119,7 @@ module FrameworkContentElement =
         | FrameworkContentElementProp.ToolTip v ->
             el.SetValue(System.Windows.FrameworkContentElement.ToolTipProperty, box v)
         | FrameworkContentElementProp.ContextMenu v ->
-            el.SetValue(System.Windows.FrameworkContentElement.ContextMenuProperty, box v)
+            el.SetValue(System.Windows.FrameworkContentElement.ContextMenuProperty, Materializer.materialize v |> box)
         | FrameworkContentElementProp.OnLoaded h -> el.Loaded.AddHandler(h)
         | FrameworkContentElementProp.OnUnloaded h -> el.Unloaded.AddHandler(h)
         | FrameworkContentElementProp.OnToolTipOpening h -> el.ToolTipOpening.AddHandler(h)

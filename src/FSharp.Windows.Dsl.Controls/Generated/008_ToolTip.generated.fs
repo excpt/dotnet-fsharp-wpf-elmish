@@ -16,7 +16,7 @@ type ToolTipProp =
     | VerticalOffset of float
     | IsOpen of bool
     | HasDropShadow of bool
-    | PlacementTarget of System.Windows.UIElement
+    | PlacementTarget of VirtualNode
     | PlacementRectangle of System.Windows.Rect
     | Placement of System.Windows.Controls.Primitives.PlacementMode
     | CustomPopupPlacementCallback of System.Windows.Controls.Primitives.CustomPopupPlacementCallback
@@ -55,7 +55,8 @@ module ToolTip =
         | ToolTipProp.VerticalOffset v -> el.SetValue(System.Windows.Controls.ToolTip.VerticalOffsetProperty, box v)
         | ToolTipProp.IsOpen v -> el.SetValue(System.Windows.Controls.ToolTip.IsOpenProperty, box v)
         | ToolTipProp.HasDropShadow v -> el.SetValue(System.Windows.Controls.ToolTip.HasDropShadowProperty, box v)
-        | ToolTipProp.PlacementTarget v -> el.SetValue(System.Windows.Controls.ToolTip.PlacementTargetProperty, box v)
+        | ToolTipProp.PlacementTarget v ->
+            el.SetValue(System.Windows.Controls.ToolTip.PlacementTargetProperty, Materializer.materialize v |> box)
         | ToolTipProp.PlacementRectangle v ->
             el.SetValue(System.Windows.Controls.ToolTip.PlacementRectangleProperty, box v)
         | ToolTipProp.Placement v -> el.SetValue(System.Windows.Controls.ToolTip.PlacementProperty, box v)

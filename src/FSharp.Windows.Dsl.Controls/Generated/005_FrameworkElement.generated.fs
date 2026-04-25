@@ -34,7 +34,7 @@ type FrameworkElementProp =
     | Cursor of System.Windows.Input.Cursor
     | ForceCursor of bool
     | ToolTip of obj
-    | ContextMenu of System.Windows.Controls.ContextMenu
+    | ContextMenu of VirtualNode
     | OnRequestBringIntoView of System.Windows.RequestBringIntoViewEventHandler
     | OnSizeChanged of System.Windows.SizeChangedEventHandler
     | OnLoaded of System.Windows.RoutedEventHandler
@@ -154,7 +154,8 @@ module FrameworkElement =
         | FrameworkElementProp.Cursor v -> el.SetValue(System.Windows.FrameworkElement.CursorProperty, box v)
         | FrameworkElementProp.ForceCursor v -> el.SetValue(System.Windows.FrameworkElement.ForceCursorProperty, box v)
         | FrameworkElementProp.ToolTip v -> el.SetValue(System.Windows.FrameworkElement.ToolTipProperty, box v)
-        | FrameworkElementProp.ContextMenu v -> el.SetValue(System.Windows.FrameworkElement.ContextMenuProperty, box v)
+        | FrameworkElementProp.ContextMenu v ->
+            el.SetValue(System.Windows.FrameworkElement.ContextMenuProperty, Materializer.materialize v |> box)
         | FrameworkElementProp.OnRequestBringIntoView h -> el.RequestBringIntoView.AddHandler(h)
         | FrameworkElementProp.OnSizeChanged h -> el.SizeChanged.AddHandler(h)
         | FrameworkElementProp.OnLoaded h -> el.Loaded.AddHandler(h)

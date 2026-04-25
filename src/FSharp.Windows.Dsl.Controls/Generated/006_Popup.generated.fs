@@ -12,14 +12,14 @@ open FSharp.Windows.Dsl
 [<RequireQualifiedAccess>]
 type PopupProp =
     | Base of FrameworkElementProp
-    | Child of System.Windows.UIElement
+    | Child of VirtualNode
     | IsOpen of bool
     | Placement of System.Windows.Controls.Primitives.PlacementMode
     | CustomPopupPlacementCallback of System.Windows.Controls.Primitives.CustomPopupPlacementCallback
     | StaysOpen of bool
     | HorizontalOffset of float
     | VerticalOffset of float
-    | PlacementTarget of System.Windows.UIElement
+    | PlacementTarget of VirtualNode
     | PlacementRectangle of System.Windows.Rect
     | PopupAnimation of System.Windows.Controls.Primitives.PopupAnimation
     | AllowsTransparency of bool
@@ -51,7 +51,8 @@ module Popup =
     let apply (el: System.Windows.Controls.Primitives.Popup) (prop: PopupProp) =
         match prop with
         | PopupProp.Base p -> FrameworkElement.apply el p
-        | PopupProp.Child v -> el.SetValue(System.Windows.Controls.Primitives.Popup.ChildProperty, box v)
+        | PopupProp.Child v ->
+            el.SetValue(System.Windows.Controls.Primitives.Popup.ChildProperty, Materializer.materialize v |> box)
         | PopupProp.IsOpen v -> el.SetValue(System.Windows.Controls.Primitives.Popup.IsOpenProperty, box v)
         | PopupProp.Placement v -> el.SetValue(System.Windows.Controls.Primitives.Popup.PlacementProperty, box v)
         | PopupProp.CustomPopupPlacementCallback v ->
@@ -62,7 +63,10 @@ module Popup =
         | PopupProp.VerticalOffset v ->
             el.SetValue(System.Windows.Controls.Primitives.Popup.VerticalOffsetProperty, box v)
         | PopupProp.PlacementTarget v ->
-            el.SetValue(System.Windows.Controls.Primitives.Popup.PlacementTargetProperty, box v)
+            el.SetValue(
+                System.Windows.Controls.Primitives.Popup.PlacementTargetProperty,
+                Materializer.materialize v |> box
+            )
         | PopupProp.PlacementRectangle v ->
             el.SetValue(System.Windows.Controls.Primitives.Popup.PlacementRectangleProperty, box v)
         | PopupProp.PopupAnimation v ->

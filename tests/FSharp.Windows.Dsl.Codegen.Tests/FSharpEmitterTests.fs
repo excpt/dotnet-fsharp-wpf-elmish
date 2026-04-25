@@ -15,11 +15,13 @@ let simpleButtonInput =
         [ { CaseName = "IsDefault"
             PropertyType = "bool"
             DPFieldExpression = "Button.IsDefaultProperty"
-            Guard = None }
+            Guard = None
+            MaterializeBeforeSet = false }
           { CaseName = "IsCancel"
             PropertyType = "bool"
             DPFieldExpression = "Button.IsCancelProperty"
-            Guard = None } ]
+            Guard = None
+            MaterializeBeforeSet = false } ]
       OwnEvents =
         [ { CaseName = "OnClick"
             HandlerType = "RoutedEventHandler"
@@ -127,11 +129,13 @@ let ``emitControlFile handles version guards in DU`` () =
                 [ { CaseName = "Title"
                     PropertyType = "string"
                     DPFieldExpression = "Window.TitleProperty"
-                    Guard = None }
+                    Guard = None
+                    MaterializeBeforeSet = false }
                   { CaseName = "ThemeMode"
                     PropertyType = "ThemeMode"
                     DPFieldExpression = "Window.ThemeModeProperty"
-                    Guard = Some "NET9_0_OR_GREATER" } ]
+                    Guard = Some "NET9_0_OR_GREATER"
+                    MaterializeBeforeSet = false } ]
             OwnEvents = [] }
 
     let output = FSharpEmitter.emitControlFile input
@@ -219,8 +223,34 @@ let ``isEmittableEvent rejects generic and nested handler types`` () =
 
 // --- Collection helpers (Gap 2) ---
 
+// --- DO-valued DP (Gap 3) ---
+
 [<Fact>]
-let ``emitControlFile generates collection helper for CLR collection property`` () =
+let ``emitControlFile emits VirtualNode case and materialize for DO-valued DP`` () =
+    let input =
+        { simpleButtonInput with
+            ControlName = "GridControl"
+            ControlFullName = "DevExpress.Xpf.Grid.GridControl"
+            ControlNamespace = "DevExpress.Xpf.Grid"
+            OwnDPs =
+                [ { CaseName = "View"
+                    PropertyType = "VirtualNode"
+                    DPFieldExpression = "DevExpress.Xpf.Grid.GridControl.ViewProperty"
+                    Guard = None
+                    MaterializeBeforeSet = true } ] }
+
+    let output = FSharpEmitter.emitControlFile input
+
+    output |> should haveSubstring "| View of VirtualNode"
+
+    output
+    |> should haveSubstring "let view v : obj = box (GridControlProp.View v)"
+
+    output
+    |> should haveSubstring "| GridControlProp.View v -> el.SetValue(DevExpress.Xpf.Grid.GridControl.ViewProperty, Materializer.materialize v |> box)"
+
+[<Fact>]
+let ``emitControlFile emits collection helper for CLR collection property`` () =
     let input =
         { simpleButtonInput with
             ControlName = "DataGrid"
@@ -275,7 +305,8 @@ let ``emitControlFile without parent generates no Base case`` () =
                 [ { CaseName = "Width"
                     PropertyType = "float"
                     DPFieldExpression = "FrameworkElement.WidthProperty"
-                    Guard = None } ]
+                    Guard = None
+                    MaterializeBeforeSet = false } ]
             OwnEvents = [] }
 
     let output = FSharpEmitter.emitControlFile input

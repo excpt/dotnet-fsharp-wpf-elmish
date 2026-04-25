@@ -12,7 +12,7 @@ open FSharp.Windows.Dsl
 [<RequireQualifiedAccess>]
 type LabelProp =
     | Base of ContentControlProp
-    | Target of System.Windows.UIElement
+    | Target of VirtualNode
 
 module Label =
     let target v : obj = box (LabelProp.Target v)
@@ -20,7 +20,8 @@ module Label =
     let apply (el: System.Windows.Controls.Label) (prop: LabelProp) =
         match prop with
         | LabelProp.Base p -> ContentControl.apply el p
-        | LabelProp.Target v -> el.SetValue(System.Windows.Controls.Label.TargetProperty, box v)
+        | LabelProp.Target v ->
+            el.SetValue(System.Windows.Controls.Label.TargetProperty, Materializer.materialize v |> box)
 
     let content v : obj = box (ContentControlProp.Content v)
 

@@ -33,7 +33,12 @@ type EmitDP =
     { CaseName: string
       PropertyType: string
       DPFieldExpression: string
-      Guard: string option }
+      Guard: string option
+      // True when the DP's value type is a UIElement subclass: the case carries a
+      // VirtualNode and apply materializes it before SetValue. Lets DSL writers compose
+      // visual DP values (GridControl.View = TableView built via DSL) instead of
+      // imperatively constructing the inner element.
+      MaterializeBeforeSet: bool }
 
 /// Input for emitting a single event case in generated code.
 type EmitEvent =

@@ -464,6 +464,7 @@ let buildInheritedHelpers
 let buildEmitInput
     (generatedTypeNames: Set<string>)
     (generatedFullNames: Set<string>)
+    (uiElementFullNames: Set<string>)
     (emittedDPsPerType: Map<string, Set<string>>)
     (versionGuards: Map<string, string>)
     (outputNamespace: string)
@@ -480,11 +481,15 @@ let buildEmitInput
         |> List.filter isEmittableDP
         |> List.map (fun dp ->
             let guardKey = $"{dp.OwnerTypeFullName}.{dp.Name}"
+            let isUIElementValue = uiElementFullNames.Contains dp.PropertyTypeFullName
 
             { CaseName = dp.Name
-              PropertyType = mapToFSharpType dp.PropertyTypeFullName
+              PropertyType =
+                if isUIElementValue then "VirtualNode"
+                else mapToFSharpType dp.PropertyTypeFullName
               DPFieldExpression = $"{dp.OwnerTypeFullName}.{dp.FieldName}"
-              Guard = versionGuards |> Map.tryFind guardKey })
+              Guard = versionGuards |> Map.tryFind guardKey
+              MaterializeBeforeSet = isUIElementValue })
 
     let emitEvents =
         ownEvents
@@ -763,6 +768,15 @@ let main argv =
         // it's a DO when deciding whether to follow the edge).
         let allDOTypes = AssemblyInspector.findAllDependencyObjectSubtypes ctx assemblies
 
+        // Set of UIElement-subtype FullNames across all loaded assemblies. Used by Gap 3
+        // detection: DPs whose value type is a UIElement get materialized from a
+        // VirtualNode at apply time so the DSL can compose them (e.g. GridControl.View).
+        let uiElementFullNames =
+            AssemblyInspector.findAllUIElementSubtypes ctx assemblies
+            |> List.filter (fun t -> not (isNull t.FullName))
+            |> List.map (fun t -> t.FullName)
+            |> Set.ofList
+
         printfn $"Found {allTypes.Length} DependencyObject subtypes (emit) / {allDOTypes.Length} total"
 
         // Reachability seed: every UIElement subtype in the assemblies we emit for. Closure
@@ -883,7 +897,7 @@ let main argv =
             let t, ownDPs, ownEvents, depth = entry
 
             let input =
-                buildEmitInput generatedTypeNames generatedFullNames emittedDPsPerType versionGuards outputNamespace assemblyInfo entry
+                buildEmitInput generatedTypeNames generatedFullNames uiElementFullNames emittedDPsPerType versionGuards outputNamespace assemblyInfo entry
 
             // Emit when the type contributes its own DPs/events, or when it has a generated
             // parent (preserves concrete shorthands like checkBox / separator that inherit
@@ -911,7 +925,7 @@ let main argv =
             let t, _, _, _ = entry
 
             let input =
-                buildEmitInput generatedTypeNames generatedFullNames emittedDPsPerType versionGuards outputNamespace assemblyInfo entry
+                buildEmitInput generatedTypeNames generatedFullNames uiElementFullNames emittedDPsPerType versionGuards outputNamespace assemblyInfo entry
 
             if
                 input.OwnDPs.Length > 0

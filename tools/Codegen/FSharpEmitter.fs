@@ -230,8 +230,13 @@ let private emitModule (sb: StringBuilder) (input: EmitControlInput) =
     | None -> ()
 
     for dp in baselineDPs do
-        sb.AppendLine($"        | {propType}.{dp.CaseName} v -> el.SetValue({dp.DPFieldExpression}, box v)")
-        |> ignore
+        let rhs =
+            if dp.MaterializeBeforeSet then
+                $"el.SetValue({dp.DPFieldExpression}, Materializer.materialize v |> box)"
+            else
+                $"el.SetValue({dp.DPFieldExpression}, box v)"
+
+        sb.AppendLine($"        | {propType}.{dp.CaseName} v -> {rhs}") |> ignore
 
     for ev in baselineEvents do
         sb.AppendLine($"        | {propType}.{ev.CaseName} h -> {ev.EventExpression}.AddHandler(h)")

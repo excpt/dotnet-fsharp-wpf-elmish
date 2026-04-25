@@ -217,7 +217,7 @@ let view model dispatch =
                                                           TextBox.acceptsReturn true
                                                           TextBox.minLines 3
                                                           TextBox.contextMenu (
-                                                              Build.contextMenu
+                                                              contextMenu
                                                                   [ ContextMenu.children
                                                                         [ menuItem
                                                                               [ MenuItem.header "Clear notes"
