@@ -15,20 +15,19 @@ type PasswordBoxProp =
     | PasswordChar of char
     | MaxLength of int
     | SelectionBrush of System.Windows.Media.Brush
-    | SelectionTextBrush of System.Windows.Media.Brush
     | SelectionOpacity of float
     | CaretBrush of System.Windows.Media.Brush
     | IsSelectionActive of bool
     | IsInactiveSelectionHighlightEnabled of bool
     | OnPasswordChanged of System.Windows.RoutedEventHandler
+#if NET8_0_OR_GREATER
+    | SelectionTextBrush of System.Windows.Media.Brush
+#endif
 
 module PasswordBox =
     let passwordChar v : obj = box (PasswordBoxProp.PasswordChar v)
     let maxLength v : obj = box (PasswordBoxProp.MaxLength v)
     let selectionBrush v : obj = box (PasswordBoxProp.SelectionBrush v)
-
-    let selectionTextBrush v : obj =
-        box (PasswordBoxProp.SelectionTextBrush v)
 
     let selectionOpacity v : obj =
         box (PasswordBoxProp.SelectionOpacity v)
@@ -43,6 +42,10 @@ module PasswordBox =
 
     let onPasswordChanged v : obj =
         box (EventProp(box (PasswordBoxProp.OnPasswordChanged v)))
+#if NET8_0_OR_GREATER
+    let selectionTextBrush v : obj =
+        box (PasswordBoxProp.SelectionTextBrush v)
+#endif
 
     let apply (el: System.Windows.Controls.PasswordBox) (prop: PasswordBoxProp) =
         match prop with
@@ -51,8 +54,6 @@ module PasswordBox =
         | PasswordBoxProp.MaxLength v -> el.SetValue(System.Windows.Controls.PasswordBox.MaxLengthProperty, box v)
         | PasswordBoxProp.SelectionBrush v ->
             el.SetValue(System.Windows.Controls.PasswordBox.SelectionBrushProperty, box v)
-        | PasswordBoxProp.SelectionTextBrush v ->
-            el.SetValue(System.Windows.Controls.PasswordBox.SelectionTextBrushProperty, box v)
         | PasswordBoxProp.SelectionOpacity v ->
             el.SetValue(System.Windows.Controls.PasswordBox.SelectionOpacityProperty, box v)
         | PasswordBoxProp.CaretBrush v -> el.SetValue(System.Windows.Controls.PasswordBox.CaretBrushProperty, box v)
@@ -61,6 +62,10 @@ module PasswordBox =
         | PasswordBoxProp.IsInactiveSelectionHighlightEnabled v ->
             el.SetValue(System.Windows.Controls.PasswordBox.IsInactiveSelectionHighlightEnabledProperty, box v)
         | PasswordBoxProp.OnPasswordChanged h -> el.PasswordChanged.AddHandler(h)
+#if NET8_0_OR_GREATER
+        | PasswordBoxProp.SelectionTextBrush v ->
+            el.SetValue(System.Windows.Controls.PasswordBox.SelectionTextBrushProperty, box v)
+#endif
 
     let borderBrush v : obj = box (ControlProp.BorderBrush v)
     let borderThickness v : obj = box (ControlProp.BorderThickness v)

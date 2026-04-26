@@ -25,7 +25,6 @@ type WindowProp =
     | ResizeMode of System.Windows.ResizeMode
     | Topmost of bool
     | ShowActivated of bool
-    | OnDpiChanged of System.Windows.DpiChangedEventHandler
     | OnSourceInitialized of System.EventHandler
     | OnActivated of System.EventHandler
     | OnDeactivated of System.EventHandler
@@ -34,6 +33,9 @@ type WindowProp =
     | OnClosing of System.ComponentModel.CancelEventHandler
     | OnClosed of System.EventHandler
     | OnContentRendered of System.EventHandler
+#if NET8_0_OR_GREATER
+    | OnDpiChanged of System.Windows.DpiChangedEventHandler
+#endif
 
 module Window =
     let taskbarItemInfo v : obj = box (WindowProp.TaskbarItemInfo v)
@@ -49,9 +51,6 @@ module Window =
     let resizeMode v : obj = box (WindowProp.ResizeMode v)
     let topmost v : obj = box (WindowProp.Topmost v)
     let showActivated v : obj = box (WindowProp.ShowActivated v)
-
-    let onDpiChanged v : obj =
-        box (EventProp(box (WindowProp.OnDpiChanged v)))
 
     let onSourceInitialized v : obj =
         box (EventProp(box (WindowProp.OnSourceInitialized v)))
@@ -76,6 +75,10 @@ module Window =
 
     let onContentRendered v : obj =
         box (EventProp(box (WindowProp.OnContentRendered v)))
+#if NET8_0_OR_GREATER
+    let onDpiChanged v : obj =
+        box (EventProp(box (WindowProp.OnDpiChanged v)))
+#endif
 
     let apply (el: System.Windows.Window) (prop: WindowProp) =
         match prop with
@@ -93,7 +96,6 @@ module Window =
         | WindowProp.ResizeMode v -> el.SetValue(System.Windows.Window.ResizeModeProperty, box v)
         | WindowProp.Topmost v -> el.SetValue(System.Windows.Window.TopmostProperty, box v)
         | WindowProp.ShowActivated v -> el.SetValue(System.Windows.Window.ShowActivatedProperty, box v)
-        | WindowProp.OnDpiChanged h -> el.DpiChanged.AddHandler(h)
         | WindowProp.OnSourceInitialized h -> el.SourceInitialized.AddHandler(h)
         | WindowProp.OnActivated h -> el.Activated.AddHandler(h)
         | WindowProp.OnDeactivated h -> el.Deactivated.AddHandler(h)
@@ -102,6 +104,9 @@ module Window =
         | WindowProp.OnClosing h -> el.Closing.AddHandler(h)
         | WindowProp.OnClosed h -> el.Closed.AddHandler(h)
         | WindowProp.OnContentRendered h -> el.ContentRendered.AddHandler(h)
+#if NET8_0_OR_GREATER
+        | WindowProp.OnDpiChanged h -> el.DpiChanged.AddHandler(h)
+#endif
 
     let content v : obj = box (ContentControlProp.Content v)
 

@@ -15,15 +15,18 @@ type ImageProp =
     | Source of System.Windows.Media.ImageSource
     | Stretch of System.Windows.Media.Stretch
     | StretchDirection of System.Windows.Controls.StretchDirection
+#if NET8_0_OR_GREATER
     | OnDpiChanged of System.Windows.DpiChangedEventHandler
+#endif
 
 module Image =
     let source v : obj = box (ImageProp.Source v)
     let stretch v : obj = box (ImageProp.Stretch v)
     let stretchDirection v : obj = box (ImageProp.StretchDirection v)
-
+#if NET8_0_OR_GREATER
     let onDpiChanged v : obj =
         box (EventProp(box (ImageProp.OnDpiChanged v)))
+#endif
 
     let apply (el: System.Windows.Controls.Image) (prop: ImageProp) =
         match prop with
@@ -31,7 +34,9 @@ module Image =
         | ImageProp.Source v -> el.SetValue(System.Windows.Controls.Image.SourceProperty, box v)
         | ImageProp.Stretch v -> el.SetValue(System.Windows.Controls.Image.StretchProperty, box v)
         | ImageProp.StretchDirection v -> el.SetValue(System.Windows.Controls.Image.StretchDirectionProperty, box v)
+#if NET8_0_OR_GREATER
         | ImageProp.OnDpiChanged h -> el.DpiChanged.AddHandler(h)
+#endif
 
     let style v : obj = box (FrameworkElementProp.Style v)
 

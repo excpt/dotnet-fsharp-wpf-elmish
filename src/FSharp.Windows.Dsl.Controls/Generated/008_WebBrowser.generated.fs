@@ -109,9 +109,6 @@ module WebBrowser =
     let isManipulationEnabled v : obj =
         box (UIElementProp.IsManipulationEnabled v)
 
-    let onDpiChanged v : obj =
-        box (EventProp(box (HwndHostProp.OnDpiChanged v)))
-
     let onRequestBringIntoView v : obj =
         box (EventProp(box (FrameworkElementProp.OnRequestBringIntoView v)))
 
@@ -342,6 +339,10 @@ module WebBrowser =
 
     let onLayoutUpdated v : obj =
         box (EventProp(box (UIElementProp.OnLayoutUpdated v)))
+#if NET8_0_OR_GREATER
+    let onDpiChanged v : obj =
+        box (EventProp(box (HwndHostProp.OnDpiChanged v)))
+#endif
 
     let children (cs: VirtualNode list) : obj = box (Children cs)
     let contentChild (c: VirtualNode) : obj = box (ContentChild c)

@@ -22,12 +22,14 @@ type TextBoxBaseProp =
     | UndoLimit of int
     | AutoWordSelection of bool
     | SelectionBrush of System.Windows.Media.Brush
-    | SelectionTextBrush of System.Windows.Media.Brush
     | SelectionOpacity of float
     | CaretBrush of System.Windows.Media.Brush
     | IsInactiveSelectionHighlightEnabled of bool
     | OnTextChanged of System.Windows.Controls.TextChangedEventHandler
     | OnSelectionChanged of System.Windows.RoutedEventHandler
+#if NET8_0_OR_GREATER
+    | SelectionTextBrush of System.Windows.Media.Brush
+#endif
 
 module TextBoxBase =
     let isReadOnly v : obj = box (TextBoxBaseProp.IsReadOnly v)
@@ -52,9 +54,6 @@ module TextBoxBase =
 
     let selectionBrush v : obj = box (TextBoxBaseProp.SelectionBrush v)
 
-    let selectionTextBrush v : obj =
-        box (TextBoxBaseProp.SelectionTextBrush v)
-
     let selectionOpacity v : obj =
         box (TextBoxBaseProp.SelectionOpacity v)
 
@@ -68,6 +67,10 @@ module TextBoxBase =
 
     let onSelectionChanged v : obj =
         box (EventProp(box (TextBoxBaseProp.OnSelectionChanged v)))
+#if NET8_0_OR_GREATER
+    let selectionTextBrush v : obj =
+        box (TextBoxBaseProp.SelectionTextBrush v)
+#endif
 
     let apply (el: System.Windows.Controls.Primitives.TextBoxBase) (prop: TextBoxBaseProp) =
         match prop with
@@ -92,8 +95,6 @@ module TextBoxBase =
             el.SetValue(System.Windows.Controls.Primitives.TextBoxBase.AutoWordSelectionProperty, box v)
         | TextBoxBaseProp.SelectionBrush v ->
             el.SetValue(System.Windows.Controls.Primitives.TextBoxBase.SelectionBrushProperty, box v)
-        | TextBoxBaseProp.SelectionTextBrush v ->
-            el.SetValue(System.Windows.Controls.Primitives.TextBoxBase.SelectionTextBrushProperty, box v)
         | TextBoxBaseProp.SelectionOpacity v ->
             el.SetValue(System.Windows.Controls.Primitives.TextBoxBase.SelectionOpacityProperty, box v)
         | TextBoxBaseProp.CaretBrush v ->
@@ -105,6 +106,10 @@ module TextBoxBase =
             )
         | TextBoxBaseProp.OnTextChanged h -> el.TextChanged.AddHandler(h)
         | TextBoxBaseProp.OnSelectionChanged h -> el.SelectionChanged.AddHandler(h)
+#if NET8_0_OR_GREATER
+        | TextBoxBaseProp.SelectionTextBrush v ->
+            el.SetValue(System.Windows.Controls.Primitives.TextBoxBase.SelectionTextBrushProperty, box v)
+#endif
 
     let borderBrush v : obj = box (ControlProp.BorderBrush v)
     let borderThickness v : obj = box (ControlProp.BorderThickness v)

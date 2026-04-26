@@ -20,6 +20,60 @@ let findRuntimeDir (runtimePack: string) (majorVersion: string) : string =
     |> Array.tryHead
     |> Option.defaultWith (fun () -> failwith $"No {runtimePack} {majorVersion}.x found in {baseDir}")
 
+/// Map a netfx TFM (net461, net47, net48, ...) to the dotted v4.x folder name
+/// used inside the Microsoft.NETFramework.ReferenceAssemblies.<tfm> NuGet package.
+let netFxVersionFolder (tfm: string) : string =
+    match tfm with
+    | "net461" -> "v4.6.1"
+    | "net462" -> "v4.6.2"
+    | "net47" -> "v4.7"
+    | "net471" -> "v4.7.1"
+    | "net472" -> "v4.7.2"
+    | "net48" -> "v4.8"
+    | "net481" -> "v4.8.1"
+    | _ -> failwith $"Unknown .NET Framework TFM: {tfm}"
+
+/// Locate the NuGet global packages folder (honors NUGET_PACKAGES env var).
+let private nugetPackagesDir () : string =
+    match Environment.GetEnvironmentVariable("NUGET_PACKAGES") with
+    | null
+    | "" -> Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".nuget", "packages")
+    | dir -> dir
+
+/// Resolve the directory holding the frozen reference assemblies for the given netfx TFM.
+/// Reads from the Microsoft.NETFramework.ReferenceAssemblies.<tfm> NuGet package, which
+/// is the same source MSBuild uses at compile time. Falls back to the system targeting
+/// pack under "Program Files (x86)\Reference Assemblies" if the NuGet package is absent.
+let findNetFxRefDir (tfm: string) : string =
+    let folder = netFxVersionFolder tfm
+    let pkgId = $"microsoft.netframework.referenceassemblies.{tfm}"
+    let pkgRoot = Path.Combine(nugetPackagesDir (), pkgId)
+
+    let fromNuGet =
+        if Directory.Exists(pkgRoot) then
+            Directory.GetDirectories(pkgRoot)
+            |> Array.sortDescending
+            |> Array.tryPick (fun ver ->
+                let candidate = Path.Combine(ver, "build", ".NETFramework", folder)
+                if Directory.Exists(candidate) then Some candidate else None)
+        else
+            None
+
+    match fromNuGet with
+    | Some d -> d
+    | None ->
+        let progFilesX86 =
+            Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86)
+
+        let fallback =
+            Path.Combine(progFilesX86, "Reference Assemblies", "Microsoft", "Framework", ".NETFramework", folder)
+
+        if Directory.Exists(fallback) then
+            fallback
+        else
+            failwith
+                $"Reference assemblies for {tfm} not found. Install the Microsoft.NETFramework.ReferenceAssemblies.{tfm} NuGet package or the .NET {folder} targeting pack."
+
 /// Resolve an assembly path for the given TFM.
 let resolveAssembly (tfm: string) (assemblyName: string) : string =
     match tfm with
@@ -32,25 +86,19 @@ let resolveAssembly (tfm: string) (assemblyName: string) : string =
     | "net47"
     | "net471"
     | "net472"
-    | "net48" ->
-        // WPF assemblies are under the WPF subfolder in .NET Framework
-        let frameworkDir =
-            Path.Combine(
-                Environment.GetFolderPath(Environment.SpecialFolder.Windows),
-                "Microsoft.NET",
-                "Framework64",
-                "v4.0.30319"
-            )
-
-        let direct = Path.Combine(frameworkDir, $"{assemblyName}.dll")
-        let wpfSub = Path.Combine(frameworkDir, "WPF", $"{assemblyName}.dll")
+    | "net48"
+    | "net481" ->
+        // Use the frozen targeting pack (NuGet ref-assembly cache), not the in-place
+        // runtime under C:\Windows\Microsoft.NET. The runtime is silently upgraded on
+        // every netfx Windows update, so it would report DPs that don't actually exist
+        // in the TFM's compile-time surface and produce wrong #if guards.
+        let refDir = findNetFxRefDir tfm
+        let direct = Path.Combine(refDir, $"{assemblyName}.dll")
 
         if File.Exists(direct) then
             direct
-        elif File.Exists(wpfSub) then
-            wpfSub
         else
-            failwith $"Assembly {assemblyName}.dll not found in {frameworkDir} or WPF subfolder"
+            failwith $"Assembly {assemblyName}.dll not found in {refDir}"
     | _ -> failwith $"Unknown TFM: {tfm}"
 
 /// Create a MetadataLoadContext for inspecting .NET Core WPF assemblies.
@@ -71,22 +119,14 @@ let createContext (wpfRuntimeDir: string) (extraPaths: string list) : MetadataLo
     new MetadataLoadContext(resolver, coreAssemblyName = "System.Runtime")
 
 /// Create a MetadataLoadContext for inspecting .NET Framework WPF assemblies.
+/// Loads from the frozen targeting pack (same source MSBuild uses at compile time)
+/// so the discovered DP surface matches what the netfx target actually compiles against.
 let createFrameworkContext (assemblyPath: string) : MetadataLoadContext =
-    let frameworkDir =
-        Path.Combine(
-            Environment.GetFolderPath(Environment.SpecialFolder.Windows),
-            "Microsoft.NET",
-            "Framework64",
-            "v4.0.30319"
-        )
-
-    let wpfDir = Path.Combine(frameworkDir, "WPF")
+    // Derive the TFM from the assembly path: refs live at .../v4.x.y/<assembly>.dll
+    let refDir = Path.GetDirectoryName(assemblyPath)
 
     let allDlls =
-        [| yield! Directory.GetFiles(frameworkDir, "*.dll")
-           if Directory.Exists(wpfDir) then
-               yield! Directory.GetFiles(wpfDir, "*.dll")
-           yield assemblyPath |]
+        [| yield! Directory.GetFiles(refDir, "*.dll"); yield assemblyPath |]
         |> Array.distinct
 
     let resolver = PathAssemblyResolver(allDlls)

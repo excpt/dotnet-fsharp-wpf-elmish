@@ -412,6 +412,7 @@ let buildInheritedHelpers
     (outputNamespace: string)
     (isThirdParty: bool)
     (emittedDPsPerType: Map<string, Set<string>>)
+    (dpGuards: Map<string, string>)
     (t: Type)
     (ownDPNames: Set<string>)
     =
@@ -454,11 +455,13 @@ let buildInheritedHelpers
                     ""
 
             let fnName = toSafeCamelCase dp.Name
+            let guardKey = $"{dp.OwnerTypeFullName}.{dp.Name}"
 
             Some
                 { FnName = fnName
                   PropDUExpression = $"{qualifier}{duName}.{dp.Name}"
-                  IsEvent = false })
+                  IsEvent = false
+                  Guard = dpGuards |> Map.tryFind guardKey })
     |> List.distinctBy (fun h -> h.FnName)
 
 /// Build EmitControlInput from a type and its own DPs/events.
@@ -467,7 +470,7 @@ let buildEmitInput
     (generatedFullNames: Set<string>)
     (uiElementFullNames: Set<string>)
     (emittedDPsPerType: Map<string, Set<string>>)
-    (versionGuards: Map<string, string>)
+    (guardMaps: TfmComparer.GuardMaps)
     (outputNamespace: string)
     (assemblyInfo: string)
     (t: Type, ownDPs: DPInfo list, ownEvents: EventInfo list, _depth: int)
@@ -491,17 +494,19 @@ let buildEmitInput
                 else
                     mapToFSharpType dp.PropertyTypeFullName
               DPFieldExpression = $"{dp.OwnerTypeFullName}.{dp.FieldName}"
-              Guard = versionGuards |> Map.tryFind guardKey
+              Guard = guardMaps.DP |> Map.tryFind guardKey
               MaterializeBeforeSet = isUIElementValue })
 
     let emitEvents =
         ownEvents
         |> List.filter isEmittableEvent
         |> List.map (fun ev ->
+            let guardKey = $"{ev.OwnerTypeFullName}.{ev.Name}"
+
             { CaseName = $"On{ev.Name}"
               HandlerType = mapToFSharpType ev.HandlerTypeName.Value
               EventExpression = $"el.{ev.Name}"
-              Guard = None })
+              Guard = guardMaps.Event |> Map.tryFind guardKey })
 
     // Collection CLR properties: auto-initialized list-of-DependencyObject collections
     // declared on this type (e.g. GridControl.Columns : ObservableCollection<ColumnBase>).
@@ -552,6 +557,7 @@ let buildEmitInput
             outputNamespace
             isThirdParty
             emittedDPsPerType
+            guardMaps.DP
             t
             ownDPNames
 
@@ -580,10 +586,13 @@ let buildEmitInput
                     else
                         ""
 
+                let guardKey = $"{ev.OwnerTypeFullName}.{ev.Name}"
+
                 Some
                     { FnName = $"on{ev.Name}"
                       PropDUExpression = $"{qualifier}{propDUName ev.OwnerTypeName}.On{ev.Name}"
-                      IsEvent = true })
+                      IsEvent = true
+                      Guard = guardMaps.Event |> Map.tryFind guardKey })
 
     { OutputNamespace = outputNamespace
       ControlName = t.Name
@@ -685,7 +694,7 @@ let main argv =
             printfn $"  Extra path: {p}"
 
         // Multi-TFM diff (only for standard WPF assemblies, skip for third-party)
-        let versionGuards =
+        let guardMaps =
             match baseline, tfmsArg with
             | Some baselineTfm, Some tfmsStr when extraPaths.IsEmpty ->
                 let baselinePath = AssemblyInspector.resolveAssembly baselineTfm assemblyNames.[0]
@@ -702,10 +711,10 @@ let main argv =
                     |> Array.toList
 
                 TfmComparer.diffChain baselineTfm baselinePath tfmChain
-            | _ -> Map.empty
+            | _ -> TfmComparer.GuardMaps.Empty
 
-        if not versionGuards.IsEmpty then
-            printfn $"Found {versionGuards.Count} version-specific DPs"
+        if not guardMaps.DP.IsEmpty || not guardMaps.Event.IsEmpty then
+            printfn $"Found {guardMaps.DP.Count} version-specific DPs, {guardMaps.Event.Count} version-specific events"
 
         // Create context with WPF runtime + extra paths
         use ctx = AssemblyInspector.createContext wpfRuntimeDir extraPaths
@@ -912,7 +921,7 @@ let main argv =
                     generatedFullNames
                     uiElementFullNames
                     emittedDPsPerType
-                    versionGuards
+                    guardMaps
                     outputNamespace
                     assemblyInfo
                     entry
@@ -948,7 +957,7 @@ let main argv =
                     generatedFullNames
                     uiElementFullNames
                     emittedDPsPerType
-                    versionGuards
+                    guardMaps
                     outputNamespace
                     assemblyInfo
                     entry

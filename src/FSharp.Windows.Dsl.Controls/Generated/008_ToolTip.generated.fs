@@ -21,9 +21,11 @@ type ToolTipProp =
     | Placement of System.Windows.Controls.Primitives.PlacementMode
     | CustomPopupPlacementCallback of System.Windows.Controls.Primitives.CustomPopupPlacementCallback
     | StaysOpen of bool
-    | ShowsToolTipOnKeyboardFocus of obj
     | OnOpened of System.Windows.RoutedEventHandler
     | OnClosed of System.Windows.RoutedEventHandler
+#if NET8_0_OR_GREATER
+    | ShowsToolTipOnKeyboardFocus of obj
+#endif
 
 module ToolTip =
     let horizontalOffset v : obj = box (ToolTipProp.HorizontalOffset v)
@@ -39,14 +41,15 @@ module ToolTip =
 
     let staysOpen v : obj = box (ToolTipProp.StaysOpen v)
 
-    let showsToolTipOnKeyboardFocus v : obj =
-        box (ToolTipProp.ShowsToolTipOnKeyboardFocus v)
-
     let onOpened v : obj =
         box (EventProp(box (ToolTipProp.OnOpened v)))
 
     let onClosed v : obj =
         box (EventProp(box (ToolTipProp.OnClosed v)))
+#if NET8_0_OR_GREATER
+    let showsToolTipOnKeyboardFocus v : obj =
+        box (ToolTipProp.ShowsToolTipOnKeyboardFocus v)
+#endif
 
     let apply (el: System.Windows.Controls.ToolTip) (prop: ToolTipProp) =
         match prop with
@@ -63,10 +66,12 @@ module ToolTip =
         | ToolTipProp.CustomPopupPlacementCallback v ->
             el.SetValue(System.Windows.Controls.ToolTip.CustomPopupPlacementCallbackProperty, box v)
         | ToolTipProp.StaysOpen v -> el.SetValue(System.Windows.Controls.ToolTip.StaysOpenProperty, box v)
-        | ToolTipProp.ShowsToolTipOnKeyboardFocus v ->
-            el.SetValue(System.Windows.Controls.ToolTip.ShowsToolTipOnKeyboardFocusProperty, box v)
         | ToolTipProp.OnOpened h -> el.Opened.AddHandler(h)
         | ToolTipProp.OnClosed h -> el.Closed.AddHandler(h)
+#if NET8_0_OR_GREATER
+        | ToolTipProp.ShowsToolTipOnKeyboardFocus v ->
+            el.SetValue(System.Windows.Controls.ToolTip.ShowsToolTipOnKeyboardFocusProperty, box v)
+#endif
 
     let content v : obj = box (ContentControlProp.Content v)
 

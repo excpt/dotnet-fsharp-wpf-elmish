@@ -65,9 +65,6 @@ module TextBox =
 
     let selectionBrush v : obj = box (TextBoxBaseProp.SelectionBrush v)
 
-    let selectionTextBrush v : obj =
-        box (TextBoxBaseProp.SelectionTextBrush v)
-
     let selectionOpacity v : obj =
         box (TextBoxBaseProp.SelectionOpacity v)
 
@@ -414,6 +411,10 @@ module TextBox =
 
     let onLayoutUpdated v : obj =
         box (EventProp(box (UIElementProp.OnLayoutUpdated v)))
+#if NET8_0_OR_GREATER
+    let selectionTextBrush v : obj =
+        box (TextBoxBaseProp.SelectionTextBrush v)
+#endif
 
     let children (cs: VirtualNode list) : obj = box (Children cs)
     let contentChild (c: VirtualNode) : obj = box (ContentChild c)

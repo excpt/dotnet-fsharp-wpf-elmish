@@ -258,14 +258,32 @@ let private emitModule (sb: StringBuilder) (input: EmitControlInput) =
 
     sb.AppendLine() |> ignore
 
-    // Inherited helpers (width, height, content, etc. from ancestor types)
-    for h in input.InheritedHelpers do
+    // Inherited helpers (width, height, content, etc. from ancestor types). Helpers whose
+    // underlying member was added in a non-baseline TFM must be guarded — otherwise a
+    // derived-type file would reference a Prop DU case that's #if'd out on the baseline.
+    let emitHelperBody (h: EmitInheritedHelper) =
         if h.IsEvent then
             sb.AppendLine($"    let {h.FnName} v : obj = box (EventProp(box ({h.PropDUExpression} v)))")
             |> ignore
         else
             sb.AppendLine($"    let {h.FnName} v : obj = box ({h.PropDUExpression} v)")
             |> ignore
+
+    let baselineHelpers, guardedHelpers =
+        input.InheritedHelpers |> List.partition (fun h -> h.Guard.IsNone)
+
+    for h in baselineHelpers do
+        emitHelperBody h
+
+    let guardedHelperGroups = guardedHelpers |> List.groupBy (fun h -> h.Guard.Value)
+
+    for guard, helpers in guardedHelperGroups do
+        sb.AppendLine($"#if {guard}") |> ignore
+
+        for h in helpers do
+            emitHelperBody h
+
+        sb.AppendLine("#endif") |> ignore
 
     sb.AppendLine() |> ignore
 

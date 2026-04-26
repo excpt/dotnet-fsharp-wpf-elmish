@@ -48,10 +48,14 @@ type EmitEvent =
       Guard: string option }
 
 /// Inherited helper — a convenience function that boxes at the ancestor's prop level.
+/// Guard is set when the underlying member was added in a non-baseline TFM; the helper
+/// must then be wrapped in `#if {Guard}` so derived-type files don't reference symbols
+/// that don't exist on the lowest target.
 type EmitInheritedHelper =
     { FnName: string
       PropDUExpression: string
-      IsEvent: bool }
+      IsEvent: bool
+      Guard: string option }
 
 /// Input for emitting an attached property helper.
 type EmitAttachedDP =

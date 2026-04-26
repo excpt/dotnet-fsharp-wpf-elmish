@@ -12,16 +12,22 @@ open FSharp.Windows.Dsl
 [<RequireQualifiedAccess>]
 type HwndHostProp =
     | Base of FrameworkElementProp
+#if NET8_0_OR_GREATER
     | OnDpiChanged of System.Windows.DpiChangedEventHandler
+#endif
 
 module HwndHost =
+#if NET8_0_OR_GREATER
     let onDpiChanged v : obj =
         box (EventProp(box (HwndHostProp.OnDpiChanged v)))
+#endif
 
     let apply (el: System.Windows.Interop.HwndHost) (prop: HwndHostProp) =
         match prop with
         | HwndHostProp.Base p -> FrameworkElement.apply el p
+#if NET8_0_OR_GREATER
         | HwndHostProp.OnDpiChanged h -> el.DpiChanged.AddHandler(h)
+#endif
 
     let style v : obj = box (FrameworkElementProp.Style v)
 
