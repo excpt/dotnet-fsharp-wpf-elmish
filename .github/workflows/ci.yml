@@ -29,7 +29,12 @@ jobs:
 
       - uses: actions/setup-dotnet@v5
         with:
-          dotnet-version: "10.0.x"
+          # Install all three SDKs so each net*-windows TFM has its matching runtime
+          # pack (and apphost template) available locally — required for Exe outputs.
+          dotnet-version: |
+            8.0.x
+            9.0.x
+            10.0.x
 
       - name: Restore
         run: dotnet restore FSharp.Windows.Dsl.slnx
