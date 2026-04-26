@@ -56,15 +56,30 @@ With keys: reconciler matches by identity regardless of position.
 
 ## Children Collection Differences
 
-Different parent types store children differently — reconciler must handle each:
+Different parent types store children differently. The reconciler handles the
+visual collections directly via `Materializer.attachChildren`; non-visual list
+collections (e.g. `GridControl.Columns : ObservableCollection<ColumnBase>`) go
+through the `CollectionProp` marker instead, so they're populated as DSL props
+rather than as positional children.
 
-| Parent type | Children access |
-|---|---|
-| `Panel` | `Children: UIElementCollection` |
-| `ContentControl` | `Content: obj` (single) |
-| `ItemsControl` | `Items: ItemCollection` |
-| `Decorator` | `Child: UIElement` (single) |
-| DevExpress `GridControl` | `Columns` (non-visual) |
+| Parent type | Mechanism | Access |
+|---|---|---|
+| `Panel` | `attachChildren` | `Children: UIElementCollection` |
+| `ContentControl` | `attachChildren` | `Content: obj` (single) |
+| `ItemsControl` | `attachChildren` | `Items: ItemCollection` |
+| `Decorator` | `attachChildren` | `Child: UIElement` (single) |
+| Auto-init list DP (`GridControl.Columns`, `DataGrid.Columns`) | `CollectionProp(name, children)` | Reflects named CLR property, expects `IList`, clears + adds |
+
+```fsharp
+gridControl
+    [ GridControl.itemsSource src
+      GridControl.columns
+          [ gridColumn [ GridColumn.fieldName "Personalnummer" ]
+            gridColumn [ GridColumn.fieldName "Name" ] ] ]
+```
+
+See `0500_props.md` for the full list of prop markers and `0700_codegen.md`
+for how `CollectionProp` helpers are detected and emitted.
 
 ## Performance — Virtual Tree Rebuild Cost
 

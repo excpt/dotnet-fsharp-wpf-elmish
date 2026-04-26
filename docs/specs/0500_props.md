@@ -123,3 +123,61 @@ module Button =
 
 The `apply` function is what the reconciler calls when diffing props.
 Everything else is sugar over the virtual tree.
+
+## Prop Markers
+
+Most prop values fit through the per-control DU described above — apply
+matches the case and `SetValue`s. A handful of cross-cutting concerns share
+markers in `FSharp.Windows.Dsl`:
+
+| Marker | Purpose | Apply behaviour |
+|---|---|---|
+| `Children of VirtualNode list` | Multi-child visual containers | `Materializer.attachChildren` adds to `Panel.Children` / `ItemsControl.Items` |
+| `ContentChild of VirtualNode` | Single-child visual containers | Sets `ContentControl.Content` / `Decorator.Child` |
+| `Key of string` | Reconciler match identity | Stripped before apply; reconciler keys diff by it |
+| `AttachedProp of DependencyProperty * obj` | `Grid.Row`, `DockPanel.Dock`, … | `el.SetValue(dp, value)` on the **child** |
+| `EventProp of obj` | Wrapper for routed/CLR event handlers | Reconciler swaps via `RemoveHandler` + `AddHandler` |
+| `CollectionProp of name * VirtualNode list` | Auto-init list collections (`GridControl.Columns`) | Reflects the named property, expects `IList`, clears + adds materialized children |
+
+`CollectionProp` is the v0.2.0 entry — it bridges CLR collection properties of
+`DependencyObject` element type that aren't part of the visual children
+mechanism. The codegen emits a per-control helper:
+
+```fsharp
+let columns (cs: VirtualNode list) : obj = box (CollectionProp("Columns", cs))
+```
+
+so the DSL composes column/section lists the same way it composes children.
+
+## DO-Valued DPs (MaterializeBeforeSet)
+
+When a DP's value type is a `UIElement` subclass, the codegen rewrites the DU
+case to carry a `VirtualNode` instead of the concrete instance, and `apply`
+calls `Materializer.materialize` before `SetValue`:
+
+```fsharp
+type GridControlProp =
+    | View of VirtualNode    // not DataViewBase
+    | …
+
+let apply (el: GridControl) (prop: GridControlProp) =
+    match prop with
+    | View v ->
+        el.SetValue(GridControl.ViewProperty, Materializer.materialize v |> box)
+    | …
+```
+
+The DSL writer composes the inner element with the same syntax as the outer:
+
+```fsharp
+gridControl
+    [ GridControl.view (
+          tableView
+              [ TableView.allowEditing false
+                TableView.showGroupPanel false ]) ]
+```
+
+Detection threads a `uiElementFullNames` set (every `UIElement` subtype across
+all loaded assemblies) through the codegen. Any DP whose `PropertyType` is in
+that set switches to the materialize-on-set shape. See `0700_codegen.md` for
+the discovery details.

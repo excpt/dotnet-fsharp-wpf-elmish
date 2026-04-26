@@ -37,16 +37,31 @@ Column widths
 The reconciler never diffs grid internals. It only sets:
 - `ItemsSource` (your data)
 - `SelectedItems` (from model)
-- Column definitions (structural changes only)
+- The view (TableView/CardView) — composed as a `VirtualNode` and materialized
+- Column definitions — composed as `VirtualNode list` and added via `CollectionProp`
 
 ```fsharp
-GridControl.create [
-    GridControl.itemsSource model.CustomerSource
-    GridControl.selectedItems model.SelectedIds
-    GridControl.onSelectionCommitted (SelectionCommitted >> dispatch)
-    GridControl.onRowEditFinished    (EditCommitted >> dispatch)
-]
+gridControl
+    [ GridControl.itemsSource model.CustomerSource
+      GridControl.selectedItems model.SelectedIds
+      DataControlBase.onCurrentItemChanged (CurrentChanged >> dispatch)
+
+      // View is a UIElement-valued DP — materialize-on-set (Gap 3)
+      GridControl.view (
+          tableView
+              [ TableView.allowEditing false
+                TableView.showGroupPanel false
+                TableView.rowDoubleClickCommand openEditCmd ])
+
+      // Columns is an auto-init ObservableCollection — CollectionProp (Gap 2)
+      GridControl.columns
+          [ gridColumn [ GridColumn.fieldName "Personalnummer"; GridColumn.header "Personalnr." ]
+            gridColumn [ GridColumn.fieldName "Name"; GridColumn.header "Nachname" ] ] ]
 ```
+
+The shape extends to other rich grid surfaces: `GridControl.totalSummary`,
+`GridControl.groupSummary`, `GridControl.detailDescriptor`, `TableView` /
+`CardView` views, and the equivalent WPF `DataGrid.columns` work the same way.
 
 ## Small / Medium Datasets (up to 20k rows)
 

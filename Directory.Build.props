@@ -8,7 +8,7 @@
         <PackageTags>fsharp;wpf;elmish;mvu;dsl;functional</PackageTags>
         <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
         <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-        <Version>0.1.0</Version>
+        <Version>0.2.0</Version>
 
         <!-- Source Link: enables stepping into source when debugging NuGet packages -->
         <PublishRepositoryUrl>true</PublishRepositoryUrl>

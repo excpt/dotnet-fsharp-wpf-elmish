@@ -268,15 +268,65 @@ let inspectAssembly (assemblyPath: string) (runtimeDir: string) =
     assembly.GetTypes()
     |> Array.filter (fun t ->
         t.IsPublic
-        && not t.IsAbstract
-        && isSubclassOf mlc "System.Windows.FrameworkElement" t)
+        && isSubclassOf mlc "System.Windows.DependencyObject" t)
 ```
+
+The filter is `DependencyObject`, not `FrameworkElement` — non-visual DOs like
+`GridColumn`, `DataGridColumn`, and `ColumnBase` are valid wrapper targets too.
+Abstract types are kept (a wrapper can be a typed apply target without being
+constructible itself); concrete-only restriction happens later, when emitting
+the `create` shorthand.
 
 `MetadataLoadContext` provides:
 - Inspection-only loading — no code execution, no side effects
 - Can load assemblies from any TFM (Framework 4.8, .NET 8, .NET 9)
 - Can load multiple versions of the same assembly simultaneously (for TFM comparison)
 - No conflicts with the running process
+
+### Reachability Cull
+
+Broadening to every `DependencyObject` in scope drags in animation key frames,
+brushes, geometries, transforms, document elements — most of which no DSL writer
+ever instantiates as a node. The codegen narrows the set with a reachability
+closure seeded from the visual surface:
+
+```fsharp
+let computeReachable (allDOTypes: Type list) (seed: Type list) =
+    // seed = every UIElement subtype in the package's assemblies
+
+    let mutable reachable = Set.empty
+    let queue = Queue<Type>()
+
+    let pull (t: Type) =
+        // 1) Add t and all its descendants in the DO pool.
+        //    Reaching ColumnBase pulls in BaseColumn, GridColumn, GridControlColumn …
+        //    Reaching Brush pulls in SolidColorBrush, LinearGradientBrush …
+        // 2) Add t's ancestors (no descendant cascade) so resolveParent finds a
+        //    `Base of XxxProp` reference that's actually emitted.
+        ()
+
+    for t in seed do pull t
+
+    while queue.Count > 0 do
+        let t = queue.Dequeue()
+        // DP value types
+        for dp in discoverDPs t do pull (lookup dp.PropertyTypeFullName)
+        // CLR collection element types — IList<T>/ICollection<T>/IEnumerable<T>
+        for p in t.GetProperties() do
+            match collectionElementType p.PropertyType with
+            | Some elem -> pull elem
+            | None -> ()
+
+    reachable
+```
+
+Effects on the generated set:
+
+| Stage | base Controls | DevExpress Charts (one of 26) |
+|---|---|---|
+| Unfiltered DependencyObject | ~520 | 1240+ |
+| After reachability cull | ~308 | ~150 |
+| After per-package boundary | n/a | only DX types — base WPF stays in base Controls |
 
 ### Discovering DependencyProperties
 
@@ -289,13 +339,27 @@ let discoverDPs (controlType: Type) =
         f.FieldType.FullName = "System.Windows.DependencyProperty"
         && f.Name.EndsWith("Property"))
     |> Array.map (fun f ->
-        let propName = f.Name.Replace("Property", "")
+        // Strip ONLY the trailing "Property" suffix. `Replace("Property", "")` corrupts
+        // names like Storyboard.TargetPropertyProperty (DP for the "TargetProperty" attached
+        // prop), which must keep its inner "Property" — so two attached helpers don't
+        // collide on the camel-cased fn name.
+        let propName =
+            if f.Name.EndsWith("Property") then
+                f.Name.Substring(0, f.Name.Length - "Property".Length)
+            else
+                f.Name
+
         {| Name       = propName
            FieldName  = f.Name
            OwnerType  = f.DeclaringType
            IsAttached = isRegisteredAttached f
            IsReadOnly = hasMatchingReadOnlyKey controlType f.Name |})
 ```
+
+`hasMatchingReadOnlyKey` walks the BaseType chain manually:
+`BindingFlags.NonPublic ||| FlattenHierarchy` does not surface non-public static
+fields declared on a base class, so deep descendants would otherwise misclassify
+inherited read-only DPs (`ActualWidth`, `ActualHeight`, …) as writable.
 
 ### Discovering Attached Properties
 
@@ -313,6 +377,61 @@ let isRegisteredAttached (field: FieldInfo) =
 // Button.ContentProperty → Button.SetContent(...) does NOT exist → not attached
 ```
 
+### Discovering Collection Properties (CollectionProp)
+
+Some CLR properties are auto-initialized list collections of `DependencyObject`
+elements — `GridControl.Columns : ObservableCollection<ColumnBase>`,
+`DataGrid.Columns`, etc. They're not DPs and they're not handled by
+`Materializer.attachChildren` (which only knows about Panel/ContentControl/
+Decorator/ItemsControl). The codegen emits a dedicated helper:
+
+```fsharp
+let columns (cs: VirtualNode list) : obj = box (CollectionProp("Columns", cs))
+```
+
+`CollectionProp` is a marker in `FSharp.Windows.Dsl`. At apply time the
+`Materializer` reflects the named property on the parent, expects a non-generic
+`IList` (which `IList<T>` and `ObservableCollection<T>` implement), clears it
+and adds materialized children. The reconciler keys it by property name and
+re-applies clear+add when the children list differs.
+
+Detection walks the type's `PropertyType` for an `IList<T>`/`ICollection<T>`/
+`IEnumerable<T>` interface — that's what catches concrete subclasses like
+`GridColumnCollection` (extends `ObservableCollection<GridColumn>`, non-generic
+at the surface but generic in its inheritance). Properties named `Children`,
+`Content`, `Items`, `Resources` are skipped because the visual-tree mechanism
+already handles them.
+
+### DependencyObject-Valued DPs (MaterializeBeforeSet)
+
+When a DP's value type is a `UIElement` subclass (`GridControl.View :
+DataViewBase`, `FrameworkElement.ContextMenu : ContextMenu`, `ToolTip`, …), the
+DSL writer should compose the inner element the same way they compose the
+outer one. The codegen marks these DPs with `MaterializeBeforeSet = true`,
+which changes two things:
+
+```fsharp
+// DU case: VirtualNode instead of the concrete type
+type GridControlProp =
+    | View of VirtualNode    // was: DataViewBase
+    | …
+
+// apply: materialize the VirtualNode before SetValue
+| GridControlProp.View v ->
+    el.SetValue(GridControl.ViewProperty, Materializer.materialize v |> box)
+```
+
+Detection threads a `uiElementFullNames` set (built from
+`AssemblyInspector.findAllUIElementSubtypes` over every loaded assembly) through
+`buildEmitInput`. Any DP whose `PropertyTypeFullName` matches that set switches
+to the `VirtualNode` shape.
+
+This is a **breaking change** vs `0.1.0`: code that previously passed a
+`ContextMenu` instance into `TextBox.contextMenu (Build.contextMenu [...])`
+now passes a `VirtualNode` from `TextBox.contextMenu (contextMenu [...])` (the
+DSL shorthand). The `Build` module remains as an escape hatch but is no longer
+needed for DP composition.
+
 ### Discovering Routed Events
 
 ```fsharp
@@ -322,7 +441,13 @@ let discoverEvents (controlType: Type) =
         f.FieldType.FullName = "System.Windows.RoutedEvent"
         && f.Name.EndsWith("Event"))
     |> Array.map (fun f ->
-        let eventName = f.Name.Replace("Event", "")
+        // Same trailing-only strip as DPs.
+        let eventName =
+            if f.Name.EndsWith("Event") then
+                f.Name.Substring(0, f.Name.Length - "Event".Length)
+            else
+                f.Name
+
         let clrEvent = controlType.GetEvent(eventName)
         {| Name      = eventName
            FieldName = f.Name
@@ -353,8 +478,30 @@ This catches events invisible to routed event discovery:
 - `FrameworkElement.Initialized` (`EventHandler`)
 - DevExpress `BaseEdit.EditValueChanged` (`EditValueChangedEventHandler`)
 
-The same handler type filter applies: only `System.*` handler types are emitted
-(F# compiler limitation FS1091 with non-standard delegate types).
+### Bridgeable Event Delegates
+
+F# `el.MyEvent.AddHandler(h)` (the `IEvent<_,_>` projection) only accepts
+delegates with the canonical `void Invoke(System.Object, System.EventArgs)`
+shape. Anything else trips FS1091 — non-void return (`HwndSourceHook` returns
+`IntPtr`), wrong arg count (`ImageFailedEventHandler` has three), or a derived
+sender type. We capture the structural verdict at discovery time:
+
+```fsharp
+let isStandardEventDelegate (delegateType: Type) =
+    let invoke = delegateType.GetMethod("Invoke")
+    invoke.ReturnType.FullName = "System.Void"
+    && invoke.GetParameters().Length = 2
+    && invoke.GetParameters().[0].ParameterType.FullName = "System.Object"
+    && inheritsEventArgs invoke.GetParameters().[1].ParameterType
+```
+
+Plus `[Obsolete]` is honoured — F# raises FS0101 on any reference to a
+deprecated construct, so a wrapper that names it would never compile
+(`RichEditControl.PreparePopupMenu` uses an obsolete delegate; we drop it).
+
+The filter is structural rather than namespace-based, so DevExpress's own
+`CurrentItemChangedEventHandler` (under `DevExpress.Xpf.Grid`) is admitted —
+we no longer require handlers to live under `System.*`.
 
 ### Building the Type Hierarchy
 
@@ -372,21 +519,14 @@ let buildHierarchy (types: Type[]) =
     |> Array.sortBy (fun info -> hierarchyDepth info.Type)
 ```
 
-### Two-Pass Codegen
+### Single Pass, Reachability-Filtered
 
-```fsharp
-// pass 1 — visual elements (controls, panels, shapes, decorators)
-let visualTypes =
-    assembly.GetTypes()
-    |> Array.filter (fun t -> isSubclassOf mlc "System.Windows.FrameworkElement" t)
-
-// pass 2 — non-visual DependencyObjects (column defs, settings objects)
-let nonVisualTypes =
-    assembly.GetTypes()
-    |> Array.filter (fun t ->
-        isSubclassOf mlc "System.Windows.DependencyObject" t
-        && not (isSubclassOf mlc "System.Windows.FrameworkElement" t))
-```
+There is no separate pass for visual vs non-visual types — a single
+`findAllDependencyObjectSubtypes` call collects everything, the reachability
+closure (above) decides what's emitted, and the emitter shape is uniform. The
+historical visual/non-visual split survived only as a dead distinction; the
+reachability seed *is* the visual surface, and non-visual DOs join the set when
+something visual references them.
 
 ### F# Code Emitter
 
@@ -423,13 +563,15 @@ let emitControlFile (info: ControlInfo) (versionDPs: (string * DP[]) list) =
 | Concern | Approach |
 |---|---|
 | DependencyProperties | `SetValue` / `GetValue` via DP field |
-| CLR-only properties (no DP) | Direct property set |
-| Attached properties (`Grid.Row`) | Detect via static `SetXxx` method |
+| Attached properties (`Grid.Row`) | Detect via static `SetXxx` method; emit `node`-extending helper |
+| DO-valued DPs (`GridControl.View`) | `MaterializeBeforeSet` — DU case = `VirtualNode`, apply runs `Materializer.materialize` |
+| Auto-init list collections (`GridControl.Columns`) | `CollectionProp(name, children)` — Materializer reflects, clears, repopulates |
 | Routed events | Subscribe/unsubscribe via `AddHandler`/`RemoveHandler` |
-| CLR events (not routed) | Standard .NET event `add`/`remove` |
-| Collection properties | Reconciler handles specially |
-| Non-visual types | Separate codegen pass |
+| CLR events (not routed) | Standard .NET event `add`/`remove`; structural `void Invoke(Object, EventArgs)` filter |
+| Non-visual DOs (`GridColumn`) | Reachability-pulled; same wrapper shape as visual |
+| `[Obsolete]` events | Skipped — F# FS0101 forbids referencing them |
 | Version-specific DPs | `#if` guards from TFM comparison |
+| Cross-package parent | Fully-qualified `FSharp.Windows.Dsl.Controls.X.apply` reference |
 
 ## Tool Project Structure
 
