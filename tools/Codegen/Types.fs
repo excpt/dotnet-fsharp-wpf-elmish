@@ -64,8 +64,7 @@ type EmitAttachedDP =
 /// can populate auto-initialized collection properties (GridControl.Columns, etc.)
 /// without imperative .Add calls.
 type EmitCollectionProp =
-    { FnName: string
-      PropertyName: string }
+    { FnName: string; PropertyName: string }
 
 /// Complete input for generating one control's F# source file.
 type EmitControlInput =

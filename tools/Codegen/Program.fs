@@ -243,9 +243,7 @@ let computeReachableDOTypes (allDOTypes: Type list) (seed: Type list) : Set<stri
 
     let childrenByParent =
         allDOTypes
-        |> List.filter (fun t ->
-            not (isNull t.BaseType)
-            && not (isNull t.BaseType.FullName))
+        |> List.filter (fun t -> not (isNull t.BaseType) && not (isNull t.BaseType.FullName))
         |> List.groupBy (fun t -> t.BaseType.FullName)
         |> Map.ofList
 
@@ -299,7 +297,8 @@ let computeReachableDOTypes (allDOTypes: Type list) (seed: Type list) : Set<stri
         try
             for p in
                 t.GetProperties(
-                    System.Reflection.BindingFlags.Public ||| System.Reflection.BindingFlags.Instance
+                    System.Reflection.BindingFlags.Public
+                    ||| System.Reflection.BindingFlags.Instance
                 ) do
                 match collectionElementType p.PropertyType with
                 | Some elem when not (isNull elem.FullName) && byFullName.ContainsKey(elem.FullName) ->
@@ -426,8 +425,7 @@ let buildInheritedHelpers
 
         // Owner-resolution strictly by FullName so name collisions (DragAndDrop.Thumb
         // vs WPF.Thumb) don't pull in helpers that belong to a different DU.
-        let ownerIsLocal =
-            generatedFullNames |> Set.contains dp.OwnerTypeFullName
+        let ownerIsLocal = generatedFullNames |> Set.contains dp.OwnerTypeFullName
 
         let isWpfOwner =
             not (isNull dp.OwnerTypeFullName)
@@ -450,7 +448,10 @@ let buildInheritedHelpers
             // is gone). Local ones stay unqualified — same-namespace siblings are visible
             // and we don't open ControlNamespace anymore so the CLR class can't shadow.
             let qualifier =
-                if not ownerIsLocal then "FSharp.Windows.Dsl.Controls." else ""
+                if not ownerIsLocal then
+                    "FSharp.Windows.Dsl.Controls."
+                else
+                    ""
 
             let fnName = toSafeCamelCase dp.Name
 
@@ -485,8 +486,10 @@ let buildEmitInput
 
             { CaseName = dp.Name
               PropertyType =
-                if isUIElementValue then "VirtualNode"
-                else mapToFSharpType dp.PropertyTypeFullName
+                if isUIElementValue then
+                    "VirtualNode"
+                else
+                    mapToFSharpType dp.PropertyTypeFullName
               DPFieldExpression = $"{dp.OwnerTypeFullName}.{dp.FieldName}"
               Guard = versionGuards |> Map.tryFind guardKey
               MaterializeBeforeSet = isUIElementValue })
@@ -515,8 +518,7 @@ let buildEmitInput
                 ||| System.Reflection.BindingFlags.Instance
                 ||| System.Reflection.BindingFlags.DeclaredOnly
             )
-            |> Array.filter (fun p ->
-                p.CanRead && not (collectionPropExclusions.Contains p.Name))
+            |> Array.filter (fun p -> p.CanRead && not (collectionPropExclusions.Contains p.Name))
             |> Array.choose (fun p ->
                 match collectionElementType p.PropertyType with
                 | Some elem when AssemblyInspector.isSubclassOfByName "System.Windows.DependencyObject" elem ->
@@ -544,7 +546,14 @@ let buildEmitInput
     let ownEventNames = ownEvents |> List.map (fun ev -> ev.Name) |> Set.ofList
 
     let inherited =
-        buildInheritedHelpers generatedTypeNames generatedFullNames outputNamespace isThirdParty emittedDPsPerType t ownDPNames
+        buildInheritedHelpers
+            generatedTypeNames
+            generatedFullNames
+            outputNamespace
+            isThirdParty
+            emittedDPsPerType
+            t
+            ownDPNames
 
     // Inherited event helpers (e.g., Button gets onClick from ButtonBase)
     let allEvents = AssemblyInspector.discoverAllEvents t
@@ -554,8 +563,7 @@ let buildEmitInput
         |> List.filter (fun ev -> not (ownEventNames.Contains ev.Name))
         |> List.filter isEmittableEvent
         |> List.choose (fun ev ->
-            let ownerIsLocal =
-                generatedFullNames |> Set.contains ev.OwnerTypeFullName
+            let ownerIsLocal = generatedFullNames |> Set.contains ev.OwnerTypeFullName
 
             let isWpfOwner =
                 not (isNull ev.OwnerTypeFullName)
@@ -567,7 +575,10 @@ let buildEmitInput
                 None
             else
                 let qualifier =
-                    if not ownerIsLocal then "FSharp.Windows.Dsl.Controls." else ""
+                    if not ownerIsLocal then
+                        "FSharp.Windows.Dsl.Controls."
+                    else
+                        ""
 
                 Some
                     { FnName = $"on{ev.Name}"
@@ -745,8 +756,7 @@ let main argv =
         let assemblies = packageAssemblies @ supportAssemblies
         let isThirdParty = outputNamespace <> "FSharp.Windows.Dsl.Controls"
 
-        let emitFromAssemblies =
-            if isThirdParty then packageAssemblies else assemblies
+        let emitFromAssemblies = if isThirdParty then packageAssemblies else assemblies
 
         let assemblyInfo =
             let names = assemblyNames |> String.concat ", "
@@ -897,7 +907,15 @@ let main argv =
             let t, ownDPs, ownEvents, depth = entry
 
             let input =
-                buildEmitInput generatedTypeNames generatedFullNames uiElementFullNames emittedDPsPerType versionGuards outputNamespace assemblyInfo entry
+                buildEmitInput
+                    generatedTypeNames
+                    generatedFullNames
+                    uiElementFullNames
+                    emittedDPsPerType
+                    versionGuards
+                    outputNamespace
+                    assemblyInfo
+                    entry
 
             // Emit when the type contributes its own DPs/events, or when it has a generated
             // parent (preserves concrete shorthands like checkBox / separator that inherit
@@ -925,7 +943,15 @@ let main argv =
             let t, _, _, _ = entry
 
             let input =
-                buildEmitInput generatedTypeNames generatedFullNames uiElementFullNames emittedDPsPerType versionGuards outputNamespace assemblyInfo entry
+                buildEmitInput
+                    generatedTypeNames
+                    generatedFullNames
+                    uiElementFullNames
+                    emittedDPsPerType
+                    versionGuards
+                    outputNamespace
+                    assemblyInfo
+                    entry
 
             if
                 input.OwnDPs.Length > 0

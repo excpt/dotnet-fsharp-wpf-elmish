@@ -178,18 +178,13 @@ let ``findAllDependencyObjectSubtypes includes DataGridColumn (DO not UIElement)
     use ctx = AssemblyInspector.createContext runtimeDir []
     let assembly = ctx.LoadFromAssemblyPath(pfPath)
 
-    let doTypes =
-        AssemblyInspector.findAllDependencyObjectSubtypes ctx [ assembly ]
+    let doTypes = AssemblyInspector.findAllDependencyObjectSubtypes ctx [ assembly ]
 
     let uiTypes = AssemblyInspector.findAllUIElementSubtypes ctx [ assembly ]
 
-    doTypes
-    |> List.exists (fun t -> t.Name = "DataGridColumn")
-    |> should be True
+    doTypes |> List.exists (fun t -> t.Name = "DataGridColumn") |> should be True
 
-    uiTypes
-    |> List.exists (fun t -> t.Name = "DataGridColumn")
-    |> should be False
+    uiTypes |> List.exists (fun t -> t.Name = "DataGridColumn") |> should be False
 
 [<Fact>]
 let ``findAllDependencyObjectSubtypes is a superset of findAllUIElementSubtypes`` () =
@@ -224,8 +219,7 @@ let ``computeReachableDOTypes pulls DataGridColumn in via DataGrid.Columns`` () 
     let coreAsm =
         ctx.LoadFromAssemblyPath(Path.Combine(runtimeDir, "PresentationCore.dll"))
 
-    let baseAsm =
-        ctx.LoadFromAssemblyPath(Path.Combine(runtimeDir, "WindowsBase.dll"))
+    let baseAsm = ctx.LoadFromAssemblyPath(Path.Combine(runtimeDir, "WindowsBase.dll"))
 
     let allDO =
         AssemblyInspector.findAllDependencyObjectSubtypes ctx [ assembly; coreAsm; baseAsm ]
@@ -233,7 +227,8 @@ let ``computeReachableDOTypes pulls DataGridColumn in via DataGrid.Columns`` () 
     let seed =
         AssemblyInspector.findAllUIElementSubtypes ctx [ assembly; coreAsm; baseAsm ]
 
-    let reachable = FSharp.Windows.Dsl.Codegen.Program.computeReachableDOTypes allDO seed
+    let reachable =
+        FSharp.Windows.Dsl.Codegen.Program.computeReachableDOTypes allDO seed
 
     // DataGridColumn is a non-UIElement DO reached via DataGrid.Columns (collection)
     reachable
@@ -269,9 +264,7 @@ let ``discoverDPs finds CanUserSort on DataGridColumn`` () =
     let dgcType = assembly.GetType("System.Windows.Controls.DataGridColumn")
     let dps = AssemblyInspector.discoverDPs dgcType
 
-    dps
-    |> List.exists (fun dp -> dp.Name = "CanUserSort")
-    |> should be True
+    dps |> List.exists (fun dp -> dp.Name = "CanUserSort") |> should be True
 
 [<Fact>]
 let ``discoverAllEvents has no duplicates`` () =

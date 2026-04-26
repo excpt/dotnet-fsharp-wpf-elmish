@@ -279,8 +279,10 @@ let private emitModule (sb: StringBuilder) (input: EmitControlInput) =
         seq {
             for dp in input.OwnDPs do
                 yield toCamelCase dp.CaseName
+
             for ev in input.OwnEvents do
                 yield toCamelCase ev.CaseName
+
             for h in input.InheritedHelpers do
                 yield h.FnName
         }
@@ -321,7 +323,9 @@ let private emitModule (sb: StringBuilder) (input: EmitControlInput) =
     // Collection helpers — for auto-initialized DO-element CLR collections (GridControl.Columns).
     // Materializer/Reconciler reflect the named property and add materialized children.
     for col in collectionPropsToEmit do
-        sb.AppendLine($"    let {col.FnName} (cs: VirtualNode list) : obj = box (CollectionProp(\"{col.PropertyName}\", cs))")
+        sb.AppendLine(
+            $"    let {col.FnName} (cs: VirtualNode list) : obj = box (CollectionProp(\"{col.PropertyName}\", cs))"
+        )
         |> ignore
 
     if not collectionPropsToEmit.IsEmpty then

@@ -187,8 +187,6 @@ let ``materialize DataGrid with columns populates Columns collection`` () =
         let dg = el :?> DataGrid
         dg.Columns.Count |> should equal 2
         dg.Columns.[0] |> should be instanceOfType<DataGridTextColumn>
-        (dg.Columns.[0] :?> DataGridTextColumn).Header :?> string
-        |> should equal "Name"
+        (dg.Columns.[0] :?> DataGridTextColumn).Header :?> string |> should equal "Name"
 
-        (dg.Columns.[1] :?> DataGridTextColumn).Header :?> string
-        |> should equal "Age")
+        (dg.Columns.[1] :?> DataGridTextColumn).Header :?> string |> should equal "Age")

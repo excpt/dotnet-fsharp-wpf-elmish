@@ -252,16 +252,22 @@ let discoverEvents (controlType: Type) : EventInfo list =
                 f.Name.Substring(0, f.Name.Length - "Event".Length)
             else
                 f.Name
+
         let clrEvent = controlType.GetEvent(eventName)
 
         let handlerType =
-            clrEvent |> Option.ofObj |> Option.bind (fun e -> Option.ofObj e.EventHandlerType)
+            clrEvent
+            |> Option.ofObj
+            |> Option.bind (fun e -> Option.ofObj e.EventHandlerType)
 
         { Name = eventName
           FieldName = f.Name
           OwnerTypeName = f.DeclaringType.Name
           OwnerTypeFullName =
-            if isNull f.DeclaringType.FullName then f.DeclaringType.Name else f.DeclaringType.FullName
+            if isNull f.DeclaringType.FullName then
+                f.DeclaringType.Name
+            else
+                f.DeclaringType.FullName
           HandlerTypeName =
             handlerType
             |> Option.map (fun ht -> if isNull ht.FullName then ht.Name else ht.FullName)
@@ -281,7 +287,10 @@ let discoverClrEvents (controlType: Type) (routedEventNames: Set<string>) : Even
           FieldName = ""
           OwnerTypeName = e.DeclaringType.Name
           OwnerTypeFullName =
-            if isNull e.DeclaringType.FullName then e.DeclaringType.Name else e.DeclaringType.FullName
+            if isNull e.DeclaringType.FullName then
+                e.DeclaringType.Name
+            else
+                e.DeclaringType.FullName
           IsStandardDelegate = isStandardEventDelegate e.EventHandlerType
           IsObsolete =
             hasObsoleteAttribute (e :> MemberInfo)

@@ -243,11 +243,12 @@ let ``emitControlFile emits VirtualNode case and materialize for DO-valued DP`` 
 
     output |> should haveSubstring "| View of VirtualNode"
 
-    output
-    |> should haveSubstring "let view v : obj = box (GridControlProp.View v)"
+    output |> should haveSubstring "let view v : obj = box (GridControlProp.View v)"
 
     output
-    |> should haveSubstring "| GridControlProp.View v -> el.SetValue(DevExpress.Xpf.Grid.GridControl.ViewProperty, Materializer.materialize v |> box)"
+    |> should
+        haveSubstring
+        "| GridControlProp.View v -> el.SetValue(DevExpress.Xpf.Grid.GridControl.ViewProperty, Materializer.materialize v |> box)"
 
 [<Fact>]
 let ``emitControlFile emits collection helper for CLR collection property`` () =
