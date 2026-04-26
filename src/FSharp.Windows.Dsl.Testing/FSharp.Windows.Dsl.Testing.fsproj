@@ -1,10 +1,17 @@
 <Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
-        <TargetFramework>net8.0-windows</TargetFramework>
+        <!-- net472 is the floor here: xunit.v3 (via FsUnit.xUnit) does not support net461. -->
+        <TargetFrameworks>net472;net8.0-windows;net9.0-windows;net10.0-windows</TargetFrameworks>
         <UseWPF>true</UseWPF>
         <IsTestProject>false</IsTestProject>
         <IsPackable>true</IsPackable>
         <Description>Testing toolkit for FSharp.Windows.Dsl — TestProgram, CmdTest, VirtualTree queries</Description>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(TargetFramework)' == 'net472'">
+        <!-- Solution defines x86/x64 platforms; downstream Exe consumers cross-reference
+             our net472 build with a RID. Declare the RIDs we restore for so the assets
+             file has matching targets. -->
+        <RuntimeIdentifiers>win;win-x86;win-x64</RuntimeIdentifiers>
     </PropertyGroup>
     <ItemGroup>
         <Compile Include="CmdTest.fs" />

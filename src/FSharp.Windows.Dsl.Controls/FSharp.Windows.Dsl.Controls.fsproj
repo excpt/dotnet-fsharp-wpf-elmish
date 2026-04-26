@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
-        <TargetFramework>net8.0-windows</TargetFramework>
+        <TargetFrameworks>net461;net8.0-windows;net9.0-windows;net10.0-windows</TargetFrameworks>
         <UseWPF>true</UseWPF>
         <Description>Generated WPF control wrappers for FSharp.Windows.Dsl</Description>
     </PropertyGroup>

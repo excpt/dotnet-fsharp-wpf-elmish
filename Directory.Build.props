@@ -8,6 +8,7 @@
         <PackageTags>fsharp;wpf;elmish;mvu;dsl;functional</PackageTags>
         <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
         <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+        <LangVersion>latest</LangVersion>
         <Version>0.2.0</Version>
 
         <!-- Source Link: enables stepping into source when debugging NuGet packages -->
@@ -20,6 +21,10 @@
     <ItemGroup>
         <PackageReference Include="FSharp.Core" />
         <PackageReference Include="Microsoft.SourceLink.GitHub" PrivateAssets="All" />
+    </ItemGroup>
+
+    <ItemGroup Condition="'$(TargetFrameworkIdentifier)' == '.NETFramework'">
+        <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" PrivateAssets="All" />
     </ItemGroup>
 
     <ItemGroup>

@@ -9,7 +9,13 @@
         <PackageVersion Include="Microsoft.SourceLink.GitHub" Version="10.0.102"/>
 
         <!-- Core -->
-        <PackageVersion Include="FSharp.Core" Version="11.0.100"/>
+        <PackageVersion Include="FSharp.Core" Version="10.1.203"/>
+
+        <!-- .NET Framework targeting (reference assemblies for net4x builds on machines without VS) -->
+        <PackageVersion Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.3"/>
+
+        <!-- BCL fillers needed only on .NET Framework targets -->
+        <PackageVersion Include="System.Text.Json" Version="8.0.5"/>
 
         <!-- Elmish -->
         <PackageVersion Include="Elmish" Version="4.2.0"/>
