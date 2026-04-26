@@ -9,7 +9,7 @@
         <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
         <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
         <LangVersion>latest</LangVersion>
-        <Version>0.2.0</Version>
+        <Version>0.3.0</Version>
 
         <!-- Source Link: enables stepping into source when debugging NuGet packages -->
         <PublishRepositoryUrl>true</PublishRepositoryUrl>
