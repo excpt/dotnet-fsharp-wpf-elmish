@@ -24,6 +24,13 @@ dotnet build
 dotnet test
 ```
 
+`global.json` switches `dotnet test` to the Microsoft.Testing.Platform runner —
+required, because the suites are xunit.v3 and the SDK's default VSTest path
+finds no adapter, runs nothing, and exits 0. Do not remove it. For the same
+reason `FSharp.Windows.Dsl.Testing` sets `IsTestingPlatformApplication=false`:
+it pulls xunit.v3 through FsUnit, so without it the runner treats that library
+as a suite and crashes on the platform handshake.
+
 Always run `dotnet test` at the solution root. Do not run individual test projects.
 
 ### Formatting

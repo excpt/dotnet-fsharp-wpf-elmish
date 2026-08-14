@@ -4,6 +4,10 @@
         <TargetFrameworks>net472;net8.0-windows;net9.0-windows;net10.0-windows</TargetFrameworks>
         <UseWPF>true</UseWPF>
         <IsTestProject>false</IsTestProject>
+        <!-- Pulls xunit.v3 through FsUnit, which would otherwise make this library look
+             like a test executable to `dotnet test` — it would launch it and hang on the
+             Microsoft.Testing.Platform handshake. It is a toolkit, not a suite. -->
+        <IsTestingPlatformApplication>false</IsTestingPlatformApplication>
         <IsPackable>true</IsPackable>
         <Description>Testing toolkit for FSharp.Windows.Dsl — TestProgram, CmdTest, VirtualTree queries</Description>
     </PropertyGroup>
