@@ -1,9 +1,19 @@
 module FSharp.Windows.Dsl.Elmish.Tests.AppBusTests
 
+open System.Diagnostics
 open System.Threading
 open Xunit
 open FsUnit.Xunit
 open FSharp.Windows.Dsl.Elmish
+
+/// The bus hands messages to a MailboxProcessor, so delivery is asynchronous.
+/// Wait for the effect rather than guessing how long it takes — a fixed sleep
+/// is a bet on machine speed, and CI is slower than a dev box on a cold start.
+let private waitFor (condition: unit -> bool) =
+    let sw = Stopwatch.StartNew()
+
+    while not (condition ()) && sw.ElapsedMilliseconds < 5000L do
+        Thread.Sleep 5
 
 // --- Publish / Subscribe ---
 
@@ -14,7 +24,7 @@ let ``subscriber receives published message`` () =
     use _ = bus.Subscribe(received.Add)
 
     bus.Publish "hello"
-    Thread.Sleep 50
+    waitFor (fun () -> received.Count = 1)
 
     received |> Seq.toList |> should equal [ "hello" ]
 
@@ -27,7 +37,7 @@ let ``multiple subscribers all receive message`` () =
     use _ = bus.Subscribe(received2.Add)
 
     bus.Publish "msg"
-    Thread.Sleep 50
+    waitFor (fun () -> received1.Count = 1 && received2.Count = 1)
 
     received1 |> Seq.toList |> should equal [ "msg" ]
     received2 |> Seq.toList |> should equal [ "msg" ]
@@ -41,7 +51,7 @@ let ``subscriber receives multiple messages in order`` () =
     bus.Publish "a"
     bus.Publish "b"
     bus.Publish "c"
-    Thread.Sleep 50
+    waitFor (fun () -> received.Count = 3)
 
     received |> Seq.toList |> should equal [ "a"; "b"; "c" ]
 
@@ -51,15 +61,20 @@ let ``subscriber receives multiple messages in order`` () =
 let ``disposed subscriber does not receive messages`` () =
     let bus = AppBus()
     let received = ResizeArray()
+    // Stays subscribed for the whole test: one agent handles messages in order,
+    // so once the probe has seen a message, every subscriber has had its turn.
+    // That is how absence gets asserted without sleeping and hoping.
+    let probe = ResizeArray()
+    use _ = bus.Subscribe(probe.Add)
     let sub = bus.Subscribe(received.Add)
 
     bus.Publish "before"
-    Thread.Sleep 50
+    waitFor (fun () -> received.Count = 1)
 
     sub.Dispose()
 
     bus.Publish "after"
-    Thread.Sleep 50
+    waitFor (fun () -> probe.Count = 2)
 
     received |> Seq.toList |> should equal [ "before" ]
 
@@ -72,12 +87,12 @@ let ``disposing one subscriber does not affect others`` () =
     use _ = bus.Subscribe(received2.Add)
 
     bus.Publish "first"
-    Thread.Sleep 50
+    waitFor (fun () -> received1.Count = 1 && received2.Count = 1)
 
     sub1.Dispose()
 
     bus.Publish "second"
-    Thread.Sleep 50
+    waitFor (fun () -> received2.Count = 2)
 
     received1 |> Seq.toList |> should equal [ "first" ]
     received2 |> Seq.toList |> should equal [ "first"; "second" ]
@@ -88,7 +103,6 @@ let ``disposing one subscriber does not affect others`` () =
 let ``publish with no subscribers does not throw`` () =
     let bus = AppBus()
     bus.Publish "orphan"
-    Thread.Sleep 50
 // should not throw
 
 // --- Double dispose ---

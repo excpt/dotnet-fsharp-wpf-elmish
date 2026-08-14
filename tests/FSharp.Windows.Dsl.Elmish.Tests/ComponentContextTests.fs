@@ -41,6 +41,14 @@ let ``IWindowService.OpenChild calls spawn function`` () =
     svc.OpenChild(fun _ -> ())
     spawned |> should be True
 
+/// Bus delivery is asynchronous (MailboxProcessor), so wait for the effect
+/// instead of sleeping a fixed amount and hoping the machine kept up.
+let private waitFor (condition: unit -> bool) =
+    let sw = System.Diagnostics.Stopwatch.StartNew()
+
+    while not (condition ()) && sw.ElapsedMilliseconds < 5000L do
+        System.Threading.Thread.Sleep 5
+
 // --- ComponentContext ---
 
 [<Fact>]
@@ -55,7 +63,7 @@ let ``ComponentContext bundles service and bus`` () =
     let received = ResizeArray()
     use _ = ctx.Bus.Subscribe(received.Add)
     ctx.Bus.Publish "test"
-    System.Threading.Thread.Sleep 50
+    waitFor (fun () -> received.Count = 1)
     received |> Seq.toList |> should equal [ "test" ]
 
 [<Fact>]
@@ -68,5 +76,5 @@ let ``ComponentContext with typed AppBus`` () =
     let received = ResizeArray()
     use _ = ctx.Bus.Subscribe(received.Add)
     ctx.Bus.Publish 42
-    System.Threading.Thread.Sleep 50
+    waitFor (fun () -> received.Count = 1)
     received |> Seq.toList |> should equal [ 42 ]
