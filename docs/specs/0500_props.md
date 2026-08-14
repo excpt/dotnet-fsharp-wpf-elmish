@@ -77,6 +77,22 @@ let applyButtonProp (el: Button) prop =
 `applyFrameworkElementProp` exists **once**. Every control reuses it via delegation.
 Each apply function exists once per hierarchy level. The type system ensures correct setters.
 
+### Dispatch — Finding the Apply That Owns a Prop
+
+Props reach `Materializer` boxed, so which registered apply handles one is a
+runtime question. `Materializer.registerApply` registers an apply per element
+type; the registered function casts the boxed prop to the DU it handles, so a
+prop belonging to a base type fails that cast and the search moves one level up
+the element's hierarchy. `FrameworkElementProp` landing on a `Button` this way
+is the normal case, not the exception.
+
+That search is a caught `InvalidCastException` per level tried, which costs
+roughly 17 us — two orders of magnitude more than the apply itself. Since a
+prop DU belongs to exactly one control type, the answer never changes: the
+owning element type is resolved once per prop type and cached, and later
+applies are a dictionary lookup plus an assignability check. Registering an
+apply clears the cache, so hot reload re-registration still takes effect.
+
 ## What Gets Generated — Four Things Per Control
 
 For each control the codegen tool emits exactly four blocks:

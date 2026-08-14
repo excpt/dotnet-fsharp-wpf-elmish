@@ -29,6 +29,20 @@ This file is automatically updated by [versionize](https://github.com/versionize
   captured as setters (constructor-set defaults are excluded). Children,
   event handlers, collection and resource props are rejected.
 
+### Performance
+
+- **Prop dispatch resolves once instead of throwing on every apply.** Finding
+  which registered apply owns a prop worked by trying the element's own type
+  and walking up the hierarchy on the caught `InvalidCastException` — so every
+  prop declared on a base type (`margin`, `width`, `background`, anything on
+  `FrameworkElement` or `Control`) paid an exception on *every* apply, and a
+  prop nothing handles paid one per level. The owner is now resolved once per
+  prop type and remembered. Measured on 200 elements x 6 props: an inherited
+  prop apply 17.0 us -> 0.31 us, an unhandled prop 50.5 us -> 0.04 us,
+  materializing the tree 15.4 ms -> 3.6 ms. A prop declared on the element's
+  own type costs 0.15 us more than before (0.10 -> 0.25 us) — the lookup that
+  buys the rest.
+
 ## [0.3.0] — 2026-04-26
 
 ### Added

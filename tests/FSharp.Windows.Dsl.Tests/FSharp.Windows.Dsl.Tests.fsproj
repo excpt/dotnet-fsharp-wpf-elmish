@@ -8,6 +8,7 @@
     <ItemGroup>
         <Compile Include="VirtualTreeTests.fs" />
         <Compile Include="VirtualTreeQueryTests.fs" />
+        <Compile Include="PropDispatchTests.fs" />
     </ItemGroup>
     <ItemGroup>
         <PackageReference Include="xunit.v3" />
