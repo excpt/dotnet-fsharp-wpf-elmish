@@ -7,67 +7,102 @@ open System.Reflection
 open System.Windows
 open System.Windows.Controls
 
+/// Something the materializer could not apply. Applying is best-effort by
+/// design — a wrong prop must not take a live window down — so what did not
+/// land is recorded here rather than discarded.
+type PropDiagnostic =
+    /// No registration handles this prop type at all: a value that is not a
+    /// prop (a partially applied helper is the usual culprit), or a control
+    /// package whose Registration.register() was never called.
+    | UnappliedProp of elementType: Type * propType: Type
+    /// A real prop, but one belonging to a control type this element is not.
+    | PropNotForElement of elementType: Type * propType: Type * ownerType: Type
+    /// A CLR member named by NodeProp or CollectionProp that cannot take it.
+    | UnusableMember of elementType: Type * name: string * reason: string
+
+    override this.ToString() =
+        match this with
+        | UnappliedProp(el, prop) ->
+            $"nothing applies {prop.Name} to {el.Name} — not a prop, or its package is not registered"
+        | PropNotForElement(el, prop, owner) -> $"{prop.Name} belongs to {owner.Name}, not to {el.Name}"
+        | UnusableMember(el, name, reason) -> $"{el.Name}.{name} cannot be set: {reason}"
+
 module Materializer =
-    let private applyRegistry =
-        ConcurrentDictionary<Type, DependencyObject -> obj -> unit>()
 
-    let private noApply: DependencyObject -> obj -> unit = fun _ _ -> ()
-
-    /// Which element type owns the apply for a prop type, and that apply — the
-    /// type is null when no registration handles the prop at all. A prop DU
-    /// belongs to exactly one control type, so the prop type alone is the key;
-    /// whether a given element can receive it is a hierarchy check at the call
-    /// site.
+    /// Which element type owns a prop type, and the apply that sets it. Every
+    /// registration declares both types, so this is exact: a prop type absent
+    /// here is one nothing can apply.
     let private owner =
         ConcurrentDictionary<Type, Type * (DependencyObject -> obj -> unit)>()
 
+    let private seen = ConcurrentDictionary<PropDiagnostic, unit>()
+
+    /// Fail instead of ignoring a prop or member nothing can apply. Off by
+    /// default — a mistyped prop should not take a live window down — but worth
+    /// turning on in development and in tests, where silence is the worse
+    /// outcome.
+    let mutable strictProps = false
+
+    /// Everything the materializer could not apply since the last clear, each
+    /// recorded once. A prop reaching here silently is the failure mode this
+    /// exists to expose: a wrong prop shape in a list, a mistyped member name,
+    /// or a control package whose Registration.register() was never called.
+    let diagnostics () = seen.Keys |> List.ofSeq
+
+    let clearDiagnostics () = seen.Clear()
+
+    let internal report (d: PropDiagnostic) =
+        if strictProps then
+            failwith (string d)
+
+        if seen.TryAdd(d, ()) then
+            Diagnostics.Debug.WriteLine($"[FSharp.Windows.Dsl] {d}")
+
     /// Register an apply function for a control type.
     let registerApply<'el, 'prop when 'el :> DependencyObject> (apply: 'el -> 'prop -> unit) =
-        applyRegistry.[typeof<'el>] <- fun (el: DependencyObject) (prop: obj) -> apply (el :?> 'el) (prop :?> 'prop)
-        owner.Clear() // a new registration can change who owns a prop type
+        owner.[typeof<'prop>] <-
+            (typeof<'el>, (fun (el: DependencyObject) (prop: obj) -> apply (el :?> 'el) (prop :?> 'prop)))
 
-    /// Walk up the type hierarchy applying the prop, and report which level
-    /// accepted it. A level is rejected by the cast in its apply throwing, so
-    /// finding the owner costs one exception per level tried.
-    let rec private applyAndFindOwner
-        (el: DependencyObject)
-        (elType: Type)
-        (prop: obj)
-        : Type * (DependencyObject -> obj -> unit) =
-        if isNull elType then
-            (null, noApply)
+    /// The owner registered for a prop type. A multi-case DU compiles each case
+    /// to its own nested subtype, so what arrives boxed is the case type and the
+    /// registration is against the DU — walk up to find it, then remember the
+    /// answer under the case type so later props of that case are one lookup.
+    let rec private resolveOwner (propType: Type) =
+        if isNull propType then
+            None
         else
-            match applyRegistry.TryGetValue(elType) with
-            | true, apply ->
-                try
-                    apply el prop
-                    (elType, apply)
-                with :? InvalidCastException ->
-                    applyAndFindOwner el elType.BaseType prop
-            | _ -> applyAndFindOwner el elType.BaseType prop
+            match owner.TryGetValue(propType) with
+            | true, found -> Some found
+            | _ ->
+                match resolveOwner propType.BaseType with
+                | Some found ->
+                    owner.[propType] <- found
+                    Some found
+                | None -> None
+
+    /// The element type that owns a prop type, if any registration does.
+    /// Answers "would this prop apply?" without an element to apply it to.
+    let tryOwnerOf (propType: Type) : Type option = resolveOwner propType |> Option.map fst
 
     /// Apply a prop to an element whose type hierarchy starts at elType.
-    /// FrameworkElementProp reaching a Button this way is the normal case, not
-    /// the exception — so who owns a prop type is resolved once and remembered.
-    /// Without that, every inherited prop pays a caught InvalidCastException on
-    /// every single apply (measured 17us against 0.3us for a cached lookup).
+    /// A prop type maps to exactly one element type, so dispatch is a lookup:
+    /// FrameworkElementProp reaching a Button is the ordinary case, and finding
+    /// that out must not cost an exception.
     let tryApplyProp (el: DependencyObject) (elType: Type) (prop: obj) =
         if isNull elType || isNull prop then
             ()
         else
             let propType = prop.GetType()
 
-            match owner.TryGetValue(propType) with
-            | true, (level, apply) ->
-                // The element's own type is the common case — a reference
-                // compare settles it before the hierarchy check. A null level
-                // means no registration handles this prop at all.
-                if
-                    not (isNull level)
-                    && (Object.ReferenceEquals(level, elType) || level.IsAssignableFrom elType)
-                then
+            match resolveOwner propType with
+            | Some(ownerType, apply) ->
+                // Own-type props are the common case — a reference compare
+                // settles those before the hierarchy check.
+                if Object.ReferenceEquals(ownerType, elType) || ownerType.IsAssignableFrom elType then
                     apply el prop
-            | _ -> owner.[propType] <- applyAndFindOwner el elType prop
+                else
+                    report (PropNotForElement(elType, propType, ownerType))
+            | None -> report (UnappliedProp(elType, propType))
 
     /// Apply a single prop to an element, using the type hierarchy fallback.
     let applyProp (el: DependencyObject) (prop: obj) = tryApplyProp el (el.GetType()) prop
@@ -137,37 +172,49 @@ module Materializer =
 
     /// Apply a collection prop: reflect the named CLR property on the parent, expect a
     /// non-generic IList (which IList<T> / ObservableCollection<T> implement), clear it
-    /// and add the materialized children. Silently ignores unknown property names or
-    /// non-IList collections — the codegen only emits CollectionProp for properties it
+    /// and add the materialized children. A name the parent cannot use is reported
+    /// rather than fatal — the codegen only emits CollectionProp for properties it
     /// already verified are auto-initialized list collections of DependencyObject.
     and applyCollectionProp (parent: DependencyObject) (name: string) (children: VirtualNode list) =
-        let prop =
-            parent.GetType().GetProperty(name, BindingFlags.Public ||| BindingFlags.Instance)
+        let elType = parent.GetType()
 
-        if not (isNull prop) && prop.CanRead then
+        let prop = elType.GetProperty(name, BindingFlags.Public ||| BindingFlags.Instance)
+
+        if isNull prop then
+            report (UnusableMember(elType, name, "no such property"))
+        elif not prop.CanRead then
+            report (UnusableMember(elType, name, "not readable"))
+        else
             match prop.GetValue(parent) with
             | :? IList as list ->
                 list.Clear()
 
                 for child in children do
                     list.Add(materialize child) |> ignore
-            | _ -> ()
+            | _ -> report (UnusableMember(elType, name, $"{prop.PropertyType.Name} is not an IList"))
 
     /// Apply a single-element prop: reflect the named CLR property on the parent
-    /// and assign the materialized node to it. Silently ignores unknown or
-    /// read-only names, and a node whose type the property cannot hold — the
-    /// same tolerance applyCollectionProp has, and for the same reason: the
-    /// property name is supplied by the caller rather than checked by the
-    /// codegen, so a wrong one should not take the window down.
+    /// and assign the materialized node to it. An unknown or read-only name, or a
+    /// node whose type the property cannot hold, is reported rather than fatal —
+    /// the same tolerance applyCollectionProp has, and for the same reason: the
+    /// property name is supplied by the caller rather than checked by the codegen,
+    /// so a wrong one should not take the window down. It should not vanish either.
     and applyNodeProp (parent: DependencyObject) (name: string) (node: VirtualNode) =
-        let prop =
-            parent.GetType().GetProperty(name, BindingFlags.Public ||| BindingFlags.Instance)
+        let elType = parent.GetType()
 
-        if not (isNull prop) && prop.CanWrite then
+        let prop = elType.GetProperty(name, BindingFlags.Public ||| BindingFlags.Instance)
+
+        if isNull prop then
+            report (UnusableMember(elType, name, "no such property"))
+        elif not prop.CanWrite then
+            report (UnusableMember(elType, name, "read-only"))
+        else
             let value = materialize node
 
             if prop.PropertyType.IsAssignableFrom(value.GetType()) then
                 prop.SetValue(parent, value)
+            else
+                report (UnusableMember(elType, name, $"{prop.PropertyType.Name} cannot hold a {value.GetType().Name}"))
 
     /// Recursively materialize a VirtualNode into a live WPF DependencyObject.
     and materialize (node: VirtualNode) : DependencyObject =

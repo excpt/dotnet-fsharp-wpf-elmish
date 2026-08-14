@@ -80,18 +80,38 @@ Each apply function exists once per hierarchy level. The type system ensures cor
 ### Dispatch — Finding the Apply That Owns a Prop
 
 Props reach `Materializer` boxed, so which registered apply handles one is a
-runtime question. `Materializer.registerApply` registers an apply per element
-type; the registered function casts the boxed prop to the DU it handles, so a
-prop belonging to a base type fails that cast and the search moves one level up
-the element's hierarchy. `FrameworkElementProp` landing on a `Button` this way
-is the normal case, not the exception.
+runtime question. `Materializer.registerApply<'el, 'prop>` answers it at
+registration time: it declares both types, so the prop type is the key and the
+element type is the value. Dispatch is one dictionary lookup plus a check that
+the element is of the owning type — `FrameworkElementProp` landing on a `Button`
+is the ordinary case and costs nothing extra.
 
-That search is a caught `InvalidCastException` per level tried, which costs
-roughly 17 us — two orders of magnitude more than the apply itself. Since a
-prop DU belongs to exactly one control type, the answer never changes: the
-owning element type is resolved once per prop type and cached, and later
-applies are a dictionary lookup plus an assignability check. Registering an
-apply clears the cache, so hot reload re-registration still takes effect.
+A multi-case DU compiles each case to a nested subtype, so what arrives boxed is
+the case type rather than the DU; the first prop of a case walks up to the DU's
+registration and the answer is remembered under the case type.
+
+> Dispatch used to work by *trying* the element's own apply and walking up the
+> hierarchy on the caught `InvalidCastException`. Every inherited prop — every
+> `margin`, `width`, `background` in the app — therefore threw on every apply,
+> at roughly 17 us against 0.3 us for a lookup. Registration knows both types;
+> nothing needs to be discovered by failing.
+
+### What Did Not Apply
+
+A prop no registration owns cannot be applied. That is silent by design — a
+wrong prop must not take a live window down — so it is recorded instead of
+discarded:
+
+- `Materializer.diagnostics ()` — every `PropDiagnostic` since the last clear,
+  each recorded once, also written to `Debug`.
+- `Materializer.strictProps <- true` — fail instead, for development and tests.
+- `Validate.tree node` — the same checks over a virtual tree, statically, with
+  nothing materialized. See `1400_testing.md`.
+
+The three cases: `UnappliedProp` (nothing owns this prop type — a value that is
+not a prop, or a package whose `Registration.register()` was never called),
+`PropNotForElement` (a real prop on the wrong control), and `UnusableMember`
+(a `NodeProp`/`CollectionProp` name the element cannot take).
 
 ## What Gets Generated — Four Things Per Control
 

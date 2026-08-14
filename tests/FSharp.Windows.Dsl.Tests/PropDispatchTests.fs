@@ -85,6 +85,58 @@ let ``a resolved prop keeps applying on later calls`` () =
         Materializer.applyProp other (box (SetBase "third"))
         other.BaseValue |> should equal "third")
 
+// --- Diagnostics: what nothing applied ---
+
+[<Fact>]
+let ``an unapplied prop is recorded, naming both types`` () =
+    runSta (fun () ->
+        register ()
+        Materializer.clearDiagnostics ()
+
+        let el = DerivedElement()
+        Materializer.applyProp el (box (Stranger "x"))
+
+        Materializer.diagnostics ()
+        |> should contain (UnappliedProp(typeof<DerivedElement>, typeof<StrangerProp>)))
+
+[<Fact>]
+let ``a prop that applied is not recorded`` () =
+    runSta (fun () ->
+        register ()
+        Materializer.clearDiagnostics ()
+
+        let el = DerivedElement()
+        Materializer.applyProp el (box (SetOwn "a"))
+        Materializer.applyProp el (box (SetBase "b"))
+
+        Materializer.diagnostics () |> should be Empty)
+
+[<Fact>]
+let ``the same unapplied prop is recorded once, not once per apply`` () =
+    runSta (fun () ->
+        register ()
+        Materializer.clearDiagnostics ()
+
+        let el = DerivedElement()
+
+        for _ in 1..5 do
+            Materializer.applyProp el (box (Stranger "x"))
+
+        Materializer.diagnostics () |> List.length |> should equal 1)
+
+[<Fact>]
+let ``strictProps turns an unapplied prop into a failure`` () =
+    runSta (fun () ->
+        register ()
+        Materializer.clearDiagnostics ()
+        Materializer.strictProps <- true
+
+        try
+            (fun () -> Materializer.applyProp (DerivedElement()) (box (Stranger "x")))
+            |> should throw typeof<exn>
+        finally
+            Materializer.strictProps <- false)
+
 [<Fact>]
 let ``a prop nothing in the hierarchy handles is ignored`` () =
     runSta (fun () ->
