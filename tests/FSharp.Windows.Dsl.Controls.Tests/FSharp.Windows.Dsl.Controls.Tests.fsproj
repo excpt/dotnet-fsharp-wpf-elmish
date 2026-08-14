@@ -12,6 +12,7 @@
         <Compile Include="StyleTests.fs" />
         <Compile Include="ResourceTests.fs" />
         <Compile Include="NodePropTests.fs" />
+        <Compile Include="ValidateTests.fs" />
         <Compile Include="ContextMenuTests.fs" />
         <Compile Include="ValidationTests.fs" />
     </ItemGroup>

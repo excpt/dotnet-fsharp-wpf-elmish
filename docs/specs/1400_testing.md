@@ -267,6 +267,39 @@ module CmdTest =
 
 ---
 
+## Validate — Catching What Would Silently Not Apply
+
+Ships in **FSharp.Windows.Dsl**. Applying props is best-effort at runtime: a prop
+nothing can apply is recorded, not thrown, so a live window survives a mistake.
+The cost of that tolerance is that the mistake is invisible until someone looks
+at the screen — unless a test looks first.
+
+`view` returns data, so the check needs no window, no STA thread, and no
+materialization:
+
+```fsharp
+[<Fact>]
+let ``view declares only props that apply`` () =
+    Registration.register ()
+
+    let tree = view { Count = 0 } ignore
+
+    Validate.tree tree |> should be Empty
+```
+
+It reports the same `PropDiagnostic` cases the materializer records:
+
+| Case | Means |
+|---|---|
+| `UnappliedProp` | Nothing owns this prop type — a value that is not a prop, or a control package whose `Registration.register()` was never called |
+| `PropNotForElement` | A real prop, on a control it does not belong to |
+| `UnusableMember` | A `NodeProp`/`CollectionProp` name the element cannot take — unknown, read-only, or the wrong type |
+
+Worth one assertion per view function. The runtime side of the same information
+is `Materializer.diagnostics ()`, and `Materializer.strictProps <- true` turns
+any of it into a failure — useful in a test run, and during development where
+hot reload is the designer.
+
 ## VirtualTree — View Assertion Queries
 
 Ships in **FSharp.Windows.Dsl** (not Testing) because it's useful at runtime too.
