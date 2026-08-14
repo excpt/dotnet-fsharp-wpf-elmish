@@ -88,6 +88,8 @@ module Reconciler =
             | :? AttachedProp as (AttachedProp(dp, value)) -> el.SetValue(dp, value)
             | :? CollectionProp as (CollectionProp(name, cs)) -> Materializer.applyCollectionProp el name cs
             | :? NodeProp as (NodeProp(name, child)) -> Materializer.applyNodeProp el name child
+            | :? ResourcesProp as (ResourcesProp entries) -> Materializer.applyResourceEntries el entries
+            | :? ResourceRefProp as (ResourceRefProp(dp, key)) -> Materializer.applyResourceReference el dp key
             | :? EventProp as (EventProp inner) -> Materializer.applyProp el inner
             | _ -> Materializer.applyProp el prop
 
@@ -102,6 +104,9 @@ module Reconciler =
         | :? CollectionProp as (CollectionProp(name, _)) -> ("CollectionProp", name) :> obj
         // Same reasoning: one type, many CLR properties, so the name is the slot.
         | :? NodeProp as (NodeProp(name, _)) -> ("NodeProp", name) :> obj
+        // Keyed apart from AttachedProp so a resource reference and a direct
+        // value on the same DP stay distinct slots.
+        | :? ResourceRefProp as (ResourceRefProp(dp, _)) -> ("ResourceRefProp", dp) :> obj
         | :? EventProp as (EventProp inner) -> inner.GetType() :> obj
         | _ -> p.GetType() :> obj
 
@@ -157,6 +162,16 @@ module Reconciler =
                 match oldMap.TryGetValue(propKey p) with
                 | true, (:? NodeProp as (NodeProp(_, oldChild))) when oldChild = child -> ()
                 | _ -> Materializer.applyNodeProp el name child
+            | :? ResourcesProp as (ResourcesProp entries) ->
+                match oldMap.TryGetValue(propKey p) with
+                | true, (:? ResourcesProp as (ResourcesProp oldEntries)) when oldEntries = entries -> ()
+                | true, (:? ResourcesProp as (ResourcesProp oldEntries)) ->
+                    Materializer.updateResourceEntries el oldEntries entries
+                | _ -> Materializer.applyResourceEntries el entries
+            | :? ResourceRefProp as (ResourceRefProp(dp, key)) ->
+                match oldMap.TryGetValue(propKey p) with
+                | true, (:? ResourceRefProp as (ResourceRefProp(_, oldKey))) when Object.Equals(oldKey, key) -> ()
+                | _ -> Materializer.applyResourceReference el dp key
             | _ ->
                 let key = propKey p
 

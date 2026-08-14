@@ -11,11 +11,24 @@ This file is automatically updated by [versionize](https://github.com/versionize
 
 ### Added
 
+- **Declarative resources.** `Resource.dictionary` puts entries into any
+  element's `ResourceDictionary` at materialize time, before children attach —
+  `Resource.named` for keyed values, `Resource.implicitStyle` for styles keyed
+  by their `TargetType` that apply to every element of that type in scope with
+  no reference on the elements. `Resource.styleRef` / `Resource.reference`
+  bind a property to a keyed resource via `SetResourceReference` (dynamic
+  lookup). The reconciler diffs a dictionary as one slot and touches only
+  changed keys, so stable entries never restyle the subtree.
 - **`Node.prop`.** The singular sibling of the collection props: a CLR property
   holding one element rather than a list of them — a vendor property typed
   `DependencyObject`, or typed `obj` but used as content. The node is
   materialized at apply time and compared structurally on update, so such a
   subtree stays inside the reconciler instead of being rebuilt every render.
+- **`Style.ofNode`.** Builds a `Style` from a virtual node — declare it
+  exactly like an element, with the same typed props, and whatever they set is
+  captured as setters (constructor-set defaults are excluded). Children,
+  event handlers, collection and resource props are rejected.
+
 ## [0.3.0] — 2026-04-26
 
 ### Added

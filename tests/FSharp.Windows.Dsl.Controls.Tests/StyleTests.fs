@@ -9,11 +9,26 @@ open FSharp.Windows.Dsl.Controls
 
 let private runSta f =
     let mutable result = Unchecked.defaultof<_>
-    let thread = System.Threading.Thread(fun () -> result <- f ())
+    let mutable exn: exn = null
+
+    let thread =
+        System.Threading.Thread(fun () ->
+            try
+                result <- f ()
+            with e ->
+                exn <- e)
+
     thread.SetApartmentState(System.Threading.ApartmentState.STA)
     thread.Start()
     thread.Join()
+
+    if not (isNull exn) then
+        raise exn
+
     result
+
+let private ensureRegistered = lazy (Registration.register ())
+let private register () = ensureRegistered.Force()
 
 // --- Style.create ---
 
@@ -97,3 +112,47 @@ let ``Style.applyImplicits registers multiple styles`` () =
         Style.applyImplicits resources [ btnStyle; tbStyle ]
         resources.[typeof<Button>] |> should equal btnStyle
         resources.[typeof<TextBlock>] |> should equal tbStyle)
+
+// --- Style.ofNode ---
+
+[<Fact>]
+let ``Style.ofNode captures listed and piped props as setters`` () =
+    runSta (fun () ->
+        register ()
+
+        let s =
+            Style.ofNode (
+                textBlock [ FSharp.Windows.Dsl.Controls.TextBlock.textWrapping TextWrapping.Wrap ]
+                |> FSharp.Windows.Dsl.Controls.TextBlock.fontSize 10.5
+                |> FSharp.Windows.Dsl.Controls.TextBlock.foreground Brushes.Red
+            )
+
+        s.TargetType |> should equal typeof<TextBlock>
+
+        let setter (dp: DependencyProperty) =
+            s.Setters
+            |> Seq.cast<Setter>
+            |> Seq.find (fun x -> x.Property = dp)
+            |> fun x -> x.Value
+
+        setter TextBlock.FontSizeProperty |> should equal (box 10.5)
+        setter TextBlock.ForegroundProperty |> should equal (box Brushes.Red)
+        setter TextBlock.TextWrappingProperty |> should equal (box TextWrapping.Wrap))
+
+[<Fact>]
+let ``Style.ofNode rejects children`` () =
+    runSta (fun () ->
+        register ()
+
+        (fun () -> Style.ofNode (stackPanel [ StackPanel.children [ textBlock [] ] ]) |> ignore)
+        |> should throw typeof<System.ArgumentException>)
+
+[<Fact>]
+let ``Style.ofNode rejects event handlers`` () =
+    runSta (fun () ->
+        register ()
+
+        (fun () ->
+            Style.ofNode (button [ Button.onClick (RoutedEventHandler(fun _ _ -> ())) ])
+            |> ignore)
+        |> should throw typeof<System.ArgumentException>)

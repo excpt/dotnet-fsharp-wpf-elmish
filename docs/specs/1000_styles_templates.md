@@ -28,39 +28,73 @@ ever created.
 
 ## Styles
 
-### Implicit Styles — Apply to All Controls of a Type
+### Declaring a Style — `Style.ofNode`
 
-Set once at app startup:
+A style is declared exactly like an element, with the same typed props; what
+they set is captured as setters. No `Setter`/`DependencyProperty` tuples in
+application code:
 
 ```fsharp
-module Styles =
-    let buttonStyle =
-        let s = Style(typeof<Button>)
-        s.Setters.Add(Setter(Control.BackgroundProperty, Brushes.DodgerBlue))
-        s.Setters.Add(Setter(Control.PaddingProperty, Thickness(8.0, 4.0, 8.0, 4.0)))
-        s
-
-    let apply (app: Application) =
-        app.Resources.[typeof<Button>] <- buttonStyle
+let cap =
+    Style.ofNode (textBlock [] |> TextBlock.fontSize 10.5 |> TextBlock.foreground Brushes.Gray)
 ```
 
-### Explicit Styles — On Individual Elements
+Children, event handlers, collection and resource props are rejected — a
+style carries values, not behaviour. Requires the control package's
+`Registration.register()`, like materializing the node would.
+
+Define styles as module values: the reconciler compares props by reference,
+and a stable `Style` instance is what keeps resource diffs quiet.
+
+(`Style.create` / `Style.createFor` / `Style.basedOn` remain for building
+from raw `(DependencyProperty, obj)` pairs where that is more direct.)
+
+### Loading Styles — `Resource.dictionary` on an Element
+
+Resources are declared in the tree, typically on the window, and found by
+every element below — the way vendor themes are loaded rather than applied
+per element. Entries are merged before children attach, so implicit styles
+are in place when the subtree materializes:
 
 ```fsharp
-module Style =
-    let create (setters: (DependencyProperty * obj) list) =
-        let s = Style()
-        setters |> List.iter (fun (prop, value) -> s.Setters.Add(Setter(prop, value)))
-        s
-
-Button.create [
-    Button.style (Style.create [
-        Control.BackgroundProperty, box Brushes.Red
-        Control.PaddingProperty,    box (Thickness 8.0)
-    ])
-    Button.content "Delete"
+window [
+    Resource.dictionary [
+        Resource.implicitStyle body          // keyed by TargetType — applies to
+                                             // every TextBlock in scope, no
+                                             // reference on the elements
+        Resource.named "Cap" cap             // keyed style
+        Resource.named "Accent" accentBrush  // any keyed value
+    ]
+    ...
 ]
 ```
+
+The reconciler diffs the dictionary as one slot per element and touches only
+changed keys: removed keys are cleared, changed values re-set, stable entries
+left alone.
+
+### Referencing Styles
+
+Directly, when the style is a known module value (compile-checked):
+
+```fsharp
+textBlock [ TextBlock.text "Saldo"; TextBlock.style cap ]
+```
+
+By key, when the value should follow the dictionary (dynamic lookup via
+`SetResourceReference` — a swapped dictionary re-resolves it):
+
+```fsharp
+textBlock [ TextBlock.text "Saldo"; Resource.styleRef "Cap" ]
+scrollViewer [ Resource.reference Control.BackgroundProperty "Accent" ]
+```
+
+### Template boundary
+
+Implicit styles for non-`Control` types (TextBlock, Border, …) do not reach
+inside other controls' ControlTemplates — vendor chrome stays themed by the
+vendor. That is the correct division of labour: third-party theming belongs
+to the vendor's own mechanism, element styling to these resources.
 
 ## Triggers — Replaced by Model
 
@@ -83,9 +117,9 @@ WPF built-in visual states (hover, pressed, focused) still work via
 In a code-first DSL you define visual structure directly. `ControlTemplate` is only
 relevant when creating custom reusable controls — not in application-level code.
 
-## ResourceDictionary — App Startup, Outside DSL
+## Vendor Theming — App Startup, Outside DSL
 
-Third-party theming and merged dictionaries live outside the DSL entirely:
+Third-party theme engines keep their own loading path:
 
 ```fsharp
 let setupResources (app: Application) =
@@ -98,15 +132,16 @@ let setupResources (app: Application) =
     app.Resources.MergedDictionaries.Add(dict)
 ```
 
-DevExpress themes, Telerik themes — set up exactly as today. DSL does not touch them.
+DevExpress themes, Telerik themes — set up exactly as today. `Resource.*` is
+for the application's own vocabulary on top of them.
 
 ## Summary
 
 | XAML concept | DSL equivalent |
 |---|---|
 | `DataTemplate` | F# function `'T -> VirtualNode` |
-| Implicit `Style` | Code-built `Style` in `Application.Resources` |
-| Explicit `Style` | `Style` prop accepting pre-built `Style` object |
+| Implicit `Style` | `Resource.implicitStyle` in an element's `Resource.dictionary` |
+| Explicit `Style` | `Style.ofNode`, referenced via `style` prop or `Resource.styleRef` |
 | `ControlTemplate` | Used by custom control authors only |
 | `Trigger` | Derive appearance from model in `view` function |
-| `ResourceDictionary` | App startup code, outside DSL |
+| `ResourceDictionary` | `Resource.dictionary` on any element; vendor themes at app startup |

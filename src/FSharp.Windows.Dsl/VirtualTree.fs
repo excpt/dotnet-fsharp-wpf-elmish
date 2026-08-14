@@ -50,6 +50,16 @@ type CollectionProp = CollectionProp of name: string * children: VirtualNode lis
 /// CollectionProp, compared structurally on update: an equal node is no work.
 type NodeProp = NodeProp of name: string * node: VirtualNode
 
+/// Resource entries merged into the element's ResourceDictionary at materialize
+/// time, before children attach — so implicit styles and keyed resources are
+/// already in place when the subtree resolves them. One per element: the
+/// reconciler diffs it as a single slot, updating only changed keys.
+type ResourcesProp = ResourcesProp of entries: (obj * obj) list
+
+/// A dependency property bound to a keyed resource via SetResourceReference —
+/// WPF's dynamic lookup, so the value follows the dictionary it resolves from.
+type ResourceRefProp = ResourceRefProp of System.Windows.DependencyProperty * key: obj
+
 /// Elements that live in a property rather than in the content model.
 [<RequireQualifiedAccess>]
 module Node =
@@ -60,6 +70,29 @@ module Node =
     /// of materializing by hand: that way the subtree stays inside the
     /// reconciler and is skipped when it has not changed.
     let prop (name: string) (node: VirtualNode) : obj = box (NodeProp(name, node))
+
+/// Declarative ResourceDictionary support: resources defined once at a scope —
+/// typically the window — and found by every element below it, the way vendor
+/// themes are loaded rather than applied per element.
+[<RequireQualifiedAccess>]
+module Resource =
+
+    /// The element's resource entries. One per element.
+    let dictionary (entries: (obj * obj) list) : obj = box (ResourcesProp entries)
+
+    /// A keyed resource entry.
+    let named (key: string) (value: 'a) : obj * obj = (box key, box value)
+
+    /// An implicit style entry, keyed by its TargetType: applies to every
+    /// element of that type in scope, with no reference on the elements.
+    let implicitStyle (style: System.Windows.Style) : obj * obj = (box style.TargetType, box style)
+
+    /// Bind a dependency property to a keyed resource (dynamic lookup).
+    let reference (dp: System.Windows.DependencyProperty) (key: string) : obj = box (ResourceRefProp(dp, box key))
+
+    /// Bind the element's Style to a keyed style resource.
+    let styleRef (key: string) : obj =
+        box (ResourceRefProp(System.Windows.FrameworkElement.StyleProperty, box key))
 
 module VirtualTree =
     /// Generate a stable position-based internal ID for reconciler matching.
