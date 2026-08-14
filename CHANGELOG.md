@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 This file is automatically updated by [versionize](https://github.com/versionize/versionize).
 
-## [Unreleased]
+## [0.4.0] — 2026-08-14
 
 ### Changed — BREAKING
 
