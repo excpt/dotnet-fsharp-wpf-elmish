@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 This file is automatically updated by [versionize](https://github.com/versionize/versionize).
 
+## [Unreleased]
+
+### Added
+
+- **`Node.prop`.** The singular sibling of the collection props: a CLR property
+  holding one element rather than a list of them — a vendor property typed
+  `DependencyObject`, or typed `obj` but used as content. The node is
+  materialized at apply time and compared structurally on update, so such a
+  subtree stays inside the reconciler instead of being rebuilt every render.
 ## [0.3.0] — 2026-04-26
 
 ### Added

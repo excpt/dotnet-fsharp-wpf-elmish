@@ -87,6 +87,7 @@ module Reconciler =
             match prop with
             | :? AttachedProp as (AttachedProp(dp, value)) -> el.SetValue(dp, value)
             | :? CollectionProp as (CollectionProp(name, cs)) -> Materializer.applyCollectionProp el name cs
+            | :? NodeProp as (NodeProp(name, child)) -> Materializer.applyNodeProp el name child
             | :? EventProp as (EventProp inner) -> Materializer.applyProp el inner
             | _ -> Materializer.applyProp el prop
 
@@ -99,6 +100,8 @@ module Reconciler =
         match p with
         | :? AttachedProp as (AttachedProp(dp, _)) -> dp :> obj
         | :? CollectionProp as (CollectionProp(name, _)) -> ("CollectionProp", name) :> obj
+        // Same reasoning: one type, many CLR properties, so the name is the slot.
+        | :? NodeProp as (NodeProp(name, _)) -> ("NodeProp", name) :> obj
         | :? EventProp as (EventProp inner) -> inner.GetType() :> obj
         | _ -> p.GetType() :> obj
 
@@ -150,6 +153,10 @@ module Reconciler =
                 match oldMap.TryGetValue(propKey p) with
                 | true, (:? CollectionProp as (CollectionProp(_, oldCs))) when oldCs = cs -> ()
                 | _ -> Materializer.applyCollectionProp el name cs
+            | :? NodeProp as (NodeProp(name, child)) ->
+                match oldMap.TryGetValue(propKey p) with
+                | true, (:? NodeProp as (NodeProp(_, oldChild))) when oldChild = child -> ()
+                | _ -> Materializer.applyNodeProp el name child
             | _ ->
                 let key = propKey p
 

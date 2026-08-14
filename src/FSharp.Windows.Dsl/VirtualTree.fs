@@ -38,6 +38,29 @@ type EventProp = EventProp of obj
 /// keyed by the property name, re-applied by clear+add when contents differ.
 type CollectionProp = CollectionProp of name: string * children: VirtualNode list
 
+/// Single-element marker — the singular sibling of CollectionProp, for CLR
+/// properties that hold one live element rather than a list of them and so fall
+/// outside the content model the reconciler walks: a vendor property typed
+/// DependencyObject (RibbonControl.ApplicationMenu), or typed obj but used as
+/// content (NavBarItem.Content, NavBarGroup.Header).
+///
+/// Without this the caller has to hand over an already-built element, which puts
+/// that subtree outside the reconciler entirely — reconstructed on every render
+/// and never diffed. Here the node is materialized at apply time and, as with
+/// CollectionProp, compared structurally on update: an equal node is no work.
+type NodeProp = NodeProp of name: string * node: VirtualNode
+
+/// Elements that live in a property rather than in the content model.
+[<RequireQualifiedAccess>]
+module Node =
+
+    /// A CLR property holding one live element, by property name — the singular
+    /// form of the collection props the codegen emits. Use it wherever a vendor
+    /// property takes an element the DSL has no typed content slot for, instead
+    /// of materializing by hand: that way the subtree stays inside the
+    /// reconciler and is skipped when it has not changed.
+    let prop (name: string) (node: VirtualNode) : obj = box (NodeProp(name, node))
+
 module VirtualTree =
     /// Generate a stable position-based internal ID for reconciler matching.
     let makeId (parentId: string) (index: int) (t: Type) : string = $"{parentId}.{index}.{t.Name}"

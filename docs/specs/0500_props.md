@@ -138,6 +138,7 @@ markers in `FSharp.Windows.Dsl`:
 | `AttachedProp of DependencyProperty * obj` | `Grid.Row`, `DockPanel.Dock`, … | `el.SetValue(dp, value)` on the **child** |
 | `EventProp of obj` | Wrapper for routed/CLR event handlers | Reconciler swaps via `RemoveHandler` + `AddHandler` |
 | `CollectionProp of name * VirtualNode list` | Auto-init list collections (`GridControl.Columns`) | Reflects the named property, expects `IList`, clears + adds materialized children |
+| `NodeProp of name * VirtualNode` | CLR properties holding one element (`NavBarItem.Content`) | Reflects the named property, materializes the node, assigns it |
 
 `CollectionProp` is the v0.2.0 entry — it bridges CLR collection properties of
 `DependencyObject` element type that aren't part of the visual children
@@ -148,6 +149,23 @@ let columns (cs: VirtualNode list) : obj = box (CollectionProp("Columns", cs))
 ```
 
 so the DSL composes column/section lists the same way it composes children.
+
+`NodeProp` is its singular sibling, for a CLR property that holds one element
+and falls outside the content model the reconciler walks — typed
+`DependencyObject` (`RibbonControl.ApplicationMenu`) or typed `obj` but used as
+content (`NavBarItem.Content`, `NavBarGroup.Header`). Written by hand where no
+typed slot exists:
+
+```fsharp
+navBarItem [ Node.prop "Content" (textBlock [ TextBlock.text "Kunde" ]) ]
+```
+
+The alternative — handing over an already-built element — puts that subtree
+outside the reconciler: rebuilt on every render, never diffed. As `NodeProp` it
+is materialized at apply time and compared structurally on update, so an equal
+node is no work. An unknown, read-only, or type-incompatible property name is
+ignored rather than fatal — the same tolerance `CollectionProp` has, and for the
+same reason: the name comes from the caller, not the codegen.
 
 ## DO-Valued DPs (MaterializeBeforeSet)
 

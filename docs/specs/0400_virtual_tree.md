@@ -69,6 +69,7 @@ rather than as positional children.
 | `ItemsControl` | `attachChildren` | `Items: ItemCollection` |
 | `Decorator` | `attachChildren` | `Child: UIElement` (single) |
 | Auto-init list DP (`GridControl.Columns`, `DataGrid.Columns`) | `CollectionProp(name, children)` | Reflects named CLR property, expects `IList`, clears + adds |
+| Single-element CLR property (`NavBarItem.Content`) | `NodeProp(name, node)` | Reflects named CLR property, materializes the node, assigns it |
 
 ```fsharp
 gridControl

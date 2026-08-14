@@ -66,6 +66,22 @@ module Materializer =
                     list.Add(materialize child) |> ignore
             | _ -> ()
 
+    /// Apply a single-element prop: reflect the named CLR property on the parent
+    /// and assign the materialized node to it. Silently ignores unknown or
+    /// read-only names, and a node whose type the property cannot hold — the
+    /// same tolerance applyCollectionProp has, and for the same reason: the
+    /// property name is supplied by the caller rather than checked by the
+    /// codegen, so a wrong one should not take the window down.
+    and applyNodeProp (parent: DependencyObject) (name: string) (node: VirtualNode) =
+        let prop =
+            parent.GetType().GetProperty(name, BindingFlags.Public ||| BindingFlags.Instance)
+
+        if not (isNull prop) && prop.CanWrite then
+            let value = materialize node
+
+            if prop.PropertyType.IsAssignableFrom(value.GetType()) then
+                prop.SetValue(parent, value)
+
     /// Recursively materialize a VirtualNode into a live WPF DependencyObject.
     and materialize (node: VirtualNode) : DependencyObject =
         let el = Activator.CreateInstance(node.Type) :?> DependencyObject
@@ -76,6 +92,7 @@ module Materializer =
             match prop with
             | :? AttachedProp as (AttachedProp(dp, value)) -> el.SetValue(dp, value)
             | :? CollectionProp as (CollectionProp(name, cs)) -> applyCollectionProp el name cs
+            | :? NodeProp as (NodeProp(name, child)) -> applyNodeProp el name child
             | :? EventProp as (EventProp inner) -> tryApplyProp el node.Type inner
             | _ -> tryApplyProp el node.Type prop)
 

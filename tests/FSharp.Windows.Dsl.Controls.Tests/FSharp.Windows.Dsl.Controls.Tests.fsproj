@@ -10,6 +10,7 @@
         <Compile Include="MaterializerIntegrationTests.fs" />
         <Compile Include="ReconcilerTests.fs" />
         <Compile Include="StyleTests.fs" />
+        <Compile Include="NodePropTests.fs" />
         <Compile Include="ContextMenuTests.fs" />
         <Compile Include="ValidationTests.fs" />
     </ItemGroup>
