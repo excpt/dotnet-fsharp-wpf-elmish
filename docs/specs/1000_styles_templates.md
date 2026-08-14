@@ -36,7 +36,7 @@ application code:
 
 ```fsharp
 let cap =
-    Style.ofNode (textBlock [] |> TextBlock.fontSize 10.5 |> TextBlock.foreground Brushes.Gray)
+    Style.ofNode (textBlock [ TextBlock.fontSize 10.5; TextBlock.foreground Brushes.Gray ])
 ```
 
 Children, event handlers, collection and resource props are rejected — a

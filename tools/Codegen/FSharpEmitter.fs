@@ -327,12 +327,13 @@ let private emitModule (sb: StringBuilder) (input: EmitControlInput) =
 
     sb.AppendLine() |> ignore
 
-    // Attached property helpers (wrap a VirtualNode, adding the attached prop)
+    // Attached property helpers. Emitted in prop-list form like every other
+    // helper: an attached prop belongs in the child's own props list, which is
+    // where the materializer applies it from. The earlier `v -> node -> node`
+    // shape read well after a pipe but is a partial application inside a list —
+    // and since props are obj, that type-checks and then applies to nothing.
     for ap in input.AttachedDPs do
-        sb.AppendLine($"    let {ap.FnName} (v: {ap.ValueType}) (node: VirtualNode) : VirtualNode =")
-        |> ignore
-
-        sb.AppendLine($"        {{ node with Props = box (AttachedProp({ap.DPExpression}, box v)) :: node.Props }}")
+        sb.AppendLine($"    let {ap.FnName} (v: {ap.ValueType}) : obj = box (AttachedProp({ap.DPExpression}, box v))")
         |> ignore
 
     if not input.AttachedDPs.IsEmpty then

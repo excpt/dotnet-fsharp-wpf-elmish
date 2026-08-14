@@ -51,6 +51,33 @@ The DSL replaces XAML bindings, ICommand, and ViewModelBase with the Elm loop:
 
 A reconciler diffs the old and new virtual trees and applies only the changes to the live WPF element tree. Event handlers are automatically refreshed on each render — no stale closures.
 
+## Props
+
+Every prop helper takes its value and returns a prop for the element's list. That includes **attached properties** — `Grid.Row`, `DockPanel.Dock`, `Canvas.Left` — which go in the props list of the *child* they apply to, exactly where WPF sets them:
+
+```fsharp
+dockPanel
+    [ DockPanel.lastChildFill true
+      DockPanel.children
+          [ border [ DockPanel.dock Dock.Top; Border.contentChild header ]
+            border [ DockPanel.dock Dock.Bottom; Border.contentChild statusBar ]
+            content ] ]
+```
+
+> **Breaking in 0.4.0:** attached-property helpers used to take the node instead — `toolbar |> DockPanel.dock Dock.Top`. They are now ordinary props. Move them into the child's props list; the compiler flags every old call site.
+
+### When a Prop Does Not Apply
+
+Applying is best-effort: a wrong prop must not take a live window down. What did not apply is recorded rather than discarded.
+
+```fsharp
+Materializer.diagnostics ()        // what nothing applied, each recorded once
+Materializer.strictProps <- true   // fail instead — for development and tests
+Validate.tree (view model ignore)  // the same checks statically, nothing materialized
+```
+
+`Validate.tree` is the one to reach for: `view` returns data, so a single assertion in a unit test catches a value that is not a prop, a prop put on the wrong control, a mistyped `Node.prop` name, or a control package whose `Registration.register()` was never called — with no window and no WPF runtime.
+
 ## Packages
 
 | Package | Description |

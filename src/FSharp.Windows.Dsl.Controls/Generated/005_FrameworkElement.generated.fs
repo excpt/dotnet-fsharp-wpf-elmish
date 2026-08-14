@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-04-26
+// Generated: 2026-08-14
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -401,11 +401,8 @@ module FrameworkElement =
     let contentChild (c: VirtualNode) : obj = box (ContentChild c)
     let key (k: string) : obj = box (Key k)
 
-    let flowDirection (v: System.Windows.FlowDirection) (node: VirtualNode) : VirtualNode =
-        { node with
-            Props =
-                box (AttachedProp(System.Windows.FrameworkElement.FlowDirectionProperty, box v))
-                :: node.Props }
+    let flowDirection (v: System.Windows.FlowDirection) : obj =
+        box (AttachedProp(System.Windows.FrameworkElement.FlowDirectionProperty, box v))
 
     let triggers (cs: VirtualNode list) : obj = box (CollectionProp("Triggers", cs))
 

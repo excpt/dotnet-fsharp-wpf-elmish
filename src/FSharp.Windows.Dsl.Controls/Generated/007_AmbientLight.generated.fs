@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-04-26
+// Generated: 2026-08-14
 
 namespace FSharp.Windows.Dsl.Controls
 

@@ -54,7 +54,7 @@ let ``materialize keys an implicit style by its target type`` () =
     runSta (fun () ->
         register ()
 
-        let style = Style.ofNode (textBlock [] |> TextBlock.fontSize 22.0)
+        let style = Style.ofNode (textBlock [ TextBlock.fontSize 22.0 ])
 
         let tree =
             stackPanel
@@ -75,7 +75,7 @@ let ``styleRef resolves a keyed style through the tree`` () =
     runSta (fun () ->
         register ()
 
-        let cap = Style.ofNode (textBlock [] |> TextBlock.fontSize 10.5)
+        let cap = Style.ofNode (textBlock [ TextBlock.fontSize 10.5 ])
 
         let tree =
             stackPanel
@@ -126,7 +126,7 @@ let ``reconcile leaves an unchanged dictionary alone`` () =
     runSta (fun () ->
         register ()
 
-        let style = Style.ofNode (textBlock [] |> TextBlock.fontSize 22.0)
+        let style = Style.ofNode (textBlock [ TextBlock.fontSize 22.0 ])
 
         // Rebuilt per render like a view would — same style reference inside.
         let tree () =

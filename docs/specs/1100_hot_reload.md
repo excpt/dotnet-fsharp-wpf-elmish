@@ -90,8 +90,8 @@ The button appears instantly. Your data is untouched.
 let view model dispatch =
     dockPanel [
         DockPanel.children [
-            DockPanel.dock Dock.Top (toolbar |> key "toolbar")
-            DockPanel.dock Dock.Bottom (statusBar |> key "statusbar")
+            border [ key "toolbar";   DockPanel.dock Dock.Top;    Border.contentChild toolbar ]
+            border [ key "statusbar"; DockPanel.dock Dock.Bottom; Border.contentChild statusBar ]
             mainContent |> key "main"
         ]
     ]
@@ -100,14 +100,15 @@ let view model dispatch =
 let view model dispatch =
     dockPanel [
         DockPanel.children [
-            DockPanel.dock Dock.Top (toolbar |> key "toolbar")
-            DockPanel.dock Dock.Top (Button.create [  // NEW — appears instantly
+            border [ key "toolbar";   DockPanel.dock Dock.Top;    Border.contentChild toolbar ]
+            button [                                     // NEW — appears instantly
                 key "debug-btn"
+                DockPanel.dock Dock.Top
                 Button.content "New Button"
                 Button.width 120.0
                 Button.onClick (fun _ -> dispatch Refresh)  // must be existing Msg
-            ])
-            DockPanel.dock Dock.Bottom (statusBar |> key "statusbar")
+            ]
+            border [ key "statusbar"; DockPanel.dock Dock.Bottom; Border.contentChild statusBar ]
             mainContent |> key "main"
         ]
     ]

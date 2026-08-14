@@ -39,7 +39,8 @@ written once, inherited automatically.
 ## DockPanel
 
 `lastChildFill` is a prop on `DockPanel`. `dock` position is an **attached property**
-set on each child.
+set on each child — so it appears in that child's own props list, like any other prop.
+See `0900_attached_props.md`.
 
 ```fsharp
 type DockPanelProp =
@@ -51,8 +52,8 @@ dockPanel [
     DockPanel.width 800.0
     DockPanel.lastChildFill true
     DockPanel.children [
-        DockPanel.dock Dock.Top    ribbon
-        DockPanel.dock Dock.Bottom statusBar
+        border [ DockPanel.dock Dock.Top;    Border.contentChild ribbon ]
+        border [ DockPanel.dock Dock.Bottom; Border.contentChild statusBar ]
         mainContent
     ]
 ]
@@ -73,10 +74,11 @@ grid [
     Grid.rows    [ Auto; Star 1.0; Auto ]
     Grid.columns [ Pixel 200.0; Star 1.0 ]
     Grid.children [
-        Grid.row 0 (Grid.col 0 sidebar)
-        Grid.row 0 (Grid.col 1 header)
-        Grid.row 1 (Grid.col 1 (Grid.colSpan 2 mainContent))
-        Grid.row 2 (Grid.col 0 statusBar)
+        // Attached props are props — they go in the child's own list
+        textBlock [ Grid.row 0; Grid.column 0; TextBlock.text "Sidebar" ]
+        textBlock [ Grid.row 0; Grid.column 1; TextBlock.text "Header" ]
+        border    [ Grid.row 1; Grid.column 1; Grid.columnSpan 2; Border.contentChild mainContent ]
+        border    [ Grid.row 2; Grid.column 0; Border.contentChild statusBar ]
     ]
 ]
 ```
@@ -101,9 +103,9 @@ canvas [
     Canvas.width 400.0
     Canvas.height 300.0
     Canvas.children [
-        Canvas.left 10.0 (Canvas.top 20.0 button1)
-        Canvas.left 50.0 (Canvas.top 20.0 button2)
-        Canvas.zIndex 99 (Canvas.left 0.0 (Canvas.top 0.0 overlay))
+        button [ Canvas.left 10.0; Canvas.top 20.0; Button.content "One" ]
+        button [ Canvas.left 50.0; Canvas.top 20.0; Button.content "Two" ]
+        border [ Canvas.zIndex 99; Canvas.left 0.0; Canvas.top 0.0; Border.contentChild overlay ]
     ]
 ]
 ```
@@ -165,9 +167,9 @@ viewBox [
 dockPanel [
     DockPanel.lastChildFill true
     DockPanel.children [
-        DockPanel.dock Dock.Top    ribbon
-        DockPanel.dock Dock.Top    toolbar
-        DockPanel.dock Dock.Bottom statusBar
+        border [ DockPanel.dock Dock.Top;    Border.contentChild ribbon ]
+        border [ DockPanel.dock Dock.Top;    Border.contentChild toolbar ]
+        border [ DockPanel.dock Dock.Bottom; Border.contentChild statusBar ]
         hSplit 220.0
             (vScroll navigationTree)
             (tabControl [

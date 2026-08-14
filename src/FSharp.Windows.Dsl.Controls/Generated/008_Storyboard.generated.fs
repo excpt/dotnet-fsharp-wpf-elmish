@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-04-26
+// Generated: 2026-08-14
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -53,23 +53,14 @@ module Storyboard =
     let contentChild (c: VirtualNode) : obj = box (ContentChild c)
     let key (k: string) : obj = box (Key k)
 
-    let target (v: System.Windows.DependencyObject) (node: VirtualNode) : VirtualNode =
-        { node with
-            Props =
-                box (AttachedProp(System.Windows.Media.Animation.Storyboard.TargetProperty, box v))
-                :: node.Props }
+    let target (v: System.Windows.DependencyObject) : obj =
+        box (AttachedProp(System.Windows.Media.Animation.Storyboard.TargetProperty, box v))
 
-    let targetName (v: string) (node: VirtualNode) : VirtualNode =
-        { node with
-            Props =
-                box (AttachedProp(System.Windows.Media.Animation.Storyboard.TargetNameProperty, box v))
-                :: node.Props }
+    let targetName (v: string) : obj =
+        box (AttachedProp(System.Windows.Media.Animation.Storyboard.TargetNameProperty, box v))
 
-    let targetProperty (v: System.Windows.PropertyPath) (node: VirtualNode) : VirtualNode =
-        { node with
-            Props =
-                box (AttachedProp(System.Windows.Media.Animation.Storyboard.TargetPropertyProperty, box v))
-                :: node.Props }
+    let targetProperty (v: System.Windows.PropertyPath) : obj =
+        box (AttachedProp(System.Windows.Media.Animation.Storyboard.TargetPropertyProperty, box v))
 
     let create (props: obj list) : VirtualNode =
         let cs, uk, ps = VirtualTree.extractSpecialProps props

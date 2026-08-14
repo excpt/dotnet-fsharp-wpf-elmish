@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-04-26
+// Generated: 2026-08-14
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -331,44 +331,23 @@ module VirtualizingPanel =
     let contentChild (c: VirtualNode) : obj = box (ContentChild c)
     let key (k: string) : obj = box (Key k)
 
-    let isVirtualizing (v: bool) (node: VirtualNode) : VirtualNode =
-        { node with
-            Props =
-                box (AttachedProp(System.Windows.Controls.VirtualizingPanel.IsVirtualizingProperty, box v))
-                :: node.Props }
+    let isVirtualizing (v: bool) : obj =
+        box (AttachedProp(System.Windows.Controls.VirtualizingPanel.IsVirtualizingProperty, box v))
 
-    let virtualizationMode (v: System.Windows.Controls.VirtualizationMode) (node: VirtualNode) : VirtualNode =
-        { node with
-            Props =
-                box (AttachedProp(System.Windows.Controls.VirtualizingPanel.VirtualizationModeProperty, box v))
-                :: node.Props }
+    let virtualizationMode (v: System.Windows.Controls.VirtualizationMode) : obj =
+        box (AttachedProp(System.Windows.Controls.VirtualizingPanel.VirtualizationModeProperty, box v))
 
-    let isVirtualizingWhenGrouping (v: bool) (node: VirtualNode) : VirtualNode =
-        { node with
-            Props =
-                box (AttachedProp(System.Windows.Controls.VirtualizingPanel.IsVirtualizingWhenGroupingProperty, box v))
-                :: node.Props }
+    let isVirtualizingWhenGrouping (v: bool) : obj =
+        box (AttachedProp(System.Windows.Controls.VirtualizingPanel.IsVirtualizingWhenGroupingProperty, box v))
 
-    let scrollUnit (v: System.Windows.Controls.ScrollUnit) (node: VirtualNode) : VirtualNode =
-        { node with
-            Props =
-                box (AttachedProp(System.Windows.Controls.VirtualizingPanel.ScrollUnitProperty, box v))
-                :: node.Props }
+    let scrollUnit (v: System.Windows.Controls.ScrollUnit) : obj =
+        box (AttachedProp(System.Windows.Controls.VirtualizingPanel.ScrollUnitProperty, box v))
 
-    let cacheLength (v: System.Windows.Controls.VirtualizationCacheLength) (node: VirtualNode) : VirtualNode =
-        { node with
-            Props =
-                box (AttachedProp(System.Windows.Controls.VirtualizingPanel.CacheLengthProperty, box v))
-                :: node.Props }
+    let cacheLength (v: System.Windows.Controls.VirtualizationCacheLength) : obj =
+        box (AttachedProp(System.Windows.Controls.VirtualizingPanel.CacheLengthProperty, box v))
 
-    let cacheLengthUnit (v: System.Windows.Controls.VirtualizationCacheLengthUnit) (node: VirtualNode) : VirtualNode =
-        { node with
-            Props =
-                box (AttachedProp(System.Windows.Controls.VirtualizingPanel.CacheLengthUnitProperty, box v))
-                :: node.Props }
+    let cacheLengthUnit (v: System.Windows.Controls.VirtualizationCacheLengthUnit) : obj =
+        box (AttachedProp(System.Windows.Controls.VirtualizingPanel.CacheLengthUnitProperty, box v))
 
-    let isContainerVirtualizable (v: bool) (node: VirtualNode) : VirtualNode =
-        { node with
-            Props =
-                box (AttachedProp(System.Windows.Controls.VirtualizingPanel.IsContainerVirtualizableProperty, box v))
-                :: node.Props }
+    let isContainerVirtualizable (v: bool) : obj =
+        box (AttachedProp(System.Windows.Controls.VirtualizingPanel.IsContainerVirtualizableProperty, box v))

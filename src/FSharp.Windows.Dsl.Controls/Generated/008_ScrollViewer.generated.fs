@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-04-26
+// Generated: 2026-08-14
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -371,50 +371,26 @@ module ScrollViewer =
     let contentChild (c: VirtualNode) : obj = box (ContentChild c)
     let key (k: string) : obj = box (Key k)
 
-    let canContentScroll (v: bool) (node: VirtualNode) : VirtualNode =
-        { node with
-            Props =
-                box (AttachedProp(System.Windows.Controls.ScrollViewer.CanContentScrollProperty, box v))
-                :: node.Props }
+    let canContentScroll (v: bool) : obj =
+        box (AttachedProp(System.Windows.Controls.ScrollViewer.CanContentScrollProperty, box v))
 
-    let horizontalScrollBarVisibility
-        (v: System.Windows.Controls.ScrollBarVisibility)
-        (node: VirtualNode)
-        : VirtualNode =
-        { node with
-            Props =
-                box (AttachedProp(System.Windows.Controls.ScrollViewer.HorizontalScrollBarVisibilityProperty, box v))
-                :: node.Props }
+    let horizontalScrollBarVisibility (v: System.Windows.Controls.ScrollBarVisibility) : obj =
+        box (AttachedProp(System.Windows.Controls.ScrollViewer.HorizontalScrollBarVisibilityProperty, box v))
 
-    let verticalScrollBarVisibility (v: System.Windows.Controls.ScrollBarVisibility) (node: VirtualNode) : VirtualNode =
-        { node with
-            Props =
-                box (AttachedProp(System.Windows.Controls.ScrollViewer.VerticalScrollBarVisibilityProperty, box v))
-                :: node.Props }
+    let verticalScrollBarVisibility (v: System.Windows.Controls.ScrollBarVisibility) : obj =
+        box (AttachedProp(System.Windows.Controls.ScrollViewer.VerticalScrollBarVisibilityProperty, box v))
 
-    let isDeferredScrollingEnabled (v: bool) (node: VirtualNode) : VirtualNode =
-        { node with
-            Props =
-                box (AttachedProp(System.Windows.Controls.ScrollViewer.IsDeferredScrollingEnabledProperty, box v))
-                :: node.Props }
+    let isDeferredScrollingEnabled (v: bool) : obj =
+        box (AttachedProp(System.Windows.Controls.ScrollViewer.IsDeferredScrollingEnabledProperty, box v))
 
-    let panningMode (v: System.Windows.Controls.PanningMode) (node: VirtualNode) : VirtualNode =
-        { node with
-            Props =
-                box (AttachedProp(System.Windows.Controls.ScrollViewer.PanningModeProperty, box v))
-                :: node.Props }
+    let panningMode (v: System.Windows.Controls.PanningMode) : obj =
+        box (AttachedProp(System.Windows.Controls.ScrollViewer.PanningModeProperty, box v))
 
-    let panningDeceleration (v: float) (node: VirtualNode) : VirtualNode =
-        { node with
-            Props =
-                box (AttachedProp(System.Windows.Controls.ScrollViewer.PanningDecelerationProperty, box v))
-                :: node.Props }
+    let panningDeceleration (v: float) : obj =
+        box (AttachedProp(System.Windows.Controls.ScrollViewer.PanningDecelerationProperty, box v))
 
-    let panningRatio (v: float) (node: VirtualNode) : VirtualNode =
-        { node with
-            Props =
-                box (AttachedProp(System.Windows.Controls.ScrollViewer.PanningRatioProperty, box v))
-                :: node.Props }
+    let panningRatio (v: float) : obj =
+        box (AttachedProp(System.Windows.Controls.ScrollViewer.PanningRatioProperty, box v))
 
     let create (props: obj list) : VirtualNode =
         let cs, uk, ps = VirtualTree.extractSpecialProps props

@@ -266,6 +266,29 @@ let ``emitControlFile emits collection helper for CLR collection property`` () =
     |> should haveSubstring "let columns (cs: VirtualNode list) : obj = box (CollectionProp(\"Columns\", cs))"
 
 [<Fact>]
+let ``emitControlFile emits attached DP helper in prop-list form`` () =
+    // An attached helper must be a prop like any other: a value the props list
+    // takes. Emitted as `v -> node -> node` it is a partial application inside a
+    // list, which type-checks against obj list and then applies to nothing.
+    let input =
+        { simpleButtonInput with
+            ControlName = "Grid"
+            ControlFullName = "System.Windows.Controls.Grid"
+            AttachedDPs =
+                [ { FnName = "row"
+                    DPExpression = "System.Windows.Controls.Grid.RowProperty"
+                    ValueType = "int" } ] }
+
+    let output = FSharpEmitter.emitControlFile input
+
+    output
+    |> should
+        haveSubstring
+        "let row (v: int) : obj = box (AttachedProp(System.Windows.Controls.Grid.RowProperty, box v))"
+
+    output |> should not' (haveSubstring "let row (v: int) (node: VirtualNode)")
+
+[<Fact>]
 let ``isEmittableEvent rejects events whose delegate is marked Obsolete`` () =
     // RichEditControl.PreparePopupMenu uses an obsolete delegate; F# refuses to compile
     // a wrapper that names it (FS0101). Drop these at codegen time instead.

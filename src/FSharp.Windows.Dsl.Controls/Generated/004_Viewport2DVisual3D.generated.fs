@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-04-26
+// Generated: 2026-08-14
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -43,11 +43,8 @@ module Viewport2DVisual3D =
     let contentChild (c: VirtualNode) : obj = box (ContentChild c)
     let key (k: string) : obj = box (Key k)
 
-    let isVisualHostMaterial (v: bool) (node: VirtualNode) : VirtualNode =
-        { node with
-            Props =
-                box (AttachedProp(System.Windows.Media.Media3D.Viewport2DVisual3D.IsVisualHostMaterialProperty, box v))
-                :: node.Props }
+    let isVisualHostMaterial (v: bool) : obj =
+        box (AttachedProp(System.Windows.Media.Media3D.Viewport2DVisual3D.IsVisualHostMaterialProperty, box v))
 
     let create (props: obj list) : VirtualNode =
         let cs, uk, ps = VirtualTree.extractSpecialProps props

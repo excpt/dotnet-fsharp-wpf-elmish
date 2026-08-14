@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-04-26
+// Generated: 2026-08-14
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -427,29 +427,17 @@ module InkCanvas =
     let contentChild (c: VirtualNode) : obj = box (ContentChild c)
     let key (k: string) : obj = box (Key k)
 
-    let top (v: float) (node: VirtualNode) : VirtualNode =
-        { node with
-            Props =
-                box (AttachedProp(System.Windows.Controls.InkCanvas.TopProperty, box v))
-                :: node.Props }
+    let top (v: float) : obj =
+        box (AttachedProp(System.Windows.Controls.InkCanvas.TopProperty, box v))
 
-    let bottom (v: float) (node: VirtualNode) : VirtualNode =
-        { node with
-            Props =
-                box (AttachedProp(System.Windows.Controls.InkCanvas.BottomProperty, box v))
-                :: node.Props }
+    let bottom (v: float) : obj =
+        box (AttachedProp(System.Windows.Controls.InkCanvas.BottomProperty, box v))
 
-    let left (v: float) (node: VirtualNode) : VirtualNode =
-        { node with
-            Props =
-                box (AttachedProp(System.Windows.Controls.InkCanvas.LeftProperty, box v))
-                :: node.Props }
+    let left (v: float) : obj =
+        box (AttachedProp(System.Windows.Controls.InkCanvas.LeftProperty, box v))
 
-    let right (v: float) (node: VirtualNode) : VirtualNode =
-        { node with
-            Props =
-                box (AttachedProp(System.Windows.Controls.InkCanvas.RightProperty, box v))
-                :: node.Props }
+    let right (v: float) : obj =
+        box (AttachedProp(System.Windows.Controls.InkCanvas.RightProperty, box v))
 
     let create (props: obj list) : VirtualNode =
         let cs, uk, ps = VirtualTree.extractSpecialProps props

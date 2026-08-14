@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-04-26
+// Generated: 2026-08-14
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -333,38 +333,20 @@ module TextElement =
     let contentChild (c: VirtualNode) : obj = box (ContentChild c)
     let key (k: string) : obj = box (Key k)
 
-    let fontFamily (v: System.Windows.Media.FontFamily) (node: VirtualNode) : VirtualNode =
-        { node with
-            Props =
-                box (AttachedProp(System.Windows.Documents.TextElement.FontFamilyProperty, box v))
-                :: node.Props }
+    let fontFamily (v: System.Windows.Media.FontFamily) : obj =
+        box (AttachedProp(System.Windows.Documents.TextElement.FontFamilyProperty, box v))
 
-    let fontStyle (v: System.Windows.FontStyle) (node: VirtualNode) : VirtualNode =
-        { node with
-            Props =
-                box (AttachedProp(System.Windows.Documents.TextElement.FontStyleProperty, box v))
-                :: node.Props }
+    let fontStyle (v: System.Windows.FontStyle) : obj =
+        box (AttachedProp(System.Windows.Documents.TextElement.FontStyleProperty, box v))
 
-    let fontWeight (v: System.Windows.FontWeight) (node: VirtualNode) : VirtualNode =
-        { node with
-            Props =
-                box (AttachedProp(System.Windows.Documents.TextElement.FontWeightProperty, box v))
-                :: node.Props }
+    let fontWeight (v: System.Windows.FontWeight) : obj =
+        box (AttachedProp(System.Windows.Documents.TextElement.FontWeightProperty, box v))
 
-    let fontStretch (v: System.Windows.FontStretch) (node: VirtualNode) : VirtualNode =
-        { node with
-            Props =
-                box (AttachedProp(System.Windows.Documents.TextElement.FontStretchProperty, box v))
-                :: node.Props }
+    let fontStretch (v: System.Windows.FontStretch) : obj =
+        box (AttachedProp(System.Windows.Documents.TextElement.FontStretchProperty, box v))
 
-    let fontSize (v: float) (node: VirtualNode) : VirtualNode =
-        { node with
-            Props =
-                box (AttachedProp(System.Windows.Documents.TextElement.FontSizeProperty, box v))
-                :: node.Props }
+    let fontSize (v: float) : obj =
+        box (AttachedProp(System.Windows.Documents.TextElement.FontSizeProperty, box v))
 
-    let foreground (v: System.Windows.Media.Brush) (node: VirtualNode) : VirtualNode =
-        { node with
-            Props =
-                box (AttachedProp(System.Windows.Documents.TextElement.ForegroundProperty, box v))
-                :: node.Props }
+    let foreground (v: System.Windows.Media.Brush) : obj =
+        box (AttachedProp(System.Windows.Documents.TextElement.ForegroundProperty, box v))

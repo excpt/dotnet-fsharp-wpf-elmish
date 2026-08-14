@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-04-26
+// Generated: 2026-08-14
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -336,11 +336,8 @@ module ToolBarTray =
     let contentChild (c: VirtualNode) : obj = box (ContentChild c)
     let key (k: string) : obj = box (Key k)
 
-    let isLocked (v: bool) (node: VirtualNode) : VirtualNode =
-        { node with
-            Props =
-                box (AttachedProp(System.Windows.Controls.ToolBarTray.IsLockedProperty, box v))
-                :: node.Props }
+    let isLocked (v: bool) : obj =
+        box (AttachedProp(System.Windows.Controls.ToolBarTray.IsLockedProperty, box v))
 
     let toolBars (cs: VirtualNode list) : obj = box (CollectionProp("ToolBars", cs))
 

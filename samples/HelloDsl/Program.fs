@@ -153,25 +153,24 @@ let dataGridView (people: Person list) onGenerate =
     dockPanel
         [ DockPanel.lastChildFill true
           DockPanel.children
-              [ DockPanel.dock
-                    Dock.Top
-                    (stackPanel
-                        [ StackPanel.orientation Orientation.Horizontal
-                          StackPanel.margin (Thickness(0.0, 0.0, 0.0, 8.0))
-                          StackPanel.children
-                              [ textBlock
-                                    [ TextBlock.text "DataGrid"
-                                      TextBlock.fontSize 20.0
-                                      TextBlock.fontWeight FontWeights.Bold
-                                      TextBlock.verticalAlignment VerticalAlignment.Center
-                                      TextBlock.margin (Thickness(0.0, 0.0, 16.0, 0.0)) ]
-                                button
-                                    [ Button.content $"Generate 10,000 records"
-                                      Button.padding (Thickness(12.0, 4.0, 12.0, 4.0))
-                                      Button.onClick onGenerate ]
-                                textBlock
-                                    [ TextBlock.text $"  ({people.Length} records)"
-                                      TextBlock.verticalAlignment VerticalAlignment.Center ] ] ])
+              [ stackPanel
+                    [ DockPanel.dock Dock.Top
+                      StackPanel.orientation Orientation.Horizontal
+                      StackPanel.margin (Thickness(0.0, 0.0, 0.0, 8.0))
+                      StackPanel.children
+                          [ textBlock
+                                [ TextBlock.text "DataGrid"
+                                  TextBlock.fontSize 20.0
+                                  TextBlock.fontWeight FontWeights.Bold
+                                  TextBlock.verticalAlignment VerticalAlignment.Center
+                                  TextBlock.margin (Thickness(0.0, 0.0, 16.0, 0.0)) ]
+                            button
+                                [ Button.content $"Generate 10,000 records"
+                                  Button.padding (Thickness(12.0, 4.0, 12.0, 4.0))
+                                  Button.onClick onGenerate ]
+                            textBlock
+                                [ TextBlock.text $"  ({people.Length} records)"
+                                  TextBlock.verticalAlignment VerticalAlignment.Center ] ] ]
                 dataGrid
                     [ DataGrid.autoGenerateColumns true
                       DataGrid.isReadOnly true
@@ -230,75 +229,70 @@ let main _ =
                       dockPanel
                           [ DockPanel.lastChildFill true
                             DockPanel.children
-                                [ DockPanel.dock
-                                      Dock.Top
-                                      (border
-                                          [ Border.padding (Thickness 8.0)
-                                            Border.borderThickness (Thickness(0.0, 0.0, 0.0, 1.0))
-                                            Border.borderBrush SystemColors.ActiveBorderBrush
-                                            Border.contentChild (
-                                                textBlock
-                                                    [ TextBlock.text "F# WPF DSL — No XAML, No MVVM, Pure Functions"
-                                                      TextBlock.fontWeight FontWeights.Bold ]
-                                            ) ])
-                                  DockPanel.dock
-                                      Dock.Bottom
-                                      (border
-                                          [ Border.padding (Thickness(8.0, 4.0, 8.0, 4.0))
-                                            Border.borderThickness (Thickness(0.0, 1.0, 0.0, 0.0))
-                                            Border.borderBrush SystemColors.ActiveBorderBrush
-                                            Border.contentChild (
-                                                textBlock
-                                                    [ TextBlock.text $"Page: {state.Page} | Count: {state.Count}" ]
-                                            ) ])
-                                  DockPanel.dock
-                                      Dock.Left
-                                      (border
-                                          [ Border.width 160.0
-                                            Border.padding (Thickness 8.0)
-                                            Border.borderThickness (Thickness(0.0, 0.0, 1.0, 0.0))
-                                            Border.borderBrush SystemColors.ActiveBorderBrush
-                                            Border.contentChild (
-                                                stackPanel
-                                                    [ StackPanel.children
-                                                          [ textBlock
-                                                                [ TextBlock.text "Navigation"
-                                                                  TextBlock.fontWeight FontWeights.Bold
-                                                                  TextBlock.margin (Thickness(0.0, 0.0, 0.0, 8.0)) ]
-                                                            button
-                                                                [ Button.content "Dashboard"
-                                                                  Button.margin (Thickness 2.0)
-                                                                  Button.onClick (
-                                                                      RoutedEventHandler(fun _ _ ->
-                                                                          dispatch (fun () ->
-                                                                              state <- { state with Page = Dashboard }))
-                                                                  ) ]
-                                                            button
-                                                                [ Button.content "Counter"
-                                                                  Button.margin (Thickness 2.0)
-                                                                  Button.onClick (
-                                                                      RoutedEventHandler(fun _ _ ->
-                                                                          dispatch (fun () ->
-                                                                              state <- { state with Page = Counter }))
-                                                                  ) ]
-                                                            button
-                                                                [ Button.content "Settings"
-                                                                  Button.margin (Thickness 2.0)
-                                                                  Button.onClick (
-                                                                      RoutedEventHandler(fun _ _ ->
-                                                                          dispatch (fun () ->
-                                                                              state <- { state with Page = Settings }))
-                                                                  ) ]
-                                                            button
-                                                                [ Button.content "DataGrid"
-                                                                  Button.margin (Thickness 2.0)
-                                                                  Button.onClick (
-                                                                      RoutedEventHandler(fun _ _ ->
-                                                                          dispatch (fun () ->
-                                                                              state <-
-                                                                                  { state with Page = DataGridDemo }))
-                                                                  ) ] ] ]
-                                            ) ])
+                                [ border
+                                      [ DockPanel.dock Dock.Top
+                                        Border.padding (Thickness 8.0)
+                                        Border.borderThickness (Thickness(0.0, 0.0, 0.0, 1.0))
+                                        Border.borderBrush SystemColors.ActiveBorderBrush
+                                        Border.contentChild (
+                                            textBlock
+                                                [ TextBlock.text "F# WPF DSL — No XAML, No MVVM, Pure Functions"
+                                                  TextBlock.fontWeight FontWeights.Bold ]
+                                        ) ]
+                                  border
+                                      [ DockPanel.dock Dock.Bottom
+                                        Border.padding (Thickness(8.0, 4.0, 8.0, 4.0))
+                                        Border.borderThickness (Thickness(0.0, 1.0, 0.0, 0.0))
+                                        Border.borderBrush SystemColors.ActiveBorderBrush
+                                        Border.contentChild (
+                                            textBlock [ TextBlock.text $"Page: {state.Page} | Count: {state.Count}" ]
+                                        ) ]
+                                  border
+                                      [ DockPanel.dock Dock.Left
+                                        Border.width 160.0
+                                        Border.padding (Thickness 8.0)
+                                        Border.borderThickness (Thickness(0.0, 0.0, 1.0, 0.0))
+                                        Border.borderBrush SystemColors.ActiveBorderBrush
+                                        Border.contentChild (
+                                            stackPanel
+                                                [ StackPanel.children
+                                                      [ textBlock
+                                                            [ TextBlock.text "Navigation"
+                                                              TextBlock.fontWeight FontWeights.Bold
+                                                              TextBlock.margin (Thickness(0.0, 0.0, 0.0, 8.0)) ]
+                                                        button
+                                                            [ Button.content "Dashboard"
+                                                              Button.margin (Thickness 2.0)
+                                                              Button.onClick (
+                                                                  RoutedEventHandler(fun _ _ ->
+                                                                      dispatch (fun () ->
+                                                                          state <- { state with Page = Dashboard }))
+                                                              ) ]
+                                                        button
+                                                            [ Button.content "Counter"
+                                                              Button.margin (Thickness 2.0)
+                                                              Button.onClick (
+                                                                  RoutedEventHandler(fun _ _ ->
+                                                                      dispatch (fun () ->
+                                                                          state <- { state with Page = Counter }))
+                                                              ) ]
+                                                        button
+                                                            [ Button.content "Settings"
+                                                              Button.margin (Thickness 2.0)
+                                                              Button.onClick (
+                                                                  RoutedEventHandler(fun _ _ ->
+                                                                      dispatch (fun () ->
+                                                                          state <- { state with Page = Settings }))
+                                                              ) ]
+                                                        button
+                                                            [ Button.content "DataGrid"
+                                                              Button.margin (Thickness 2.0)
+                                                              Button.onClick (
+                                                                  RoutedEventHandler(fun _ _ ->
+                                                                      dispatch (fun () ->
+                                                                          state <- { state with Page = DataGridDemo }))
+                                                              ) ] ] ]
+                                        ) ]
                                   border
                                       [ Border.padding (Thickness 16.0)
                                         Border.contentChild (

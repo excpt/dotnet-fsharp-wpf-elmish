@@ -377,6 +377,17 @@ let isRegisteredAttached (field: FieldInfo) =
 // Button.ContentProperty → Button.SetContent(...) does NOT exist → not attached
 ```
 
+Attached helpers are emitted in the same prop-list shape as every other helper:
+
+```fsharp
+let row (v: int) : obj = box (AttachedProp(System.Windows.Controls.Grid.RowProperty, box v))
+```
+
+They took the node instead until 0.4.0 (`v -> node -> node`). One module then
+held two shapes under plain names, and since a props list is `obj list`, using
+the node-taking one in a list compiled and silently applied nothing. See
+`0900_attached_props.md`.
+
 ### Discovering Collection Properties (CollectionProp)
 
 Some CLR properties are auto-initialized list collections of `DependencyObject`
@@ -563,7 +574,7 @@ let emitControlFile (info: ControlInfo) (versionDPs: (string * DP[]) list) =
 | Concern | Approach |
 |---|---|
 | DependencyProperties | `SetValue` / `GetValue` via DP field |
-| Attached properties (`Grid.Row`) | Detect via static `SetXxx` method; emit `node`-extending helper |
+| Attached properties (`Grid.Row`) | Detect via static `SetXxx` method; emit `let name (v: T) : obj` carrying an `AttachedProp`, set from the child's own props list |
 | DO-valued DPs (`GridControl.View`) | `MaterializeBeforeSet` — DU case = `VirtualNode`, apply runs `Materializer.materialize` |
 | Auto-init list collections (`GridControl.Columns`) | `CollectionProp(name, children)` — Materializer reflects, clears, repopulates |
 | Routed events | Subscribe/unsubscribe via `AddHandler`/`RemoveHandler` |

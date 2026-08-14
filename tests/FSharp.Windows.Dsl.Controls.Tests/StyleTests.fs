@@ -116,15 +116,16 @@ let ``Style.applyImplicits registers multiple styles`` () =
 // --- Style.ofNode ---
 
 [<Fact>]
-let ``Style.ofNode captures listed and piped props as setters`` () =
+let ``Style.ofNode captures own and attached props as setters`` () =
     runSta (fun () ->
         register ()
 
         let s =
             Style.ofNode (
-                textBlock [ FSharp.Windows.Dsl.Controls.TextBlock.textWrapping TextWrapping.Wrap ]
-                |> FSharp.Windows.Dsl.Controls.TextBlock.fontSize 10.5
-                |> FSharp.Windows.Dsl.Controls.TextBlock.foreground Brushes.Red
+                textBlock
+                    [ FSharp.Windows.Dsl.Controls.TextBlock.textWrapping TextWrapping.Wrap
+                      FSharp.Windows.Dsl.Controls.TextBlock.fontSize 10.5
+                      FSharp.Windows.Dsl.Controls.TextBlock.foreground Brushes.Red ]
             )
 
         s.TargetType |> should equal typeof<TextBlock>

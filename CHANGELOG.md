@@ -9,6 +9,30 @@ This file is automatically updated by [versionize](https://github.com/versionize
 
 ## [Unreleased]
 
+### Changed — BREAKING
+
+- **Attached-property helpers are ordinary props.** `Grid.row`, `DockPanel.dock`,
+  `Canvas.left` and every other generated attached helper now take their value
+  and return a prop (`v -> obj`), instead of taking the node and returning it
+  (`v -> VirtualNode -> VirtualNode`). Put them in the props list of the child
+  they apply to, which is where WPF sets them anyway:
+
+  ```fsharp
+  // before
+  DockPanel.dock Dock.Top (border [ Border.contentChild ribbon ])
+  textBlock [ TextBlock.text "Title" ] |> TextBlock.fontSize 20.0
+
+  // after
+  border [ DockPanel.dock Dock.Top; Border.contentChild ribbon ]
+  textBlock [ TextBlock.text "Title"; TextBlock.fontSize 20.0 ]
+  ```
+
+  Every old call site is a compile error, so migration is mechanical. The reason
+  for the change is what the old shape did when it *wasn't* an error: a props
+  list is `obj list`, so a node-taking helper written in a list type-checked,
+  boxed a closure, and applied nothing at all. All three samples in this repo
+  carried that bug. Regenerate any third-party wrappers with the codegen tool.
+
 ### Added
 
 - **Declarative resources.** `Resource.dictionary` puts entries into any
@@ -29,19 +53,29 @@ This file is automatically updated by [versionize](https://github.com/versionize
   captured as setters (constructor-set defaults are excluded). Children,
   event handlers, collection and resource props are rejected.
 
+- **Diagnostics for props that do not apply.** Applying stays best-effort — a
+  wrong prop must not take a live window down — but what did not apply is now
+  recorded instead of discarded. `Materializer.diagnostics ()` lists each
+  `PropDiagnostic` once and writes it to `Debug`; `Materializer.strictProps <- true`
+  fails instead. Three cases: `UnappliedProp` (nothing owns this prop type — a
+  value that is not a prop, or a package whose `Registration.register()` was
+  never called), `PropNotForElement` (a real prop on the wrong control), and
+  `UnusableMember` (a `NodeProp`/`CollectionProp` name the element cannot take).
+- **`Validate.tree`.** The same checks over a virtual tree, statically: no
+  window, no STA thread, nothing materialized. `view` returns data, so one
+  assertion in a unit test catches a dropped prop before it ships.
+
 ### Performance
 
-- **Prop dispatch resolves once instead of throwing on every apply.** Finding
-  which registered apply owns a prop worked by trying the element's own type
-  and walking up the hierarchy on the caught `InvalidCastException` — so every
-  prop declared on a base type (`margin`, `width`, `background`, anything on
-  `FrameworkElement` or `Control`) paid an exception on *every* apply, and a
-  prop nothing handles paid one per level. The owner is now resolved once per
-  prop type and remembered. Measured on 200 elements x 6 props: an inherited
-  prop apply 17.0 us -> 0.31 us, an unhandled prop 50.5 us -> 0.04 us,
-  materializing the tree 15.4 ms -> 3.6 ms. A prop declared on the element's
-  own type costs 0.15 us more than before (0.10 -> 0.25 us) — the lookup that
-  buys the rest.
+- **Prop dispatch resolves from the registration instead of throwing.** Finding
+  which apply owns a prop worked by trying the element's own type and walking up
+  the hierarchy on the caught `InvalidCastException` — so every prop declared on
+  a base type (`margin`, `width`, `background`, anything on `FrameworkElement`
+  or `Control`) paid an exception on *every* apply, and a prop nothing handles
+  paid one per level. `registerApply` declares both types, so dispatch is now a
+  lookup by prop type. Measured on 200 elements x 6 props: an inherited prop
+  apply 17.0 us -> 0.2 us, an unhandled prop 50.5 us -> 0.2 us, materializing
+  the tree 15.4 ms -> 3.6 ms.
 
 ## [0.3.0] — 2026-04-26
 

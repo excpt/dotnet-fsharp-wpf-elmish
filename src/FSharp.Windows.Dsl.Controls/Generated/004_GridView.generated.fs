@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-04-26
+// Generated: 2026-08-14
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -66,11 +66,8 @@ module GridView =
     let contentChild (c: VirtualNode) : obj = box (ContentChild c)
     let key (k: string) : obj = box (Key k)
 
-    let columnCollection (v: System.Windows.Controls.GridViewColumnCollection) (node: VirtualNode) : VirtualNode =
-        { node with
-            Props =
-                box (AttachedProp(System.Windows.Controls.GridView.ColumnCollectionProperty, box v))
-                :: node.Props }
+    let columnCollection (v: System.Windows.Controls.GridViewColumnCollection) : obj =
+        box (AttachedProp(System.Windows.Controls.GridView.ColumnCollectionProperty, box v))
 
     let columns (cs: VirtualNode list) : obj = box (CollectionProp("Columns", cs))
 

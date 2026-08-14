@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-04-26
+// Generated: 2026-08-14
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -354,29 +354,17 @@ module Block =
     let contentChild (c: VirtualNode) : obj = box (ContentChild c)
     let key (k: string) : obj = box (Key k)
 
-    let isHyphenationEnabled (v: bool) (node: VirtualNode) : VirtualNode =
-        { node with
-            Props =
-                box (AttachedProp(System.Windows.Documents.Block.IsHyphenationEnabledProperty, box v))
-                :: node.Props }
+    let isHyphenationEnabled (v: bool) : obj =
+        box (AttachedProp(System.Windows.Documents.Block.IsHyphenationEnabledProperty, box v))
 
-    let textAlignment (v: System.Windows.TextAlignment) (node: VirtualNode) : VirtualNode =
-        { node with
-            Props =
-                box (AttachedProp(System.Windows.Documents.Block.TextAlignmentProperty, box v))
-                :: node.Props }
+    let textAlignment (v: System.Windows.TextAlignment) : obj =
+        box (AttachedProp(System.Windows.Documents.Block.TextAlignmentProperty, box v))
 
-    let lineHeight (v: float) (node: VirtualNode) : VirtualNode =
-        { node with
-            Props =
-                box (AttachedProp(System.Windows.Documents.Block.LineHeightProperty, box v))
-                :: node.Props }
+    let lineHeight (v: float) : obj =
+        box (AttachedProp(System.Windows.Documents.Block.LineHeightProperty, box v))
 
-    let lineStackingStrategy (v: System.Windows.LineStackingStrategy) (node: VirtualNode) : VirtualNode =
-        { node with
-            Props =
-                box (AttachedProp(System.Windows.Documents.Block.LineStackingStrategyProperty, box v))
-                :: node.Props }
+    let lineStackingStrategy (v: System.Windows.LineStackingStrategy) : obj =
+        box (AttachedProp(System.Windows.Documents.Block.LineStackingStrategyProperty, box v))
 
     let siblingBlocks (cs: VirtualNode list) : obj =
         box (CollectionProp("SiblingBlocks", cs))

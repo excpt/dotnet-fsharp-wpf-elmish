@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-04-26
+// Generated: 2026-08-14
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -412,11 +412,8 @@ module ToolBar =
     let contentChild (c: VirtualNode) : obj = box (ContentChild c)
     let key (k: string) : obj = box (Key k)
 
-    let overflowMode (v: System.Windows.Controls.OverflowMode) (node: VirtualNode) : VirtualNode =
-        { node with
-            Props =
-                box (AttachedProp(System.Windows.Controls.ToolBar.OverflowModeProperty, box v))
-                :: node.Props }
+    let overflowMode (v: System.Windows.Controls.OverflowMode) : obj =
+        box (AttachedProp(System.Windows.Controls.ToolBar.OverflowModeProperty, box v))
 
     let create (props: obj list) : VirtualNode =
         let cs, uk, ps = VirtualTree.extractSpecialProps props

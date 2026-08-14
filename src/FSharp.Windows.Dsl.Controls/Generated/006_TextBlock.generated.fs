@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-04-26
+// Generated: 2026-08-14
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -358,65 +358,35 @@ module TextBlock =
     let contentChild (c: VirtualNode) : obj = box (ContentChild c)
     let key (k: string) : obj = box (Key k)
 
-    let baselineOffset (v: float) (node: VirtualNode) : VirtualNode =
-        { node with
-            Props =
-                box (AttachedProp(System.Windows.Controls.TextBlock.BaselineOffsetProperty, box v))
-                :: node.Props }
+    let baselineOffset (v: float) : obj =
+        box (AttachedProp(System.Windows.Controls.TextBlock.BaselineOffsetProperty, box v))
 
-    let fontFamily (v: System.Windows.Media.FontFamily) (node: VirtualNode) : VirtualNode =
-        { node with
-            Props =
-                box (AttachedProp(System.Windows.Controls.TextBlock.FontFamilyProperty, box v))
-                :: node.Props }
+    let fontFamily (v: System.Windows.Media.FontFamily) : obj =
+        box (AttachedProp(System.Windows.Controls.TextBlock.FontFamilyProperty, box v))
 
-    let fontStyle (v: System.Windows.FontStyle) (node: VirtualNode) : VirtualNode =
-        { node with
-            Props =
-                box (AttachedProp(System.Windows.Controls.TextBlock.FontStyleProperty, box v))
-                :: node.Props }
+    let fontStyle (v: System.Windows.FontStyle) : obj =
+        box (AttachedProp(System.Windows.Controls.TextBlock.FontStyleProperty, box v))
 
-    let fontWeight (v: System.Windows.FontWeight) (node: VirtualNode) : VirtualNode =
-        { node with
-            Props =
-                box (AttachedProp(System.Windows.Controls.TextBlock.FontWeightProperty, box v))
-                :: node.Props }
+    let fontWeight (v: System.Windows.FontWeight) : obj =
+        box (AttachedProp(System.Windows.Controls.TextBlock.FontWeightProperty, box v))
 
-    let fontStretch (v: System.Windows.FontStretch) (node: VirtualNode) : VirtualNode =
-        { node with
-            Props =
-                box (AttachedProp(System.Windows.Controls.TextBlock.FontStretchProperty, box v))
-                :: node.Props }
+    let fontStretch (v: System.Windows.FontStretch) : obj =
+        box (AttachedProp(System.Windows.Controls.TextBlock.FontStretchProperty, box v))
 
-    let fontSize (v: float) (node: VirtualNode) : VirtualNode =
-        { node with
-            Props =
-                box (AttachedProp(System.Windows.Controls.TextBlock.FontSizeProperty, box v))
-                :: node.Props }
+    let fontSize (v: float) : obj =
+        box (AttachedProp(System.Windows.Controls.TextBlock.FontSizeProperty, box v))
 
-    let foreground (v: System.Windows.Media.Brush) (node: VirtualNode) : VirtualNode =
-        { node with
-            Props =
-                box (AttachedProp(System.Windows.Controls.TextBlock.ForegroundProperty, box v))
-                :: node.Props }
+    let foreground (v: System.Windows.Media.Brush) : obj =
+        box (AttachedProp(System.Windows.Controls.TextBlock.ForegroundProperty, box v))
 
-    let lineHeight (v: float) (node: VirtualNode) : VirtualNode =
-        { node with
-            Props =
-                box (AttachedProp(System.Windows.Controls.TextBlock.LineHeightProperty, box v))
-                :: node.Props }
+    let lineHeight (v: float) : obj =
+        box (AttachedProp(System.Windows.Controls.TextBlock.LineHeightProperty, box v))
 
-    let lineStackingStrategy (v: System.Windows.LineStackingStrategy) (node: VirtualNode) : VirtualNode =
-        { node with
-            Props =
-                box (AttachedProp(System.Windows.Controls.TextBlock.LineStackingStrategyProperty, box v))
-                :: node.Props }
+    let lineStackingStrategy (v: System.Windows.LineStackingStrategy) : obj =
+        box (AttachedProp(System.Windows.Controls.TextBlock.LineStackingStrategyProperty, box v))
 
-    let textAlignment (v: System.Windows.TextAlignment) (node: VirtualNode) : VirtualNode =
-        { node with
-            Props =
-                box (AttachedProp(System.Windows.Controls.TextBlock.TextAlignmentProperty, box v))
-                :: node.Props }
+    let textAlignment (v: System.Windows.TextAlignment) : obj =
+        box (AttachedProp(System.Windows.Controls.TextBlock.TextAlignmentProperty, box v))
 
     let inlines (cs: VirtualNode list) : obj = box (CollectionProp("Inlines", cs))
 

@@ -206,64 +206,59 @@ let view model dispatch =
               dockPanel
                   [ DockPanel.lastChildFill true
                     DockPanel.children
-                        [ DockPanel.dock
-                              Dock.Top
-                              (border
-                                  [ Border.padding (Thickness 8.0)
-                                    Border.borderThickness (Thickness(0.0, 0.0, 0.0, 1.0))
-                                    Border.borderBrush SystemColors.ActiveBorderBrush
-                                    Border.contentChild (
-                                        textBlock
-                                            [ TextBlock.text "FSharp.Windows.Dsl + Elmish — Component Architecture"
-                                              TextBlock.fontWeight FontWeights.Bold ]
-                                    ) ])
-                          DockPanel.dock
-                              Dock.Bottom
-                              (border
-                                  [ Border.padding (Thickness(8.0, 4.0, 8.0, 4.0))
-                                    Border.borderThickness (Thickness(0.0, 1.0, 0.0, 0.0))
-                                    Border.borderBrush SystemColors.ActiveBorderBrush
-                                    Border.contentChild (
-                                        textBlock
-                                            [ TextBlock.text
-                                                  $"Page: {model.Page} | Counter: {model.Counter.Count} | AutoSave: {model.Settings.AutoSave}" ]
-                                    ) ])
-                          DockPanel.dock
-                              Dock.Left
-                              (border
-                                  [ Border.width 160.0
-                                    Border.padding (Thickness 8.0)
-                                    Border.borderThickness (Thickness(0.0, 0.0, 1.0, 0.0))
-                                    Border.borderBrush SystemColors.ActiveBorderBrush
-                                    Border.contentChild (
-                                        stackPanel
-                                            [ StackPanel.children
-                                                  [ textBlock
-                                                        [ TextBlock.text "Navigation"
-                                                          TextBlock.fontWeight FontWeights.Bold
-                                                          TextBlock.margin (Thickness(0.0, 0.0, 0.0, 8.0)) ]
-                                                    button
-                                                        [ Button.content "Dashboard"
-                                                          Button.margin (Thickness 2.0)
-                                                          Button.onClick (
-                                                              RoutedEventHandler(fun _ _ ->
-                                                                  dispatch (Navigate Dashboard))
-                                                          ) ]
-                                                    button
-                                                        [ Button.content "Counter"
-                                                          Button.margin (Thickness 2.0)
-                                                          Button.onClick (
-                                                              RoutedEventHandler(fun _ _ ->
-                                                                  dispatch (Navigate CounterPage))
-                                                          ) ]
-                                                    button
-                                                        [ Button.content "Settings"
-                                                          Button.margin (Thickness 2.0)
-                                                          Button.onClick (
-                                                              RoutedEventHandler(fun _ _ ->
-                                                                  dispatch (Navigate SettingsPage))
-                                                          ) ] ] ]
-                                    ) ])
+                        [ border
+                              [ DockPanel.dock Dock.Top
+                                Border.padding (Thickness 8.0)
+                                Border.borderThickness (Thickness(0.0, 0.0, 0.0, 1.0))
+                                Border.borderBrush SystemColors.ActiveBorderBrush
+                                Border.contentChild (
+                                    textBlock
+                                        [ TextBlock.text "FSharp.Windows.Dsl + Elmish — Component Architecture"
+                                          TextBlock.fontWeight FontWeights.Bold ]
+                                ) ]
+                          border
+                              [ DockPanel.dock Dock.Bottom
+                                Border.padding (Thickness(8.0, 4.0, 8.0, 4.0))
+                                Border.borderThickness (Thickness(0.0, 1.0, 0.0, 0.0))
+                                Border.borderBrush SystemColors.ActiveBorderBrush
+                                Border.contentChild (
+                                    textBlock
+                                        [ TextBlock.text
+                                              $"Page: {model.Page} | Counter: {model.Counter.Count} | AutoSave: {model.Settings.AutoSave}" ]
+                                ) ]
+                          border
+                              [ DockPanel.dock Dock.Left
+                                Border.width 160.0
+                                Border.padding (Thickness 8.0)
+                                Border.borderThickness (Thickness(0.0, 0.0, 1.0, 0.0))
+                                Border.borderBrush SystemColors.ActiveBorderBrush
+                                Border.contentChild (
+                                    stackPanel
+                                        [ StackPanel.children
+                                              [ textBlock
+                                                    [ TextBlock.text "Navigation"
+                                                      TextBlock.fontWeight FontWeights.Bold
+                                                      TextBlock.margin (Thickness(0.0, 0.0, 0.0, 8.0)) ]
+                                                button
+                                                    [ Button.content "Dashboard"
+                                                      Button.margin (Thickness 2.0)
+                                                      Button.onClick (
+                                                          RoutedEventHandler(fun _ _ -> dispatch (Navigate Dashboard))
+                                                      ) ]
+                                                button
+                                                    [ Button.content "Counter"
+                                                      Button.margin (Thickness 2.0)
+                                                      Button.onClick (
+                                                          RoutedEventHandler(fun _ _ -> dispatch (Navigate CounterPage))
+                                                      ) ]
+                                                button
+                                                    [ Button.content "Settings"
+                                                      Button.margin (Thickness 2.0)
+                                                      Button.onClick (
+                                                          RoutedEventHandler(fun _ _ ->
+                                                              dispatch (Navigate SettingsPage))
+                                                      ) ] ] ]
+                                ) ]
                           // Content area — each page delegates to its component's view
                           border
                               [ Border.padding (Thickness 16.0)

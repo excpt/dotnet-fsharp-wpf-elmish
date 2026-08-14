@@ -134,41 +134,39 @@ let view model dispatch =
                   [ DockPanel.lastChildFill true
                     DockPanel.children
                         [ // Status bar
-                          DockPanel.dock
-                              Dock.Bottom
-                              (border
-                                  [ Border.padding (Thickness(8.0, 4.0, 8.0, 4.0))
-                                    Border.borderThickness (Thickness(0.0, 1.0, 0.0, 0.0))
-                                    Border.borderBrush SystemColors.ActiveBorderBrush
-                                    Border.contentChild (
-                                        textBlock
-                                            [ TextBlock.text model.StatusMessage
-                                              TextBlock.foreground (
-                                                  if model.Saved then
-                                                      Brushes.Green :> Brush
-                                                  else
-                                                      SystemColors.ControlTextBrush
-                                              ) ]
-                                    ) ])
+                          border
+                              [ DockPanel.dock Dock.Bottom
+                                Border.padding (Thickness(8.0, 4.0, 8.0, 4.0))
+                                Border.borderThickness (Thickness(0.0, 1.0, 0.0, 0.0))
+                                Border.borderBrush SystemColors.ActiveBorderBrush
+                                Border.contentChild (
+                                    textBlock
+                                        [ TextBlock.text model.StatusMessage
+                                          TextBlock.foreground (
+                                              if model.Saved then
+                                                  Brushes.Green :> Brush
+                                              else
+                                                  SystemColors.ControlTextBrush
+                                          ) ]
+                                ) ]
                           // Buttons
-                          DockPanel.dock
-                              Dock.Bottom
-                              (stackPanel
-                                  [ StackPanel.orientation Orientation.Horizontal
-                                    StackPanel.horizontalAlignment HorizontalAlignment.Right
-                                    StackPanel.margin (Thickness 16.0)
-                                    StackPanel.children
-                                        [ button
-                                              [ Button.content "Cancel"
-                                                Button.width 80.0
-                                                Button.margin (Thickness 4.0)
-                                                Button.onClick (RoutedEventHandler(fun _ _ -> dispatch Cancel)) ]
-                                          button
-                                              [ Button.content "Save (Ctrl+S)"
-                                                Button.width 120.0
-                                                Button.margin (Thickness 4.0)
-                                                Button.isDefault true
-                                                Button.onClick (RoutedEventHandler(fun _ _ -> dispatch Save)) ] ] ])
+                          stackPanel
+                              [ DockPanel.dock Dock.Bottom
+                                StackPanel.orientation Orientation.Horizontal
+                                StackPanel.horizontalAlignment HorizontalAlignment.Right
+                                StackPanel.margin (Thickness 16.0)
+                                StackPanel.children
+                                    [ button
+                                          [ Button.content "Cancel"
+                                            Button.width 80.0
+                                            Button.margin (Thickness 4.0)
+                                            Button.onClick (RoutedEventHandler(fun _ _ -> dispatch Cancel)) ]
+                                      button
+                                          [ Button.content "Save (Ctrl+S)"
+                                            Button.width 120.0
+                                            Button.margin (Thickness 4.0)
+                                            Button.isDefault true
+                                            Button.onClick (RoutedEventHandler(fun _ _ -> dispatch Save)) ] ] ]
                           // Form
                           scrollViewer
                               [ ScrollViewer.padding (Thickness 16.0)
@@ -178,8 +176,8 @@ let view model dispatch =
                                               [ textBlock
                                                     [ TextBlock.text "Customer Form"
                                                       TextBlock.fontWeight FontWeights.Bold
+                                                      TextBlock.fontSize 20.0
                                                       TextBlock.margin (Thickness(0.0, 0.0, 0.0, 16.0)) ]
-                                                |> TextBlock.fontSize 20.0
                                                 fieldView
                                                     model.Errors
                                                     "Name"

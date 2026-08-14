@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-04-26
+// Generated: 2026-08-14
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -335,35 +335,20 @@ module Grid =
     let contentChild (c: VirtualNode) : obj = box (ContentChild c)
     let key (k: string) : obj = box (Key k)
 
-    let column (v: int) (node: VirtualNode) : VirtualNode =
-        { node with
-            Props =
-                box (AttachedProp(System.Windows.Controls.Grid.ColumnProperty, box v))
-                :: node.Props }
+    let column (v: int) : obj =
+        box (AttachedProp(System.Windows.Controls.Grid.ColumnProperty, box v))
 
-    let row (v: int) (node: VirtualNode) : VirtualNode =
-        { node with
-            Props =
-                box (AttachedProp(System.Windows.Controls.Grid.RowProperty, box v))
-                :: node.Props }
+    let row (v: int) : obj =
+        box (AttachedProp(System.Windows.Controls.Grid.RowProperty, box v))
 
-    let columnSpan (v: int) (node: VirtualNode) : VirtualNode =
-        { node with
-            Props =
-                box (AttachedProp(System.Windows.Controls.Grid.ColumnSpanProperty, box v))
-                :: node.Props }
+    let columnSpan (v: int) : obj =
+        box (AttachedProp(System.Windows.Controls.Grid.ColumnSpanProperty, box v))
 
-    let rowSpan (v: int) (node: VirtualNode) : VirtualNode =
-        { node with
-            Props =
-                box (AttachedProp(System.Windows.Controls.Grid.RowSpanProperty, box v))
-                :: node.Props }
+    let rowSpan (v: int) : obj =
+        box (AttachedProp(System.Windows.Controls.Grid.RowSpanProperty, box v))
 
-    let isSharedSizeScope (v: bool) (node: VirtualNode) : VirtualNode =
-        { node with
-            Props =
-                box (AttachedProp(System.Windows.Controls.Grid.IsSharedSizeScopeProperty, box v))
-                :: node.Props }
+    let isSharedSizeScope (v: bool) : obj =
+        box (AttachedProp(System.Windows.Controls.Grid.IsSharedSizeScopeProperty, box v))
 
     let columnDefinitions (cs: VirtualNode list) : obj =
         box (CollectionProp("ColumnDefinitions", cs))
