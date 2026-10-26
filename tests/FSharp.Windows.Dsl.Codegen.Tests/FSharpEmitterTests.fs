@@ -319,11 +319,7 @@ let ``emitStaticAttachedFile emits a module of attached helpers, guarded ones un
         haveSubstring
         "let name (v: string) : obj = box (AttachedProp(System.Windows.Automation.AutomationProperties.NameProperty, box v))"
 
-    output
-    |> should
-        haveSubstring
-        "#if NET8_0_OR_GREATER
-    let headingLevel"
+    output |> should haveSubstring "#if NET8_0_OR_GREATER\n    let headingLevel"
 
     output |> should not' (haveSubstring "type AutomationPropertiesProp")
 
