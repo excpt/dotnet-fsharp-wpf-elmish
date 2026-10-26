@@ -113,7 +113,7 @@ Corrections applied:
 1. `Sub.ofEffect` → `Sub.effect` (Elmish 4.x API — key is `string list`, callback returns `IDisposable`)
 2. `Cmd.OfTask.attempt` → `Cmd.OfTask.either` where success+error handling needed
 3. `Cmd.ofTask` does not exist → use `Cmd.OfTask.perform` or `Cmd.OfTask.either`
-4. ObservableCollection `Clear()+Add()` loses scroll position (Reset notification)
+4. ObservableCollection `Clear()+Add()` drops selection/current row (scroll is kept); `DataCache.Update` syncs in place
 5. `CompositionTarget.Rendering` idle behavior is not guaranteed by documentation
 6. `ShowDialog()` runs nested Dispatcher frame, thread stays responsive
 7. `Window.GetWindow` takes `DependencyObject`, uses `PresentationSource` (not visual tree)
