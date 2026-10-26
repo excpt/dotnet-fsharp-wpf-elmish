@@ -361,6 +361,13 @@ let discoverDPs (controlType: Type) =
 fields declared on a base class, so deep descendants would otherwise misclassify
 inherited read-only DPs (`ActualWidth`, `ActualHeight`, …) as writable.
 
+A DP is also read-only when the control's public CLR property of that name has no
+setter. A read-only DP acquired through `AddOwner` keeps its key on the original
+owner (`PasswordBox.IsSelectionActive` on `TextBoxBase`, `ContentElement.IsMouseOver`
+on `UIElement`), out of the key walk's reach; the missing setter is visible on the
+control itself. Read-only DPs get no DU case, helper or apply branch. A test over the
+generated surface checks WPF's own `DependencyProperty.ReadOnly` for every case.
+
 ### Discovering Attached Properties
 
 Attached DPs have a static `Set` method on the declaring type:
