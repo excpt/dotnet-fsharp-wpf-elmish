@@ -650,3 +650,34 @@ let ``a structural failure rebuilds the children on the next render`` () =
 
         lb.ItemsSource |> should equal null
         lb.Items.Count |> should equal 2)
+
+// --- Children a parent cannot hold ---
+
+[<Fact>]
+let ``a single-slot parent keeps its child when the extra child leaves the tree`` () =
+    runSta (fun () ->
+        register ()
+        let a = textBlock [ TextBlock.text "a" ]
+        let b = textBlock [ TextBlock.text "b" ]
+        let live = Dsl.createLive (border [ Border.children [ a; b ] ])
+        let held = (live.Root :?> Border).Child
+
+        Dsl.update live (border [ Border.children [ a ] ])
+
+        (live.Root :?> Border).Child |> should be (sameAs held))
+
+[<Fact>]
+let ``children a parent cannot hold are reported, at runtime and by Validate`` () =
+    runSta (fun () ->
+        register ()
+        let two = border [ Border.children [ textBlock []; textBlock [] ] ]
+        let one = textBlock [ TextBlock.children [ textBlock [] ] ]
+
+        Dsl.materialize two |> ignore
+        Dsl.materialize one |> ignore
+
+        let diagnostics = Materializer.diagnostics ()
+        diagnostics |> should contain (ChildrenNotHeld(typeof<Border>, 1, 2))
+        diagnostics |> should contain (ChildrenNotHeld(typeof<TextBlock>, 0, 1))
+        Validate.tree two |> should equal [ ChildrenNotHeld(typeof<Border>, 1, 2) ]
+        Validate.tree one |> should equal [ ChildrenNotHeld(typeof<TextBlock>, 0, 1) ])
