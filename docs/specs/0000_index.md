@@ -1,7 +1,7 @@
 # Specification Index
 
 > FSharp.Windows.Dsl — F# MVU DSL for Windows LOB Applications
-> .NET 8+ | Windows | F# 8+
+> .NET 10 + .NET Framework 4.6.2 | Windows | F# 8+
 
 ## Implementation Phases
 

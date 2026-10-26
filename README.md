@@ -90,7 +90,7 @@ Validate.tree (view model ignore)  // the same checks statically, nothing materi
 
 ## Requirements
 
-- .NET 8.0+ (Windows)
+- .NET 10 (Windows) or .NET Framework 4.6.2+
 - F# 8+
 
 ## Getting Started
