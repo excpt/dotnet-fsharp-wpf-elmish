@@ -36,7 +36,7 @@ let makeId (parentId: string) (index: int) (t: Type) =
 ```
 
 Reconciler matching priority:
-1. `UserKey` match → same element, diff props
+1. `UserKey` match with the same type → same element, diff props. A `UserKey` match with a different type is a replace: the old element is removed and a new one created (counted in `Reconciler.Stats.Replaced`)
 2. Type + position match → same element
 3. No match → destroy old, create new
 
