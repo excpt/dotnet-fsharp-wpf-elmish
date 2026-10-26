@@ -8,8 +8,9 @@ open System.Windows
 open System.Windows.Controls
 
 /// Something the materializer could not apply. Applying is best-effort by
-/// design — a wrong prop must not take a live window down — so what did not
-/// land is recorded here rather than discarded.
+/// design — a wrong prop, or a value WPF rejects, must not take a live window
+/// down or abort a render halfway — so what did not land is recorded here
+/// rather than discarded, and the walk goes on.
 type PropDiagnostic =
     /// No registration handles this prop type at all: a value that is not a
     /// prop (a partially applied helper is the usual culprit), or a control
@@ -19,9 +20,14 @@ type PropDiagnostic =
     | PropNotForElement of elementType: Type * propType: Type * ownerType: Type
     /// A CLR member named by NodeProp or CollectionProp that cannot take it.
     | UnusableMember of elementType: Type * name: string * reason: string
+    /// The prop reached its apply, and WPF rejected the value (a validate
+    /// callback, a read-only DP, a wrong value type). The rest of the render
+    /// went ahead without it.
+    | ApplyFailed of elementType: Type * propType: Type * message: string
 
     override this.ToString() =
         match this with
+        | ApplyFailed(el, prop, message) -> $"applying {prop.Name} to {el.Name} failed: {message}"
         | UnappliedProp(el, prop) ->
             $"nothing applies {prop.Name} to {el.Name} — not a prop, or its package is not registered"
         | PropNotForElement(el, prop, owner) -> $"{prop.Name} belongs to {owner.Name}, not to {el.Name}"
@@ -51,12 +57,44 @@ module Materializer =
 
     let clearDiagnostics () = seen.Clear()
 
-    let internal report (d: PropDiagnostic) =
-        if strictProps then
-            failwith (string d)
+    /// Under strictProps, the first failure of the current walk. A walk that
+    /// threw halfway would leave the live tree out of step with the virtual one,
+    /// so strict failures are held here and raised by throwPending once the
+    /// walk has finished (per thread: each UI thread walks its own tree).
+    let private pending = new Threading.ThreadLocal<exn option>(fun () -> None)
 
+    let private record (d: PropDiagnostic) (e: exn) =
         if seen.TryAdd(d, ()) then
             Diagnostics.Debug.WriteLine($"[FSharp.Windows.Dsl] {d}")
+
+        if strictProps && pending.Value.IsNone then
+            pending.Value <- Some e
+
+    let internal report (d: PropDiagnostic) = record d (exn (string d))
+
+    /// Raise the strict-mode failure held since the last call, if any. The
+    /// public entry points (applyProp, Dsl.materialize, Dsl.createLive,
+    /// Dsl.update) call it after their walk completes.
+    let throwPending () =
+        match pending.Value with
+        | Some e ->
+            pending.Value <- None
+            Runtime.ExceptionServices.ExceptionDispatchInfo.Capture(e).Throw()
+        | None -> ()
+
+    /// Run one prop's application. A WPF exception is recorded as ApplyFailed
+    /// instead of propagating, so one rejected value cannot abort a walk that
+    /// has already changed the live tree.
+    let guard (el: DependencyObject) (prop: obj) (apply: unit -> unit) =
+        try
+            apply ()
+        with e ->
+            let propType =
+                match prop with
+                | :? EventProp as (EventProp inner) -> inner.GetType()
+                | _ -> prop.GetType()
+
+            record (ApplyFailed(el.GetType(), propType, e.Message)) e
 
     /// Register an apply function for a control type.
     let registerApply<'el, 'prop when 'el :> DependencyObject> (apply: 'el -> 'prop -> unit) =
@@ -115,7 +153,10 @@ module Materializer =
             | None -> report (UnappliedProp(elType, propType))
 
     /// Apply a single prop to an element, using the type hierarchy fallback.
-    let applyProp (el: DependencyObject) (prop: obj) = tryApplyProp el (el.GetType()) prop
+    /// Raises under strictProps; use tryApplyProp inside a walk.
+    let applyProp (el: DependencyObject) (prop: obj) =
+        tryApplyProp el (el.GetType()) prop
+        throwPending ()
 
     /// Merge entries into the element's ResourceDictionary. Runs with the other
     /// props, before children attach, so implicit styles are in place when the
@@ -233,14 +274,15 @@ module Materializer =
         // Apply props — attached/collection/event markers handled inline, typed props via registry
         node.Props
         |> List.iter (fun prop ->
-            match prop with
-            | :? AttachedProp as (AttachedProp(dp, value)) -> el.SetValue(dp, value)
-            | :? CollectionProp as (CollectionProp(name, cs)) -> applyCollectionProp el name cs
-            | :? NodeProp as (NodeProp(name, child)) -> applyNodeProp el name child
-            | :? ResourcesProp as (ResourcesProp entries) -> applyResourceEntries el entries
-            | :? ResourceRefProp as (ResourceRefProp(dp, key)) -> applyResourceReference el dp key
-            | :? EventProp as (EventProp inner) -> tryApplyProp el node.Type inner
-            | _ -> tryApplyProp el node.Type prop)
+            guard el prop (fun () ->
+                match prop with
+                | :? AttachedProp as (AttachedProp(dp, value)) -> el.SetValue(dp, value)
+                | :? CollectionProp as (CollectionProp(name, cs)) -> applyCollectionProp el name cs
+                | :? NodeProp as (NodeProp(name, child)) -> applyNodeProp el name child
+                | :? ResourcesProp as (ResourcesProp entries) -> applyResourceEntries el entries
+                | :? ResourceRefProp as (ResourceRefProp(dp, key)) -> applyResourceReference el dp key
+                | :? EventProp as (EventProp inner) -> tryApplyProp el node.Type inner
+                | _ -> tryApplyProp el node.Type prop))
 
         // Attach children
         attachChildren el node.Children

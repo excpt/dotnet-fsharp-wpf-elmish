@@ -595,3 +595,58 @@ let ``dropped resource dictionary removes its entries`` () =
             dropAll [ Resource.dictionary [ Resource.named "Accent" Media.Brushes.Red ] ] stackPanel :?> StackPanel
 
         sp.Resources.Contains("Accent") |> should be False)
+
+// --- A failure during reconcile does not desync the live tree ---
+
+[<Fact>]
+let ``a prop WPF rejects is contained and the next render has no duplicates`` () =
+    runSta (fun () ->
+        register ()
+
+        let row (w: float) =
+            stackPanel
+                [ StackPanel.children
+                      [ textBlock [ TextBlock.text "a" ]
+                        textBlock [ TextBlock.text "c" ]
+                        button [ Button.width w ] ] ]
+
+        let live =
+            Dsl.createLive (stackPanel [ StackPanel.children [ textBlock [ TextBlock.text "a" ] ] ])
+
+        let sp = live.Root :?> StackPanel
+
+        Dsl.update live (row -1.0)
+        sp.Children.Count |> should equal 3
+
+        Materializer.diagnostics ()
+        |> List.exists (function
+            | ApplyFailed(el, _, _) -> el = typeof<Button>
+            | _ -> false)
+        |> should be True
+
+        Dsl.update live (row 10.0)
+        sp.Children.Count |> should equal 3
+        (sp.Children.[2] :?> Button).Width |> should equal 10.0)
+
+[<Fact>]
+let ``a structural failure rebuilds the children on the next render`` () =
+    runSta (fun () ->
+        register ()
+        let live = Dsl.createLive (listBox [])
+        let lb = live.Root :?> ListBox
+
+        // Children cannot be added to Items while ItemsSource is set: WPF throws mid-walk.
+        (fun () ->
+            Dsl.update
+                live
+                (listBox
+                    [ ListBox.itemsSource [ 1; 2 ]
+                      ListBox.children [ textBlock [ TextBlock.text "x" ] ] ]))
+        |> should throw typeof<InvalidOperationException>
+
+        Dsl.update
+            live
+            (listBox [ ListBox.children [ textBlock [ TextBlock.text "a" ]; textBlock [ TextBlock.text "b" ] ] ])
+
+        lb.ItemsSource |> should equal null
+        lb.Items.Count |> should equal 2)
