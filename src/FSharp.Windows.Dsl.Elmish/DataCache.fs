@@ -16,10 +16,23 @@ type DataCache<'key, 'T when 'key: equality>() =
 
     /// Replace the contents of a cached collection.
     /// Creates the collection if it doesn't exist.
+    /// Syncs in place by index: rows that are Equals() to the incoming row are left
+    /// untouched, so a bound grid keeps selection/current row for them and no Reset is raised.
     member this.Update(key: 'key, items: 'T seq) =
         let col = this.GetOrCreate(key)
-        col.Clear()
-        items |> Seq.iter col.Add
+        let mutable i = 0
+
+        for item in items do
+            if i < col.Count then
+                if not (obj.Equals(col.[i], item)) then
+                    col.[i] <- item
+            else
+                col.Add item
+
+            i <- i + 1
+
+        while col.Count > i do
+            col.RemoveAt(col.Count - 1)
 
     /// Clear the contents of a cached collection (keeps the reference).
     member _.Clear(key: 'key) =
