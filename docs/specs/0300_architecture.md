@@ -37,7 +37,7 @@
 ## Package Structure
 
 ```
-FSharp.Windows.Dsl              → virtual tree, reconciler, hot reload, props, VirtualTree queries
+FSharp.Windows.Dsl              → virtual tree, reconciler, props, VirtualTree queries
 FSharp.Windows.Dsl.Elmish       → Program.runWindow, Cmd extensions, ComponentContext, AppBus, memoization
 FSharp.Windows.Dsl.Controls     → codegen'd WPF control wrappers
 FSharp.Windows.Dsl.Testing      → TestProgram, CmdTest (for test projects)

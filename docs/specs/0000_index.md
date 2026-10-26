@@ -51,7 +51,7 @@ Hot reload and Elmish loop wiring.
 
 | # | Document | Domain | Done When |
 |---|---|---|---|
-| 1100 | [1100_hot_reload.md](1100_hot_reload.md) | Hot Reload | MetadataUpdateHandler fires, forceRender works, state serialization round-trips |
+| 1100 | [1100_hot_reload.md](1100_hot_reload.md) | Hot Reload | State serialization round-trips F# models (unions included); auto-save via `Program.withTrace`; Tier 1 (MetadataUpdateHandler) blocked upstream for F#, see #1 |
 | 1200 | [1200_elmish_integration.md](1200_elmish_integration.md) | Elmish Integration | Program.runWindow works, setState wires to reconciler, dispatch threading correct |
 
 ### Phase 5 — Composition
@@ -87,7 +87,7 @@ Patterns for common LOB scenarios. Each is independent — implement as needed.
 ## Package Structure
 
 ```
-FSharp.Windows.Dsl              → virtual tree, reconciler, hot reload, props, VirtualTree queries
+FSharp.Windows.Dsl              → virtual tree, reconciler, props, VirtualTree queries
 FSharp.Windows.Dsl.Elmish       → Program.runWindow, Cmd extensions, ComponentContext, AppBus
 FSharp.Windows.Dsl.Controls     → codegen'd WPF control wrappers
 FSharp.Windows.Dsl.Testing      → TestProgram, CmdTest (for test projects)

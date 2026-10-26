@@ -93,4 +93,4 @@ Every architectural decision and its rationale.
 | Decision | Rationale |
 |---|---|
 | State serialization for restart | Model preserved across dotnet watch restarts, feels instant |
-| Hot reload as Feature Zero | Non-negotiable DX, ships in core, #if DEBUG only |
+| Hot reload as Feature Zero | Non-negotiable DX. For F# today: `dotnet watch` restart + `DebugState` restore, in FSharp.Windows.Dsl.Elmish; not compiled out of release builds (the app decides where to call `save`) |
