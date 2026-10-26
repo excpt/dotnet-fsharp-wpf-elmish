@@ -3,6 +3,7 @@ namespace FSharp.Windows.Dsl
 open System
 open System.Collections
 open System.Reflection
+open Microsoft.FSharp.Reflection
 
 /// Static check of a virtual tree: what would the materializer be unable to
 /// apply? `view` returns data, so this answers that before anything is
@@ -74,6 +75,17 @@ module Validate =
                   match checkValueProp node.Type prop with
                   | Some problem -> problem
                   | None -> ()
+
+                  // Generated union cases whose field is a VirtualNode
+                  // (ContextMenu, Popup.Child, Label.Target, ...): the
+                  // materializer materializes that node, so descend into it.
+                  let t = prop.GetType()
+
+                  if FSharpType.IsUnion(t, true) then
+                      for field in snd (FSharpValue.GetUnionFields(prop, t, true)) do
+                          match field with
+                          | :? VirtualNode as held -> yield! tree held
+                          | _ -> ()
 
           let held = Materializer.childCapacity node.Type
 

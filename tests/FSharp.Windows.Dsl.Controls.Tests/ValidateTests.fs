@@ -112,3 +112,17 @@ let ``problems in children and in prop-held nodes are found`` () =
                         groupBox [ Node.prop "Header" (textBlock [ box TextBlock.width ]) ] ] ]
 
         Validate.tree tree |> List.length |> should equal 2)
+
+[<Fact>]
+let ``problems in a node held by a union prop case are found`` () =
+    runSta (fun () ->
+        register ()
+
+        // ContextMenu is a generated case whose field is a VirtualNode.
+        let tree =
+            button
+                [ Button.contextMenu (contextMenu [ ContextMenu.children [ menuItem [ TextBlock.text "misplaced" ] ] ]) ]
+
+        match Validate.tree tree with
+        | [ PropNotForElement(el, _, _) ] -> el |> should equal typeof<MenuItem>
+        | other -> failwith $"expected one misplaced prop inside the menu, got {other}")
