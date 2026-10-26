@@ -49,6 +49,10 @@ jobs:
     needs: format
     runs-on: windows-latest
     steps:
+      # Windows runners check out with autocrlf=true, and Fantomas writes the
+      # regenerated files back with LF: every file would read as drift.
+      - run: git config --global core.autocrlf false
+
       - uses: actions/checkout@v6
 
       # The guard diff reads the WPF assemblies of every TFM in --tfms
