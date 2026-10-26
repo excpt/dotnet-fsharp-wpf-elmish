@@ -218,6 +218,16 @@ node is no work. An unknown, read-only, or type-incompatible property name is
 ignored rather than fatal — the same tolerance `CollectionProp` has, and for the
 same reason: the name comes from the caller, not the codegen.
 
+## Obj-Valued DPs
+
+A DP typed `obj` (`ContentControl.Content`, `HeaderedContentControl.Header`,
+`FrameworkElement.ToolTip`) takes any value, so a node passed to it type-checks.
+`apply` sets it through `Materializer.valueOf`, which materializes a `VirtualNode`
+and passes anything else through. `expander [ Expander.header (textBlock [ ... ]) ]`
+shows the TextBlock, not the record. Like any node-valued prop, the node is compared
+structurally and rebuilt when it changes; for content that should keep its state
+across renders, use `contentChild`, whose subtree the reconciler diffs.
+
 ## DO-Valued DPs (MaterializeBeforeSet)
 
 When a DP's value type is a `UIElement` subclass, the codegen rewrites the DU

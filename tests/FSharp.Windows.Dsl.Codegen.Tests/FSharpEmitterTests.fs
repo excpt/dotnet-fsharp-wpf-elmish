@@ -240,6 +240,22 @@ let ``emitControlFile emits VirtualNode case and materialize for DO-valued DP`` 
         "| GridControlProp.View v -> el.SetValue(DevExpress.Xpf.Grid.GridControl.ViewProperty, Materializer.materialize v |> box)"
 
 [<Fact>]
+let ``emitControlFile passes an obj-typed DP value through Materializer.valueOf`` () =
+    let input =
+        { simpleButtonInput with
+            OwnDPs =
+                [ { CaseName = "Content"
+                    PropertyType = "obj"
+                    DPFieldExpression = "System.Windows.Controls.ContentControl.ContentProperty"
+                    Guard = None
+                    MaterializeBeforeSet = false } ] }
+
+    FSharpEmitter.emitControlFile input
+    |> should
+        haveSubstring
+        "| ButtonProp.Content v -> el.SetValue(System.Windows.Controls.ContentControl.ContentProperty, Materializer.valueOf v)"
+
+[<Fact>]
 let ``emitControlFile emits collection helper for CLR collection property`` () =
     let input =
         { simpleButtonInput with

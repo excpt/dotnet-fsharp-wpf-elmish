@@ -109,3 +109,17 @@ let ``reconcile leaves an unchanged node alone`` () =
         Dsl.update live (tree ())
 
         header (live.Root :?> GroupBox) |> should be (sameAs before))
+
+// --- A node given to an obj-typed prop ---
+
+[<Fact>]
+let ``a node passed to content is materialized, not set as the record`` () =
+    runSta (fun () ->
+        register ()
+
+        let live =
+            Dsl.createLive (contentControl [ ContentControl.content (textBlock [ TextBlock.text "inside" ]) ])
+
+        let shown = (live.Root :?> ContentControl).Content
+        shown |> should be instanceOfType<TextBlock>
+        (shown :?> TextBlock).Text |> should equal "inside")

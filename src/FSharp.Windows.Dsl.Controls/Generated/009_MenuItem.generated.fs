@@ -66,7 +66,7 @@ module MenuItem =
         | MenuItemProp.Base p -> HeaderedItemsControl.apply el p
         | MenuItemProp.Command v -> el.SetValue(System.Windows.Controls.MenuItem.CommandProperty, box v)
         | MenuItemProp.CommandParameter v ->
-            el.SetValue(System.Windows.Controls.MenuItem.CommandParameterProperty, box v)
+            el.SetValue(System.Windows.Controls.MenuItem.CommandParameterProperty, Materializer.valueOf v)
         | MenuItemProp.CommandTarget v -> el.SetValue(System.Windows.Controls.MenuItem.CommandTargetProperty, box v)
         | MenuItemProp.IsSubmenuOpen v -> el.SetValue(System.Windows.Controls.MenuItem.IsSubmenuOpenProperty, box v)
         | MenuItemProp.IsCheckable v -> el.SetValue(System.Windows.Controls.MenuItem.IsCheckableProperty, box v)
@@ -75,7 +75,7 @@ module MenuItem =
             el.SetValue(System.Windows.Controls.MenuItem.StaysOpenOnClickProperty, box v)
         | MenuItemProp.InputGestureText v ->
             el.SetValue(System.Windows.Controls.MenuItem.InputGestureTextProperty, box v)
-        | MenuItemProp.Icon v -> el.SetValue(System.Windows.Controls.MenuItem.IconProperty, box v)
+        | MenuItemProp.Icon v -> el.SetValue(System.Windows.Controls.MenuItem.IconProperty, Materializer.valueOf v)
         | MenuItemProp.ItemContainerTemplateSelector v ->
             el.SetValue(System.Windows.Controls.MenuItem.ItemContainerTemplateSelectorProperty, box v)
         | MenuItemProp.UsesItemContainerTemplate v ->

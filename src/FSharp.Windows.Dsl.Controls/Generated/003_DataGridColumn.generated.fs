@@ -79,7 +79,8 @@ module DataGridColumn =
 
     let apply (el: System.Windows.Controls.DataGridColumn) (prop: DataGridColumnProp) =
         match prop with
-        | DataGridColumnProp.Header v -> el.SetValue(System.Windows.Controls.DataGridColumn.HeaderProperty, box v)
+        | DataGridColumnProp.Header v ->
+            el.SetValue(System.Windows.Controls.DataGridColumn.HeaderProperty, Materializer.valueOf v)
         | DataGridColumnProp.HeaderStyle v ->
             el.SetValue(System.Windows.Controls.DataGridColumn.HeaderStyleProperty, box v)
         | DataGridColumnProp.HeaderStringFormat v ->
@@ -101,7 +102,7 @@ module DataGridColumn =
         | DataGridColumnProp.CanUserSort v ->
             el.SetValue(System.Windows.Controls.DataGridColumn.CanUserSortProperty, box v)
         | DataGridColumnProp.SortDirection v ->
-            el.SetValue(System.Windows.Controls.DataGridColumn.SortDirectionProperty, box v)
+            el.SetValue(System.Windows.Controls.DataGridColumn.SortDirectionProperty, Materializer.valueOf v)
         | DataGridColumnProp.CanUserReorder v ->
             el.SetValue(System.Windows.Controls.DataGridColumn.CanUserReorderProperty, box v)
         | DataGridColumnProp.DragIndicatorStyle v ->

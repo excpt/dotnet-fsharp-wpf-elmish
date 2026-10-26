@@ -32,7 +32,7 @@ module ButtonBase =
         | ButtonBaseProp.Base p -> ContentControl.apply el p
         | ButtonBaseProp.Command v -> el.SetValue(System.Windows.Controls.Primitives.ButtonBase.CommandProperty, box v)
         | ButtonBaseProp.CommandParameter v ->
-            el.SetValue(System.Windows.Controls.Primitives.ButtonBase.CommandParameterProperty, box v)
+            el.SetValue(System.Windows.Controls.Primitives.ButtonBase.CommandParameterProperty, Materializer.valueOf v)
         | ButtonBaseProp.CommandTarget v ->
             el.SetValue(System.Windows.Controls.Primitives.ButtonBase.CommandTargetProperty, box v)
         | ButtonBaseProp.ClickMode v ->

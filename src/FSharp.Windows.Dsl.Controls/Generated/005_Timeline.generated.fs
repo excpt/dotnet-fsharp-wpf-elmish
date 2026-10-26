@@ -59,7 +59,8 @@ module Timeline =
         | TimelineProp.AccelerationRatio v ->
             el.SetValue(System.Windows.Media.Animation.Timeline.AccelerationRatioProperty, box v)
         | TimelineProp.AutoReverse v -> el.SetValue(System.Windows.Media.Animation.Timeline.AutoReverseProperty, box v)
-        | TimelineProp.BeginTime v -> el.SetValue(System.Windows.Media.Animation.Timeline.BeginTimeProperty, box v)
+        | TimelineProp.BeginTime v ->
+            el.SetValue(System.Windows.Media.Animation.Timeline.BeginTimeProperty, Materializer.valueOf v)
         | TimelineProp.DecelerationRatio v ->
             el.SetValue(System.Windows.Media.Animation.Timeline.DecelerationRatioProperty, box v)
         | TimelineProp.Duration v -> el.SetValue(System.Windows.Media.Animation.Timeline.DurationProperty, box v)

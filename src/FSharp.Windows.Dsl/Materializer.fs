@@ -244,8 +244,33 @@ module Materializer =
         | :? FrameworkContentElement as fce -> fce.SetResourceReference(dp, key)
         | _ -> report (PropNotForElement(el.GetType(), typeof<ResourceRefProp>, typeof<FrameworkElement>))
 
+    /// Children whose type the parent cannot hold: a Panel or Decorator takes
+    /// UIElements only, so a content element or a non-visual there would not cast.
+    let unattachable (parentType: Type) (children: VirtualNode list) =
+        if
+            typeof<Panel>.IsAssignableFrom parentType
+            || typeof<Decorator>.IsAssignableFrom parentType
+        then
+            children
+            |> List.filter (fun c -> not (typeof<UIElement>.IsAssignableFrom c.Type))
+            |> List.map (fun c -> UnusableMember(parentType, "Children", $"{c.Type.Name} is not a UIElement"))
+        else
+            []
+
+    /// The children a parent can hold, the rest reported. Materialize and
+    /// reconcile both go through this, so they agree on the list and its indices.
+    let attachable (parentType: Type) (children: VirtualNode list) =
+        match unattachable parentType children with
+        | [] -> children
+        | problems ->
+            problems |> List.iter report
+
+            children |> List.filter (fun c -> typeof<UIElement>.IsAssignableFrom c.Type)
+
     /// Attach materialized children to a parent element based on its type.
     let rec private attachChildren (parent: DependencyObject) (children: VirtualNode list) =
+        let children = attachable (parent.GetType()) children
+
         if children.IsEmpty then
             ()
         else
@@ -328,6 +353,13 @@ module Materializer =
         // Attach children
         attachChildren el node.Children
         el
+
+    /// The value for an obj-typed DP (Content, Header, ToolTip): a VirtualNode
+    /// is materialized, as a node-typed prop's is; anything else is set as given.
+    let valueOf (v: obj) : obj =
+        match v with
+        | :? VirtualNode as node -> box (materialize node)
+        | _ -> v
 
     /// Undo a prop the element no longer has: the slot goes back to what it
     /// would be had the prop never been set (default, style or inherited value),

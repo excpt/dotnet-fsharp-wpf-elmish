@@ -30,9 +30,12 @@ module VirtualizingStackPanel =
         match prop with
         | VirtualizingStackPanelProp.Base p -> Panel.apply el p
         | VirtualizingStackPanelProp.IsVirtualizing v ->
-            el.SetValue(System.Windows.Controls.VirtualizingStackPanel.IsVirtualizingProperty, box v)
+            el.SetValue(System.Windows.Controls.VirtualizingStackPanel.IsVirtualizingProperty, Materializer.valueOf v)
         | VirtualizingStackPanelProp.VirtualizationMode v ->
-            el.SetValue(System.Windows.Controls.VirtualizingStackPanel.VirtualizationModeProperty, box v)
+            el.SetValue(
+                System.Windows.Controls.VirtualizingStackPanel.VirtualizationModeProperty,
+                Materializer.valueOf v
+            )
         | VirtualizingStackPanelProp.Orientation v ->
             el.SetValue(System.Windows.Controls.VirtualizingStackPanel.OrientationProperty, box v)
 

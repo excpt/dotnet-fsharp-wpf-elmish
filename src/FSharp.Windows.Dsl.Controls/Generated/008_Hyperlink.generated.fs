@@ -38,7 +38,7 @@ module Hyperlink =
         | HyperlinkProp.Base p -> Inline.apply el p
         | HyperlinkProp.Command v -> el.SetValue(System.Windows.Documents.Hyperlink.CommandProperty, box v)
         | HyperlinkProp.CommandParameter v ->
-            el.SetValue(System.Windows.Documents.Hyperlink.CommandParameterProperty, box v)
+            el.SetValue(System.Windows.Documents.Hyperlink.CommandParameterProperty, Materializer.valueOf v)
         | HyperlinkProp.CommandTarget v -> el.SetValue(System.Windows.Documents.Hyperlink.CommandTargetProperty, box v)
         | HyperlinkProp.NavigateUri v -> el.SetValue(System.Windows.Documents.Hyperlink.NavigateUriProperty, box v)
         | HyperlinkProp.TargetName v -> el.SetValue(System.Windows.Documents.Hyperlink.TargetNameProperty, box v)

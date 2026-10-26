@@ -284,7 +284,8 @@ module DataGrid =
         | DataGridProp.VerticalScrollBarVisibility v ->
             el.SetValue(System.Windows.Controls.DataGrid.VerticalScrollBarVisibilityProperty, box v)
         | DataGridProp.IsReadOnly v -> el.SetValue(System.Windows.Controls.DataGrid.IsReadOnlyProperty, box v)
-        | DataGridProp.CurrentItem v -> el.SetValue(System.Windows.Controls.DataGrid.CurrentItemProperty, box v)
+        | DataGridProp.CurrentItem v ->
+            el.SetValue(System.Windows.Controls.DataGrid.CurrentItemProperty, Materializer.valueOf v)
         | DataGridProp.CurrentColumn v -> el.SetValue(System.Windows.Controls.DataGrid.CurrentColumnProperty, box v)
         | DataGridProp.CurrentCell v -> el.SetValue(System.Windows.Controls.DataGrid.CurrentCellProperty, box v)
         | DataGridProp.CanUserAddRows v -> el.SetValue(System.Windows.Controls.DataGrid.CanUserAddRowsProperty, box v)

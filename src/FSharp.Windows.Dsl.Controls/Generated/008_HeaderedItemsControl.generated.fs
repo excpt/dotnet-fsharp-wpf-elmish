@@ -33,7 +33,7 @@ module HeaderedItemsControl =
         match prop with
         | HeaderedItemsControlProp.Base p -> ItemsControl.apply el p
         | HeaderedItemsControlProp.Header v ->
-            el.SetValue(System.Windows.Controls.HeaderedItemsControl.HeaderProperty, box v)
+            el.SetValue(System.Windows.Controls.HeaderedItemsControl.HeaderProperty, Materializer.valueOf v)
         | HeaderedItemsControlProp.HeaderTemplate v ->
             el.SetValue(System.Windows.Controls.HeaderedItemsControl.HeaderTemplateProperty, box v)
         | HeaderedItemsControlProp.HeaderTemplateSelector v ->

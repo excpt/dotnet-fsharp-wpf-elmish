@@ -42,7 +42,8 @@ module ContentPresenter =
         | ContentPresenterProp.Base p -> FrameworkElement.apply el p
         | ContentPresenterProp.RecognizesAccessKey v ->
             el.SetValue(System.Windows.Controls.ContentPresenter.RecognizesAccessKeyProperty, box v)
-        | ContentPresenterProp.Content v -> el.SetValue(System.Windows.Controls.ContentPresenter.ContentProperty, box v)
+        | ContentPresenterProp.Content v ->
+            el.SetValue(System.Windows.Controls.ContentPresenter.ContentProperty, Materializer.valueOf v)
         | ContentPresenterProp.ContentTemplate v ->
             el.SetValue(System.Windows.Controls.ContentPresenter.ContentTemplateProperty, box v)
         | ContentPresenterProp.ContentTemplateSelector v ->

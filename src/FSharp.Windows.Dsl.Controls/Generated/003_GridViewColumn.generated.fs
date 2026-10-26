@@ -44,7 +44,8 @@ module GridViewColumn =
 
     let apply (el: System.Windows.Controls.GridViewColumn) (prop: GridViewColumnProp) =
         match prop with
-        | GridViewColumnProp.Header v -> el.SetValue(System.Windows.Controls.GridViewColumn.HeaderProperty, box v)
+        | GridViewColumnProp.Header v ->
+            el.SetValue(System.Windows.Controls.GridViewColumn.HeaderProperty, Materializer.valueOf v)
         | GridViewColumnProp.HeaderContainerStyle v ->
             el.SetValue(System.Windows.Controls.GridViewColumn.HeaderContainerStyleProperty, box v)
         | GridViewColumnProp.HeaderTemplate v ->

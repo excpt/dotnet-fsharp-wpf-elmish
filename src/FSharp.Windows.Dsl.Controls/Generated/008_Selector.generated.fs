@@ -35,13 +35,16 @@ module Selector =
         match prop with
         | SelectorProp.Base p -> ItemsControl.apply el p
         | SelectorProp.IsSynchronizedWithCurrentItem v ->
-            el.SetValue(System.Windows.Controls.Primitives.Selector.IsSynchronizedWithCurrentItemProperty, box v)
+            el.SetValue(
+                System.Windows.Controls.Primitives.Selector.IsSynchronizedWithCurrentItemProperty,
+                Materializer.valueOf v
+            )
         | SelectorProp.SelectedIndex v ->
             el.SetValue(System.Windows.Controls.Primitives.Selector.SelectedIndexProperty, box v)
         | SelectorProp.SelectedItem v ->
-            el.SetValue(System.Windows.Controls.Primitives.Selector.SelectedItemProperty, box v)
+            el.SetValue(System.Windows.Controls.Primitives.Selector.SelectedItemProperty, Materializer.valueOf v)
         | SelectorProp.SelectedValue v ->
-            el.SetValue(System.Windows.Controls.Primitives.Selector.SelectedValueProperty, box v)
+            el.SetValue(System.Windows.Controls.Primitives.Selector.SelectedValueProperty, Materializer.valueOf v)
         | SelectorProp.SelectedValuePath v ->
             el.SetValue(System.Windows.Controls.Primitives.Selector.SelectedValuePathProperty, box v)
         | SelectorProp.OnSelectionChanged h -> el.SelectionChanged.AddHandler(h)

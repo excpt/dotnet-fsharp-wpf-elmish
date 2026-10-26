@@ -58,9 +58,11 @@ module DataGridRow =
     let apply (el: System.Windows.Controls.DataGridRow) (prop: DataGridRowProp) =
         match prop with
         | DataGridRowProp.Base p -> Control.apply el p
-        | DataGridRowProp.Item v -> el.SetValue(System.Windows.Controls.DataGridRow.ItemProperty, box v)
+        | DataGridRowProp.Item v ->
+            el.SetValue(System.Windows.Controls.DataGridRow.ItemProperty, Materializer.valueOf v)
         | DataGridRowProp.ItemsPanel v -> el.SetValue(System.Windows.Controls.DataGridRow.ItemsPanelProperty, box v)
-        | DataGridRowProp.Header v -> el.SetValue(System.Windows.Controls.DataGridRow.HeaderProperty, box v)
+        | DataGridRowProp.Header v ->
+            el.SetValue(System.Windows.Controls.DataGridRow.HeaderProperty, Materializer.valueOf v)
         | DataGridRowProp.HeaderStyle v -> el.SetValue(System.Windows.Controls.DataGridRow.HeaderStyleProperty, box v)
         | DataGridRowProp.HeaderTemplate v ->
             el.SetValue(System.Windows.Controls.DataGridRow.HeaderTemplateProperty, box v)

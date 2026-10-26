@@ -35,7 +35,7 @@ module ToggleButton =
         match prop with
         | ToggleButtonProp.Base p -> ButtonBase.apply el p
         | ToggleButtonProp.IsChecked v ->
-            el.SetValue(System.Windows.Controls.Primitives.ToggleButton.IsCheckedProperty, box v)
+            el.SetValue(System.Windows.Controls.Primitives.ToggleButton.IsCheckedProperty, Materializer.valueOf v)
         | ToggleButtonProp.IsThreeState v ->
             el.SetValue(System.Windows.Controls.Primitives.ToggleButton.IsThreeStateProperty, box v)
         | ToggleButtonProp.OnChecked h -> el.Checked.AddHandler(h)

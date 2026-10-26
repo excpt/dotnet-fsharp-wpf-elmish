@@ -34,7 +34,7 @@ module Page =
     let apply (el: System.Windows.Controls.Page) (prop: PageProp) =
         match prop with
         | PageProp.Base p -> FrameworkElement.apply el p
-        | PageProp.Content v -> el.SetValue(System.Windows.Controls.Page.ContentProperty, box v)
+        | PageProp.Content v -> el.SetValue(System.Windows.Controls.Page.ContentProperty, Materializer.valueOf v)
         | PageProp.Background v -> el.SetValue(System.Windows.Controls.Page.BackgroundProperty, box v)
         | PageProp.Title v -> el.SetValue(System.Windows.Controls.Page.TitleProperty, box v)
         | PageProp.KeepAlive v -> el.SetValue(System.Windows.Controls.Page.KeepAliveProperty, box v)

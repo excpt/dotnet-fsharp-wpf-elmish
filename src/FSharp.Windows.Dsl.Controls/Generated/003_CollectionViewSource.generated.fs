@@ -39,7 +39,7 @@ module CollectionViewSource =
     let apply (el: System.Windows.Data.CollectionViewSource) (prop: CollectionViewSourceProp) =
         match prop with
         | CollectionViewSourceProp.Source v ->
-            el.SetValue(System.Windows.Data.CollectionViewSource.SourceProperty, box v)
+            el.SetValue(System.Windows.Data.CollectionViewSource.SourceProperty, Materializer.valueOf v)
         | CollectionViewSourceProp.CollectionViewType v ->
             el.SetValue(System.Windows.Data.CollectionViewSource.CollectionViewTypeProperty, box v)
         | CollectionViewSourceProp.IsLiveSortingRequested v ->

@@ -32,7 +32,8 @@ module ContentControl =
     let apply (el: System.Windows.Controls.ContentControl) (prop: ContentControlProp) =
         match prop with
         | ContentControlProp.Base p -> Control.apply el p
-        | ContentControlProp.Content v -> el.SetValue(System.Windows.Controls.ContentControl.ContentProperty, box v)
+        | ContentControlProp.Content v ->
+            el.SetValue(System.Windows.Controls.ContentControl.ContentProperty, Materializer.valueOf v)
         | ContentControlProp.ContentTemplate v ->
             el.SetValue(System.Windows.Controls.ContentControl.ContentTemplateProperty, box v)
         | ContentControlProp.ContentTemplateSelector v ->

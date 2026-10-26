@@ -70,7 +70,7 @@ module ThumbButtonInfo =
             el.SetValue(System.Windows.Shell.ThumbButtonInfo.IsInteractiveProperty, box v)
         | ThumbButtonInfoProp.Command v -> el.SetValue(System.Windows.Shell.ThumbButtonInfo.CommandProperty, box v)
         | ThumbButtonInfoProp.CommandParameter v ->
-            el.SetValue(System.Windows.Shell.ThumbButtonInfo.CommandParameterProperty, box v)
+            el.SetValue(System.Windows.Shell.ThumbButtonInfo.CommandParameterProperty, Materializer.valueOf v)
         | ThumbButtonInfoProp.CommandTarget v ->
             el.SetValue(System.Windows.Shell.ThumbButtonInfo.CommandTargetProperty, box v)
         | ThumbButtonInfoProp.OnClick h -> el.Click.AddHandler(h)

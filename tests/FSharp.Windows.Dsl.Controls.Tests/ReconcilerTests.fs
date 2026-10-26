@@ -776,3 +776,34 @@ let ``a repeated value prop keeps last-wins when its later copy is dropped`` () 
         Dsl.update live (tree [ TextBlock.text "a" ])
 
         ((live.Root :?> StackPanel).Children.[0] :?> TextBlock).Text |> should equal "a")
+
+// --- Children of a type the parent cannot hold ---
+
+/// A Run is a FrameworkContentElement, not a UIElement: no Panel can hold it.
+let private run text : VirtualNode =
+    { Type = typeof<Documents.Run>
+      Props = [ box (AttachedProp(Documents.Run.TextProperty, box text)) ]
+      Children = []
+      UserKey = None }
+
+[<Fact>]
+let ``a child of a type its parent cannot hold is reported and left out, on create and update`` () =
+    runSta (fun () ->
+        register ()
+        Materializer.clearDiagnostics ()
+
+        let tree (s: string) =
+            stackPanel [ StackPanel.children [ run "x"; textBlock [ TextBlock.text s ] ] ]
+
+        let live = Dsl.createLive (tree "a")
+        Dsl.update live (tree "b")
+
+        let sp = live.Root :?> StackPanel
+        sp.Children.Count |> should equal 1
+        (sp.Children.[0] :?> TextBlock).Text |> should equal "b"
+
+        let expected =
+            UnusableMember(typeof<StackPanel>, "Children", "Run is not a UIElement")
+
+        Materializer.diagnostics () |> should contain expected
+        Validate.tree (tree "a") |> should equal [ expected ])

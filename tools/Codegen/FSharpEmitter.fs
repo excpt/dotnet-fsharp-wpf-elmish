@@ -229,14 +229,19 @@ let private emitModule (sb: StringBuilder) (input: EmitControlInput) =
     | Some applyFn -> sb.AppendLine($"        | {propType}.Base p -> {applyFn} el p") |> ignore
     | None -> ()
 
-    for dp in baselineDPs do
-        let rhs =
-            if dp.MaterializeBeforeSet then
-                $"el.SetValue({dp.DPFieldExpression}, Materializer.materialize v |> box)"
-            else
-                $"el.SetValue({dp.DPFieldExpression}, box v)"
+    // An obj-typed DP (Content, Header, ToolTip) also takes a node: valueOf
+    // materializes a VirtualNode and passes anything else through.
+    let setValue (dp: EmitDP) =
+        if dp.MaterializeBeforeSet then
+            $"el.SetValue({dp.DPFieldExpression}, Materializer.materialize v |> box)"
+        elif dp.PropertyType = "obj" then
+            $"el.SetValue({dp.DPFieldExpression}, Materializer.valueOf v)"
+        else
+            $"el.SetValue({dp.DPFieldExpression}, box v)"
 
-        sb.AppendLine($"        | {propType}.{dp.CaseName} v -> {rhs}") |> ignore
+    for dp in baselineDPs do
+        sb.AppendLine($"        | {propType}.{dp.CaseName} v -> {setValue dp}")
+        |> ignore
 
     for ev in baselineEvents do
         sb.AppendLine($"        | {propType}.{ev.CaseName} h -> {ev.EventExpression}.AddHandler(h)")
@@ -248,7 +253,7 @@ let private emitModule (sb: StringBuilder) (input: EmitControlInput) =
         for item in items do
             match item with
             | Choice1Of2 dp ->
-                sb.AppendLine($"        | {propType}.{dp.CaseName} v -> el.SetValue({dp.DPFieldExpression}, box v)")
+                sb.AppendLine($"        | {propType}.{dp.CaseName} v -> {setValue dp}")
                 |> ignore
             | Choice2Of2 ev ->
                 sb.AppendLine($"        | {propType}.{ev.CaseName} h -> {ev.EventExpression}.AddHandler(h)")

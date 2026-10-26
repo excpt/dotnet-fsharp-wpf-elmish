@@ -59,7 +59,7 @@ module GridView =
                 Materializer.materialize v |> box
             )
         | GridViewProp.ColumnHeaderToolTip v ->
-            el.SetValue(System.Windows.Controls.GridView.ColumnHeaderToolTipProperty, box v)
+            el.SetValue(System.Windows.Controls.GridView.ColumnHeaderToolTipProperty, Materializer.valueOf v)
 
     let clear (el: System.Windows.Controls.GridView) (prop: GridViewProp) =
         match prop with

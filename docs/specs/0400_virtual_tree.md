@@ -90,6 +90,11 @@ materializer and the reconciler, statically by `Validate.tree`. The reconciler o
 index 0 of a single-slot parent, so removing an extra child from the tree leaves the held
 one in place.
 
+A `Panel` or `Decorator` child that is not a `UIElement` (a `Run`, a non-visual) cannot be
+attached either. It is left out and reported as `UnusableMember(parent, "Children",
+"Run is not a UIElement")`. Materialize and reconcile filter the list through the same
+`Materializer.attachable`, so both see the same children at the same indices.
+
 ```fsharp
 gridControl
     [ GridControl.itemsSource src

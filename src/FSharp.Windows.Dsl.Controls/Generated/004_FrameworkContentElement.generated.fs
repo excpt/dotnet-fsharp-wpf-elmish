@@ -113,7 +113,8 @@ module FrameworkContentElement =
         | FrameworkContentElementProp.OverridesDefaultStyle v ->
             el.SetValue(System.Windows.FrameworkContentElement.OverridesDefaultStyleProperty, box v)
         | FrameworkContentElementProp.Name v -> el.SetValue(System.Windows.FrameworkContentElement.NameProperty, box v)
-        | FrameworkContentElementProp.Tag v -> el.SetValue(System.Windows.FrameworkContentElement.TagProperty, box v)
+        | FrameworkContentElementProp.Tag v ->
+            el.SetValue(System.Windows.FrameworkContentElement.TagProperty, Materializer.valueOf v)
         | FrameworkContentElementProp.Language v ->
             el.SetValue(System.Windows.FrameworkContentElement.LanguageProperty, box v)
         | FrameworkContentElementProp.FocusVisualStyle v ->
@@ -125,11 +126,11 @@ module FrameworkContentElement =
         | FrameworkContentElementProp.InputScope v ->
             el.SetValue(System.Windows.FrameworkContentElement.InputScopeProperty, box v)
         | FrameworkContentElementProp.DataContext v ->
-            el.SetValue(System.Windows.FrameworkContentElement.DataContextProperty, box v)
+            el.SetValue(System.Windows.FrameworkContentElement.DataContextProperty, Materializer.valueOf v)
         | FrameworkContentElementProp.BindingGroup v ->
             el.SetValue(System.Windows.FrameworkContentElement.BindingGroupProperty, box v)
         | FrameworkContentElementProp.ToolTip v ->
-            el.SetValue(System.Windows.FrameworkContentElement.ToolTipProperty, box v)
+            el.SetValue(System.Windows.FrameworkContentElement.ToolTipProperty, Materializer.valueOf v)
         | FrameworkContentElementProp.ContextMenu v ->
             el.SetValue(System.Windows.FrameworkContentElement.ContextMenuProperty, Materializer.materialize v |> box)
         | FrameworkContentElementProp.OnLoaded h -> el.Loaded.AddHandler(h)

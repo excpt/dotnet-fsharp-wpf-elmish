@@ -67,14 +67,16 @@ module Calendar =
         | CalendarProp.CalendarItemStyle v ->
             el.SetValue(System.Windows.Controls.Calendar.CalendarItemStyleProperty, box v)
         | CalendarProp.DisplayDate v -> el.SetValue(System.Windows.Controls.Calendar.DisplayDateProperty, box v)
-        | CalendarProp.DisplayDateEnd v -> el.SetValue(System.Windows.Controls.Calendar.DisplayDateEndProperty, box v)
+        | CalendarProp.DisplayDateEnd v ->
+            el.SetValue(System.Windows.Controls.Calendar.DisplayDateEndProperty, Materializer.valueOf v)
         | CalendarProp.DisplayDateStart v ->
-            el.SetValue(System.Windows.Controls.Calendar.DisplayDateStartProperty, box v)
+            el.SetValue(System.Windows.Controls.Calendar.DisplayDateStartProperty, Materializer.valueOf v)
         | CalendarProp.DisplayMode v -> el.SetValue(System.Windows.Controls.Calendar.DisplayModeProperty, box v)
         | CalendarProp.FirstDayOfWeek v -> el.SetValue(System.Windows.Controls.Calendar.FirstDayOfWeekProperty, box v)
         | CalendarProp.IsTodayHighlighted v ->
             el.SetValue(System.Windows.Controls.Calendar.IsTodayHighlightedProperty, box v)
-        | CalendarProp.SelectedDate v -> el.SetValue(System.Windows.Controls.Calendar.SelectedDateProperty, box v)
+        | CalendarProp.SelectedDate v ->
+            el.SetValue(System.Windows.Controls.Calendar.SelectedDateProperty, Materializer.valueOf v)
         | CalendarProp.SelectionMode v -> el.SetValue(System.Windows.Controls.Calendar.SelectionModeProperty, box v)
         | CalendarProp.OnSelectedDatesChanged h -> el.SelectedDatesChanged.AddHandler(h)
         | CalendarProp.OnDisplayDateChanged h -> el.DisplayDateChanged.AddHandler(h)

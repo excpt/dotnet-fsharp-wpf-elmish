@@ -141,12 +141,13 @@ module FrameworkElement =
             el.SetValue(System.Windows.FrameworkElement.OverridesDefaultStyleProperty, box v)
         | FrameworkElementProp.UseLayoutRounding v ->
             el.SetValue(System.Windows.FrameworkElement.UseLayoutRoundingProperty, box v)
-        | FrameworkElementProp.DataContext v -> el.SetValue(System.Windows.FrameworkElement.DataContextProperty, box v)
+        | FrameworkElementProp.DataContext v ->
+            el.SetValue(System.Windows.FrameworkElement.DataContextProperty, Materializer.valueOf v)
         | FrameworkElementProp.BindingGroup v ->
             el.SetValue(System.Windows.FrameworkElement.BindingGroupProperty, box v)
         | FrameworkElementProp.Language v -> el.SetValue(System.Windows.FrameworkElement.LanguageProperty, box v)
         | FrameworkElementProp.Name v -> el.SetValue(System.Windows.FrameworkElement.NameProperty, box v)
-        | FrameworkElementProp.Tag v -> el.SetValue(System.Windows.FrameworkElement.TagProperty, box v)
+        | FrameworkElementProp.Tag v -> el.SetValue(System.Windows.FrameworkElement.TagProperty, Materializer.valueOf v)
         | FrameworkElementProp.InputScope v -> el.SetValue(System.Windows.FrameworkElement.InputScopeProperty, box v)
         | FrameworkElementProp.LayoutTransform v ->
             el.SetValue(System.Windows.FrameworkElement.LayoutTransformProperty, box v)
@@ -165,7 +166,8 @@ module FrameworkElement =
             el.SetValue(System.Windows.FrameworkElement.FocusVisualStyleProperty, box v)
         | FrameworkElementProp.Cursor v -> el.SetValue(System.Windows.FrameworkElement.CursorProperty, box v)
         | FrameworkElementProp.ForceCursor v -> el.SetValue(System.Windows.FrameworkElement.ForceCursorProperty, box v)
-        | FrameworkElementProp.ToolTip v -> el.SetValue(System.Windows.FrameworkElement.ToolTipProperty, box v)
+        | FrameworkElementProp.ToolTip v ->
+            el.SetValue(System.Windows.FrameworkElement.ToolTipProperty, Materializer.valueOf v)
         | FrameworkElementProp.ContextMenu v ->
             el.SetValue(System.Windows.FrameworkElement.ContextMenuProperty, Materializer.materialize v |> box)
         | FrameworkElementProp.OnRequestBringIntoView h -> el.RequestBringIntoView.AddHandler(h)

@@ -63,16 +63,17 @@ module DatePicker =
         | DatePickerProp.CalendarStyle v -> el.SetValue(System.Windows.Controls.DatePicker.CalendarStyleProperty, box v)
         | DatePickerProp.DisplayDate v -> el.SetValue(System.Windows.Controls.DatePicker.DisplayDateProperty, box v)
         | DatePickerProp.DisplayDateEnd v ->
-            el.SetValue(System.Windows.Controls.DatePicker.DisplayDateEndProperty, box v)
+            el.SetValue(System.Windows.Controls.DatePicker.DisplayDateEndProperty, Materializer.valueOf v)
         | DatePickerProp.DisplayDateStart v ->
-            el.SetValue(System.Windows.Controls.DatePicker.DisplayDateStartProperty, box v)
+            el.SetValue(System.Windows.Controls.DatePicker.DisplayDateStartProperty, Materializer.valueOf v)
         | DatePickerProp.FirstDayOfWeek v ->
             el.SetValue(System.Windows.Controls.DatePicker.FirstDayOfWeekProperty, box v)
         | DatePickerProp.IsDropDownOpen v ->
             el.SetValue(System.Windows.Controls.DatePicker.IsDropDownOpenProperty, box v)
         | DatePickerProp.IsTodayHighlighted v ->
             el.SetValue(System.Windows.Controls.DatePicker.IsTodayHighlightedProperty, box v)
-        | DatePickerProp.SelectedDate v -> el.SetValue(System.Windows.Controls.DatePicker.SelectedDateProperty, box v)
+        | DatePickerProp.SelectedDate v ->
+            el.SetValue(System.Windows.Controls.DatePicker.SelectedDateProperty, Materializer.valueOf v)
         | DatePickerProp.SelectedDateFormat v ->
             el.SetValue(System.Windows.Controls.DatePicker.SelectedDateFormatProperty, box v)
         | DatePickerProp.Text v -> el.SetValue(System.Windows.Controls.DatePicker.TextProperty, box v)

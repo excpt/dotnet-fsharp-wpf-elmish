@@ -34,7 +34,7 @@ module HeaderedContentControl =
         match prop with
         | HeaderedContentControlProp.Base p -> ContentControl.apply el p
         | HeaderedContentControlProp.Header v ->
-            el.SetValue(System.Windows.Controls.HeaderedContentControl.HeaderProperty, box v)
+            el.SetValue(System.Windows.Controls.HeaderedContentControl.HeaderProperty, Materializer.valueOf v)
         | HeaderedContentControlProp.HeaderTemplate v ->
             el.SetValue(System.Windows.Controls.HeaderedContentControl.HeaderTemplateProperty, box v)
         | HeaderedContentControlProp.HeaderTemplateSelector v ->

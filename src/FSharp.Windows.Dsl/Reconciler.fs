@@ -416,6 +416,8 @@ module Reconciler =
         (oldChildren: VirtualNode list)
         (newChildren: VirtualNode list)
         =
+        let oldChildren = Materializer.attachable (parent.GetType()) oldChildren
+        let newChildren = Materializer.attachable (parent.GetType()) newChildren
         Materializer.checkChildCount (parent.GetType()) newChildren.Length
 
         if hasKeys oldChildren || hasKeys newChildren then

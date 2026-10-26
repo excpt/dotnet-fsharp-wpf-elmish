@@ -97,10 +97,14 @@ module Validate =
                           | :? VirtualNode as held -> yield! tree held
                           | _ -> ()
 
-          let held = Materializer.childCapacity node.Type
+          let wrongType = Materializer.unattachable node.Type node.Children
+          yield! wrongType
 
-          if node.Children.Length > held then
-              ChildrenNotHeld(node.Type, held, node.Children.Length)
+          let held = Materializer.childCapacity node.Type
+          let given = node.Children.Length - wrongType.Length
+
+          if given > held then
+              ChildrenNotHeld(node.Type, held, given)
 
           for child in node.Children do
               yield! tree child ]

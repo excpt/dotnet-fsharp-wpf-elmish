@@ -61,7 +61,10 @@ module GridViewHeaderRowPresenter =
                 Materializer.materialize v |> box
             )
         | GridViewHeaderRowPresenterProp.ColumnHeaderToolTip v ->
-            el.SetValue(System.Windows.Controls.GridViewHeaderRowPresenter.ColumnHeaderToolTipProperty, box v)
+            el.SetValue(
+                System.Windows.Controls.GridViewHeaderRowPresenter.ColumnHeaderToolTipProperty,
+                Materializer.valueOf v
+            )
 
     let clear (el: System.Windows.Controls.GridViewHeaderRowPresenter) (prop: GridViewHeaderRowPresenterProp) =
         match prop with

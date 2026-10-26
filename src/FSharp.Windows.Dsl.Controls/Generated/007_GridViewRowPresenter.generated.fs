@@ -22,7 +22,7 @@ module GridViewRowPresenter =
         match prop with
         | GridViewRowPresenterProp.Base p -> GridViewRowPresenterBase.apply el p
         | GridViewRowPresenterProp.Content v ->
-            el.SetValue(System.Windows.Controls.GridViewRowPresenter.ContentProperty, box v)
+            el.SetValue(System.Windows.Controls.GridViewRowPresenter.ContentProperty, Materializer.valueOf v)
 
     let clear (el: System.Windows.Controls.GridViewRowPresenter) (prop: GridViewRowPresenterProp) =
         match prop with

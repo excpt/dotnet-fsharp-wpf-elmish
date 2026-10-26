@@ -70,7 +70,7 @@ module ToolTip =
         | ToolTipProp.OnClosed h -> el.Closed.AddHandler(h)
 #if NET8_0_OR_GREATER
         | ToolTipProp.ShowsToolTipOnKeyboardFocus v ->
-            el.SetValue(System.Windows.Controls.ToolTip.ShowsToolTipOnKeyboardFocusProperty, box v)
+            el.SetValue(System.Windows.Controls.ToolTip.ShowsToolTipOnKeyboardFocusProperty, Materializer.valueOf v)
 #endif
 
     let clear (el: System.Windows.Controls.ToolTip) (prop: ToolTipProp) =
