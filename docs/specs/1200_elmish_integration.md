@@ -40,18 +40,23 @@ The reconciler serves as the render backend for the standard Elmish loop.
 
 - `Program.withSetState` is the hook where Elmish hands off rendering
 - `setState` is called on every model change (after every `update`)
-- `Dispatcher.Invoke` ensures all WPF mutations happen on the UI thread
+- Every message is processed on the UI thread, so all WPF mutations happen there
 - `currentTree` tracks the previous virtual tree for diffing
 - `Application().Run(window)` starts the WPF message pump (blocking call)
 
 ## Dispatch Threading
 
-Elmish processes messages sequentially. The `update` function runs on whatever thread
-dispatches the message. The `setState` callback marshals to the UI thread via
-`Dispatcher.Invoke`.
+`dispatch` can be called from any thread (`Cmd.OfTask`/`Cmd.OfAsync` continuations,
+`AppBus` handlers, timers, external events). The run functions (`runWindow`,
+`runChildWindow` and their `WithArg` variants) capture the UI dispatcher when the
+program is wired and start the loop with `Program.runWithDispatch`. A message
+dispatched on the UI thread is processed at once; one dispatched from any other thread
+is posted to the UI dispatcher with `BeginInvoke`. `update`, `view` and `setState`
+therefore always run on the UI thread, one message at a time.
 
-Important: `dispatch` can be called from any thread (background tasks, timers,
-external events). Elmish queues messages internally.
+Elmish's own message queue is not thread-safe (its ring buffer and re-entrancy flag
+are unsynchronised), so this marshalling is what makes cross-thread dispatch safe, not
+Elmish. A program started with plain `Program.run` does not get it.
 
 ## Memoization at Component Boundaries
 

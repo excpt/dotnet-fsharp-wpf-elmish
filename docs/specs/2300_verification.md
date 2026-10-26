@@ -39,7 +39,7 @@
 | 10 | `Cmd.map` | **CORRECT** | |
 | 11 | `Cmd.batch` | **CORRECT** | |
 | 12 | Assembly-level attribute syntax | **CORRECT** | `[<assembly: ...>]` + `do ()` required. |
-| 13 | Dispatch threading | **CORRECT** | Thread-safe. WPF rendering must be UI thread. |
+| 13 | Dispatch threading | **CORRECTED** | Elmish dispatch is not thread-safe by itself. The run functions marshal every message to the UI dispatcher (`Program.runWithDispatch`); WPF rendering must be on the UI thread. See 1200. |
 | 14 | `Cmd.none` | **CORRECT** | |
 | 15 | `yield` in list expressions | **CORRECT** | Implicit since F# 4.7. |
 
