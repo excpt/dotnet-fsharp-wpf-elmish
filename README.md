@@ -82,8 +82,8 @@ Validate.tree (view model ignore)  // the same checks statically, nothing materi
 
 | Package | Description |
 |---|---|
-| `FSharp.Windows.Dsl` | Virtual tree, reconciler, hot reload, props |
-| `FSharp.Windows.Dsl.Elmish` | `Program.runWindow`, Cmd extensions, components, AppBus |
+| `FSharp.Windows.Dsl` | Virtual tree, reconciler, props |
+| `FSharp.Windows.Dsl.Elmish` | `Program.runWindow`, Cmd extensions, components, AppBus, `DebugState` (restart-based hot reload) |
 | `FSharp.Windows.Dsl.Controls` | Generated WPF control wrappers |
 | `FSharp.Windows.Dsl.Testing` | TestProgram, CmdTest, VirtualTree queries |
 | `FSharp.Windows.Dsl.Codegen` | Reflection-based code generation tool |

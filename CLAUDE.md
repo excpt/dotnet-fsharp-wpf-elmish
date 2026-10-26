@@ -6,8 +6,8 @@ Targets .NET 10 (Windows) and .NET Framework 4.6.2+ (`net462`; `net472` for the 
 
 ### Packages
 
-- `FSharp.Windows.Dsl` — virtual tree, reconciler, hot reload, props, VirtualTree queries (no Elmish dependency)
-- `FSharp.Windows.Dsl.Elmish` — Program.runWindow, Cmd extensions, ComponentContext, AppBus
+- `FSharp.Windows.Dsl` — virtual tree, reconciler, props, VirtualTree queries (no Elmish dependency)
+- `FSharp.Windows.Dsl.Elmish` — Program.runWindow, Cmd extensions, ComponentContext, AppBus, DebugState (restart-based hot reload)
 - `FSharp.Windows.Dsl.Controls` — codegen'd WPF control wrappers
 - `FSharp.Windows.Dsl.Testing` — TestProgram, CmdTest (for test projects)
 - `FSharp.Windows.Dsl.Codegen` — reflection-based code generation CLI tool
@@ -62,13 +62,15 @@ SPECS -> TESTS -> RED -> GREEN -> REFACTOR -> DOCUMENTATION
 ### Hot reload
 
 Hot reload IS the visual designer. There is no XAML designer preview.
+For F# that means `dotnet watch run`: every edit restarts the app, and `DebugState`
+restores the model (Tier 2). In-process deltas (Tier 1) wait on the F# compiler.
 See `docs/specs/1100_hot_reload.md`.
 
 ## Architecture
 
 ### Source projects
 
-- `src/FSharp.Windows.Dsl/` — virtual tree, reconciler, hot reload, base prop types
+- `src/FSharp.Windows.Dsl/` — virtual tree, reconciler, base prop types
 - `src/FSharp.Windows.Dsl.Elmish/` — Elmish integration, Program.runWindow, Cmd extensions, AppBus
 - `src/FSharp.Windows.Dsl.Controls/` — codegen'd WPF control wrappers (generated + manual overrides)
 - `src/FSharp.Windows.Dsl.Testing/` — TestProgram, CmdTest, VirtualTree query re-exports

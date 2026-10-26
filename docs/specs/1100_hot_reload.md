@@ -1,6 +1,11 @@
 # Feature Zero — Hot Reload (Visual Preview Replacement)
 
-> **Package:** FSharp.Windows.Dsl (ships in core, `#if DEBUG` only)
+> **Package:** FSharp.Windows.Dsl.Elmish (`DebugState`)
+>
+> **Status:** for F#, Tier 2 (`dotnet watch` restart + state restore) is the tier that
+> works today. Tier 1 (in-process `MetadataUpdateHandler` deltas) needs F# compiler and
+> `dotnet watch` support that has not shipped; the sections describing it are the design
+> for when it does. See issue #1 for the upstream tracking.
 >
 > **Priority:** Hot reload replaces the XAML designer. Without XAML there is no
 > Visual Studio designer preview, so hot reload is the only way to iterate on
@@ -173,56 +178,56 @@ Real data. Real state. Real behavior. Not a static empty preview.
 
 ## When Restart Is Needed — State Serialization
 
-For the 20% that requires restart (new DU case, new model field), state serialization
-makes it feel instant:
+With `dotnet watch run`, every change to a `.fs` file recompiles and restarts the app
+(see Three-Tier Strategy: for F# that is every change today). `DebugState` makes the
+restart cheap: the app saves its model after every message and restores it at startup.
 
 ```fsharp
-module DebugState =
-    let private path = ".elmish-debug-state.json"
-    let private options = JsonSerializerOptions(WriteIndented = true)
-
-    let save (model: 'model) =
-        #if DEBUG
-        try
-            File.WriteAllText(path, JsonSerializer.Serialize(model, options))
-        with _ -> ()    // never crash on save failure
-        #endif
-
-    let restore<'model> () : 'model option =
-        #if DEBUG
-        try
-            if File.Exists(path) then
-                File.ReadAllText(path)
-                |> JsonSerializer.Deserialize<'model>
-                |> Some
-            else None
-        with _ -> None   // graceful fallback on deserialize failure
-        #else
-        None
-        #endif
-
-// wire into init
+// restore in init; fall back to defaults when there is no file or it no longer fits
 let init () =
-    match DebugState.restore<Model>() with
+    match DebugState.restore<Model> () with
     | Some model -> model, Cmd.none
-    | None       -> defaultModel, Cmd.ofMsg LoadData
+    | None -> defaultModel, Cmd.ofMsg LoadData
 
-// wire into setState — auto-save on every model change
-let withAutoSave (setState: 'model -> Dispatch<'msg> -> unit) =
-    fun model dispatch ->
-        DebugState.save model
-        setState model dispatch
+// auto-save after every message: one line, next to runWindow
+Program.mkProgram init update view
+|> Program.withTrace (fun _ model _ -> DebugState.save model)
+|> Program.runWindow
 ```
 
-`dotnet watch` + state serialization:
+`Program.withTrace` composes with any trace already installed, and the run functions only
+replace `setState`, so the auto-save survives `runWindow` and `runChildWindow`.
+
+What is saved and restored:
+
+- The model is written as JSON to `.elmish-debug-state.json` in the working directory
+  (`saveTo` / `restoreFrom` take an explicit path).
+- Records, options, lists, sets and maps use System.Text.Json's built-in F# support.
+  Discriminated unions, which System.Text.Json rejects, go through an internal converter
+  in `DebugState`: a case without fields is written as its name, a case with fields as
+  `{"Case": name, "Fields": [...]}`. The format is private to the app across restarts and
+  makes no stability promise between library releases.
+- `restore` returns `None` when the file is missing or no longer matches the model: a
+  field added, renamed or removed, or a union case renamed or removed. The app then
+  starts from `init`'s defaults; a schema change costs one restart without restored state.
+- A failed save or restore is written to `Trace` (visible in the debugger output) and the
+  app goes on. `DebugState.strict <- true` throws instead, for while a model is being
+  developed and a silently skipped save is the worse outcome.
+- Saving runs after every message on the UI thread. That is cheap for ordinary models;
+  keep large data (grid rows, caches) outside the model, as the architecture already asks.
+
+`DebugState` lives in `FSharp.Windows.Dsl.Elmish` and is not compiled out of release
+builds; a library cannot be "debug only" for the app through its own `DEBUG` symbol. Call
+`save` only in builds where you want it, for example behind the app's own `#if DEBUG`.
+
+The workflow:
 ```
 save file
-  -> dotnet watch detects change
-  -> recompile (~1-2s)
+  -> dotnet watch detects the change
+  -> recompile (~1-2 s)
   -> restart
-  -> state restored from disk
-  -> UI appears exactly as left
-  -> feels like hot reload for structural changes
+  -> init restores the model from disk
+  -> the UI comes back where it was
 ```
 
 ## Three-Tier Strategy
@@ -230,13 +235,13 @@ save file
 ```
 Tier 1 — MetadataUpdateHandler (instant)
   -> method body changes — layout, logic, conditions
-  -> ~40% of changes in F# (limited by F# compiler delta support)
+  -> not available for F# yet: the compiler emits no deltas (issue #1)
   -> zero restart, zero state loss
 
 Tier 2 — dotnet watch + state serialization (2-5s)
   -> structural changes — new Msg, new Model field, new module
-  -> 100% of changes
-  -> restart fast, state preserved, feels instant
+  -> every change in F# today
+  -> restart in seconds, model restored by DebugState
 
 Tier 3 — Full restart (last resort)
   -> new NuGet dependency
@@ -244,7 +249,8 @@ Tier 3 — Full restart (last resort)
   -> rare in daily iteration
 ```
 
-**All three tiers ship in the core package, `#if DEBUG` only, zero production overhead.**
+**Tier 2 ships in FSharp.Windows.Dsl.Elmish (`DebugState`). It is not compiled out of
+release builds; the app decides where to call `save`.**
 
 ## Why This Works At All
 
