@@ -25,7 +25,6 @@ type FlowDocumentReaderProp =
     | ZoomIncrement of float
     | SelectionBrush of System.Windows.Media.Brush
     | SelectionOpacity of float
-    | IsSelectionActive of bool
     | IsInactiveSelectionHighlightEnabled of bool
 
 module FlowDocumentReader =
@@ -61,9 +60,6 @@ module FlowDocumentReader =
     let selectionOpacity v : obj =
         box (FlowDocumentReaderProp.SelectionOpacity v)
 
-    let isSelectionActive v : obj =
-        box (FlowDocumentReaderProp.IsSelectionActive v)
-
     let isInactiveSelectionHighlightEnabled v : obj =
         box (FlowDocumentReaderProp.IsInactiveSelectionHighlightEnabled v)
 
@@ -95,8 +91,6 @@ module FlowDocumentReader =
             el.SetValue(System.Windows.Controls.FlowDocumentReader.SelectionBrushProperty, box v)
         | FlowDocumentReaderProp.SelectionOpacity v ->
             el.SetValue(System.Windows.Controls.FlowDocumentReader.SelectionOpacityProperty, box v)
-        | FlowDocumentReaderProp.IsSelectionActive v ->
-            el.SetValue(System.Windows.Controls.FlowDocumentReader.IsSelectionActiveProperty, box v)
         | FlowDocumentReaderProp.IsInactiveSelectionHighlightEnabled v ->
             el.SetValue(System.Windows.Controls.FlowDocumentReader.IsInactiveSelectionHighlightEnabledProperty, box v)
 
@@ -126,8 +120,6 @@ module FlowDocumentReader =
             el.ClearValue(System.Windows.Controls.FlowDocumentReader.SelectionBrushProperty)
         | FlowDocumentReaderProp.SelectionOpacity _ ->
             el.ClearValue(System.Windows.Controls.FlowDocumentReader.SelectionOpacityProperty)
-        | FlowDocumentReaderProp.IsSelectionActive _ ->
-            el.ClearValue(System.Windows.Controls.FlowDocumentReader.IsSelectionActiveProperty)
         | FlowDocumentReaderProp.IsInactiveSelectionHighlightEnabled _ ->
             el.ClearValue(System.Windows.Controls.FlowDocumentReader.IsInactiveSelectionHighlightEnabledProperty)
 

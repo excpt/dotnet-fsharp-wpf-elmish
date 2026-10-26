@@ -215,6 +215,18 @@ let private hasReadOnlyKey (controlType: Type) (fieldName: string) =
 
     walk controlType
 
+/// A DP whose public CLR wrapper has no setter is read-only to callers, whichever
+/// type holds its key: one acquired through AddOwner (PasswordBox.IsSelectionActive,
+/// ContentElement.IsMouseOver) keeps the key on the original owner, out of
+/// hasReadOnlyKey's reach.
+let private hasNoPublicSetter (controlType: Type) (propName: string) =
+    try
+        match controlType.GetProperty(propName, BindingFlags.Public ||| BindingFlags.Instance) with
+        | null -> false
+        | p -> isNull (p.GetSetMethod())
+    with :? AmbiguousMatchException ->
+        false
+
 /// Discover DependencyProperties on a type.
 let discoverDPs (controlType: Type) : DPInfo list =
     controlType.GetFields(BindingFlags.Public ||| BindingFlags.Static ||| BindingFlags.FlattenHierarchy)
@@ -279,7 +291,7 @@ let discoverDPs (controlType: Type) : DPInfo list =
             with :? AmbiguousMatchException ->
                 "System.Object"
           IsAttached = isAttached f
-          IsReadOnly = hasReadOnlyKey controlType f.Name })
+          IsReadOnly = hasReadOnlyKey controlType f.Name || hasNoPublicSetter controlType propName })
     |> Array.toList
 
 /// Discover routed events on a type.

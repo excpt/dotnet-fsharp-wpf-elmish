@@ -28,53 +28,13 @@ module ModelUIElement3D =
         | ModelUIElement3DProp.Base p -> UIElement3D.clear el p
         | ModelUIElement3DProp.Model _ -> el.ClearValue(System.Windows.Media.Media3D.ModelUIElement3D.ModelProperty)
 
-    let isMouseDirectlyOver v : obj =
-        box (UIElement3DProp.IsMouseDirectlyOver v)
-
-    let isMouseOver v : obj = box (UIElement3DProp.IsMouseOver v)
-    let isStylusOver v : obj = box (UIElement3DProp.IsStylusOver v)
-
-    let isKeyboardFocusWithin v : obj =
-        box (UIElement3DProp.IsKeyboardFocusWithin v)
-
-    let isMouseCaptured v : obj = box (UIElement3DProp.IsMouseCaptured v)
-
-    let isMouseCaptureWithin v : obj =
-        box (UIElement3DProp.IsMouseCaptureWithin v)
-
-    let isStylusDirectlyOver v : obj =
-        box (UIElement3DProp.IsStylusDirectlyOver v)
-
-    let isStylusCaptured v : obj =
-        box (UIElement3DProp.IsStylusCaptured v)
-
-    let isStylusCaptureWithin v : obj =
-        box (UIElement3DProp.IsStylusCaptureWithin v)
-
-    let isKeyboardFocused v : obj =
-        box (UIElement3DProp.IsKeyboardFocused v)
-
-    let areAnyTouchesDirectlyOver v : obj =
-        box (UIElement3DProp.AreAnyTouchesDirectlyOver v)
-
-    let areAnyTouchesOver v : obj =
-        box (UIElement3DProp.AreAnyTouchesOver v)
-
-    let areAnyTouchesCaptured v : obj =
-        box (UIElement3DProp.AreAnyTouchesCaptured v)
-
-    let areAnyTouchesCapturedWithin v : obj =
-        box (UIElement3DProp.AreAnyTouchesCapturedWithin v)
-
     let allowDrop v : obj = box (UIElement3DProp.AllowDrop v)
     let visibility v : obj = box (UIElement3DProp.Visibility v)
-    let isFocused v : obj = box (UIElement3DProp.IsFocused v)
     let isEnabled v : obj = box (UIElement3DProp.IsEnabled v)
 
     let isHitTestVisible v : obj =
         box (UIElement3DProp.IsHitTestVisible v)
 
-    let isVisible v : obj = box (UIElement3DProp.IsVisible v)
     let focusable v : obj = box (UIElement3DProp.Focusable v)
     let transform v : obj = box (Visual3DProp.Transform v)
 

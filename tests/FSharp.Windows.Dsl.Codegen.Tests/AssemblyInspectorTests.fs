@@ -278,3 +278,20 @@ let ``discoverAllEvents has no duplicates`` () =
     let allEvents = AssemblyInspector.discoverAllEvents windowType
     let names = allEvents |> List.map (fun e -> e.Name)
     names |> List.distinct |> List.length |> should equal (names |> List.length)
+
+// A read-only DP acquired through AddOwner keeps its key on the original owner
+// (TextBoxBase, UIElement, ...), so a key lookup on the control misses it.
+[<Theory>]
+[<InlineData("PresentationFramework", "System.Windows.Controls.PasswordBox", "IsSelectionActive")>]
+[<InlineData("PresentationFramework", "System.Windows.Controls.Frame", "CanGoBack")>]
+[<InlineData("PresentationCore", "System.Windows.ContentElement", "IsMouseOver")>]
+[<InlineData("PresentationCore", "System.Windows.UIElement3D", "IsVisible")>]
+let ``discoverDPs marks an AddOwner'd read-only DP as read-only``
+    (assemblyName: string, typeName: string, dpName: string)
+    =
+    let path = AssemblyInspector.resolveAssembly "net10.0-windows" assemblyName
+    use ctx = AssemblyInspector.createContext (Path.GetDirectoryName(path)) []
+    let t = ctx.LoadFromAssemblyPath(path).GetType(typeName)
+
+    let dp = AssemblyInspector.discoverDPs t |> List.find (fun dp -> dp.Name = dpName)
+    dp.IsReadOnly |> should be True

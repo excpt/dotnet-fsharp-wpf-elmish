@@ -160,46 +160,6 @@ module FrameworkContentElement =
         | FrameworkContentElementProp.OnContextMenuClosing h -> el.ContextMenuClosing.RemoveHandler(h)
         | FrameworkContentElementProp.OnInitialized h -> el.Initialized.RemoveHandler(h)
 
-    let isMouseDirectlyOver v : obj =
-        box (ContentElementProp.IsMouseDirectlyOver v)
-
-    let isMouseOver v : obj = box (ContentElementProp.IsMouseOver v)
-    let isStylusOver v : obj = box (ContentElementProp.IsStylusOver v)
-
-    let isKeyboardFocusWithin v : obj =
-        box (ContentElementProp.IsKeyboardFocusWithin v)
-
-    let isMouseCaptured v : obj =
-        box (ContentElementProp.IsMouseCaptured v)
-
-    let isMouseCaptureWithin v : obj =
-        box (ContentElementProp.IsMouseCaptureWithin v)
-
-    let isStylusDirectlyOver v : obj =
-        box (ContentElementProp.IsStylusDirectlyOver v)
-
-    let isStylusCaptured v : obj =
-        box (ContentElementProp.IsStylusCaptured v)
-
-    let isStylusCaptureWithin v : obj =
-        box (ContentElementProp.IsStylusCaptureWithin v)
-
-    let isKeyboardFocused v : obj =
-        box (ContentElementProp.IsKeyboardFocused v)
-
-    let areAnyTouchesDirectlyOver v : obj =
-        box (ContentElementProp.AreAnyTouchesDirectlyOver v)
-
-    let areAnyTouchesOver v : obj =
-        box (ContentElementProp.AreAnyTouchesOver v)
-
-    let areAnyTouchesCaptured v : obj =
-        box (ContentElementProp.AreAnyTouchesCaptured v)
-
-    let areAnyTouchesCapturedWithin v : obj =
-        box (ContentElementProp.AreAnyTouchesCapturedWithin v)
-
-    let isFocused v : obj = box (ContentElementProp.IsFocused v)
     let isEnabled v : obj = box (ContentElementProp.IsEnabled v)
     let focusable v : obj = box (ContentElementProp.Focusable v)
     let allowDrop v : obj = box (ContentElementProp.AllowDrop v)

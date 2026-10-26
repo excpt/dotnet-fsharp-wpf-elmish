@@ -12,26 +12,10 @@ open FSharp.Windows.Dsl
 [<RequireQualifiedAccess>]
 type UIElement3DProp =
     | Base of Visual3DProp
-    | IsMouseDirectlyOver of bool
-    | IsMouseOver of bool
-    | IsStylusOver of bool
-    | IsKeyboardFocusWithin of bool
-    | IsMouseCaptured of bool
-    | IsMouseCaptureWithin of bool
-    | IsStylusDirectlyOver of bool
-    | IsStylusCaptured of bool
-    | IsStylusCaptureWithin of bool
-    | IsKeyboardFocused of bool
-    | AreAnyTouchesDirectlyOver of bool
-    | AreAnyTouchesOver of bool
-    | AreAnyTouchesCaptured of bool
-    | AreAnyTouchesCapturedWithin of bool
     | AllowDrop of bool
     | Visibility of System.Windows.Visibility
-    | IsFocused of bool
     | IsEnabled of bool
     | IsHitTestVisible of bool
-    | IsVisible of bool
     | Focusable of bool
     | OnPreviewMouseDown of System.Windows.Input.MouseButtonEventHandler
     | OnMouseDown of System.Windows.Input.MouseButtonEventHandler
@@ -102,53 +86,13 @@ type UIElement3DProp =
     | OnLostFocus of System.Windows.RoutedEventHandler
 
 module UIElement3D =
-    let isMouseDirectlyOver v : obj =
-        box (UIElement3DProp.IsMouseDirectlyOver v)
-
-    let isMouseOver v : obj = box (UIElement3DProp.IsMouseOver v)
-    let isStylusOver v : obj = box (UIElement3DProp.IsStylusOver v)
-
-    let isKeyboardFocusWithin v : obj =
-        box (UIElement3DProp.IsKeyboardFocusWithin v)
-
-    let isMouseCaptured v : obj = box (UIElement3DProp.IsMouseCaptured v)
-
-    let isMouseCaptureWithin v : obj =
-        box (UIElement3DProp.IsMouseCaptureWithin v)
-
-    let isStylusDirectlyOver v : obj =
-        box (UIElement3DProp.IsStylusDirectlyOver v)
-
-    let isStylusCaptured v : obj =
-        box (UIElement3DProp.IsStylusCaptured v)
-
-    let isStylusCaptureWithin v : obj =
-        box (UIElement3DProp.IsStylusCaptureWithin v)
-
-    let isKeyboardFocused v : obj =
-        box (UIElement3DProp.IsKeyboardFocused v)
-
-    let areAnyTouchesDirectlyOver v : obj =
-        box (UIElement3DProp.AreAnyTouchesDirectlyOver v)
-
-    let areAnyTouchesOver v : obj =
-        box (UIElement3DProp.AreAnyTouchesOver v)
-
-    let areAnyTouchesCaptured v : obj =
-        box (UIElement3DProp.AreAnyTouchesCaptured v)
-
-    let areAnyTouchesCapturedWithin v : obj =
-        box (UIElement3DProp.AreAnyTouchesCapturedWithin v)
-
     let allowDrop v : obj = box (UIElement3DProp.AllowDrop v)
     let visibility v : obj = box (UIElement3DProp.Visibility v)
-    let isFocused v : obj = box (UIElement3DProp.IsFocused v)
     let isEnabled v : obj = box (UIElement3DProp.IsEnabled v)
 
     let isHitTestVisible v : obj =
         box (UIElement3DProp.IsHitTestVisible v)
 
-    let isVisible v : obj = box (UIElement3DProp.IsVisible v)
     let focusable v : obj = box (UIElement3DProp.Focusable v)
 
     let onPreviewMouseDown v : obj =
@@ -355,36 +299,10 @@ module UIElement3D =
     let apply (el: System.Windows.UIElement3D) (prop: UIElement3DProp) =
         match prop with
         | UIElement3DProp.Base p -> Visual3D.apply el p
-        | UIElement3DProp.IsMouseDirectlyOver v ->
-            el.SetValue(System.Windows.UIElement3D.IsMouseDirectlyOverProperty, box v)
-        | UIElement3DProp.IsMouseOver v -> el.SetValue(System.Windows.UIElement3D.IsMouseOverProperty, box v)
-        | UIElement3DProp.IsStylusOver v -> el.SetValue(System.Windows.UIElement3D.IsStylusOverProperty, box v)
-        | UIElement3DProp.IsKeyboardFocusWithin v ->
-            el.SetValue(System.Windows.UIElement3D.IsKeyboardFocusWithinProperty, box v)
-        | UIElement3DProp.IsMouseCaptured v -> el.SetValue(System.Windows.UIElement3D.IsMouseCapturedProperty, box v)
-        | UIElement3DProp.IsMouseCaptureWithin v ->
-            el.SetValue(System.Windows.UIElement3D.IsMouseCaptureWithinProperty, box v)
-        | UIElement3DProp.IsStylusDirectlyOver v ->
-            el.SetValue(System.Windows.UIElement3D.IsStylusDirectlyOverProperty, box v)
-        | UIElement3DProp.IsStylusCaptured v -> el.SetValue(System.Windows.UIElement3D.IsStylusCapturedProperty, box v)
-        | UIElement3DProp.IsStylusCaptureWithin v ->
-            el.SetValue(System.Windows.UIElement3D.IsStylusCaptureWithinProperty, box v)
-        | UIElement3DProp.IsKeyboardFocused v ->
-            el.SetValue(System.Windows.UIElement3D.IsKeyboardFocusedProperty, box v)
-        | UIElement3DProp.AreAnyTouchesDirectlyOver v ->
-            el.SetValue(System.Windows.UIElement3D.AreAnyTouchesDirectlyOverProperty, box v)
-        | UIElement3DProp.AreAnyTouchesOver v ->
-            el.SetValue(System.Windows.UIElement3D.AreAnyTouchesOverProperty, box v)
-        | UIElement3DProp.AreAnyTouchesCaptured v ->
-            el.SetValue(System.Windows.UIElement3D.AreAnyTouchesCapturedProperty, box v)
-        | UIElement3DProp.AreAnyTouchesCapturedWithin v ->
-            el.SetValue(System.Windows.UIElement3D.AreAnyTouchesCapturedWithinProperty, box v)
         | UIElement3DProp.AllowDrop v -> el.SetValue(System.Windows.UIElement3D.AllowDropProperty, box v)
         | UIElement3DProp.Visibility v -> el.SetValue(System.Windows.UIElement3D.VisibilityProperty, box v)
-        | UIElement3DProp.IsFocused v -> el.SetValue(System.Windows.UIElement3D.IsFocusedProperty, box v)
         | UIElement3DProp.IsEnabled v -> el.SetValue(System.Windows.UIElement3D.IsEnabledProperty, box v)
         | UIElement3DProp.IsHitTestVisible v -> el.SetValue(System.Windows.UIElement3D.IsHitTestVisibleProperty, box v)
-        | UIElement3DProp.IsVisible v -> el.SetValue(System.Windows.UIElement3D.IsVisibleProperty, box v)
         | UIElement3DProp.Focusable v -> el.SetValue(System.Windows.UIElement3D.FocusableProperty, box v)
         | UIElement3DProp.OnPreviewMouseDown h -> el.PreviewMouseDown.AddHandler(h)
         | UIElement3DProp.OnMouseDown h -> el.MouseDown.AddHandler(h)
@@ -457,33 +375,10 @@ module UIElement3D =
     let clear (el: System.Windows.UIElement3D) (prop: UIElement3DProp) =
         match prop with
         | UIElement3DProp.Base p -> Visual3D.clear el p
-        | UIElement3DProp.IsMouseDirectlyOver _ -> el.ClearValue(System.Windows.UIElement3D.IsMouseDirectlyOverProperty)
-        | UIElement3DProp.IsMouseOver _ -> el.ClearValue(System.Windows.UIElement3D.IsMouseOverProperty)
-        | UIElement3DProp.IsStylusOver _ -> el.ClearValue(System.Windows.UIElement3D.IsStylusOverProperty)
-        | UIElement3DProp.IsKeyboardFocusWithin _ ->
-            el.ClearValue(System.Windows.UIElement3D.IsKeyboardFocusWithinProperty)
-        | UIElement3DProp.IsMouseCaptured _ -> el.ClearValue(System.Windows.UIElement3D.IsMouseCapturedProperty)
-        | UIElement3DProp.IsMouseCaptureWithin _ ->
-            el.ClearValue(System.Windows.UIElement3D.IsMouseCaptureWithinProperty)
-        | UIElement3DProp.IsStylusDirectlyOver _ ->
-            el.ClearValue(System.Windows.UIElement3D.IsStylusDirectlyOverProperty)
-        | UIElement3DProp.IsStylusCaptured _ -> el.ClearValue(System.Windows.UIElement3D.IsStylusCapturedProperty)
-        | UIElement3DProp.IsStylusCaptureWithin _ ->
-            el.ClearValue(System.Windows.UIElement3D.IsStylusCaptureWithinProperty)
-        | UIElement3DProp.IsKeyboardFocused _ -> el.ClearValue(System.Windows.UIElement3D.IsKeyboardFocusedProperty)
-        | UIElement3DProp.AreAnyTouchesDirectlyOver _ ->
-            el.ClearValue(System.Windows.UIElement3D.AreAnyTouchesDirectlyOverProperty)
-        | UIElement3DProp.AreAnyTouchesOver _ -> el.ClearValue(System.Windows.UIElement3D.AreAnyTouchesOverProperty)
-        | UIElement3DProp.AreAnyTouchesCaptured _ ->
-            el.ClearValue(System.Windows.UIElement3D.AreAnyTouchesCapturedProperty)
-        | UIElement3DProp.AreAnyTouchesCapturedWithin _ ->
-            el.ClearValue(System.Windows.UIElement3D.AreAnyTouchesCapturedWithinProperty)
         | UIElement3DProp.AllowDrop _ -> el.ClearValue(System.Windows.UIElement3D.AllowDropProperty)
         | UIElement3DProp.Visibility _ -> el.ClearValue(System.Windows.UIElement3D.VisibilityProperty)
-        | UIElement3DProp.IsFocused _ -> el.ClearValue(System.Windows.UIElement3D.IsFocusedProperty)
         | UIElement3DProp.IsEnabled _ -> el.ClearValue(System.Windows.UIElement3D.IsEnabledProperty)
         | UIElement3DProp.IsHitTestVisible _ -> el.ClearValue(System.Windows.UIElement3D.IsHitTestVisibleProperty)
-        | UIElement3DProp.IsVisible _ -> el.ClearValue(System.Windows.UIElement3D.IsVisibleProperty)
         | UIElement3DProp.Focusable _ -> el.ClearValue(System.Windows.UIElement3D.FocusableProperty)
         | UIElement3DProp.OnPreviewMouseDown h -> el.PreviewMouseDown.RemoveHandler(h)
         | UIElement3DProp.OnMouseDown h -> el.MouseDown.RemoveHandler(h)

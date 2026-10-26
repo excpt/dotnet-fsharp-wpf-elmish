@@ -190,3 +190,36 @@ let ``materialize DataGrid with columns populates Columns collection`` () =
         (dg.Columns.[0] :?> DataGridTextColumn).Header :?> string |> should equal "Name"
 
         (dg.Columns.[1] :?> DataGridTextColumn).Header :?> string |> should equal "Age")
+
+// --- Generated surface ---
+
+// Guards the codegen's read-only rule with WPF's own answer: a generated value
+// case whose DependencyProperty is read-only can only ever throw on apply.
+[<Fact>]
+let ``every generated value case targets a writable dependency property`` () =
+    register ()
+
+    let offenders =
+        [ for t in typeof<ButtonProp>.Assembly.GetTypes() do
+              if
+                  not t.IsNested
+                  && t.Name.EndsWith("Prop")
+                  && FSharp.Reflection.FSharpType.IsUnion(t)
+              then
+                  match Materializer.tryOwnerOf t with
+                  | Some owner ->
+                      for case in FSharp.Reflection.FSharpType.GetUnionCases(t) do
+                          if case.Name <> "Base" && not (case.Name.StartsWith("On")) then
+                              let field =
+                                  owner.GetField(
+                                      case.Name + "Property",
+                                      Reflection.BindingFlags.Public
+                                      ||| Reflection.BindingFlags.Static
+                                      ||| Reflection.BindingFlags.FlattenHierarchy
+                                  )
+
+                              if not (isNull field) && (field.GetValue(null) :?> DependencyProperty).ReadOnly then
+                                  yield $"{t.Name}.{case.Name}"
+                  | None -> () ]
+
+    offenders |> should be Empty

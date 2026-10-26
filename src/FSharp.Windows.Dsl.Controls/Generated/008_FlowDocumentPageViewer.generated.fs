@@ -18,7 +18,6 @@ type FlowDocumentPageViewerProp =
     | ZoomIncrement of float
     | SelectionBrush of System.Windows.Media.Brush
     | SelectionOpacity of float
-    | IsSelectionActive of bool
     | IsInactiveSelectionHighlightEnabled of bool
 
 module FlowDocumentPageViewer =
@@ -39,9 +38,6 @@ module FlowDocumentPageViewer =
     let selectionOpacity v : obj =
         box (FlowDocumentPageViewerProp.SelectionOpacity v)
 
-    let isSelectionActive v : obj =
-        box (FlowDocumentPageViewerProp.IsSelectionActive v)
-
     let isInactiveSelectionHighlightEnabled v : obj =
         box (FlowDocumentPageViewerProp.IsInactiveSelectionHighlightEnabled v)
 
@@ -60,8 +56,6 @@ module FlowDocumentPageViewer =
             el.SetValue(System.Windows.Controls.FlowDocumentPageViewer.SelectionBrushProperty, box v)
         | FlowDocumentPageViewerProp.SelectionOpacity v ->
             el.SetValue(System.Windows.Controls.FlowDocumentPageViewer.SelectionOpacityProperty, box v)
-        | FlowDocumentPageViewerProp.IsSelectionActive v ->
-            el.SetValue(System.Windows.Controls.FlowDocumentPageViewer.IsSelectionActiveProperty, box v)
         | FlowDocumentPageViewerProp.IsInactiveSelectionHighlightEnabled v ->
             el.SetValue(
                 System.Windows.Controls.FlowDocumentPageViewer.IsInactiveSelectionHighlightEnabledProperty,
@@ -83,8 +77,6 @@ module FlowDocumentPageViewer =
             el.ClearValue(System.Windows.Controls.FlowDocumentPageViewer.SelectionBrushProperty)
         | FlowDocumentPageViewerProp.SelectionOpacity _ ->
             el.ClearValue(System.Windows.Controls.FlowDocumentPageViewer.SelectionOpacityProperty)
-        | FlowDocumentPageViewerProp.IsSelectionActive _ ->
-            el.ClearValue(System.Windows.Controls.FlowDocumentPageViewer.IsSelectionActiveProperty)
         | FlowDocumentPageViewerProp.IsInactiveSelectionHighlightEnabled _ ->
             el.ClearValue(System.Windows.Controls.FlowDocumentPageViewer.IsInactiveSelectionHighlightEnabledProperty)
 

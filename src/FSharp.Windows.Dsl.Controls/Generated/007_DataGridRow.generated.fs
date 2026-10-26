@@ -22,7 +22,6 @@ type DataGridRowProp =
     | DetailsTemplate of System.Windows.DataTemplate
     | DetailsTemplateSelector of System.Windows.Controls.DataTemplateSelector
     | DetailsVisibility of System.Windows.Visibility
-    | AlternationIndex of int
     | IsSelected of bool
     | OnSelected of System.Windows.RoutedEventHandler
     | OnUnselected of System.Windows.RoutedEventHandler
@@ -47,9 +46,6 @@ module DataGridRow =
 
     let detailsVisibility v : obj =
         box (DataGridRowProp.DetailsVisibility v)
-
-    let alternationIndex v : obj =
-        box (DataGridRowProp.AlternationIndex v)
 
     let isSelected v : obj = box (DataGridRowProp.IsSelected v)
 
@@ -78,8 +74,6 @@ module DataGridRow =
             el.SetValue(System.Windows.Controls.DataGridRow.DetailsTemplateSelectorProperty, box v)
         | DataGridRowProp.DetailsVisibility v ->
             el.SetValue(System.Windows.Controls.DataGridRow.DetailsVisibilityProperty, box v)
-        | DataGridRowProp.AlternationIndex v ->
-            el.SetValue(System.Windows.Controls.DataGridRow.AlternationIndexProperty, box v)
         | DataGridRowProp.IsSelected v -> el.SetValue(System.Windows.Controls.DataGridRow.IsSelectedProperty, box v)
         | DataGridRowProp.OnSelected h -> el.Selected.AddHandler(h)
         | DataGridRowProp.OnUnselected h -> el.Unselected.AddHandler(h)
@@ -102,8 +96,6 @@ module DataGridRow =
             el.ClearValue(System.Windows.Controls.DataGridRow.DetailsTemplateSelectorProperty)
         | DataGridRowProp.DetailsVisibility _ ->
             el.ClearValue(System.Windows.Controls.DataGridRow.DetailsVisibilityProperty)
-        | DataGridRowProp.AlternationIndex _ ->
-            el.ClearValue(System.Windows.Controls.DataGridRow.AlternationIndexProperty)
         | DataGridRowProp.IsSelected _ -> el.ClearValue(System.Windows.Controls.DataGridRow.IsSelectedProperty)
         | DataGridRowProp.OnSelected h -> el.Selected.RemoveHandler(h)
         | DataGridRowProp.OnUnselected h -> el.Unselected.RemoveHandler(h)
