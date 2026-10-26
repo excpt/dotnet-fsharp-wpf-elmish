@@ -95,6 +95,26 @@ let ``a keyed operation reports its result`` () =
         p.Events |> should contain (Done("a", 7)))
 
 [<Fact>]
+let ``a finished operation disposes its token source`` () =
+    withOwner (fun owner ->
+        let gates = Gates()
+        let p = run owner gates
+        p.Dispatch(Start "a")
+        let token = gates.Token "a"
+        gates.Finish "a" 1
+
+        // A token whose source is disposed throws on WaitHandle
+        let disposed () =
+            try
+                token.WaitHandle |> ignore
+                false
+            with :? ObjectDisposedException ->
+                true
+
+        waitFor disposed
+        disposed () |> should be True)
+
+[<Fact>]
 let ``Cmd.cancel cancels exactly that operation`` () =
     withOwner (fun owner ->
         let gates = Gates()

@@ -28,7 +28,7 @@ type KeyProp = Key of string
 type AttachedProp = AttachedProp of System.Windows.DependencyProperty * obj
 
 /// Event handler marker — wraps a boxed prop that contains event handlers.
-/// The reconciler uses this to know an element must be replaced, not patched.
+/// The reconciler swaps these handlers in place on every update (Reconciler.swapEventHandler).
 type EventProp = EventProp of obj
 
 /// Collection marker — for CLR properties that are auto-initialized collections of

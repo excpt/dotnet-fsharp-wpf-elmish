@@ -189,7 +189,7 @@ let dashboardView dispatch =
                       TextBlock.margin (Thickness(0.0, 0.0, 0.0, 16.0)) ]
                 textBlock [ TextBlock.text "Each page is an independent component with own init/update/view." ]
                 textBlock
-                    [ TextBlock.text "Counter and Settings run their own Elmish sub-loops."
+                    [ TextBlock.text "Counter and Settings are mapped into this window's one Elmish loop."
                       TextBlock.margin (Thickness(0.0, 8.0, 0.0, 0.0)) ]
                 button
                     [ Button.content "Open Counter in New Window (independent loop)"

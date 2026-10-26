@@ -139,7 +139,7 @@ rather than replacing them entirely.
 | Scope | Registration | Wins Over |
 |---|---|---|
 | Element explicit `style` prop | `Button.style myStyle` | Everything below |
-| Element `Resources` | Rare in code-first DSL | Parent and up |
+| Element `Resources` | `Resource.dictionary [ Resource.implicitStyle s; Resource.named "k" v ]` | Parent and up |
 | Window `Resources` | `Style.applyImplicit window.Resources` | App-level |
 | Application `Resources` | `Style.applyImplicit app.Resources` | Nothing (default) |
 | Theme `MergedDictionaries` | `app.Resources.MergedDictionaries.Add` | Nothing (base layer) |
@@ -153,3 +153,9 @@ rather than replacing them entirely.
 | `Style.basedOn` | `Style -> (DependencyProperty * obj) list -> Style` | Derived style with inheritance |
 | `Style.applyImplicit` | `ResourceDictionary -> Style -> unit` | Register one implicit style |
 | `Style.applyImplicits` | `ResourceDictionary -> Style list -> unit` | Register multiple implicit styles |
+| `Style.ofNode` | `VirtualNode -> Style` | Style declared like an element; its props become setters |
+| `Resource.dictionary` | `(obj * obj) list -> obj` | The element's own resource entries (one per element) |
+| `Resource.named` | `string -> 'a -> obj * obj` | A keyed entry |
+| `Resource.implicitStyle` | `Style -> obj * obj` | An implicit style entry, keyed by its `TargetType` |
+| `Resource.reference` | `DependencyProperty -> string -> obj` | Bind a property to a keyed resource (dynamic lookup) |
+| `Resource.styleRef` | `string -> obj` | Bind the element's `Style` to a keyed style resource |

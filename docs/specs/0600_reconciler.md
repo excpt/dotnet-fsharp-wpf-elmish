@@ -73,7 +73,9 @@ is not detected. `Dsl.update` wraps it for a `LiveTree` (from `Dsl.createLive`).
 
 The counts of the last update are in `Reconciler.lastStats` (`Skipped`, `Replaced`,
 `Created`, `Removed`, `ChildDiffs`, `PropReapplied`), and each update writes its time
-and counts to `Debug`.
+and counts to `Debug`. The counters are module-level, shared by every live tree, so
+with several windows `lastStats` is the last update of whichever tree ran last. They
+are diagnostics only.
 
 ## Prop Diffing — Slots
 
@@ -93,6 +95,14 @@ A slot whose new value equals the old one (F# structural equality, `Object.Equal
 per element) is skipped; a changed or new one is re-applied through
 `Materializer.tryApplyProp` or the marker's own apply. A changed `ResourcesProp`
 updates only the keys that changed.
+
+Node-valued props (`CollectionProp`, `NodeProp`, and DU cases holding a `VirtualNode`
+such as `contextMenu`) are compared the same way and, when unequal, rebuilt whole: a
+`CollectionProp` is cleared and refilled, a node is materialized anew. Delegates
+compare by target and method, so a handler closure built in `view` makes the prop
+unequal on every render, and the rebuild resets state the control keeps on those
+elements (column widths, sort). Keep handlers out of node-valued props, or hoist them
+out of `view`, when that state matters.
 
 For a `TextBox` where only `Text` changed — `Width`, `Margin`, `Background`, `FontSize`
 all compare equal and are not touched.

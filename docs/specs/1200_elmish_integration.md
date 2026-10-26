@@ -106,3 +106,29 @@ keeps its instance. A value-type slice is boxed on every call and never hits the
 
 A single field change rebuilds and diffs only the subtree whose slice changed; WPF then
 re-applies only the props whose values differ.
+
+## Focus and Keyboard Shortcuts
+
+`Focus.element name` is a command that focuses the element with that `name` in the
+active window (or the main window when none is active). `Focus.elementIn window name`
+targets one window. Both look the element up in the logical tree on the window's
+Dispatcher, after the current render is in place; a name that matches nothing does
+nothing.
+
+```fsharp
+// view: TextBox.name "field_Email"
+| Validate ->
+    match firstInvalidField model with
+    | Some f -> model, Focus.element $"field_{f}"
+    | None -> model, Cmd.none
+```
+
+`KeyBindings.bind key modifiers action` builds an `InputBinding` that runs `action`;
+a letter or digit with `ModifierKeys.None` works. `KeyBindings.applyTo window bindings`
+replaces the window's input bindings. The action usually dispatches a message:
+
+```fsharp
+KeyBindings.applyTo window
+    [ KeyBindings.bind Key.S ModifierKeys.Control (fun () -> dispatch Save)
+      KeyBindings.bind Key.Escape ModifierKeys.None (fun () -> dispatch Cancel) ]
+```

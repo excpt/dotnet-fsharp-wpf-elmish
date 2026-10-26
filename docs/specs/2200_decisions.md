@@ -61,7 +61,7 @@ Every architectural decision and its rationale.
 | Window.GetWindow() | Dynamic window discovery from any element in tree (`WindowService.create`) |
 | IWindowService | Correct owner assignment, testable without real WPF windows |
 | Effect starts new Elmish loop | `Program.runChildWindow` from `Cmd.ofEffect`: clean boundary between window loops |
-| Modal dialogs from an effect | No modal Elmish window API. A `Cmd.ofEffect` builds the window, calls `ShowDialog()` and dispatches the result |
+| Modal Elmish windows | `Program.runDialogWindow owner program` shows the program's window with `ShowDialog()` and returns its last model; a `Cmd.ofEffect` calls it and dispatches the result |
 | No IDialogService | Architecture enforces purity without abstraction layer or DI |
 | lastChildFill on DockPanel not child | Correct WPF semantics, no wrapper type needed |
 
@@ -96,5 +96,5 @@ Designed in earlier specs, never built, removed:
 - DataTemplate as F# function (`'T -> VirtualNode` item templates)
 - Patch-list reconciler (patch DU sorted by priority, empty-patch guard, `CompositionTarget.Rendering` frame coalescing)
 - Interface hierarchy for the DSL (`IFrameworkElement`/`IControl`/`IContentControl`)
-- Modal Elmish window API and a `Program.runWindow` window parameter
+- A `Program.runWindow` window parameter (modal windows are `Program.runDialogWindow`)
 - FSharp.Telerik.Wpf and FSharp.Syncfusion.Wpf packages
