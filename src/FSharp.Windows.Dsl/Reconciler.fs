@@ -277,7 +277,7 @@ module Reconciler =
 
             for (k, newChild) in List.zip (effectiveKeys newChildren) newChildren do
                 match oldMap.TryGetValue(k) with
-                | true, (oldNode, el) ->
+                | true, (oldNode, el) when oldNode.Type = newChild.Type ->
                     if oldNode.Props <> newChild.Props then
                         stats.PropReapplied <- stats.PropReapplied + 1
                         diffAndApplyProps el oldNode.Props newChild.Props
@@ -287,7 +287,12 @@ module Reconciler =
                     target.Add(el)
                     oldMap.Remove(k) |> ignore
                 | _ ->
-                    stats.Created <- stats.Created + 1
+                    // Same key, different type: the old element stays in oldMap and phase 3 removes it
+                    if oldMap.ContainsKey(k) then
+                        stats.Replaced <- stats.Replaced + 1
+                    else
+                        stats.Created <- stats.Created + 1
+
                     target.Add(Materializer.materialize newChild)
 
             // Phase 3: Remove old items not in new list (reverse order)

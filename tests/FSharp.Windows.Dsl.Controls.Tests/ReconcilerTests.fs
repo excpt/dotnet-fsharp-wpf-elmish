@@ -529,3 +529,25 @@ let ``duplicate keys do not grow the children across renders`` () =
         Dsl.update live (tree ())
 
         sp.Children.Count |> should equal 2)
+
+[<Fact>]
+let ``keyed child whose type changes is replaced`` () =
+    runSta (fun () ->
+        register ()
+
+        let live =
+            Dsl.createLive (stackPanel [ StackPanel.children [ button [ Key "k"; Button.content "B" ] ] ])
+
+        let sp = live.Root :?> StackPanel
+
+        Dsl.update live (stackPanel [ StackPanel.children [ textBlock [ Key "k"; TextBlock.text "T" ] ] ])
+
+        sp.Children.Count |> should equal 1
+        (sp.Children.[0] :?> TextBlock).Text |> should equal "T"
+        Reconciler.lastStats.Replaced |> should equal 1
+
+        Materializer.diagnostics ()
+        |> List.exists (function
+            | PropNotForElement(el, _, owner) -> el = typeof<Button> && owner = typeof<TextBlock>
+            | _ -> false)
+        |> should be False)
