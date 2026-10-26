@@ -122,20 +122,17 @@ let ``reconcile removes keys that vanished`` () =
         sp.Resources.["Accent"] |> should equal (box Brushes.Red))
 
 [<Fact>]
-let ``reconcile leaves an unchanged dictionary alone`` () =
+let ``an unchanged resource entry is not set again`` () =
     runSta (fun () ->
-        register ()
+        let sp = StackPanel()
+        let entries = [ Resource.named "accent" Media.Brushes.Red ]
+        Materializer.applyResourceEntries sp entries
 
-        let style = Style.ofNode (textBlock [ TextBlock.fontSize 22.0 ])
+        // Swap the stored value behind the reconciler's back: a re-set of the
+        // unchanged entry would overwrite this sentinel
+        let sentinel = Media.Brushes.Blue
+        sp.Resources.["accent"] <- sentinel
 
-        // Rebuilt per render like a view would — same style reference inside.
-        let tree () =
-            stackPanel [ Resource.dictionary [ Resource.implicitStyle style ] ]
+        Materializer.updateResourceEntries sp entries entries
 
-        let live = Dsl.createLive (tree ())
-        Dsl.update live (tree ())
-
-        let sp = live.Root :?> StackPanel
-
-        sp.Resources.[typeof<System.Windows.Controls.TextBlock>]
-        |> should be (sameAs style))
+        sp.Resources.["accent"] |> should be (sameAs sentinel))

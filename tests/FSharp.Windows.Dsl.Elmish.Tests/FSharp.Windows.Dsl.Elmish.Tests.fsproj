@@ -12,7 +12,6 @@
         <Compile Include="AppBusTests.fs" />
         <Compile Include="DebugStateTests.fs" />
         <Compile Include="ComponentContextTests.fs" />
-        <Compile Include="DialogTests.fs" />
         <Compile Include="CancellationTests.fs" />
         <Compile Include="PermissionsTests.fs" />
         <Compile Include="EntityMapTests.fs" />

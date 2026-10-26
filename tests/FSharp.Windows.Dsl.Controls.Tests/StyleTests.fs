@@ -125,7 +125,8 @@ let ``Style.ofNode captures own and attached props as setters`` () =
                 textBlock
                     [ FSharp.Windows.Dsl.Controls.TextBlock.textWrapping TextWrapping.Wrap
                       FSharp.Windows.Dsl.Controls.TextBlock.fontSize 10.5
-                      FSharp.Windows.Dsl.Controls.TextBlock.foreground Brushes.Red ]
+                      FSharp.Windows.Dsl.Controls.TextBlock.foreground Brushes.Red
+                      Grid.row 2 ]
             )
 
         s.TargetType |> should equal typeof<TextBlock>
@@ -138,7 +139,8 @@ let ``Style.ofNode captures own and attached props as setters`` () =
 
         setter TextBlock.FontSizeProperty |> should equal (box 10.5)
         setter TextBlock.ForegroundProperty |> should equal (box Brushes.Red)
-        setter TextBlock.TextWrappingProperty |> should equal (box TextWrapping.Wrap))
+        setter TextBlock.TextWrappingProperty |> should equal (box TextWrapping.Wrap)
+        setter Grid.RowProperty |> should equal (box 2))
 
 [<Fact>]
 let ``Style.ofNode rejects children`` () =

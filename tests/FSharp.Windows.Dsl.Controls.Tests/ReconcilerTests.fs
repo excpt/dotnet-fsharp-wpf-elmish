@@ -40,16 +40,19 @@ let ``reconcile skips identical tree (reference equality)`` () =
     runSta (fun () ->
         register ()
 
-        let tree =
-            stackPanel [ StackPanel.children [ button [ Button.content "A" ]; button [ Button.content "B" ] ] ]
+        let tree (s: string) =
+            stackPanel [ StackPanel.children [ button [ Button.content s ] ] ]
 
-        let live = Dsl.createLive tree
-        let sp = live.Root :?> StackPanel
+        let same = tree "B"
+        let live = Dsl.createLive (tree "A")
+        Dsl.update live same
+        let afterRealUpdate = Reconciler.lastStats
 
-        // Update with the exact same reference — nothing should change
-        Dsl.update live tree
+        // The same reference again: the fast path returns before any walk, so
+        // no new stats are recorded
+        Dsl.update live same
 
-        sp.Children.Count |> should equal 2)
+        Reconciler.lastStats |> should be (sameAs afterRealUpdate))
 
 // --- Prop changes ---
 
@@ -67,27 +70,6 @@ let ``reconcile updates changed prop`` () =
         Dsl.update live tree2
 
         win.Title |> should equal "New")
-
-[<Fact>]
-let ``reconcile updates TextBlock.Text`` () =
-    runSta (fun () ->
-        register ()
-
-        let tree1 =
-            stackPanel [ StackPanel.children [ textBlock [ TextBlock.text "Hello" ] ] ]
-
-        let live = Dsl.createLive tree1
-        let sp = live.Root :?> StackPanel
-        let tb = sp.Children.[0] :?> TextBlock
-        tb.Text |> should equal "Hello"
-
-        let tree2 =
-            stackPanel [ StackPanel.children [ textBlock [ TextBlock.text "World" ] ] ]
-
-        Dsl.update live tree2
-
-        // Element was replaced (props changed) — re-fetch from parent
-        (sp.Children.[0] :?> TextBlock).Text |> should equal "World")
 
 // --- Child additions ---
 
@@ -289,25 +271,6 @@ let ``keyed remove preserves remaining children`` () =
         sp.Children.Count |> should equal 2
         Object.ReferenceEquals(sp.Children.[0], origA) |> should be True
         Object.ReferenceEquals(sp.Children.[1], origC) |> should be True)
-
-[<Fact>]
-let ``keyed child prop update reuses element`` () =
-    runSta (fun () ->
-        register ()
-
-        let tree1 =
-            stackPanel [ StackPanel.children [ textBlock [ Key "title"; TextBlock.text "Old" ] ] ]
-
-        let live = Dsl.createLive tree1
-        let sp = live.Root :?> StackPanel
-
-        let tree2 =
-            stackPanel [ StackPanel.children [ textBlock [ Key "title"; TextBlock.text "New" ] ] ]
-
-        Dsl.update live tree2
-
-        sp.Children.Count |> should equal 1
-        (sp.Children.[0] :?> TextBlock).Text |> should equal "New")
 
 // --- In-place prop diffing (element preservation) ---
 
@@ -807,3 +770,83 @@ let ``a child of a type its parent cannot hold is reported and left out, on crea
 
         Materializer.diagnostics () |> should contain expected
         Validate.tree (tree "a") |> should equal [ expected ])
+
+// --- Attached props ---
+
+[<Fact>]
+let ``an attached prop is applied on create and changed on update`` () =
+    runSta (fun () ->
+        register ()
+
+        let tree row =
+            grid [ Grid.children [ textBlock [ Grid.row row; Grid.column 1 ] ] ]
+
+        let live = Dsl.createLive (tree 1)
+        let tb = (live.Root :?> Grid).Children.[0]
+        Grid.GetRow tb |> should equal 1
+        Grid.GetColumn tb |> should equal 1
+
+        Dsl.update live (tree 2)
+
+        (live.Root :?> Grid).Children.[0] |> should be (sameAs tb)
+        Grid.GetRow tb |> should equal 2
+        Grid.GetColumn tb |> should equal 1)
+
+[<Fact>]
+let ``DockPanel.dock docks the child it is given to`` () =
+    runSta (fun () ->
+        register ()
+
+        let live =
+            Dsl.createLive (dockPanel [ DockPanel.children [ border [ DockPanel.dock Dock.Top ]; border [] ] ])
+
+        let dp = live.Root :?> DockPanel
+        DockPanel.GetDock dp.Children.[0] |> should equal Dock.Top
+        DockPanel.GetDock dp.Children.[1] |> should equal Dock.Left)
+
+// --- Child paths ---
+
+[<Fact>]
+let ``a Decorator's child is replaced when its type changes`` () =
+    runSta (fun () ->
+        register ()
+        let live = Dsl.createLive (border [ Border.contentChild (textBlock []) ])
+        Dsl.update live (border [ Border.contentChild (button []) ])
+
+        (live.Root :?> Border).Child |> should be instanceOfType<Button>)
+
+[<Fact>]
+let ``removing a middle unkeyed child shifts the rest by index`` () =
+    runSta (fun () ->
+        register ()
+
+        let tree (texts: string list) =
+            stackPanel [ StackPanel.children [ for t in texts -> textBlock [ TextBlock.text t ] ] ]
+
+        let live = Dsl.createLive (tree [ "a"; "b"; "c" ])
+        Dsl.update live (tree [ "a"; "c" ])
+
+        (live.Root :?> StackPanel).Children
+        |> Seq.cast<TextBlock>
+        |> Seq.map _.Text
+        |> List.ofSeq
+        |> should equal [ "a"; "c" ])
+
+[<Fact>]
+let ``switching a style reference re-resolves it`` () =
+    runSta (fun () ->
+        register ()
+        let big = Style.ofNode (textBlock [ TextBlock.fontSize 30.0 ])
+        let small = Style.ofNode (textBlock [ TextBlock.fontSize 8.0 ])
+
+        let tree key =
+            stackPanel
+                [ Resource.dictionary [ Resource.named "big" big; Resource.named "small" small ]
+                  StackPanel.children [ textBlock [ Resource.styleRef key ] ] ]
+
+        let live = Dsl.createLive (tree "big")
+        let tb = (live.Root :?> StackPanel).Children.[0] :?> TextBlock
+        tb.Style |> should be (sameAs big)
+
+        Dsl.update live (tree "small")
+        tb.Style |> should be (sameAs small))

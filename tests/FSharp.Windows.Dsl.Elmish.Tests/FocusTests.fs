@@ -3,6 +3,7 @@ module FSharp.Windows.Dsl.Elmish.Tests.FocusTests
 open System.Threading
 open System.Windows
 open System.Windows.Controls
+open System.Windows.Input
 open Xunit
 open FsUnit.Xunit
 open FSharp.Windows.Dsl.Elmish
@@ -27,15 +28,34 @@ let runSta (f: unit -> 'a) : 'a =
 
     result
 
-[<Fact>]
-let ``Focus.element produces a Cmd`` () =
-    let cmd = Focus.element "myTextBox"
-    // Cmd is a list of dispatch functions — non-empty means it has an effect
-    cmd |> List.isEmpty |> should be False
+/// Run a command's effects, then let the dispatcher run what they queued.
+let private runAndPump (cmd: Elmish.Cmd<unit>) =
+    cmd |> List.iter (fun effect -> effect ignore)
+
+    System.Windows.Threading.Dispatcher.CurrentDispatcher.Invoke(
+        System.Windows.Threading.DispatcherPriority.Background,
+        System.Action ignore
+    )
+    |> ignore
+
+let private windowWithBox () =
+    let box = TextBox(Name = "target")
+
+    let win =
+        Window(Content = StackPanel(), ShowActivated = false, ShowInTaskbar = false)
+
+    (win.Content :?> StackPanel).Children.Add(TextBox()) |> ignore
+    (win.Content :?> StackPanel).Children.Add(box) |> ignore
+    win.Show()
+    win, box
 
 [<Fact>]
-let ``Focus.elementIn produces a Cmd`` () =
+let ``Focus.elementIn focuses the named element in that window`` () =
     runSta (fun () ->
-        let win = Window()
-        let cmd = Focus.elementIn win "myTextBox"
-        cmd |> List.isEmpty |> should be False)
+        let win, box = windowWithBox ()
+
+        try
+            runAndPump (Focus.elementIn win "target")
+            FocusManager.GetFocusedElement(win) |> should be (sameAs box)
+        finally
+            win.Close())

@@ -1,6 +1,7 @@
 module FSharp.Windows.Dsl.Elmish.Tests.ComponentContextTests
 
 open System
+open System.Windows
 open Xunit
 open FsUnit.Xunit
 open FSharp.Windows.Dsl.Elmish
@@ -30,16 +31,25 @@ let ``IWindowService is mockable for tests`` () =
     svc.GetWindowCalled |> should be True
 
 [<Fact>]
-let ``IWindowService.OpenChild calls spawn function`` () =
-    let mutable spawned = false
+let ``WindowService.create finds the element's window and spawns children with it`` () =
+    let mutable result: (Window option * Window option * Window) option = None
 
-    let svc =
-        { new IWindowService with
-            member _.GetWindow() = None
-            member _.OpenChild(spawn) = spawned <- true }
+    let t =
+        System.Threading.Thread(fun () ->
+            let button = System.Windows.Controls.Button()
+            let win = Window(Content = button)
+            let svc = WindowService.create button
+            let mutable spawnedWith = None
+            svc.OpenChild(fun owner -> spawnedWith <- Some owner)
+            result <- Some(svc.GetWindow(), spawnedWith, win))
 
-    svc.OpenChild(fun _ -> ())
-    spawned |> should be True
+    t.SetApartmentState(System.Threading.ApartmentState.STA)
+    t.Start()
+    t.Join()
+
+    let found, spawnedWith, win = result.Value
+    found |> should equal (Some win)
+    spawnedWith |> should equal (Some win)
 
 /// Bus delivery is asynchronous (MailboxProcessor), so wait for the effect
 /// instead of sleeping a fixed amount and hoping the machine kept up.

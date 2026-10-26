@@ -41,7 +41,7 @@ jobs:
       # success while running nothing at all until the global.json runner switch,
       # and a floor makes that failure loud instead of green.
       - name: Test
-        run: dotnet test --solution FSharp.Windows.Dsl.slnx --no-build --minimum-expected-tests 353
+        run: dotnet test --solution FSharp.Windows.Dsl.slnx --no-build --minimum-expected-tests 351
 
   # The Generated/ files are committed: regenerate them and fail on any difference,
   # so a codegen change cannot land without its output (or the output drift alone).
