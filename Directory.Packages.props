@@ -15,13 +15,13 @@
         <PackageVersion Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.3"/>
 
         <!-- BCL fillers needed only on .NET Framework targets -->
-        <PackageVersion Include="System.Text.Json" Version="8.0.5"/>
+        <PackageVersion Include="System.Text.Json" Version="10.0.14"/>
 
         <!-- Elmish -->
         <PackageVersion Include="Elmish" Version="4.2.0"/>
 
         <!-- Codegen tool -->
-        <PackageVersion Include="System.Reflection.MetadataLoadContext" Version="8.0.1"/>
+        <PackageVersion Include="System.Reflection.MetadataLoadContext" Version="10.0.14"/>
         <PackageVersion Include="Argu" Version="6.2.5"/>
     </ItemGroup>
 </Project>
