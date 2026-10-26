@@ -23,7 +23,7 @@ jobs:
       # See ci.yml — the floor guards against a runner that discovers nothing and
       # exits 0, which is how this pipeline published without ever running a test.
       - name: Test
-        run: dotnet test --solution FSharp.Windows.Dsl.slnx --no-build -c Release --minimum-expected-tests 297
+        run: dotnet test --solution FSharp.Windows.Dsl.slnx --no-build -c Release --minimum-expected-tests 298
 
       - name: Pack
         run: >
