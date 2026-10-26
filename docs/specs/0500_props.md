@@ -113,9 +113,9 @@ not a prop, or a package whose `Registration.register()` was never called),
 `PropNotForElement` (a real prop on the wrong control), and `UnusableMember`
 (a `NodeProp`/`CollectionProp` name the element cannot take).
 
-## What Gets Generated — Four Things Per Control
+## What Gets Generated — Five Things Per Control
 
-For each control the codegen tool emits exactly four blocks:
+For each control the codegen tool emits five blocks:
 
 **1. The Prop DU**
 ```fsharp
@@ -156,6 +156,20 @@ module Button =
             InternalId = ""
         }
 ```
+
+**5. The clear function**, the inverse of `apply`, called when a prop is dropped from
+the new tree:
+```fsharp
+    let clear (el: Button) (prop: ButtonProp) =
+        match prop with
+        | Base    p -> Control.clear el p
+        | Content _ -> el.ClearValue(ContentControl.ContentProperty)
+        | OnClick h -> el.Click.RemoveHandler(h)
+```
+
+Registration registers both: `Materializer.registerApply` and `Materializer.registerClear`.
+A package generated before `clear` existed still works; its dropped value props are
+left as they were.
 
 The `apply` function is what the reconciler calls when diffing props.
 Everything else is sugar over the virtual tree.

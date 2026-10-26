@@ -116,6 +116,30 @@ Event handlers (wrapped in `EventProp`) are **swapped on every reconciliation** 
 reflection-based `RemoveHandler` + `AddHandler`. This solves the stale closure problem:
 closures created in `view` capture the current model, so handlers must be refreshed
 each render to see the latest state.
+A handler dropped from the new tree is detached (the generated `clear` calls
+`RemoveHandler`), so `button [ if model.CanSave then Button.onClick save ]` stops
+firing once `CanSave` is false.
+
+### Dropped Props
+
+A prop present on the previous render and absent from this one is cleared, not left
+behind. Before applying new props, `diffAndApplyProps` calls `Materializer.clearProp`
+for every old prop key the new list lacks:
+
+| Prop kind | Cleared by |
+|---|---|
+| Value prop (generated DU case) | generated `clear`: `el.ClearValue(dp)` |
+| `EventProp` | generated `clear`: `RemoveHandler` |
+| `AttachedProp`, `ResourceRefProp` | `el.ClearValue(dp)` |
+| `ResourcesProp` | removes the entries it merged |
+| `CollectionProp` | empties the collection |
+| `NodeProp` | sets the CLR property to `null` |
+
+`ClearValue` returns the slot to what it would be had the prop never been set: the
+default, a style setter, or an inherited value. Clearing runs before applying, so a
+slot that changes kind (a direct value replaced by a resource reference on the same DP)
+ends with the new kind. This is the decision for issue #6: value props are cleared
+through codegen rather than documented as additive.
 
 ```fsharp
 // Reconciler extracts the event name from the F# DU case (OnClick → Click),

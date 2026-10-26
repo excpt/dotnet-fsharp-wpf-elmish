@@ -71,7 +71,8 @@ window [
 
 The reconciler diffs the dictionary as one slot per element and touches only
 changed keys: removed keys are cleared, changed values re-set, stable entries
-left alone.
+left alone. A dictionary dropped from the element entirely has all its
+entries removed, and a dropped `Resource.reference` is cleared with `ClearValue`.
 
 ### Referencing Styles
 
