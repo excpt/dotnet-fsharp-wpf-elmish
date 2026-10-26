@@ -11,51 +11,55 @@ open FSharp.Windows.Dsl
 module Program =
 
     let private wireSetState (program: Program<_, 'model, 'msg, VirtualNode>) =
+        // The UI thread wires the program, so this is its dispatcher. Read inside
+        // setState, CurrentDispatcher would belong to whichever thread dispatched.
+        let dispatcher = Dispatcher.CurrentDispatcher
         let mutable live: LiveTree option = None
-        let mutable renderPending = false
 
         let setState (model: 'model) (dispatch: 'msg -> unit) =
             let tree = Program.view program model dispatch
 
-            let doRender () =
-                match live with
-                | None -> live <- Some(Dsl.createLive tree)
-                | Some l -> Dsl.update l tree
+            match live with
+            | None -> live <- Some(Dsl.createLive tree)
+            | Some l -> Dsl.update l tree
 
-            let dispatcher = Dispatcher.CurrentDispatcher
-
-            if dispatcher.CheckAccess() then
-                doRender ()
-            else if not renderPending then
-                renderPending <- true
-
-                dispatcher.BeginInvoke(
-                    Action(fun () ->
-                        renderPending <- false
-                        doRender ())
-                )
-                |> ignore
+        // Every message is processed on the UI thread: Task/Async continuations,
+        // AppBus handlers and timer callbacks dispatch from the pool, so marshal
+        // them there. update, view and setState then never run off the UI thread,
+        // and messages from other threads queue in order instead of racing the loop.
+        let syncDispatch (dispatch: Dispatch<'msg>) : Dispatch<'msg> =
+            fun msg ->
+                if dispatcher.CheckAccess() then
+                    dispatch msg
+                else
+                    dispatcher.BeginInvoke(Action(fun () -> dispatch msg)) |> ignore
 
         let getWindow () =
             match live with
             | Some l -> l.Root :?> Window
             | None -> failwith "Program has not been initialized"
 
-        setState, getWindow
+        setState, syncDispatch, getWindow
 
     /// Run an Elmish program as the main application window.
     /// Creates the Application and starts the message pump.
     let runWindow (program: Program<unit, 'model, 'msg, VirtualNode>) =
-        let setState, getWindow = wireSetState program
-        program |> Program.withSetState setState |> Program.run
+        let setState, syncDispatch, getWindow = wireSetState program
+
+        program
+        |> Program.withSetState setState
+        |> Program.runWithDispatch syncDispatch ()
 
         let app = Application()
         app.Run(getWindow ())
 
     /// Run an Elmish program with an argument as the main application window.
     let runWindowWithArg (arg: 'arg) (program: Program<'arg, 'model, 'msg, VirtualNode>) =
-        let setState, getWindow = wireSetState program
-        program |> Program.withSetState setState |> Program.runWith arg
+        let setState, syncDispatch, getWindow = wireSetState program
+
+        program
+        |> Program.withSetState setState
+        |> Program.runWithDispatch syncDispatch arg
 
         let app = Application()
         app.Run(getWindow ())
@@ -64,8 +68,11 @@ module Program =
     /// Non-blocking — shows the window and returns immediately.
     /// The child's Elmish loop runs on the same Dispatcher as the parent.
     let runChildWindow (owner: Window) (program: Program<unit, 'model, 'msg, VirtualNode>) =
-        let setState, getWindow = wireSetState program
-        program |> Program.withSetState setState |> Program.run
+        let setState, syncDispatch, getWindow = wireSetState program
+
+        program
+        |> Program.withSetState setState
+        |> Program.runWithDispatch syncDispatch ()
 
         let win = getWindow ()
         win.Owner <- owner
@@ -73,8 +80,11 @@ module Program =
 
     /// Run an Elmish program as a child window with an argument.
     let runChildWindowWithArg (owner: Window) (arg: 'arg) (program: Program<'arg, 'model, 'msg, VirtualNode>) =
-        let setState, getWindow = wireSetState program
-        program |> Program.withSetState setState |> Program.runWith arg
+        let setState, syncDispatch, getWindow = wireSetState program
+
+        program
+        |> Program.withSetState setState
+        |> Program.runWithDispatch syncDispatch arg
 
         let win = getWindow ()
         win.Owner <- owner

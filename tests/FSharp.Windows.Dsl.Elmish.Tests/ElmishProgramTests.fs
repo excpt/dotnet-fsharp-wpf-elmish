@@ -1,6 +1,10 @@
 module FSharp.Windows.Dsl.Elmish.Tests.ElmishProgramTests
 
+open System
+open System.Threading
+open System.Threading.Tasks
 open System.Windows
+open System.Windows.Threading
 open Xunit
 open FsUnit.Xunit
 open Elmish
@@ -17,25 +21,36 @@ open FSharp.Windows.Dsl.Elmish.Tests.FocusTests
 type Counter =
     { Window: Window
       Dispatch: unit -> unit
-      Renders: int ref }
+      Renders: int ref
+      ViewThread: int ref }
 
-let counterView (renders: int ref) (dispatchOut: (unit -> unit) ref) (title: string) (count: int) dispatch =
+let counterView
+    (renders: int ref)
+    (viewThread: int ref)
+    (dispatchOut: (unit -> unit) ref)
+    (title: string)
+    (count: int)
+    dispatch
+    =
     renders.Value <- renders.Value + 1
+    viewThread.Value <- Thread.CurrentThread.ManagedThreadId
     dispatchOut.Value <- fun () -> dispatch ()
     window [ Window.title $"{title} {count}" ]
 
 let runCounter (owner: Window) (title: string) =
     let renders = ref 0
+    let viewThread = ref 0
     let dispatch = ref ignore
 
-    Program.mkSimple (fun () -> 0) (fun () count -> count + 1) (counterView renders dispatch title)
+    Program.mkSimple (fun () -> 0) (fun () count -> count + 1) (counterView renders viewThread dispatch title)
     |> Program.runChildWindow owner
 
     let win = owner.OwnedWindows |> Seq.cast<Window> |> Seq.last
 
     { Window = win
       Dispatch = fun () -> dispatch.Value()
-      Renders = renders }
+      Renders = renders
+      ViewThread = viewThread }
 
 let withOwner (f: Window -> unit) =
     runSta (fun () ->
@@ -76,6 +91,41 @@ let ``runChildWindow gives each program its own live tree`` () =
         child.Window.Title |> should equal "Child 1"
         parent.Window.Title |> should equal "Parent 0"
         parent.Renders.Value |> should equal parentRenders)
+
+// Run what other threads queued on this (UI) dispatcher: a Background-priority
+// Invoke returns only after every Normal-priority BeginInvoke ahead of it ran.
+let pump () =
+    Dispatcher.CurrentDispatcher.Invoke(DispatcherPriority.Background, Action ignore)
+    |> ignore
+
+[<Fact>]
+let ``a message dispatched from a pool thread renders on the UI thread`` () =
+    withOwner (fun owner ->
+        let child = runCounter owner "Child"
+        let ui = Thread.CurrentThread.ManagedThreadId
+
+        Task.Run(Action(fun () -> child.Dispatch())).Wait()
+        pump ()
+
+        child.Window.Title |> should equal "Child 1"
+        child.ViewThread.Value |> should equal ui)
+
+[<Fact>]
+let ``a burst of messages from a pool thread ends with the latest tree rendered`` () =
+    withOwner (fun owner ->
+        let child = runCounter owner "Child"
+
+        Task
+            .Run(
+                Action(fun () ->
+                    for _ in 1..5 do
+                        child.Dispatch())
+            )
+            .Wait()
+
+        pump ()
+
+        child.Window.Title |> should equal "Child 5")
 
 // --- openChildView / updateChildView ---
 
