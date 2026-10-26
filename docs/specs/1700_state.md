@@ -1,6 +1,6 @@
 # State Management
 
-> **Package:** FSharp.Windows.Dsl.Elmish (patterns)
+> **Package:** FSharp.Windows.Dsl.Elmish (`DataCache`, `EntityMap`), FSharp.Windows.Dsl.Controls (`Validation`)
 
 ## What Belongs in the Elmish Model
 
@@ -33,6 +33,26 @@ type Model = {
 }
 ```
 
+The cache is a `DataCache<'key, 'T>`: one `ObservableCollection<'T>` per key, created on
+first use and kept for the cache's lifetime.
+
+```fsharp
+let orders = DataCache<DateRange, Order>()   // one instance, outside the model
+
+// view: the grid binds to the collection; the reconciler never diffs its rows
+DataGrid.create [ DataGrid.itemsSource (orders.GetOrCreate model.DateRange) ]
+
+// update, on Loaded rows
+orders.Update(model.DateRange, rows)
+```
+
+| Member | Effect |
+|--------|--------|
+| `GetOrCreate key` | the collection for `key`, the same instance on every call |
+| `Update(key, items)` | syncs the collection in place by index; rows `Equals` to the incoming row are left untouched |
+| `Clear key` | empties the collection, keeps the instance |
+| `Remove key` | drops the collection; a later `GetOrCreate` returns a new one |
+
 Data flow:
 ```
 User selects date range
@@ -60,23 +80,27 @@ Redux-style normalized state (entity maps) pays off only when:
 - Multiple components display the same entity simultaneously
 - You need O(1) lookup by id for frequent point updates
 
-**Pattern — normalized entity map:**
+**`EntityMap` — normalized entity map** (immutable, lives in the model):
 
 ```fsharp
-type EntityMap<'id, 'T when 'id : comparison> = {
-    Ids      : 'id list
-    Entities : Map<'id, 'T>
-}
+type EntityMap<'id, 'T when 'id: comparison> =
+    { Ids: 'id list            // insertion order
+      Entities: Map<'id, 'T> }
 
-let upsertOne (id: 'id) (entity: 'T) (map: EntityMap<'id,'T>) =
-    { map with
-        Ids      = if map.Entities.ContainsKey id then map.Ids else map.Ids @ [id]
-        Entities = map.Entities |> Map.add id entity }
+module EntityMap =
+    val empty     : EntityMap<'id, 'T>
+    val ofList    : keySelector: ('T -> 'id) -> items: 'T list -> EntityMap<'id, 'T>
+    val upsertOne : id: 'id -> entity: 'T -> map: EntityMap<'id, 'T> -> EntityMap<'id, 'T>
+    val removeOne : id: 'id -> map: EntityMap<'id, 'T> -> EntityMap<'id, 'T>
+    val tryFind   : id: 'id -> map: EntityMap<'id, 'T> -> 'T option
+    val ids       : map: EntityMap<'id, 'T> -> 'id list
+    val count     : map: EntityMap<'id, 'T> -> int
+    val toList    : map: EntityMap<'id, 'T> -> 'T list   // insertion order
+```
 
-let removeOne (id: 'id) (map: EntityMap<'id,'T>) =
-    { map with
-        Ids      = map.Ids |> List.filter ((<>) id)
-        Entities = map.Entities |> Map.remove id }
+```fsharp
+| OrderPushed order ->
+    { model with Orders = model.Orders |> EntityMap.upsertOne order.Id order }, Cmd.none
 ```
 
 **For fetch-once-display-all — plain array + ObservableCollection cache is correct.
@@ -112,6 +136,37 @@ type OrderFormMsg =
 Every keystroke is a message. Every field change updates the model.
 Validation runs in `update`. Form re-renders from model state.
 
+The save lifecycle is ordinary `update` code; the library adds only the `Validation`
+module (namespace `FSharp.Windows.Dsl.Controls`). Each validator returns
+`Some(field, message)` on failure; `Validation.collect` turns a list of results into the
+`Map<string, string>` the model keeps.
+
+```fsharp
+let validate (m: OrderFormModel) =
+    Validation.collect [
+        Validation.required "Customer" m.Customer
+        Validation.range "Total" 0m 1_000_000m m.Total
+        Validation.maxLength "Notes" 500 m.Notes ]
+
+let update msg (m: OrderFormModel) =
+    match msg with
+    | CustomerChanged v -> { m with Customer = v; IsDirty = true }, Cmd.none
+    // ... the other field messages alike
+    | Save ->
+        let errors = validate m
+        if Validation.isValid errors then
+            { m with Saving = true; Errors = errors },
+            Cmd.OfTask.either api.SaveOrder (toOrder m) SaveDone (fun ex -> SaveFailed ex.Message)
+        else
+            { m with Errors = errors }, Cmd.none
+    | SaveDone _ -> { m with Saving = false; IsDirty = false }, Cmd.none
+    | SaveFailed err -> { m with Saving = false; Errors = m.Errors |> Map.add "Save" err }, Cmd.none
+    | Cancel -> m, Cmd.none
+```
+
+The view reads `Validation.errorFor "Customer" model.Errors` for each field. The other
+validators are `minLength` and `pattern`.
+
 ## The Complete Picture
 
 ```
@@ -133,7 +188,7 @@ Validation runs in `update`. Form re-renders from model state.
 │  ObservableCollection<Order>                        │
 │  ObservableCollection<Customer>                     │
 │  ObservableCollection<Invoice>                      │
-│  — populated on load, cleared on reload             │
+│  — DataCache: synced in place on load and reload    │
 │  — grid binds directly, reconciler never touches    │
 └─────────────────────────────────────────────────────┘
 

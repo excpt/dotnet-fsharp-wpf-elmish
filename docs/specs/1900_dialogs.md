@@ -36,54 +36,15 @@ it opens in front of the app rather than behind it:
 
 ```fsharp
 module Dialog =
-
-    let confirm (title: string) (message: string) : bool =
-        MessageBox.Show(message, title, MessageBoxButton.YesNo, MessageBoxImage.Question)
-        = MessageBoxResult.Yes
-
-    let info  (title: string) (message: string) =
-        MessageBox.Show(message, title, MessageBoxButton.OK, MessageBoxImage.Information)
-        |> ignore
-
-    let error (title: string) (message: string) =
-        MessageBox.Show(message, title, MessageBoxButton.OK, MessageBoxImage.Error)
-        |> ignore
-
-    let openFile (title: string) (filter: string) (multiSelect: bool) : string list option =
-        let dlg = Microsoft.Win32.OpenFileDialog()
-        dlg.Title       <- title
-        dlg.Filter      <- filter
-        dlg.Multiselect <- multiSelect
-        if dlg.ShowDialog() = Nullable true
-        then Some (dlg.FileNames |> Array.toList)
-        else None
-
-    let saveFile (title: string) (filter: string) (defaultName: string) : string option =
-        let dlg = Microsoft.Win32.SaveFileDialog()
-        dlg.Title    <- title
-        dlg.Filter   <- filter
-        dlg.FileName <- defaultName
-        if dlg.ShowDialog() = Nullable true
-        then Some dlg.FileName
-        else None
-
-    let openFolder (title: string) : string option =
-        let dlg = Forms.FolderBrowserDialog()
-        dlg.Description            <- title
-        dlg.UseDescriptionForTitle <- true
-        if dlg.ShowDialog() = Forms.DialogResult.OK
-        then Some dlg.SelectedPath
-        else None
-
-    let print (document: FlowDocument) : bool =
-        let dlg = PrintDialog()
-        if dlg.ShowDialog() = Nullable true then
-            dlg.PrintDocument(
-                (document :> IDocumentPaginatorSource).DocumentPaginator,
-                "Print Job")
-            true
-        else false
+    val confirm  : title: string -> message: string -> bool          // Yes/No, true on Yes
+    val info     : title: string -> message: string -> unit          // OK, information icon
+    val error    : title: string -> message: string -> unit          // OK, error icon
+    val openFile : title: string -> filter: string -> multiSelect: bool -> string list option
+    val saveFile : title: string -> filter: string -> defaultName: string -> string option
 ```
+
+That is the whole module. There is no folder or print wrapper; call the WPF dialog
+yourself inside `Cmd.ofEffect`, the same way.
 
 ## Consumer Usage in Update
 
@@ -119,8 +80,10 @@ let update msg model =
 
 ## Custom Modal Windows — Elmish Programs as Dialogs
 
-A custom picker or wizard window is the same pattern. `ShowDialog()` blocks and returns
-a typed result:
+There is no modal run function: `Program.runChildWindow` calls `Show()`, not
+`ShowDialog()`. A custom picker or wizard runs its own loop with
+`Program.withSetState` and `Dsl.createLive`, then shows the window modally.
+`ShowDialog()` returns when the window closes, so the function returns a typed result:
 
 ```fsharp
 module CustomerPicker =
@@ -132,39 +95,49 @@ module CustomerPicker =
         | Selected  of Customer
         | Cancelled
 
-    let showDialog (owner: Window) : Result =
-        let window = Window()
-        window.Owner  <- owner
-        window.Title  <- "Select Customer"
-        window.Width  <- 500.0
-        window.Height <- 400.0
+    // update onSelect: | Select c -> model, Cmd.ofEffect (fun _ -> onSelect c)
+    // view returns a Window node (title, size, content)
 
-        let mutable dialogResult = Cancelled
+    let showDialog (owner: Window) : Result =
+        let mutable result = Cancelled
+        let mutable live: LiveTree option = None
+        let window () = live.Value.Root :?> Window
 
         let onSelect (customer: Customer) =
-            dialogResult        <- Selected customer
-            window.DialogResult <- Nullable true
+            result <- Selected customer
+            (window ()).DialogResult <- Nullable true   // closes the dialog
 
-        Program.mkProgram (fun () -> init onSelect) update view
-        |> Program.runWindow window
+        let setState model dispatch =
+            let tree = view model dispatch
+            match live with
+            | None -> live <- Some(Dsl.createLive tree)
+            | Some l -> Dsl.update l tree
 
-        window.ShowDialog() |> ignore
-        dialogResult
+        Program.mkProgram init (update onSelect) view
+        |> Program.withSetState setState
+        // queue every message on the UI thread, as runWindow does
+        |> Program.runWithDispatch
+            (fun dispatch msg -> owner.Dispatcher.BeginInvoke(Action(fun () -> dispatch msg)) |> ignore)
+            ()
+
+        (window ()).Owner <- owner
+        (window ()).ShowDialog() |> ignore
+        result
 ```
 
-Parent update:
+Parent update, with the owner from the component's `WindowService` rather than the
+global `Application.Current.MainWindow`:
 
 ```fsharp
 | PickCustomer ->
     model,
     Cmd.ofEffect (fun dispatch ->
-        let owner  = Application.Current.MainWindow
-        let result = CustomerPicker.showDialog owner
-        dispatch (
-            match result with
-            | CustomerPicker.Selected c -> CustomerPicked c
-            | CustomerPicker.Cancelled  -> PickCancelled
-        )
+        match ctx.WindowService.GetWindow() with
+        | None -> ()
+        | Some owner ->
+            match CustomerPicker.showDialog owner with
+            | CustomerPicker.Selected c -> dispatch (CustomerPicked c)
+            | CustomerPicker.Cancelled  -> dispatch PickCancelled
     )
 ```
 
@@ -172,11 +145,10 @@ Parent update:
 
 | Dialog | Mechanism | Returns |
 |---|---|---|
-| `MessageBox` | `MessageBox.Show()` | `bool` |
-| `OpenFileDialog` | `dlg.ShowDialog()` | `string list option` |
-| `SaveFileDialog` | `dlg.ShowDialog()` | `string option` |
-| `FolderBrowserDialog` | `dlg.ShowDialog()` | `string option` |
-| `PrintDialog` | `dlg.ShowDialog()` | `bool` |
+| `Dialog.confirm` | `MessageBox.Show()` | `bool` |
+| `Dialog.info` / `Dialog.error` | `MessageBox.Show()` | `unit` |
+| `Dialog.openFile` | `OpenFileDialog.ShowDialog()` | `string list option` |
+| `Dialog.saveFile` | `SaveFileDialog.ShowDialog()` | `string option` |
 | Custom Elmish window | `window.ShowDialog()` | typed `Result` DU |
 
 All wrapped in `Cmd.ofEffect`. All dispatch a message with the result.

@@ -54,13 +54,14 @@ DependencyObject
     → UIElement                  (input, layout, hit testing)
       → FrameworkElement         (styles, templates, resources, binding)
         → Control                (ControlTemplate, themeable)
-        │   → UserControl        (composite, owns content)
         │   → ContentControl     (single content)
+        │   │   → UserControl    (composite, owns content)
         │   → ItemsControl       (collections)
         │       → Selector
         │           → ListBox
         │           → ComboBox
-        │       → DataGrid
+        │           → MultiSelector
+        │               → DataGrid
         → Panel                  (layout — NOT under Control)
         │   → StackPanel, DockPanel, WrapPanel, Canvas, Grid, UniformGrid
         → Shape                  (rect, ellipse, path — NOT under Control)
@@ -73,8 +74,10 @@ DependencyObject (non-visual — column defs, settings objects)
 
 > **IMPORTANT:** `Panel`, `Shape`, and `Decorator` inherit from `FrameworkElement`,
 > NOT from `Control`. This distinction is critical for codegen — these types do not
-> have `ControlTemplate`, `Padding`, `Background`, or `FontSize`. They only have
-> `FrameworkElement` properties (Width, Height, Margin, etc.).
+> inherit `Template`, `Padding`, `Background`, or `FontSize` from `Control`. Some declare
+> their own: `Panel` has `Background`, `Border` has `Padding` and `Background`, `Shape` has
+> `Fill`, `Stroke` and `StrokeThickness`. The base `Decorator` only has `FrameworkElement`
+> properties (Width, Height, Margin, etc.) plus its `Child`.
 
 ## Why Not Elmish.WPF
 

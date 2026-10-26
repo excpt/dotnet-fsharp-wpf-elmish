@@ -7,13 +7,14 @@ Targets .NET 10 (Windows) and .NET Framework 4.6.2+ (`net462`).
 ### Packages
 
 - `FSharp.Windows.Dsl` — virtual tree, reconciler, props, VirtualTree queries (no Elmish dependency)
-- `FSharp.Windows.Dsl.Elmish` — Program.runWindow, Cmd extensions, ComponentContext, AppBus, DebugState (restart-based hot reload)
-- `FSharp.Windows.Dsl.Controls` — codegen'd WPF control wrappers
-- `FSharp.Windows.Dsl.Testing` — TestProgram, CmdTest (for test projects)
+- `FSharp.Windows.Dsl.Elmish` — Program.runWindow/runChildWindow, ComponentContext, AppBus, Dialog, Focus, KeyBindings, Memo, DataCache, EntityMap, Permissions, OperationRegistry, DebugState (restart-based hot reload)
+- `FSharp.Windows.Dsl.Controls` — codegen'd WPF control wrappers, plus Style, Validation, Build
+- `FSharp.Windows.Dsl.Testing` — TestProgram, CmdTest, VirtualTreeQuery (for test projects)
 - `FSharp.Windows.Dsl.Codegen` — reflection-based code generation CLI tool
-- `FSharp.DevExpress.Wpf` — optional DevExpress wrappers (mirrors vendor namespace)
-- `FSharp.Telerik.Wpf` — optional Telerik wrappers
-- `FSharp.Syncfusion.Wpf` — optional Syncfusion wrappers
+
+DevExpress wrappers (`FSharp.DevExpress.Wpf.<Area>`, 26 projects) are generated locally into the gitignored `vendor/` by `tools/generate-devexpress.sh` / `.ps1`; they are not published and CI does not build them.
+
+Cancellation: only `OperationRegistry` (`src/FSharp.Windows.Dsl.Elmish/Cancellation.fs`) exists. The design in `docs/specs/2100_cancellation.md` (`Cmd.ofTaskForeground`/`ofTaskBackground`, per-window scopes, close warning) is not built yet; tracked in #33.
 
 ## Development
 
@@ -70,15 +71,15 @@ See `docs/specs/1100_hot_reload.md`.
 ### Source projects
 
 - `src/FSharp.Windows.Dsl/` — virtual tree, reconciler, base prop types
-- `src/FSharp.Windows.Dsl.Elmish/` — Elmish integration, Program.runWindow, Cmd extensions, AppBus
-- `src/FSharp.Windows.Dsl.Controls/` — codegen'd WPF control wrappers (generated + manual overrides)
+- `src/FSharp.Windows.Dsl.Elmish/` — Elmish integration, Program.runWindow/runChildWindow, AppBus, OperationRegistry
+- `src/FSharp.Windows.Dsl.Controls/` — codegen'd WPF control wrappers, plus hand-written Build, Style, Validation
 - `src/FSharp.Windows.Dsl.Testing/` — TestProgram, CmdTest, VirtualTree query re-exports
 
 ### Codegen tool
 
 - `tools/Codegen/` — F# console app, reflects over WPF assemblies via `MetadataLoadContext`
-- Run once to generate base DSL types, output committed to source control
-- Compares assemblies across TFMs (baseline net462 vs net10.0-windows), emits `#if` guards for version-specific DPs
+- Generates the base DSL types; output committed to source control, CI fails on drift
+- Compares assemblies across TFMs (`--baseline` vs `--tfms`) and emits `#if` guards for DPs and events added later; the committed output carries only `NET8_0_OR_GREATER` guards
 - See `docs/specs/0700_codegen.md`
 
 ### Test projects
@@ -86,9 +87,9 @@ See `docs/specs/1100_hot_reload.md`.
 - `tests/FSharp.Windows.Dsl.Tests/` — core reconciler, virtual tree, diffing tests
 - `tests/FSharp.Windows.Dsl.Elmish.Tests/` — Elmish integration tests
 - `tests/FSharp.Windows.Dsl.Controls.Tests/` — generated control wrapper tests
+- `tests/FSharp.Windows.Dsl.Codegen.Tests/` — codegen tool tests
 
-Pure `view`/`update` tests need no WPF runtime. Reconciler and control tests create WPF elements on an STA thread. Elmish runtime tests (`ElmishProgramTests.fs`) show real windows and need an interactive Windows desktop session.
-`view` returns data. `update` is pure. Both testable with zero infrastructure.
+All suites except Codegen.Tests target `net10.0-windows` and need the WPF runtime (Microsoft.WindowsDesktop.App). Pure `view`/`update` tests need no window or STA thread. Reconciler and control tests create WPF elements on an STA thread. Elmish runtime tests (`ElmishProgramTests.fs`) show real windows and need an interactive Windows desktop session.
 
 ### Generated code
 
@@ -97,13 +98,22 @@ Generated files are committed to source control in `Generated/` subdirectories:
 ```
 src/FSharp.Windows.Dsl.Controls/
   Generated/
-    FrameworkElement.generated.fs   <- generated, never edit
-    Button.generated.fs
+    005_FrameworkElement.generated.fs   <- generated, never edit (prefix = inheritance depth)
+    009_Button.generated.fs
     ...
-  Button.fs                         <- manual overrides and additions
+  Elements.generated.fs                 <- generated element shorthands
+  Registration.generated.fs             <- generated; call Registration.register() once
+  Build.fs, Style.fs, Validation.fs     <- hand-written
 ```
 
-Regeneration: `dotnet run --project tools/Codegen`
+Regeneration needs the mandatory arguments; bare `dotnet run --project tools/Codegen` fails.
+The command that produced the committed output is the `codegen-drift` job in `.github/workflows/ci.yml`:
+
+```bash
+dotnet run --project tools/Codegen -- --assembly PresentationFramework --baseline net461 \
+    --tfms net8.0-windows,net9.0-windows,net10.0-windows \
+    --namespace FSharp.Windows.Dsl.Controls --output src/FSharp.Windows.Dsl.Controls/Generated/
+```
 
 ### Documentation
 
@@ -115,9 +125,9 @@ Start with `0000_index.md`. Documents are ordered by dependency — build Phase 
 - F# is the only language. No C# projects.
 - `update` must be pure — side effects in `Cmd.ofEffect` only.
 - Controls are leaf nodes — reconciler never diffs grid/tree internals.
-- Data outside Elmish model — ObservableCollection cache for grid data.
+- Data outside Elmish model — ObservableCollection cache (`DataCache<'key,'T>`) for grid data.
 - Form fields inside model — fine-grained state for editing.
 - Keys required on dynamic/conditional children.
 - One CTS per lifetime scope (app/component/operation) — never per dispatch.
-- Elmish 5.x API (subscriptions unchanged from 4.x): `Sub.effect` (not `Sub.ofEffect`), key is `string list`, callback returns `IDisposable`.
-- `Cmd.OfTask.attempt` is for `Task<unit>` error-only. Use `Cmd.OfTask.either` for success+error.
+- Elmish 5.x API: `Sub` has only `none`/`batch`/`map` (there is no `Sub.effect` or `Sub.ofEffect`). A subscription is a `(SubId * Subscribe<'msg>) list`: key is `string list`, callback `('msg -> unit) -> IDisposable`.
+- `Cmd.OfTask.attempt` takes any task and dispatches only on error. Use `Cmd.OfTask.either` for success+error; `Cmd.OfTask.perform` never dispatches on error.

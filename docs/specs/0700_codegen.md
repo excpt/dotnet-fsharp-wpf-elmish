@@ -17,66 +17,59 @@ Same tool works for WPF controls and any third-party library.
 ### Multi-target codegen with conditional compilation
 
 Codegen reflects against **multiple target frameworks** in a single run and emits
-`#if` guards for platform-specific DPs and enum values. The .NET SDK provides
+`#if` guards for DPs and CLR events that the baseline lacks. The .NET SDK provides
 target framework symbols automatically — no manual defines needed.
 
-DependencyProperties are identical across .NET Framework 4.6.1+ and .NET 8+ for all
-standard WPF controls. Only a small number of DPs and enum values were added in .NET 9+.
+Each `--tfms` entry maps to its SDK symbol (`net8.0-windows` → `NET8_0_OR_GREATER`,
+`net9.0-windows` → `NET9_0_OR_GREATER`, `net10.0-windows` → `NET10_0_OR_GREATER`).
+A member gets the symbol of the first TFM it appears in; members in the baseline get
+no guard. Enum values are not compared.
 
-**Available symbols (provided by SDK automatically):**
+**What gets guarded in the committed output** (baseline `net461`, TFMs
+`net8.0-windows,net9.0-windows,net10.0-windows`):
 
-| Symbol | Available when targeting |
+| Addition | Guard |
 |---|---|
-| `NETFRAMEWORK` | Any .NET Framework |
-| `NET8_0_OR_GREATER` | .NET 8+ |
-| `NET9_0_OR_GREATER` | .NET 9+ |
-| `NET10_0_OR_GREATER` | .NET 10+ |
+| `DpiChanged` event (`Window`, `Image`, `HwndHost` and their subclasses) | `#if NET8_0_OR_GREATER` |
+| `TextBoxBase.SelectionTextBrush`, `PasswordBox.SelectionTextBrush` | `#if NET8_0_OR_GREATER` |
+| `ToolTip.ShowsToolTipOnKeyboardFocus` | `#if NET8_0_OR_GREATER` |
 
-**What gets guarded:**
-
-| Addition | Version | Guard |
-|---|---|---|
-| `Window.ThemeModeProperty` | .NET 9 | `#if NET9_0_OR_GREATER` |
-| `Application.ThemeModeProperty` | .NET 9 | `#if NET9_0_OR_GREATER` |
-| `SystemColors` accent properties | .NET 9 | `#if NET9_0_OR_GREATER` |
-| `MessageBoxButton.AbortRetryIgnore` etc. | .NET 10 | `#if NET10_0_OR_GREATER` |
-| `MessageBoxResult.Abort` etc. | .NET 10 | `#if NET10_0_OR_GREATER` |
+These were added in .NET Framework releases after 4.6.1, so they are compiled out of
+the `net462` build even where 4.6.2 has them. .NET 9 and .NET 10 add no DP or event
+to `PresentationFramework` that the diff picks up, so no `NET9`/`NET10` guard is emitted.
 
 **Generated output example:**
 
 ```fsharp
-// Window.generated.fs
 // AUTO-GENERATED — do not edit manually
-// Source assembly: PresentationFramework 8.0.0 + 9.0.0 conditionals
+// Regenerate: dotnet run --project tools/Codegen
+// Source assembly: PresentationFramework (baseline: net461)
 
-type WindowProp =
-    | Base       of ContentControlProp
-    | Title      of string
-    | Width      of float
-    | Height     of float
-    | WindowState of WindowState
-#if NET9_0_OR_GREATER
-    | ThemeMode  of ThemeMode
+[<RequireQualifiedAccess>]
+type PasswordBoxProp =
+    | Base of ControlProp
+    | PasswordChar of char
+    | OnPasswordChanged of System.Windows.RoutedEventHandler
+    // ...
+#if NET8_0_OR_GREATER
+    | SelectionTextBrush of System.Windows.Media.Brush
 #endif
 
-module Window =
-    let title      v = WindowProp.Title v
-    let width      v = WindowProp.Width v
-    let height     v = WindowProp.Height v
-    let windowState v = WindowProp.WindowState v
-#if NET9_0_OR_GREATER
-    let themeMode  v = WindowProp.ThemeMode v
+module PasswordBox =
+    let passwordChar v : obj = box (PasswordBoxProp.PasswordChar v)
+#if NET8_0_OR_GREATER
+    let selectionTextBrush v : obj =
+        box (PasswordBoxProp.SelectionTextBrush v)
 #endif
 
-    let apply (el: Window) (prop: WindowProp) =
+    let apply (el: System.Windows.Controls.PasswordBox) (prop: PasswordBoxProp) =
         match prop with
-        | Base       p -> applyContentControlProp el p
-        | Title      v -> el.SetValue(Window.TitleProperty, v)
-        | Width      v -> el.SetValue(FrameworkElement.WidthProperty, v)
-        | Height     v -> el.SetValue(FrameworkElement.HeightProperty, v)
-        | WindowState v -> el.SetValue(Window.WindowStateProperty, v)
-#if NET9_0_OR_GREATER
-        | ThemeMode  v -> el.SetValue(Window.ThemeModeProperty, v)
+        | PasswordBoxProp.Base p -> Control.apply el p
+        | PasswordBoxProp.PasswordChar v -> el.SetValue(System.Windows.Controls.PasswordBox.PasswordCharProperty, box v)
+        | PasswordBoxProp.OnPasswordChanged h -> el.PasswordChanged.AddHandler(h)
+#if NET8_0_OR_GREATER
+        | PasswordBoxProp.SelectionTextBrush v ->
+            el.SetValue(System.Windows.Controls.PasswordBox.SelectionTextBrushProperty, box v)
 #endif
 ```
 
@@ -87,148 +80,69 @@ doesn't apply to the current target framework.
 
 #### Where the assemblies live
 
-The .NET SDK installs runtime assemblies to well-known paths. The codegen tool
-auto-discovers them:
-
 ```
-.NET Framework (baseline):
-  C:/Windows/Microsoft.NET/Framework64/v4.0.30319/PresentationFramework.dll
+.NET Framework (baseline) — frozen reference assemblies, not the in-place runtime:
+  %USERPROFILE%/.nuget/packages/microsoft.netframework.referenceassemblies.net461/
+    <ver>/build/.NETFramework/v4.6.1/PresentationFramework.dll
+  (fallback: Program Files (x86)/Reference Assemblies/Microsoft/Framework/.NETFramework/v4.6.1/)
 
-.NET 8/9/10 (WindowsDesktop runtime packs):
+.NET 8/9/10 (WindowsDesktop shared runtime):
   C:/Program Files/dotnet/shared/Microsoft.WindowsDesktop.App/
     8.0.x/PresentationFramework.dll
     9.0.x/PresentationFramework.dll
     10.0.x/PresentationFramework.dll
 ```
 
-The tool finds installed runtimes via `dotnet --list-runtimes` or by scanning
-the shared directory. It picks the latest patch version per major, comparing folder
-names as versions (8.0.10 over 8.0.9) and taking a preview only when no release is
-installed. `--tfms` must be in ascending order, since each TFM is diffed against the
-one before it.
+The netfx baseline reads the `Microsoft.NETFramework.ReferenceAssemblies.<tfm>` NuGet
+package (honouring `NUGET_PACKAGES`), the same source MSBuild compiles against. The
+in-place runtime under `C:/Windows/Microsoft.NET` is upgraded by every Windows update
+and would report DPs the TFM does not have. The codegen project references the
+`net461` package with `ExcludeAssets="all"`, so restoring it fills the cache.
+
+For `-windows` TFMs the tool scans the shared directory and picks the latest patch
+version per major, comparing folder names as versions (8.0.10 over 8.0.9) and taking a
+preview only when no release is installed. A TFM without `-windows` (plain `net8.0`)
+is rejected. Every runtime named in `--tfms` must be installed. `--tfms` must be in
+ascending order, since each TFM is diffed against the one before it.
 
 #### CLI — specify which versions to diff
+
+This is the invocation the committed output and CI's codegen-drift job use:
 
 ```bash
 dotnet run --project tools/Codegen -- \
     --assembly PresentationFramework \
-    --baseline net462 \
-    --tfms net10.0-windows \
+    --baseline net461 \
+    --tfms net8.0-windows,net9.0-windows,net10.0-windows \
     --namespace FSharp.Windows.Dsl.Controls \
     --output src/FSharp.Windows.Dsl.Controls/Generated/
 ```
 
-`--baseline` is the lowest supported target. Everything in baseline gets no guard.
-Each `--tfms` entry is compared against the previous one.
+`--baseline` sits one below the lowest supported target (`net462`). Everything in the
+baseline gets no guard. Each `--tfms` entry is compared against the previous one.
+Without both `--baseline` and `--tfms`, or when `--assembly-path` is given (a
+third-party run), no diff runs and no guards are emitted.
 
 #### The diff algorithm
 
-```fsharp
-type VersionedDP = {
-    Name      : string
-    OwnerType : string
-    Guard     : string option   // None = baseline, Some "#if NET9_0_OR_GREATER"
-}
-
-let diffChain (assemblyName: string) (baseline: string) (tfms: (string * string) list) =
-
-    // Step 1: Load baseline (.NET Framework 4.6.1)
-    let baselinePath = resolveAssembly baseline assemblyName
-    let baselineDPs  = extractAllDPs baselinePath
-    // e.g. { "Button.ContentProperty"; "FrameworkElement.WidthProperty"; ... }
-
-    // Step 2: Walk each newer TFM, diff against previous
-    let mutable previousDPs = baselineDPs
-    let mutable results = baselineDPs |> Set.map (fun dp -> { dp with Guard = None })
-
-    for (tfm, guard) in tfms do
-        let path = resolveAssembly tfm assemblyName
-        let currentDPs = extractAllDPs path
-
-        // New DPs = in current but not in previous
-        let newDPs = currentDPs - previousDPs
-        let guarded = newDPs |> Set.map (fun dp -> { dp with Guard = Some guard })
-
-        results     <- results + guarded
-        previousDPs <- currentDPs
-
-    results
-
-// Usage:
-let dps = diffChain "PresentationFramework"
-            "net461"                                    // baseline
-            [ "net8.0-windows",  "NET8_0_OR_GREATER"    // usually no new DPs vs Framework
-              "net9.0-windows",  "NET9_0_OR_GREATER"    // ThemeMode, accent colors
-              "net10.0-windows", "NET10_0_OR_GREATER" ] // new MessageBox enums
-```
-
-#### What each step discovers
-
-```
-Step 1 — .NET Framework 4.6.1 (baseline)
-  → ~500 DependencyProperties across all controls
-  → All standard controls: Button, TextBox, Grid, StackPanel, ...
-  → All standard events: Click, TextChanged, SelectionChanged, ...
-  → Guard: none — these exist everywhere
-
-Step 2 — .NET 8 vs baseline
-  → Usually 0 new DPs (API-compatible by design)
-  → OpenFolderDialog exists but is a dialog, not a control we wrap
-  → Guard: NET8_0_OR_GREATER (only if something new found)
-
-Step 3 — .NET 9 vs .NET 8
-  → Window.ThemeModeProperty        → NEW
-  → Application.ThemeModeProperty   → NEW
-  → SystemColors accent properties  → NEW
-  → Guard: NET9_0_OR_GREATER
-
-Step 4 — .NET 10 vs .NET 9
-  → MessageBoxButton new enum values → NEW
-  → MessageBoxResult new enum values → NEW
-  → Guard: NET10_0_OR_GREATER
-```
-
-#### Same approach for enum values
+`TfmComparer.diffChain` collects DP names and CLR event names as
+`OwnerFullName.MemberName` sets, then walks the chain:
 
 ```fsharp
-let diffEnums (enumType: Type) (baselineAssembly) (newerAssembly) =
-    let baselineValues = getEnumValues baselineAssembly enumType.FullName
-    let newerValues    = getEnumValues newerAssembly enumType.FullName
-    newerValues - baselineValues   // new enum members get the guard
+type GuardMaps =
+    { DP: Map<string, string>      // "System.Windows.Controls.PasswordBox.SelectionTextBrush" -> "NET8_0_OR_GREATER"
+      Event: Map<string, string> }
 
-// MessageBoxButton on .NET 10 has AbortRetryIgnore, RetryCancel, CancelTryContinue
-// These don't exist on .NET 8 → #if NET10_0_OR_GREATER
+let diffChain (baselineTfm: string) (baselineAssemblyPath: string)
+              (tfmChain: (string * string * string) list)    // tfm, assembly path, guard
+              : GuardMaps =
+    // previous = members of the baseline assembly
+    // for each (tfm, path, guard): new = current - previous; map each new member to guard;
+    //                              previous <- current
 ```
 
-#### Assembly resolution
-
-```fsharp
-let resolveAssembly (tfm: string) (assemblyName: string) : string =
-    match tfm with
-    | "net461" | "net462" | "net47" | "net471" | "net472" | "net48" ->
-        // .NET Framework — always in the same GAC location
-        Path.Combine(
-            Environment.GetFolderPath(Environment.SpecialFolder.Windows),
-            "Microsoft.NET/Framework64/v4.0.30319",
-            $"{assemblyName}.dll")
-
-    | tfm when tfm.StartsWith("net") ->
-        // .NET Core/5+ — find latest patch in shared runtime
-        let major = tfm.Replace("net", "").Replace(".0-windows", "")
-        let runtimeDir =
-            Path.Combine(
-                Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles),
-                "dotnet/shared/Microsoft.WindowsDesktop.App")
-            |> Directory.GetDirectories
-            |> Array.filter (fun d -> Path.GetFileName(d).StartsWith($"{major}."))
-            |> Array.sortDescending
-            |> Array.head   // latest patch
-        Path.Combine(runtimeDir, $"{assemblyName}.dll")
-
-    | _ -> failwith $"Unknown TFM: {tfm}"
-```
-
-Enum values are compared the same way — new enum members get version guards.
+Events are diffed as well as DPs: `DpiChanged` is a CLR event, not a DP, and the
+inherited-helper flattening would otherwise reference it on `net462`.
 
 ## Implementation — F# Console App
 
@@ -252,7 +166,7 @@ conflicts with the runtime. Instead we use `MetadataLoadContext` from the
 `System.Reflection.MetadataLoadContext` NuGet package:
 
 ```fsharp
-// tools/Codegen/Program.fs
+// tools/Codegen/AssemblyInspector.fs (sketch; the real code is createContext)
 open System.Reflection
 open System.Reflection.PortableExecutable
 open System.Reflection.Metadata
@@ -293,7 +207,7 @@ ever instantiates as a node. The codegen narrows the set with a reachability
 closure seeded from the visual surface:
 
 ```fsharp
-let computeReachable (allDOTypes: Type list) (seed: Type list) =
+let computeReachableDOTypes (allDOTypes: Type list) (seed: Type list) : Set<string> =
     // seed = every UIElement subtype in the package's assemblies
 
     let mutable reachable = Set.empty
@@ -354,11 +268,11 @@ let discoverDPs (controlType: Type) =
         {| Name       = propName
            FieldName  = f.Name
            OwnerType  = f.DeclaringType
-           IsAttached = isRegisteredAttached f
-           IsReadOnly = hasMatchingReadOnlyKey controlType f.Name |})
+           IsAttached = isAttached f
+           IsReadOnly = hasReadOnlyKey controlType f.Name || hasNoPublicSetter controlType propName |})
 ```
 
-`hasMatchingReadOnlyKey` walks the BaseType chain manually:
+`hasReadOnlyKey` walks the BaseType chain manually:
 `BindingFlags.NonPublic ||| FlattenHierarchy` does not surface non-public static
 fields declared on a base class, so deep descendants would otherwise misclassify
 inherited read-only DPs (`ActualWidth`, `ActualHeight`, …) as writable.
@@ -375,11 +289,10 @@ generated surface checks WPF's own `DependencyProperty.ReadOnly` for every case.
 Attached DPs have a static `Set` method on the declaring type:
 
 ```fsharp
-let isRegisteredAttached (field: FieldInfo) =
+let isAttached (field: FieldInfo) =
+    let propName = field.Name.Substring(0, field.Name.Length - "Property".Length)
     let setMethod =
-        field.DeclaringType.GetMethod(
-            $"Set{field.Name.Replace("Property", "")}",
-            BindingFlags.Public ||| BindingFlags.Static)
+        field.DeclaringType.GetMethod($"Set{propName}", BindingFlags.Public ||| BindingFlags.Static)
     setMethod <> null
 
 // Grid.RowProperty → Grid.SetRow(element, value) exists → attached
@@ -396,6 +309,15 @@ They took the node instead until 0.4.0 (`v -> node -> node`). One module then
 held two shapes under plain names, and since a props list is `obj list`, using
 the node-taking one in a list compiled and silently applied nothing. See
 `0900_attached_props.md`.
+
+The registration call is never inspected, only the setter. A DP that a type
+re-registers with `AddOwner` and also exposes a static setter for is classified as
+attached: `TextBlock.FontSize` (`TextBlock.SetFontSize`) and
+`FrameworkElement.FlowDirection` (`FrameworkElement.SetFlowDirection`) become
+`AttachedProp` helpers (`TextBlock.fontSize`, `FrameworkElement.flowDirection`) with
+no DU case. Attached helpers are not inherited into derived modules, so `Button`
+has no `flowDirection`; write `FrameworkElement.flowDirection` instead.
+Read-only attached DPs and those with a generic value type are skipped.
 
 ### Discovering Collection Properties (CollectionProp)
 
@@ -433,7 +355,7 @@ Headers carry no date, so a regeneration that changes nothing leaves no diff.
 ### DependencyObject-Valued DPs (MaterializeBeforeSet)
 
 When a DP's value type is a `UIElement` subclass (`GridControl.View :
-DataViewBase`, `FrameworkElement.ContextMenu : ContextMenu`, `ToolTip`, …), the
+DataViewBase`, `FrameworkElement.ContextMenu : ContextMenu`, …), the
 DSL writer should compose the inner element the same way they compose the
 outer one. The codegen marks these DPs with `MaterializeBeforeSet = true`,
 which changes two things:
@@ -453,6 +375,10 @@ Detection threads a `uiElementFullNames` set (built from
 `AssemblyInspector.findAllUIElementSubtypes` over every loaded assembly) through
 `buildEmitInput`. Any DP whose `PropertyTypeFullName` matches that set switches
 to the `VirtualNode` shape.
+
+`obj`-typed DPs (`FrameworkElement.ToolTip`, `ContentControl.Content`,
+`HeaderedContentControl.Header`) keep `obj`. A `VirtualNode` passed to one is
+materialized at apply time (`Materializer.valueOf`); any other value is set as given.
 
 This is a **breaking change** vs `0.1.0`: code that previously passed a
 `ContextMenu` instance into `TextBox.contextMenu (Build.contextMenu [...])`
@@ -496,7 +422,7 @@ let discoverClrEvents (controlType: Type) (routedEventNames: Set<string>) =
 
 let discoverAllEvents (controlType: Type) =
     let routed = discoverEvents controlType
-    let routedNames = routed |> Set.ofList |> Set.map (fun e -> e.Name)
+    let routedNames = routed |> List.map (fun e -> e.Name) |> Set.ofList
     let clr = discoverClrEvents controlType routedNames
     routed @ clr
 ```
@@ -547,18 +473,22 @@ we no longer require handlers to live under `System.*`.
 ### Building the Type Hierarchy
 
 ```fsharp
-let buildHierarchy (types: Type[]) =
+// tools/Codegen/HierarchyBuilder.fs
+let buildHierarchy
+    (discoverDPs: Type -> DPInfo list)
+    (discoverEvents: Type -> EventInfo list)
+    (types: Type list)
+    : (Type * DPInfo list * EventInfo list * int) list =
     types
-    |> Array.map (fun t ->
-        {| Type       = t
-           Parent     = t.BaseType
-           DPs        = discoverDPs t
-           AttachedDPs = discoverDPs t |> Array.filter (fun dp -> dp.IsAttached)
-           Events     = discoverEvents t
-           // only DPs declared on this type, not inherited
-           OwnDPs     = discoverDPs t |> Array.filter (fun dp -> dp.OwnerType = t) |})
-    |> Array.sortBy (fun info -> hierarchyDepth info.Type)
+    |> List.map (fun t ->
+        // only members declared on this type, not inherited
+        let ownDPs = discoverDPs t |> List.filter (fun dp -> dp.OwnerTypeName = t.Name)
+        let ownEvents = discoverEvents t |> List.filter (fun ev -> ev.OwnerTypeName = t.Name)
+        (t, ownDPs, ownEvents, hierarchyDepth t))
+    |> List.sortBy (fun (_, _, _, depth) -> depth)
 ```
+
+The parent is resolved later, from `BaseType`, by `resolveParent` in `Program.fs`.
 
 ### Single Pass, Reachability-Filtered
 
@@ -571,38 +501,20 @@ something visual references them.
 
 ### F# Code Emitter
 
-```fsharp
-let emitControlFile (info: ControlInfo) (versionDPs: (string * DP[]) list) =
-    let sb = StringBuilder()
-
-    // header
-    sb.AppendLine("// AUTO-GENERATED — do not edit manually")
-    sb.AppendLine($"// Regenerate: dotnet run --project tools/Codegen")
-    sb.AppendLine($"// Source: {info.Type.Assembly.GetName().Name} {info.Type.Assembly.GetName().Version}")
-    sb.AppendLine()
-
-    // prop DU — baseline
-    sb.AppendLine($"type {info.Type.Name}Prop =")
-    sb.AppendLine($"    | Base of {info.Parent.Name}Prop")
-    info.OwnDPs |> Array.iter (fun dp ->
-        sb.AppendLine($"    | {dp.Name} of {formatType dp.PropertyType}"))
-
-    // prop DU — version-specific
-    versionDPs |> List.iter (fun (guard, dps) ->
-        sb.AppendLine($"#if {guard}")
-        dps |> Array.iter (fun dp ->
-            sb.AppendLine($"    | {dp.Name} of {formatType dp.PropertyType}"))
-        sb.AppendLine("#endif"))
-
-    // ... module, helpers, apply function ...
-    sb.ToString()
-```
+`FSharpEmitter.emitControlFile` takes one `EmitControlInput` per type and writes,
+in order: the header, a `[<RequireQualifiedAccess>]` prop DU (`Base of ParentProp`
+plus one case per own DP and event, guarded cases inside `#if`/`#endif`), then the
+module: own helpers, `apply`, `clear`, inherited helpers (boxed at the ancestor's DU,
+`let width v : obj = box (FrameworkElementProp.Width v)`), `children`/`contentChild`/`key`,
+attached and collection helpers, and `create` for instantiable types.
+`emitElements` and `emitRegistration` write `Elements.generated.fs` (the lower-case
+shorthands) and `Registration.generated.fs` next to the output directory.
 
 ## What Needs Special Handling
 
 | Concern | Approach |
 |---|---|
-| DependencyProperties | `SetValue` / `GetValue` via DP field |
+| DependencyProperties | `SetValue` / `ClearValue` via DP field |
 | Attached properties (`Grid.Row`) | Detect via static `SetXxx` method; emit `let name (v: T) : obj` carrying an `AttachedProp`, set from the child's own props list |
 | DO-valued DPs (`GridControl.View`) | `MaterializeBeforeSet` — DU case = `VirtualNode`, apply runs `Materializer.materialize` |
 | Auto-init list collections (`GridControl.Columns`) | `CollectionProp(name, children)` — Materializer reflects, clears, repopulates |
@@ -610,7 +522,7 @@ let emitControlFile (info: ControlInfo) (versionDPs: (string * DP[]) list) =
 | CLR events (not routed) | Standard .NET event `add`/`remove`; structural `void Invoke(Object, ...)` filter, generics rendered as F# source |
 | Non-visual DOs (`GridColumn`) | Reachability-pulled; same wrapper shape as visual |
 | `[Obsolete]` events | Skipped — F# FS0101 forbids referencing them |
-| Version-specific DPs | `#if` guards from TFM comparison |
+| Version-specific DPs and events | `#if` guards from TFM comparison |
 | Cross-package parent | Fully-qualified `FSharp.Windows.Dsl.Controls.X.apply` reference |
 
 ## Tool Project Structure
@@ -618,62 +530,63 @@ let emitControlFile (info: ControlInfo) (versionDPs: (string * DP[]) list) =
 ```
 tools/
   Codegen/
-    Codegen.fsproj              <- F# console app
-    Program.fs                  <- CLI entry point (Argu or System.CommandLine)
-    AssemblyInspector.fs        <- MetadataLoadContext + DP/event discovery
-    HierarchyBuilder.fs         <- Type hierarchy + inheritance chain
-    TfmComparer.fs              <- Multi-TFM diff, produces version guards
-    FSharpEmitter.fs            <- Generates .fs source files
-    Config.fs                   <- Excludes, base type overrides, per-assembly config
+    FSharp.Windows.Dsl.Codegen.fsproj  <- F# console app, packed as the fsharp-wpf-codegen dotnet tool
+    Types.fs                           <- DPInfo, EventInfo, EmitControlInput, ...
+    AssemblyInspector.fs               <- MetadataLoadContext, assembly resolution, DP/event discovery
+    TfmComparer.fs                     <- Multi-TFM diff, produces version guards
+    HierarchyBuilder.fs                <- Type hierarchy + inheritance chain
+    FSharpEmitter.fs                   <- Generates .fs source files
+    Program.fs                         <- Argu CLI, type exclusions, reachability, main
 ```
 
-```xml
-<!-- tools/Codegen/Codegen.fsproj -->
-<Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
-    <OutputType>Exe</OutputType>
-    <TargetFramework>net10.0</TargetFramework>
-  </PropertyGroup>
-  <ItemGroup>
-    <PackageReference Include="System.Reflection.MetadataLoadContext" Version="10.*" />
-    <PackageReference Include="Argu" Version="6.*" />
-  </ItemGroup>
-</Project>
-```
+The project targets `net10.0` and references `System.Reflection.MetadataLoadContext`
+and `Argu` with versions from the repo's `Directory.Packages.props` (central package
+management), plus `Microsoft.NETFramework.ReferenceAssemblies.net461` for the baseline.
 
 ## CLI Usage
 
-### For us (library authors) — run from repo root:
+| Argument | Meaning |
+|---|---|
+| `--assembly`, `-a` (required) | Assembly names, comma-separated. A name with `*` is a wildcard, expanded against `--assembly-path` and the WindowsDesktop runtime directory; matches whose name contains `Design`, `resources`, `Themes`, `TypedStyles`, `DemoBase` or `CodeView` are dropped |
+| `--namespace`, `-n` (required) | Output namespace. Anything but `FSharp.Windows.Dsl.Controls` is a third-party run: base WPF types are not emitted |
+| `--output`, `-o` (required) | Directory for the per-type files; `Elements.generated.fs` and `Registration.generated.fs` go to its parent |
+| `--tfm`, `-t` | WindowsDesktop runtime used for type discovery (default `net10.0-windows`) |
+| `--baseline`, `-b` | Baseline TFM of the guard diff |
+| `--tfms` | Comma-separated TFMs diffed against the baseline, ascending |
+| `--assembly-path`, `-p` | Extra directories to search for assemblies (comma-separated); disables the guard diff |
 
-```bash
-dotnet run --project tools/Codegen -- \
-    --assembly PresentationFramework \
-    --tfms net10.0-windows \
-    --namespace FSharp.Windows.Dsl.Controls \
-    --output src/FSharp.Windows.Dsl.Controls/Generated/
-```
+The three required arguments have no defaults: the bare `dotnet run --project
+tools/Codegen` in the generated headers prints a usage error. Use the full
+invocation under [CLI — specify which versions to diff](#cli--specify-which-versions-to-diff).
+
+After writing the files the tool runs `dotnet fantomas` over the parent of
+`--output` (the whole project directory, hand-written files included), so the repo's
+tool manifest (`dotnet tool restore`) must be in place. A Fantomas failure is printed
+and the tool exits with Fantomas's exit code.
 
 ### For third-party (community) — installed as dotnet tool:
 
 ```bash
-dotnet tool install FSharp.Windows.Dsl.Codegen
+dotnet tool install --global FSharp.Windows.Dsl.Codegen
 
 fsharp-wpf-codegen \
-    --assemblies DevExpress.Xpf.Grid,DevExpress.Xpf.Core,DevExpress.Xpf.Editors \
-    --namespace FSharp.DevExpress.Wpf \
-    --output src/FSharp.DevExpress.Wpf/Generated/
+    --assembly "DevExpress.Xpf.Grid.v25.2,DevExpress.Xpf.Grid.v25.2.Core" \
+    --assembly-path "C:/Program Files/DevExpress 25.2/Components/Bin/Framework" \
+    --namespace FSharp.DevExpress.Wpf.Grid \
+    --output vendor/FSharp.DevExpress.Wpf/FSharp.DevExpress.Wpf.Grid/Generated/
 ```
 
 ## Third-Party Assembly Handling
 
 | Issue | Solution |
 |---|---|
-| Non-standard base types | `--base-types` config per assembly |
-| Non-DP properties | Fallback to CLR property reflection |
+| Non-standard base types | Parent resolved from `BaseType`, skipping ancestors with no emitted wrapper |
+| Non-DP properties | Only list collections (`CollectionProp`); other CLR properties are not wrapped |
 | Plain CLR events (not routed) | Separate event discovery pass |
-| Cross-assembly inheritance | `--assemblies` loads all, resolves together |
-| Internal/abstract types | `--excludes` filter |
-| Version-specific DPs | `--tfms` compares multiple target frameworks |
+| Cross-assembly inheritance | Every `--assembly` loads into one `MetadataLoadContext`, resolved together with `--assembly-path` and the WPF runtime |
+| Internal/abstract types | Hard-coded `excludedTypes` set in `Program.fs`, namespaces containing `.Internal`, `.Native` or `.Base` skipped; abstract types get no `create` |
+| Two types with one short name | Collapsed to one wrapper without a warning: the one most other types derive from, else the shortest full name |
+| Version-specific DPs | Not diffed: a run with `--assembly-path` emits no guards |
 
 ## Generated File Convention
 
@@ -682,11 +595,14 @@ Files are committed to source control — never regenerated on build:
 ```
 src/
   FSharp.Windows.Dsl.Controls/
+    Elements.generated.fs
+    Registration.generated.fs
     Generated/
-      FrameworkElement.generated.fs
-      Control.generated.fs
-      Button.generated.fs
-      TextBlock.generated.fs
+      004_UIElement.generated.fs
+      005_FrameworkElement.generated.fs
+      006_Control.generated.fs
+      006_TextBlock.generated.fs
+      009_Button.generated.fs
       ...
 vendor/
   FSharp.DevExpress.Wpf/
@@ -701,22 +617,26 @@ tools/
   Codegen/
     Program.fs
   generate-devexpress.sh
+  generate-devexpress.ps1
 ```
+
+The `NNN_` prefix is the type's depth in the inheritance chain, so alphabetical order
+is compile order (F# needs a parent's DU before its children's).
 
 Each generated file has a header:
 ```fsharp
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
-// Source assembly: PresentationFramework 8.0.0
+// Source assembly: PresentationFramework (baseline: net461)
 ```
 
-Manual fixes go in a separate non-generated file alongside:
-```
-Button.generated.fs   → generated, never edit
-Button.fs             → manual overrides and additions
-```
+Manual additions go in separate non-generated files in the project, not in
+`Generated/`: `Build.fs`, `Style.fs` and `Validation.fs` in `FSharp.Windows.Dsl.Controls`.
+There are no per-type override files.
 
-Regeneration never destroys hand-written code.
+The tool overwrites files but never deletes one, so a type that disappears leaves a
+stale file behind; delete `Generated/` before regenerating in that case (the DevExpress
+scripts do). Fantomas reformats the hand-written files but changes nothing else in them.
 Git diff on regeneration shows exactly what changed between assembly versions.
 
 ## DevExpress Wrapper Generation
@@ -728,8 +648,10 @@ product-area packages.
 ### Prerequisites
 
 - DevExpress WPF installed locally (any version — auto-detected from `C:\Program Files\DevExpress*`)
-- .NET SDK 8.0+
-- Bash (Git Bash on Windows)
+- .NET 10 SDK (the codegen tool targets `net10.0` and discovers types in the
+  `net10.0-windows` runtime)
+- Bash (Git Bash on Windows) for `generate-devexpress.sh`, or Windows PowerShell 5.1+
+  for `generate-devexpress.ps1`, which does the same
 
 ### Running the Generator
 
@@ -737,10 +659,15 @@ product-area packages.
 ./tools/generate-devexpress.sh
 ```
 
-Output goes to `vendor/FSharp.DevExpress.Wpf/` by default. Custom output dir:
+```powershell
+.\tools\generate-devexpress.ps1
+```
+
+Output goes to `vendor/FSharp.DevExpress.Wpf/` (gitignored) by default. Custom output dir:
 
 ```bash
 ./tools/generate-devexpress.sh /path/to/output
+.\tools\generate-devexpress.ps1 -OutputDir D:\out
 ```
 
 ### What It Does
@@ -748,15 +675,17 @@ Output goes to `vendor/FSharp.DevExpress.Wpf/` by default. Custom output dir:
 1. **Auto-detects** the latest DevExpress installation in `C:\Program Files\`
 2. **Extracts version** from DLL file metadata (e.g., `25.2.4`)
 3. **Generates 26 packages** in dependency order:
-   - Foundation: `Core` (DevExpress.Xpf.Core, Controls, Layout.Core)
+   - Foundation: `Core` (assemblies DevExpress.Xpf.Core, Core.Extensions, Controls,
+     Layout.Core; NuGet DevExpress.Wpf.Core, Core.Extensions, Controls)
    - Product areas: `Grid`, `Ribbon`, `Docking`, `Charts`, `Diagram`, `Gauges`,
      `Map`, `NavBar`, `PivotGrid`, `Printing`, `PropertyGrid`, `Scheduler`,
      `LayoutControl`, `Accordion`, `Carousel`, `SpellChecker`, `TreeMap`,
      `Dialogs`, `Office`, `ExpressionEditor`
    - Higher-level: `Gantt`, `PdfViewer`, `RichEdit`, `Spreadsheet`, `Dashboard`
    - Skipped: `DataAccess` (wizard UI types, not useful in declarative DSL)
-4. **Creates `.fsproj` files** with correct NuGet `PackageReference` and
-   inter-project `ProjectReference` dependencies
+4. **Creates `.fsproj` files** (`net8.0-windows`) with correct NuGet `PackageReference` and
+   inter-project `ProjectReference` dependencies. The codegen runs with
+   `--assembly-path <install>/Components/Bin/Framework`, so no `#if` guards are emitted
 5. **Cleans `Generated/`** before regenerating to prevent stale files
 
 ### Output Structure
@@ -811,8 +740,11 @@ FSharp.DevExpress.Wpf.Core.Registration.register ()
 ```xml
 <!-- App.fsproj -->
 <PackageReference Include="DevExpress.Wpf.Core" Version="25.2.4" />
-<ProjectReference Include="..\..\vendor\FSharp.DevExpress.Wpf\FSharp.DevExpress.Wpf.Core\..." />
+<ProjectReference Include="..\..\vendor\FSharp.DevExpress.Wpf\FSharp.DevExpress.Wpf.Core\FSharp.DevExpress.Wpf.Core.fsproj" />
 ```
+
+Inside this repo, which uses central package management, the sample writes
+`VersionOverride="25.2.4"` instead of `Version` (`samples/DevExpressDashboard`).
 
 ### EULA Compliance
 
@@ -826,4 +758,5 @@ from their own licensed installation.
 1. Install the new DevExpress version
 2. Re-run `./tools/generate-devexpress.sh`
 3. The script auto-detects the latest installation and version
-4. Review git diff for any breaking changes in the generated output
+4. Rebuild `solutions/FSharp.Windows.Dsl.DevExpress.slnx` and the code that uses the
+   wrappers; `vendor/` is gitignored, so there is no git diff to review

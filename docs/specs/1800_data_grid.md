@@ -1,6 +1,6 @@
 # Data & Grid Strategy
 
-> **Package:** FSharp.Windows.Dsl (leaf node contract), FSharp.Windows.Dsl.Controls / FSharp.DevExpress.Wpf (grid wrappers)
+> **Package:** FSharp.Windows.Dsl (leaf node contract), FSharp.Windows.Dsl.Controls / FSharp.DevExpress.Wpf (grid wrappers), FSharp.Windows.Dsl.Elmish (`DataCache`)
 
 ## Data Grid State
 
@@ -36,17 +36,23 @@ Column widths
 
 The reconciler never diffs grid internals. It only sets:
 - `ItemsSource` (your data)
-- `SelectedItems` (from model)
 - The view (TableView/CardView) — composed as a `VirtualNode` and materialized
 - Column definitions — composed as `VirtualNode list` and added via `CollectionProp`
 
+Selection flows out through events, not in from the model. Native WPF `DataGrid` has no
+`selectedItems` helper: `MultiSelector.SelectedItems` is a read-only CLR property, and
+codegen emits only settable DPs. Push a single `selectedItem` if you must, and read
+multi-selection from `onSelectionChanged`.
+
 ```fsharp
+open DevExpress.Xpf.Grid
+
 gridControl
     [ GridControl.itemsSource model.CustomerSource
-      GridControl.selectedItems model.SelectedIds
-      DataControlBase.onCurrentItemChanged (CurrentChanged >> dispatch)
+      GridControl.onCurrentItemChanged (
+          CurrentItemChangedEventHandler(fun _ e -> dispatch (CurrentChanged e.NewItem)))
 
-      // View is a UIElement-valued DP — materialize-on-set (Gap 3)
+      // View is a DependencyObject-valued DP — materialize-on-set (Gap 3)
       GridControl.view (
           tableView
               [ TableView.allowEditing false
@@ -60,8 +66,12 @@ gridControl
 ```
 
 The shape extends to other rich grid surfaces: `GridControl.totalSummary`,
-`GridControl.groupSummary`, `GridControl.detailDescriptor`, `TableView` /
-`CardView` views, and the equivalent WPF `DataGrid.columns` work the same way.
+`GridControl.groupSummary`, `TableView` / `CardView` views, and the equivalent WPF
+`DataGrid.columns` work the same way. `GridControl.detailDescriptor` does not: it takes a
+`DetailDescriptorBase` instance, not a `VirtualNode`.
+
+The DevExpress wrappers are generated locally into the gitignored `vendor/` tree, so this
+sample is checked against a local regeneration, not in CI.
 
 ## Small / Medium Datasets (up to 20k rows)
 
@@ -84,10 +94,11 @@ DevExpress GridControl virtualizes internally regardless of source type.
 
 ## Multiple Open Lists (150k-200k total rows)
 
-Do **not** put rows in the Elmish model. Use an external cache:
+Do **not** put rows in the Elmish model. Use an external cache, `DataCache<'key, 'T>`
+(FSharp.Windows.Dsl.Elmish): one `ObservableCollection<'T>` per key.
 
 ```fsharp
-let dataCache = ConcurrentDictionary<CacheKey, Order[]>()
+let orders = DataCache<CacheKey, Order>()
 
 type DocumentModel = {
     CacheKey  : CacheKey
@@ -96,26 +107,28 @@ type DocumentModel = {
 }
 ```
 
-On reload — replace cache entry, grid re-fetches its current viewport.
 Elmish never touches individual rows. Model stays tiny.
 
 ## ObservableCollection for Read-Only Grids
 
-Never mutate individual items — clear and repopulate:
+The grid binds to the cached collection; a reload replaces its contents. Filling the
+cache is a side effect, so it runs in `Cmd.ofEffect`:
 
 ```fsharp
-let updateCache (key: CacheKey) (rows: 'T seq) =
-    let data = dataCache.GetOrAdd(key, fun _ ->
-        { Items = ObservableCollection<'T>(); CacheKey = key })
-    data.Items.Clear()
-    rows |> Seq.iter data.Items.Add
-    data
+// view — same collection instance on every render
+DataGrid.itemsSource (orders.GetOrCreate model.CacheKey)
+
+// update
+| OrdersLoaded rows ->
+    { model with Loading = false },
+    Cmd.ofEffect (fun _ -> orders.Update(model.CacheKey, rows))
 ```
 
-Grid keeps its stable reference. WPF binding notifies the grid automatically.
-No reconciler involvement.
+`GetOrCreate` returns the same instance per key, `Update` syncs its contents, `Clear`
+empties it (keeps the reference), `Remove` drops it. Grid keeps its stable reference;
+the collection notifies the grid. No reconciler involvement.
 
-> **CORRECTED:** a synchronous `Clear()`+`Add()` keeps scroll position (verified on WPF
+> A synchronous `Clear()`+`Add()` keeps scroll position (verified on WPF
 > DataGrid, ListBox and DevExpress GridControl), but it drops selection and the current row
 > and raises one Reset plus N Add notifications. Scroll is lost only if a layout pass runs
 > while the collection is empty (e.g. `DataCache.Clear` at load start, `Update` on arrival).
@@ -136,16 +149,18 @@ source.FetchRows.Add(fun e ->
     e.Result <- task {
         let! rows = grpcClient.GetCustomers(
             skip   = e.Skip,
-            take   = e.Take |> Option.defaultValue 50,
+            take   = (if e.Take.HasValue then e.Take.Value else 50),
             filter = e.Filter,
             sort   = e.SortOrder
         )
-        return FetchRowsResult(rows, hasMoreRows = rows.Length = 50)
+        return FetchRowsResult(Array.map box rows, rows.Length = 50, null)
     }
 )
 ```
 
-> **VERIFY:** `InfiniteAsyncSource` and `PagedAsyncSource` — confirm exact DevExpress type names and API signatures.
+`InfiniteAsyncSource`, `PagedAsyncSource`, `FetchRowsAsyncEventArgs` and `FetchRowsResult`
+live in `DevExpress.Xpf.Data` (checked against 25.2). `e.Take` is `Nullable<int>`: null
+while the user scrolls, set on a refresh.
 
 ## Universal ItemsControl Contract
 
@@ -163,19 +178,18 @@ Control owns its internal rendering
 ListBox.create [
     ListBox.itemsSource model.Items
     ListBox.selectedItem model.Selected
-    ListBox.onSelectionChanged (SelectionChanged >> dispatch)
+    ListBox.onSelectionChanged (SelectionChangedEventHandler(fun _ e -> dispatch (SelectionChanged e.AddedItems)))
 ]
 
 TreeView.create [
     TreeView.itemsSource model.Nodes
-    TreeView.selectedItem model.Selected
     TreeView.onSelectedItemChanged (RoutedPropertyChangedEventHandler(fun _ e -> dispatch (TreeNodeSelected e.NewValue)))
 ]
 ```
 
 ### TreeView Expanded State
 
-TreeView owns expand/collapse internally. Only sync to model if persistence is required:
+TreeView owns selection and expand/collapse internally (`TreeView.SelectedItem` is read-only, so there is no `selectedItem` helper). Only sync to model if persistence is required:
 
 ```fsharp
 type Msg =
@@ -203,13 +217,15 @@ type OrderListMsg =
     | OrdersLoaded   of Order[]
     | RowDoubleClick of OrderId
 
-let update msg model =
+let update (ctx: ComponentContext) msg model =
     match msg with
     | RowDoubleClick id ->
         model,
         Cmd.ofEffect (fun _ ->
-            OrderDetail.openWindow ctx.Window id
-        )
+            ctx.WindowService.OpenChild(fun owner ->
+                Program.mkProgram OrderDetail.init OrderDetail.update OrderDetail.view
+                |> Program.runChildWindowWithArg owner id))
 ```
 
-Child window is a fully independent Elmish program. Parent does not manage child state.
+`OrderDetail.init` takes the `OrderId`. The child window is a fully independent Elmish
+program on the same dispatcher. Parent does not manage child state.

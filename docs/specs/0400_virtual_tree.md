@@ -5,6 +5,8 @@
 ## Virtual Tree Node
 
 ```fsharp
+type Prop = obj                       // a boxed, typed prop (ButtonProp, ...) or a marker
+
 type VirtualNode = {
     Type       : Type
     Props      : Prop list
@@ -13,22 +15,30 @@ type VirtualNode = {
 }
 ```
 
+`create` (and the element functions such as `button`) take one `obj list`. The
+`children`, `contentChild` and `key` markers in it are pulled out by
+`VirtualTree.extractSpecialProps` into `Children` and `UserKey`; everything else
+stays in `Props`.
+
 ## Diffing Cases
 
 ```
-Element → Element (same type)  → diff props, patch live element
+Same reference                 → skip, subtree not walked
+Element → Element (same type)  → diff props if the lists differ, then diff children
 Element → Element (diff type)  → destroy old, create new, replace in parent
-Element → Empty                → remove from parent.Children
-Empty   → Element              → create new, insert at correct index
-Empty   → Empty                → nothing
+Element → absent               → remove from the parent's children
+absent  → Element              → create new, insert at correct index
 ```
 
 ## Key Strategy
 
 ```fsharp
 // user key — required for conditional / dynamic children
-Button.create [ box (Key "submit-btn") ]
+button [ Button.key "submit-btn" ]
 ```
+
+Every generated module has a `key` helper (`Button.key`, `Grid.key`, ...); each
+boxes the same `Key` marker.
 
 Unkeyed children carry no id. Their position is their identity: the index diff
 matches them by position, and in a keyed list `effectiveKeys` gives each one its
@@ -44,13 +54,16 @@ Reconciler matching priority:
 ## Conditional Elements
 
 ```fsharp
-StackPanel.create [
-    if model.Loading then yield Spinner.create [ key "spinner" ]
-    yield Grid.create [ key "main-grid" ]
+stackPanel [
+    StackPanel.children [
+        if model.Loading then
+            progressBar [ ProgressBar.key "spinner"; ProgressBar.isIndeterminate true ]
+        grid [ Grid.key "main-grid" ]
+    ]
 ]
 ```
 
-Without keys: index shifts when spinner appears/disappears, reconciler patches wrong element.
+Without keys: the index shifts when the spinner appears or disappears, so the grid is matched against the wrong position, replaced and rebuilt, losing its state.
 With keys: reconciler matches by identity regardless of position.
 
 ### Mixing keyed and unkeyed children
@@ -63,25 +76,29 @@ its element across renders, and an unkeyed placeholder is removed when keyed row
 replace it. Changing an unkeyed child's type replaces the element.
 
 A user key that repeats within one list is matched by occurrence: the first
-`key "a"` in the old list pairs with the first in the new list, the second with
-the second. Repeats are still a bug in the view, but they no longer leak elements.
+child keyed `"a"` in the old list pairs with the first in the new list, the second
+with the second. Repeats are still a bug in the view, but they no longer leak elements.
 
 ## Children Collection Differences
 
-Different parent types store children differently. The reconciler handles the
-visual collections directly via `Materializer.attachChildren`; non-visual list
-collections (e.g. `GridControl.Columns : ObservableCollection<ColumnBase>`) go
+Different parent types store children differently. The materializer attaches
+visual children when it builds an element, and the reconciler adds, removes and
+replaces them in place with its own switch over the same parent types. Non-visual
+list collections (e.g. `DataGrid.Columns : ObservableCollection<DataGridColumn>`) go
 through the `CollectionProp` marker instead, so they're populated as DSL props
 rather than as positional children.
 
 | Parent type | Mechanism | Access |
 |---|---|---|
-| `Panel` | `attachChildren` | `Children: UIElementCollection` |
-| `ContentControl` | `attachChildren` | `Content: obj` (single) |
-| `ItemsControl` | `attachChildren` | `Items: ItemCollection` |
-| `Decorator` | `attachChildren` | `Child: UIElement` (single) |
-| Auto-init list DP (`GridControl.Columns`, `DataGrid.Columns`) | `CollectionProp(name, children)` | Reflects named CLR property, expects `IList`, clears + adds |
+| `Panel` | node children | `Children: UIElementCollection` |
+| `ContentControl` | node children | `Content: obj` (single) |
+| `ItemsControl` | node children | `Items: ItemCollection` |
+| `Decorator` | node children | `Child: UIElement` (single) |
+| Auto-initialized CLR collection property (`DataGrid.Columns`, `GridView.Columns`) | `CollectionProp(name, children)` | Reflects named CLR property, expects `IList`, clears + adds |
 | Single-element CLR property (`NavBarItem.Content`) | `NodeProp(name, node)` | Reflects named CLR property, materializes the node, assigns it |
+
+The keyed diff runs for `Panel` and `ItemsControl` children; single-slot parents
+always take the index diff.
 
 A `ContentControl` or `Decorator` holds one child and any other non-container none (the
 `children`/`contentChild` helpers exist on every type). Children past that are not
@@ -96,11 +113,11 @@ attached either. It is left out and reported as `UnusableMember(parent, "Childre
 `Materializer.attachable`, so both see the same children at the same indices.
 
 ```fsharp
-gridControl
-    [ GridControl.itemsSource src
-      GridControl.columns
-          [ gridColumn [ GridColumn.fieldName "Personalnummer" ]
-            gridColumn [ GridColumn.fieldName "Name" ] ] ]
+dataGrid
+    [ DataGrid.itemsSource src
+      DataGrid.columns
+          [ dataGridTextColumn [ DataGridTextColumn.header "Personalnummer" ]
+            dataGridTextColumn [ DataGridTextColumn.header "Name" ] ] ]
 ```
 
 See `0500_props.md` for the full list of prop markers and `0700_codegen.md`
@@ -108,22 +125,24 @@ for how `CollectionProp` helpers are detected and emitted.
 
 ## Performance — Virtual Tree Rebuild Cost
 
-Every dispatch rebuilds the virtual tree for the affected component. The cost chain:
+Every dispatch runs `view` for the whole window (one Elmish loop per window). The cost chain:
 
 ```
 dispatch Msg
   → update → new Model
   → view walks tree
-    → memo check per component  (O(1) reference equality)
+    → Memo.memo / Memo.memoView, where used  (O(1) reference equality on the slice)
       → unchanged slice → return cached VirtualNode, zero allocation
       → changed slice   → rebuild that subtree only
   → reconciler walks diff
-    → unchanged node   → skip (props list structurally equal)
-    → changed props    → SetValue only for deltas
-    → changed children → minimal UIElementCollection mutations
-  → WPF dispatcher
+    → same node reference → skip the subtree (Stats.Skipped)
+    → equal props list    → no prop work, children still walked (Stats.ChildDiffs)
+    → changed props       → re-apply only the changed slots
+    → changed children    → minimal UIElementCollection mutations
+  → WPF
     → InvalidateMeasure only on mutated elements
     → milcore redraws only dirty regions
 ```
 
-Each layer filters noise before passing work to the next.
+Only a cached node (the same reference) skips its subtree. A rebuilt node with
+equal props still has its children diffed, so memoize slices whose subtrees are large.

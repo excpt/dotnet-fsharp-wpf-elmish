@@ -38,41 +38,41 @@
 
 ```
 FSharp.Windows.Dsl              → virtual tree, reconciler, props, VirtualTree queries
-FSharp.Windows.Dsl.Elmish       → Program.runWindow, Cmd extensions, ComponentContext, AppBus, memoization
-FSharp.Windows.Dsl.Controls     → codegen'd WPF control wrappers
-FSharp.Windows.Dsl.Testing      → TestProgram, CmdTest (for test projects)
+FSharp.Windows.Dsl.Elmish       → Program.runWindow, ComponentContext, AppBus, Dialog, DebugState, Memo, OperationRegistry
+FSharp.Windows.Dsl.Controls     → codegen'd WPF control wrappers, Style, Validation
+FSharp.Windows.Dsl.Testing      → TestProgram, CmdTest, VirtualTreeQuery (for test projects)
 FSharp.Windows.Dsl.Codegen      → reflection-based code generation CLI tool
-FSharp.DevExpress.Wpf           → codegen'd DevExpress wrappers (mirrors vendor namespace)
-FSharp.Telerik.Wpf              → codegen'd Telerik wrappers (mirrors vendor namespace)
-FSharp.Syncfusion.Wpf           → codegen'd Syncfusion wrappers (mirrors vendor namespace)
 ```
 
 `FSharp.Windows.Dsl` has NO Elmish dependency — the DSL layer is independent.
-Third-party packages are optional. Community can generate wrappers for any WPF control library.
+
+DevExpress wrappers are not published. `tools/generate-devexpress.sh` (or `.ps1`) runs the
+codegen tool against a local DevExpress install and writes one project per product area,
+`FSharp.DevExpress.Wpf.<Area>` (namespace `FSharp.DevExpress.Wpf.<Area>`, e.g. `.Grid`),
+targeting `net8.0-windows`, into the gitignored `vendor/` folder. CI does not build them.
+The same tool can generate wrappers for any other WPF control library.
 
 ## Package Dependency Graph
 
 ```
 FSharp.Windows.Dsl                    (no Elmish dependency)
     ↑
-FSharp.Windows.Dsl.Controls           (depends on Dsl + PresentationFramework)
-    ↑
-FSharp.Windows.Dsl.Elmish            (depends on Dsl + Elmish)
-    ↑
-FSharp.Windows.Dsl.Testing           (depends on Dsl + Controls + Elmish; no test framework)
+    ├── FSharp.Windows.Dsl.Controls   (depends on Dsl + PresentationFramework)
+    └── FSharp.Windows.Dsl.Elmish     (depends on Dsl + Elmish)
 
-FSharp.Windows.Dsl.Controls
-    ↑
-FSharp.DevExpress.Wpf                (depends on Dsl + DevExpress assemblies)
+FSharp.Windows.Dsl.Testing           (depends on Dsl + Controls + the Elmish NuGet package;
+                                      not on Dsl.Elmish; no test framework)
+
+FSharp.DevExpress.Wpf.<Area>         (local only; depends on Dsl + Controls + DevExpress assemblies)
 ```
 
 ## Key Boundaries
 
 | Layer | Responsibility | Never does |
 |---|---|---|
-| User Application | init/update/view, domain logic | Direct WPF manipulation |
+| User Application | init/update/view, domain logic | Direct WPF manipulation in `update` or `view` (it belongs in `Cmd.ofEffect` or event handlers) |
 | Elmish MVU Loop | Message dispatch, state management | UI rendering |
 | DSL Layer | Virtual tree construction | Touching live WPF controls |
-| Reconciler | Diff + patch live WPF tree | Business logic |
+| Reconciler | Diff + update live WPF tree in place | Business logic |
 | WPF Managed | Layout, input, templating | — |
 | milcore | GPU rendering | — |

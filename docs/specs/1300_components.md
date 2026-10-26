@@ -4,20 +4,21 @@
 
 ## Component-Based Architecture
 
-The project uses component-based architecture. Each component runs its own MVU loop.
-This provides isolation: a dispatch in one component does not trigger reconciliation
-in another, and independent windows can run independent loops.
+The project uses component-based architecture. Components inside one window compose
+into that window's single MVU loop: the parent routes their messages and holds their
+model slices. A separate window started with `Program.runChildWindow` runs its own loop,
+so independent windows are isolated from each other.
 
 ## Component Definition
 
-Each component is a self-contained MVU unit:
+A component is a module with `init`, `update` and `view` over its own model and message
+types. The library defines no component type; nothing more is needed:
 
 ```fsharp
-type Component<'model, 'msg> = {
-    Init   : unit -> 'model * Cmd<'msg>
-    Update : 'msg -> 'model -> 'model * Cmd<'msg>
-    View   : 'model -> ('msg -> unit) -> VirtualNode
-}
+module Toolbar =
+    let init () : ToolbarModel * Cmd<ToolbarMsg> = ...
+    let update (msg: ToolbarMsg) (model: ToolbarModel) : ToolbarModel * Cmd<ToolbarMsg> = ...
+    let view (model: ToolbarModel) (dispatch: ToolbarMsg -> unit) : VirtualNode = ...
 ```
 
 Components compose into a tree:
@@ -33,14 +34,10 @@ App (root program)
         └── CustomerGrid (component)
 ```
 
-Each component has its own:
-- Model slice
-- Dispatch queue
-- MVU loop
-- Virtual tree root
-- Reconciler state
-
-Dispatch in one component never triggers reconciliation in another.
+Each component has its own model slice and message type. Dispatch, the loop and the
+reconciler state belong to the window. A message re-renders the window's whole view;
+`Memo.memo` (1200) keeps components whose slice did not change from being rebuilt or
+diffed.
 
 ## Parent-Child Communication
 
@@ -81,28 +78,19 @@ Same window, shared state   → parent-child component composition
 Same window, independent    → sibling components, parent routes messages
 Different window            → independent programs, no shared loop
 Cross-cutting (auth, theme) → global messages via AppBus
-External events (RabbitMQ)  → subscription per component that cares
+External events (RabbitMQ)  → subscription on the window's program, mapped to the component that cares
 ```
 
 ## Multi-Window — Each Window = Its Own Program
 
 ```fsharp
+// the main window
 Program.mkProgram init update view
-|> Program.runWindow (Window())
-```
+|> Program.runWindow
 
-## Multi-Document Model
-
-```fsharp
-type Model = {
-    Documents : Map<DocumentId, DocumentModel>
-    Active    : DocumentId option
-}
-
-type Msg =
-    | OpenDocument   of DocumentId
-    | CloseDocument  of DocumentId
-    | DocumentMsg    of DocumentId * DocumentMsg
+// every further window, from an effect
+Program.mkProgram init update view
+|> Program.runChildWindow owner
 ```
 
 ## Spawning Child Windows — Effect Starts a New Loop
@@ -119,32 +107,40 @@ The effect is the boundary between two independent loops:
     )
 
 module OrderDetail =
+    // init : OrderId -> Model * Cmd<Msg>; view's root is a window [...]
     let launch (owner: Window) (id: OrderId) =
-        let window = Window()
-        window.Owner <- owner
-
-        Program.mkProgram (init id) update view
+        Program.mkProgram init update view
         |> Program.withSubscription subscribe
-        |> Program.runWindow window
+        |> Program.runChildWindowWithArg owner id
 ```
 
-`Window.Owner` controls: stays on top, minimizes/restores with owner, taskbar grouping.
+`runChildWindow` sets `Window.Owner`, which controls: stays on top, minimizes/restores
+with owner, taskbar grouping. It calls `Show()` and returns; there is no modal run
+function. For a modal dialog, use the `Dialog` module (1900) or build the window inside
+`Cmd.ofEffect`, call `ShowDialog()` and dispatch the result.
 
 ## Child Notifying Parent on Close
 
-Pass a callback through `init` — only crossing point between loops:
+The child loop has its own dispatch, so the parent's crossing point is a callback the
+child closes over. `Window.onClosed` in the child's view calls it:
 
 ```fsharp
 module OrderDetail =
     let launch (owner: Window) (id: OrderId) (onClosed: OrderId -> unit) =
-        let window = Window()
-        window.Owner <- owner
-        Program.mkProgram (init id onClosed) update view
-        |> Program.runWindow window
+        let view model dispatch =
+            window [
+                Window.onClosed (EventHandler(fun _ _ -> onClosed id))
+                Window.contentChild (detailView model dispatch)
+            ]
 
-// parent
+        Program.mkProgram init update view
+        |> Program.runChildWindowWithArg owner id
+
+// parent, inside Cmd.ofEffect (fun dispatch -> ...)
 OrderDetail.launch owner id (fun id -> dispatch (OrderDetailClosed id))
 ```
+
+The child loop itself keeps running after its window closes (1200, Run Function Contract).
 
 ## Finding the Parent Window
 
@@ -160,23 +156,35 @@ let getParentWindow (element: DependencyObject) : Window option =
 It uses `PresentationSource` internally (not visual tree traversal).
 Works from any component anywhere in the tree.
 
-## IWindowService
+## IWindowService and ComponentContext
 
 ```fsharp
 type IWindowService =
     abstract GetWindow : unit -> Window option
     abstract OpenChild : (Window -> unit) -> unit
 
-let createWindowService (liveRoot: FrameworkElement) =
-    { new IWindowService with
-        member _.GetWindow() =
-            Window.GetWindow(liveRoot) |> Option.ofObj
-        member _.OpenChild(spawn) =
-            Window.GetWindow(liveRoot)
-            |> Option.ofObj
-            |> Option.iter spawn }
+module WindowService =
+    let create (element: DependencyObject) : IWindowService =
+        { new IWindowService with
+            member _.GetWindow() =
+                Window.GetWindow(element) |> Option.ofObj
+            member _.OpenChild(spawn) =
+                Window.GetWindow(element)
+                |> Option.ofObj
+                |> Option.iter spawn }
+
+type ComponentContext<'bus> =
+    { WindowService: IWindowService
+      Bus: AppBus<'bus> }
+
+type ComponentContext = ComponentContext<string>
 ```
 
-No global state. No `Application.Current.MainWindow`.
-Each component finds its own containing window dynamically.
-Works correctly in multi-window MDI. Mockable in unit tests.
+The context is a plain record with no lifecycle hooks. The run functions do not create
+one: the app builds it and passes it to the `update` functions that need it
+(`update ctx msg model`).
+
+Each component finds its own containing window dynamically, so it works correctly with
+several windows open, where `Application.Current.MainWindow` names the wrong owner.
+(The samples' single-window `OpenChildWindow` still reads `MainWindow`.) Mockable in
+unit tests: implement `IWindowService` with an object expression.

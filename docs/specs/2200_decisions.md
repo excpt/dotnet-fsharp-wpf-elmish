@@ -7,8 +7,8 @@ Every architectural decision and its rationale.
 | Decision | Rationale |
 |---|---|
 | Pure update function | Model + Cmd testable with zero infrastructure |
-| VirtualNode as data structure | View testable without WPF, no UI thread, no window |
-| VirtualTree query module in core | findByType, getProp, isEnabled, isVisible — ships day one |
+| VirtualNode as data structure | View testable without a window or UI thread |
+| VirtualTree queries | Core `VirtualTree` has findByType, findAllByType, findByKey, exists, tryFindProp; Testing's `VirtualTreeQuery` re-exports them and adds isEnabled, isVisible, text |
 | Test Cmd by dispatching results | Don't inspect Cmd internals — dispatch result messages directly |
 | No MVVM / INPC | Elmish loop replaces all of it |
 
@@ -16,8 +16,7 @@ Every architectural decision and its rationale.
 
 | Decision | Rationale |
 |---|---|
-| Nested hierarchy DUs | DRY props, apply logic written once per level, structural equality for free |
-| Interface hierarchy for DSL | Mirrors WPF hierarchy, IDE guides consumer |
+| One prop DU per WPF type | Each DU holds its type's own DPs; inherited helpers box the ancestor's case and the Materializer dispatches by prop type through a registry (`registerApply`). Apply logic written once per level, structural equality for free |
 | Codegen from reflection | Mechanical work automated, same tool covers WPF + third-party |
 | Committed generated files | Build determinism, diffable history, safe manual overrides |
 
@@ -26,27 +25,23 @@ Every architectural decision and its rationale.
 | Decision | Rationale |
 |---|---|
 | Keys for reconciler identity | Stable matching independent of position |
-| Memoization at component boundaries | O(1) reference equality skips unchanged subtrees |
-| Component-based architecture | Isolated loops, no cross-component reconciliation cost |
-| Component isolation is architectural | Each loop only diffs its own subtree — not an optimization |
-| Six-tier change detection | Architecture → boundary → node → prop → patch → frame coalescing |
-| CompositionTarget.Rendering | Aligns with WPF render cycle (idle behavior not guaranteed by documentation) |
-| Empty patch guard | Zero Dispatcher.Invoke when nothing changed |
-| Patch sorted by priority | Structural before prop — avoids measuring removed elements |
+| In-place reconciliation | `setState` diffs old vs new tree and mutates the live WPF tree directly, on the UI thread. No patch list, no frame coalescing |
+| Reference-equal subtrees skipped | O(1) check; `Memo.memo`/`Memo.memoView` return the cached node when the model slice is reference-equal |
+| One Elmish loop per window | In-window components compose into the window's loop (mapped update/view); a separate window gets its own loop |
 
 ## Communication
 
 | Decision | Rationale |
 |---|---|
-| AppBus for cross-component messages | No direct references, clean subscription lifecycle |
+| AppBus for cross-component messages | No direct references, `Subscribe` returns the `IDisposable` an Elmish subscription needs |
 
 ## Controls & Data
 
 | Decision | Rationale |
 |---|---|
 | Controls as leaf nodes | Let controls own internal state, only sync committed state |
-| Data outside Elmish model | Prevents 200k rows in MVU loop, cache holds data by key |
-| ObservableCollection per grid | Stable reference, clear/repopulate on reload |
+| Data outside Elmish model | Prevents 200k rows in MVU loop, `DataCache` holds data by key |
+| ObservableCollection per grid | Stable reference; `DataCache.Update` syncs it in place on reload |
 | Form fields inside model | Fine-grained state, validation, ideal Elmish use case |
 | Normalization only when needed | Live updates / multi-component same entity only |
 | Reload as sync strategy | Valid for LOB fetch-once-display-all patterns |
@@ -55,7 +50,7 @@ Every architectural decision and its rationale.
 
 | Decision | Rationale |
 |---|---|
-| DataTemplate as F# function | No DataTemplate objects, composable, type-safe |
+| ItemTemplate takes a WPF DataTemplate | Item templates stay WPF's; the reconciler never diffs items (controls are leaf nodes) |
 | Triggers replaced by model | Derive appearance from model, no trigger boilerplate |
 | Permissions as model state | Single source of truth for UI state and business logic |
 
@@ -63,10 +58,10 @@ Every architectural decision and its rationale.
 
 | Decision | Rationale |
 |---|---|
-| Window.GetWindow() | Dynamic window discovery from any element in tree |
+| Window.GetWindow() | Dynamic window discovery from any element in tree (`WindowService.create`) |
 | IWindowService | Correct owner assignment, testable without real WPF windows |
-| Effect starts new Elmish loop | Clean boundary between independent window loops |
-| Custom modal windows as Elmish programs | ShowDialog() blocks, returns typed Result DU |
+| Effect starts new Elmish loop | `Program.runChildWindow` from `Cmd.ofEffect`: clean boundary between window loops |
+| Modal dialogs from an effect | No modal Elmish window API. A `Cmd.ofEffect` builds the window, calls `ShowDialog()` and dispatches the result |
 | No IDialogService | Architecture enforces purity without abstraction layer or DI |
 | lastChildFill on DockPanel not child | Correct WPF semantics, no wrapper type needed |
 
@@ -74,19 +69,20 @@ Every architectural decision and its rationale.
 
 | Decision | Rationale |
 |---|---|
-| Layout controls use same DU hierarchy | Width/height/margin inherited for free |
+| Layout controls generated like any control | Width/height/margin helpers inherited from FrameworkElement |
 
 ## Cancellation & Lifecycle
 
 | Decision | Rationale |
 |---|---|
 | One CTS per lifetime scope | App / component / operation — never per dispatch |
-| Linked CTS hierarchy | Cancel cascades down, child cancel never affects parent |
 | CTS manual disposal | Task completing does not dispose CTS — always dispose in result handler |
-| Foreground vs Background ops | Foreground warns on close, Background cancelled silently |
-| Operation registry | Explicit tracking — CTS has no built-in active task count |
-| Cmd.ofTaskForeground / Background | Consumer declares intent, lifecycle handled internally |
-| App close warning | Only foreground ops trigger warning, background cancelled immediately |
+| Operation registry | `OperationRegistry`: explicit tracking — CTS has no built-in active task count |
+| Foreground vs Background ops | `OperationKind` on each registered op; `CancelBackground` cancels only background ones |
+
+Planned, not built (tracked in #33, design in 2100): runtime-managed per-window CTS scopes
+with linked cancellation, `Cmd.ofTaskForeground`/`Cmd.ofTaskBackground`, and the close
+warning for foreground ops.
 
 ## Hot Reload
 
@@ -94,3 +90,13 @@ Every architectural decision and its rationale.
 |---|---|
 | State serialization for restart | Model preserved across dotnet watch restarts, feels instant |
 | Hot reload as Feature Zero | Non-negotiable DX. For F# today: `dotnet watch` restart + `DebugState` restore, in FSharp.Windows.Dsl.Elmish; not compiled out of release builds (the app decides where to call `save`) |
+
+## Cut Designs
+
+Designed in earlier specs, never built, removed:
+
+- DataTemplate as F# function (`'T -> VirtualNode` item templates)
+- Patch-list reconciler (patch DU sorted by priority, empty-patch guard, `CompositionTarget.Rendering` frame coalescing)
+- Interface hierarchy for the DSL (`IFrameworkElement`/`IControl`/`IContentControl`)
+- Modal Elmish window API and a `Program.runWindow` window parameter
+- FSharp.Telerik.Wpf and FSharp.Syncfusion.Wpf packages

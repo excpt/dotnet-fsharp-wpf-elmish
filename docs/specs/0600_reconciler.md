@@ -2,113 +2,100 @@
 
 > **Package:** FSharp.Windows.Dsl
 
-## Component Isolation
+## Scope — One Loop per Window
 
-The differ does not need to handle the whole application tree. Each component runs its
-own independent Elmish loop. A dispatch in one component never reaches another.
+Each window runs one Elmish loop (`Program.runWindow`, `Program.runChildWindow`).
+Components inside a window are composed into that loop: a dispatch anywhere in the
+window runs `update` and `view` for the whole window, and the reconciler diffs the
+window's tree. A window from `Program.runChildWindow` has its own loop and tree; one
+from `Program.openChildView` has its own tree, rendered from the parent's loop
+(`Program.updateChildView`).
+
+`view` and the reconciler run on the window's UI thread: messages dispatched from
+other threads are marshalled to its `Dispatcher` first.
+
+## Change Detection
 
 ```
-dispatch SearchChanged        → only OrderList loop runs
-dispatch ToolbarButtonClicked → only Toolbar loop runs
-dispatch SidebarNodeSelected  → only Sidebar loop runs
+Tier 1 — Slice memoization (opt-in, Memo.memo / Memo.memoView)
+  → slice reference equality      → return the cached VirtualNode
+Tier 2 — Reconciler walk
+  → node reference equality       → skip the subtree
+  → type change                   → replace the element
+  → prop list structural equality → no prop work, children still walked
+  → per-slot comparison           → re-apply only the changed props
 ```
 
-Other components have zero involvement and zero cost.
-
-## Six-Tier Change Detection Pipeline
-
-```
-Tier 1 — Architecture (eliminates ~90% of work)
-  Component A dispatches
-    → only Component A's loop runs
-    → Component B, C, D, E — completely idle
-
-Tier 2 — Differ within Component A (eliminates ~90% of remainder)
-  Component A's view rebuilds
-    → slice reference equality  → skip unchanged sub-components
-      → node reference equality → skip unchanged nodes
-        → prop structural equality → skip unchanged props
-          → empty patch guard     → skip Dispatcher.Invoke entirely
-```
-
-Without component isolation: differ must handle 500+ nodes.
-With component isolation: only diffs 20-50 nodes. Simple O(n) walk is sufficient.
-
-## Tier 1 — Component Boundary Check
+## Tier 1 — Slice Memoization
 
 ```fsharp
-type ComponentState<'slice> = {
-    mutable LastSlice : 'slice
-    mutable LastNode  : VirtualNode
-}
+let orderList = Memo.memo (fun (m: Model) -> m.OrderList) OrderList.view
 
-let checkComponent
-    (state : ComponentState<'slice>)
-    (slice : 'slice)
-    (build : 'slice -> VirtualNode) : VirtualNode =
-
-    if Object.ReferenceEquals(state.LastSlice, slice) then
-        state.LastNode
-    else
-        state.LastSlice <- slice
-        let node = build slice
-        state.LastNode  <- node
-        node
+let view model dispatch =
+    dockPanel [ DockPanel.children [ toolbar model dispatch; orderList model dispatch ] ]
 ```
 
-F# immutable records: `{ model with OrderList = { ... } }` creates new reference for
-`OrderList` but `model.Toolbar` keeps same reference → `ReferenceEquals` = true → cached.
+`Memo.memo` (and `Memo.memoView`, without `dispatch`) keep the last slice and node.
+F# immutable records: `{ model with Toolbar = { ... } }` creates a new reference for
+`Toolbar` but `model.OrderList` keeps the same reference → `ReferenceEquals` = true →
+the cached node is returned, and the reconciler skips it in turn.
 
-## Tier 2 — Node-Level Reference Equality
+## Tier 2 — The Walk
+
+The reconciler diffs and mutates the live tree in one walk; there is no intermediate
+patch list.
 
 ```fsharp
-let rec diff
-    (parent  : DependencyObject)
-    (oldNode : VirtualNode option)
-    (newNode : VirtualNode)
-    (patches : ResizeArray<Patch>) =
-
+let rec private reconcile parent index (oldNode: VirtualNode option) (newNode: VirtualNode option) =
     match oldNode, newNode with
-
-    // same reference — entire subtree identical, skip
-    | Some o, n when Object.ReferenceEquals(o, n) -> ()
-
-    // memoized, same version — skip subtree
-    | Some (Memoized(id1, v1, _)), Memoized(id2, v2, _)
-        when id1 = id2 && v1 = v2 -> ()
-
-    // both empty
-    | Some Empty, Empty -> ()
-
-    // structural changes
-    | None,   Element def -> patches.Add(Create(parent, def))
-    | Some _, Empty       -> patches.Add(Remove parent)
-
-    | Some (Element old), Element newDef when old.Type <> newDef.Type ->
-        patches.Add(Replace(parent, newDef))
-
-    // same type — diff props and children
-    | Some (Element old), Element newDef ->
-        diffProps    old newDef patches
-        diffChildren old newDef patches
-
-    | _ -> ()
+    | Some old, Some newN when Object.ReferenceEquals(old, newN) -> ()       // Stats.Skipped
+    | None, None -> ()
+    | None, Some newN -> insertChild parent index (Materializer.materialize newN)
+    | Some _, None -> removeChild parent index
+    | Some old, Some newN when old.Type <> newN.Type ->
+        replaceChild parent index (Materializer.materialize newN)
+    | Some old, Some newN when old.Props <> newN.Props ->                      // Stats.PropReapplied
+        match getChild parent index with
+        | Some el ->
+            diffAndApplyProps el old.Props newN.Props
+            reconcileChildren el old.Children newN.Children
+        | None -> ()
+    | Some old, Some newN ->                                                   // Stats.ChildDiffs
+        match getChild parent index with
+        | Some el -> reconcileChildren el old.Children newN.Children
+        | None -> ()
 ```
 
-## Tier 3 — Prop Structural Equality
+`Reconciler.update root oldTree newTree` returns at once when the two trees are the
+same reference. Otherwise it diffs the root's props in place and reconciles its
+children. The root element is never replaced: a different root type in the new tree
+is not detected. `Dsl.update` wraps it for a `LiveTree` (from `Dsl.createLive`).
 
-Props are F# DUs. Structural equality is automatic:
+The counts of the last update are in `Reconciler.lastStats` (`Skipped`, `Replaced`,
+`Created`, `Removed`, `ChildDiffs`, `PropReapplied`), and each update writes its time
+and counts to `Debug`.
 
-```fsharp
-let diffProps (old: ElementDef) (newDef: ElementDef) (patches: ResizeArray<Patch>) =
-    List.iter2 (fun oldProp newProp ->
-        if oldProp <> newProp then
-            patches.Add(SetProp newProp)
-    ) old.Props newDef.Props
-```
+## Prop Diffing — Slots
+
+Each prop has a slot: its DU case type, so `Width 100` and `Width 120` share one.
+Markers that share a type key by what they address:
+
+| Prop | Slot |
+|---|---|
+| Typed prop (generated DU case) | the case type |
+| `EventProp` | the inner case type, numbered by occurrence |
+| `AttachedProp` | the `DependencyProperty` |
+| `ResourceRefProp` | the `DependencyProperty`, apart from `AttachedProp` |
+| `CollectionProp`, `NodeProp` | the property name |
+| `ResourcesProp` | one slot per element |
+
+A slot whose new value equals the old one (F# structural equality, `Object.Equals`
+per element) is skipped; a changed or new one is re-applied through
+`Materializer.tryApplyProp` or the marker's own apply. A changed `ResourcesProp`
+updates only the keys that changed.
 
 For a `TextBox` where only `Text` changed — `Width`, `Margin`, `Background`, `FontSize`
-all pass structural equality and emit nothing.
+all compare equal and are not touched.
 
 ### Event Handler Rebinding
 
@@ -149,18 +136,19 @@ through codegen rather than documented as additive.
 ```fsharp
 // Reconciler extracts the event name from the F# DU case (OnClick → Click),
 // finds the CLR event via reflection, then swaps the delegate.
-let swapEventHandler (el: DependencyObject) (oldInner: obj) (newInner: obj) =
-    let caseName = oldInner.GetType().Name   // "OnClick"
-    let eventName = caseName.Substring(2)    // "Click"
-    let evInfo = el.GetType().GetEvent(eventName)
-    evInfo.RemoveEventHandler(el, oldHandler)
-    evInfo.AddEventHandler(el, newHandler)
+let private swapEventHandler (el: DependencyObject) (oldInner: obj) (newInner: obj) =
+    let caseName = oldInner.GetType().Name              // "OnClick"
+    let evInfo = el.GetType().GetEvent(caseName.Substring(2))   // "Click"
+    let itemProp = oldInner.GetType().GetProperty("Item")
+    match itemProp.GetValue(oldInner), itemProp.GetValue(newInner) with
+    | (:? Delegate as oldH), (:? Delegate as newH) when not (Object.ReferenceEquals(oldH, newH)) ->
+        evInfo.RemoveEventHandler(el, oldH)
+        evInfo.AddEventHandler(el, newH)
+    | _ -> ()
 ```
 
-**Performance:** Each swap is ~1 delegate list operation. A typical view with 30-50
-event handlers adds ~0.05ms per render — negligible vs WPF layout/render. Handlers
-with the same reference (defined outside the view function) are skipped via
-`Object.ReferenceEquals`.
+**Performance:** Each swap is ~1 delegate list operation. Handlers with the same
+reference (defined outside the view function) are skipped via `Object.ReferenceEquals`.
 
 ### Failure Contract
 
@@ -181,161 +169,45 @@ children, records the current tree with no children, and rethrows. The next rend
 then rebuilds the children instead of diffing against a tree the live elements no
 longer match, so nothing is duplicated.
 
-## Tier 4 — Children Diffing Strategy
+## Children Diffing Strategy
 
-Different strategies based on how children are used:
+`reconcileChildren` first filters both lists to the children the parent can hold
+(`Materializer.holdable`; the new list through `Materializer.attachable`, which also
+reports the rest), then:
 
-```fsharp
-let diffChildren old newDef patches =
-    match old.ChildrenKind with
-    | SingleChild  -> diff old.Child newDef.Child patches
-    | KeyedList    -> diffKeyed    old.Children newDef.Children patches
-    | StaticList   -> diffByIndex  old.Children newDef.Children patches
-    | Leaf         -> diffLeafProps old newDef patches
-```
+- **Index diff** (no child in either list has a key): surplus old children are
+  removed from the end, every other position is reconciled against the old child at that index.
+- **Keyed diff** (any child has a key) for `Panel` and `ItemsControl` parents; other
+  parents fall back to the index diff.
 
 **Keyed diffing** for dynamic / conditional children — old children are matched
 through a dictionary. Moving an element into place finds its current index with a
-linear scan, so a full reorder is O(n²); at the 20-50 children a component diffs
+linear scan, so a full reorder is O(n²); at the child counts of a typical panel
 that is not worth a cleverer move algorithm. A child that is the same reference as
 its old node is skipped without a walk (`Stats.Skipped`), as in the index diff:
 
-```fsharp
-let diffKeyed old newChildren patches =
-    let oldMap = old |> List.mapi (fun i n -> getKey n, (i, n)) |> dict
-
-    newChildren |> List.iteri (fun newIdx newChild ->
-        match oldMap.TryGetValue(getKey newChild) with
-        | true, (oldIdx, oldChild) ->
-            if oldIdx <> newIdx then patches.Add(Move(getKey newChild, newIdx))
-            diff newChild oldChild patches
-        | false, _ ->
-            patches.Add(CreateAt(newIdx, newChild))
-    )
-
-    oldMap.Keys
-    |> Seq.filter (fun k -> newChildren |> List.forall (fun n -> getKey n <> k))
-    |> Seq.iter   (fun k -> patches.Add(RemoveKey k))
+```
+1. Map old children by effective key → (old node, live element)
+2. For each new child: same reference → keep; same key and type → diff props and
+   children, keep the element; otherwise materialize a new one
+3. Remove old elements left in the map (highest index first)
+4. Walk the target order: leave an element already in place, move or insert the rest
 ```
 
-In the implementation (`Reconciler.reconcileKeyedChildren`), `getKey` is
+In the implementation (`Reconciler.reconcileKeyedChildren`), the key is
 `effectiveKeys`: a child's user key, or for an unkeyed child a synthetic key of its
 type and its ordinal among unkeyed siblings of that type, with repeated user keys
 numbered by occurrence. Every old child is therefore in the map and every stale one
 is removed. Unkeyed children in a list that has any key are tracked, not leaked.
-
-## Tier 5 — Patch Application
-
-Collect ALL patches first. Apply in a single `Dispatcher.Invoke`:
-
-```fsharp
-type Patch =
-    | SetProp       of DependencyProperty * obj
-    | ClearProp     of DependencyProperty
-    | Create        of parent: DependencyObject * ElementDef
-    | CreateAt      of index: int * ElementDef
-    | Remove        of DependencyObject
-    | RemoveKey     of string
-    | Replace       of DependencyObject * ElementDef
-    | Move          of key: string * newIndex: int
-    | SetContent    of obj
-    | SetItemSource of IEnumerable
-
-let applyPatches (patches: ResizeArray<Patch>) (dispatcher: Dispatcher) =
-    if patches.Count = 0 then
-        ()      // nothing changed — no Dispatcher.Invoke
-    else
-        let invoke f =
-            if dispatcher.CheckAccess() then f()
-            else dispatcher.Invoke(f, DispatcherPriority.Render)
-
-        invoke (fun () ->
-            patches
-            |> Seq.sortBy (function
-                | Remove _        -> 0    // structural before prop
-                | Replace _       -> 1
-                | Create _        -> 2
-                | CreateAt _      -> 3
-                | Move _          -> 4
-                | SetContent _    -> 5
-                | SetItemSource _ -> 6
-                | SetProp _       -> 7
-                | ClearProp _     -> 8)
-            |> Seq.iter applyPatch
-        )
-```
-
-## Tier 6 — Frame Coalescing (Battery)
-
-Rapid dispatches collapse into one reconciliation per frame:
-
-```fsharp
-type FrameState<'model> = {
-    mutable Pending       : 'model option
-    mutable IsScheduled   : bool
-}
-
-let scheduleRender
-    (state   : FrameState<'model>)
-    (model   : 'model)
-    (render  : 'model -> unit) =
-
-    state.Pending <- Some model
-
-    if not state.IsScheduled then
-        state.IsScheduled <- true
-
-        CompositionTarget.Rendering
-        |> Observable.take 1
-        |> Observable.subscribe (fun _ ->
-            state.IsScheduled <- false
-            state.Pending |> Option.iter render
-        )
-        |> ignore
-```
-
-`CompositionTarget.Rendering` fires once per display frame.
-
-> **VERIFIED — CAUTION:** The documentation does NOT guarantee that
-> `CompositionTarget.Rendering` stops firing when minimized/hidden/background.
-> In practice, rendering frequency may decrease, but the event can still fire.
-> This is implementation-dependent behavior.
->
-> **Mitigation:** Add explicit idle detection:
-> - Check `Window.WindowState = WindowState.Minimized`
-> - Use `Window.IsVisible` / `Window.IsActive`
-> - Unsubscribe from Rendering when not needed
-> - Consider `DispatcherTimer` as alternative for frame scheduling
 
 ## WPF Rendering Pipeline — Working With It
 
 WPF renders in two passes: `Measure` → `Arrange` → milcore draw.
 Mutations trigger `InvalidateMeasure` / `InvalidateArrange` automatically.
 
-Batch all diff mutations in one dispatcher call:
-
-```fsharp
-Application.Current.Dispatcher.Invoke(fun () ->
-    applyAllDiffs currentTree newTree liveRoot
-)
-```
-
-WPF batches the actual render. You never need to call `InvalidateVisual` manually.
-
-## Build Order for the Differ
-
-```
-1. ComponentState<'slice>        → boundary check, O(1) ref equality
-2. checkComponent                → wires slice → cached or rebuild
-3. VirtualNode type with keys    → identity for dynamic children
-4. diff function skeleton        → reference equality fast paths first
-5. diffProps                     → structural equality per prop
-6. diffChildren strategies       → single / keyed / static / leaf
-7. Patch DU                      → typed patch list
-8. applyPatches                  → sorted application, Dispatcher.Invoke
-9. Empty patch guard             → zero-work fast path
-10. FrameState + scheduleRender  → CompositionTarget.Rendering coalescing
-```
+The whole walk runs inside one dispatcher operation on the UI thread, so WPF lays out
+and renders once after it. You never need to call `InvalidateVisual` manually. There
+is no frame coalescing: each processed message renders once.
 
 ## Full Pipeline — Button Click Example
 
@@ -343,21 +215,19 @@ WPF batches the actual render. You never need to call `InvalidateVisual` manuall
 dispatch ButtonClicked
   → update → { model with Loading = true }
 
-  → Toolbar slice    same ref → cached node returned, zero work
+  → Toolbar slice    same ref → memoized node returned, reconciler skips it
   → OrderList slice  new ref  → rebuild subtree
-      → Grid node        same ref → skip
-      → SearchBox node   same ref → skip
-      → Button node      new ref  → diff props
-          IsEnabled: true→false   → emit SetProp
+      → Grid node        props equal → children walked
+      → SearchBox node   same ref    → skip
+      → Button node      props differ → diff slots
+          IsEnabled: true→false   → re-apply
           Content: unchanged      → skip
           Width: unchanged        → skip
-  → Sidebar slice    same ref → cached node returned, zero work
+  → Sidebar slice    same ref → memoized node returned, reconciler skips it
 
-  → patches = [ SetProp(IsEnabledProperty, false) ]
-  → patches.Count = 1 → Dispatcher.Invoke(Render)
-      → button.SetValue(IsEnabledProperty, false)
-      → WPF marks button layout dirty
-      → one element redrawn next frame
+  → button.SetValue(IsEnabledProperty, false)
+  → WPF marks button layout dirty
+  → one element redrawn next frame
 ```
 
 Result: one `SetValue` call, one dirty element, one GPU region redrawn.

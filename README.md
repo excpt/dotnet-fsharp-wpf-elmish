@@ -37,6 +37,7 @@ let view model dispatch =
 
 [<STAThread; EntryPoint>]
 let main _ =
+    Registration.register () // once per control package, before the first render
     Elmish.Program.mkProgram init update view |> Program.runWindow
 ```
 
@@ -76,21 +77,21 @@ Materializer.strictProps <- true   // fail after the render instead — for deve
 Validate.tree (view model ignore)  // the same checks statically, nothing materialized
 ```
 
-`Validate.tree` is the one to reach for: `view` returns data, so a single assertion in a unit test catches a value that is not a prop, a prop put on the wrong control, a mistyped `Node.prop` name, or a control package whose `Registration.register()` was never called — with no window and no WPF runtime.
+`Validate.tree` is the one to reach for: `view` returns data, so a single assertion in a unit test catches a value that is not a prop, a prop put on the wrong control (attached props such as `Grid.row` are not checked), a mistyped `Node.prop` name, or a control package whose `Registration.register()` was never called — with no window and no STA thread.
 
 ## Packages
 
 | Package | Description |
 |---|---|
 | `FSharp.Windows.Dsl` | Virtual tree, reconciler, props |
-| `FSharp.Windows.Dsl.Elmish` | `Program.runWindow`, Cmd extensions, components, AppBus, `DebugState` (restart-based hot reload) |
-| `FSharp.Windows.Dsl.Controls` | Generated WPF control wrappers |
+| `FSharp.Windows.Dsl.Elmish` | `Program.runWindow` / `runChildWindow`, `ComponentContext`, `AppBus`, `Dialog`, `Focus`, `KeyBindings`, `Memo`, `DataCache`, `EntityMap`, `Permissions`, `OperationRegistry`, `DebugState` (restart-based hot reload) |
+| `FSharp.Windows.Dsl.Controls` | Generated WPF control wrappers, plus `Style`, `Validation` and `Build` |
 | `FSharp.Windows.Dsl.Testing` | TestProgram, CmdTest, VirtualTree queries |
 | `FSharp.Windows.Dsl.Codegen` | Reflection-based code generation tool |
 
 ## Requirements
 
-- .NET 10 (Windows) or .NET Framework 4.6.2+
+- .NET 10 (Windows) or .NET Framework 4.6.2+ (the libraries target `net10.0-windows` and `net462`)
 - F# 8+
 
 ## Getting Started
@@ -111,7 +112,7 @@ dotnet run --project samples/ElmishCounter
 
 ## Testing
 
-Tests run without a WPF runtime — no STA thread, no window, no display server. `view` returns data. `update` is pure. Both are testable with zero infrastructure.
+`view` returns data and `update` is pure, so tests of them need no window and no STA thread. They still run on Windows: the WPF suites target `net10.0-windows` and load WPF, and the reconciler, control and Elmish runtime tests create live WPF elements and windows on STA threads.
 
 ```bash
 dotnet test
@@ -119,11 +120,11 @@ dotnet test
 
 ## Third-Party Control Libraries
 
-The codegen tool generates F# DSL wrappers for any WPF control library by reflecting over its assemblies. This works with DevExpress, Telerik, Syncfusion, and any other WPF control vendor.
+The codegen tool generates F# DSL wrappers for a WPF control library by reflecting over its assemblies. DevExpress has a generator script; for any other vendor, run the tool directly.
 
 ### Why You Generate Locally
 
-Third-party control libraries like DevExpress, Telerik, and Syncfusion are licensed software. Their End User License Agreements (EULAs) typically restrict redistribution of their assemblies and derivative works. The generated F# wrappers reference these vendor types directly.
+Third-party control libraries such as DevExpress are licensed software. Their End User License Agreements (EULAs) typically restrict redistribution of their assemblies and derivative works. The generated F# wrappers reference these vendor types directly.
 
 To comply with these restrictions, **the generated wrappers are not included in this repository**. Instead, each developer generates wrappers locally from their own licensed installation using the codegen tool.
 
@@ -136,7 +137,7 @@ To comply with these restrictions, **the generated wrappers are not included in 
 ./tools/generate-devexpress.sh
 ```
 
-This generates 26 product-area packages (Core, Grid, Ribbon, Charts, etc.) into `vendor/FSharp.DevExpress.Wpf/`. See [docs/specs/0700_codegen.md](docs/specs/0700_codegen.md) for details.
+This generates 26 product-area packages (`FSharp.DevExpress.Wpf.Core`, `.Grid`, `.Ribbon`, `.Charts`, etc.) into the gitignored `vendor/FSharp.DevExpress.Wpf/`. They are not published and CI does not build them. See [docs/specs/0700_codegen.md](docs/specs/0700_codegen.md) for details.
 
 ### Generating Wrappers for Other Libraries
 

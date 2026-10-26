@@ -24,7 +24,7 @@ The virtual tree and prop system that everything else builds on.
 | # | Document | Domain | Done When |
 |---|---|---|---|
 | 0400 | [0400_virtual_tree.md](0400_virtual_tree.md) | Virtual Tree | VirtualNode type compiles, key strategy implemented, children collection variants handled |
-| 0500 | [0500_props.md](0500_props.md) | Props | DU hierarchy compiles, apply functions work for base types, codegen input format defined |
+| 0500 | [0500_props.md](0500_props.md) | Props | Per-type prop DUs compile, apply functions work for base types, codegen input format defined |
 
 ### Phase 2 — Engine
 
@@ -32,7 +32,7 @@ The reconciler that diffs virtual trees and the codegen tool that produces DSL w
 
 | # | Document | Domain | Done When |
 |---|---|---|---|
-| 0600 | [0600_reconciler.md](0600_reconciler.md) | Reconciler | Diff produces correct patches for all cases, patch application works on live WPF tree, frame coalescing verified |
+| 0600 | [0600_reconciler.md](0600_reconciler.md) | Reconciler | Diff updates the live WPF tree in place for all cases, keyed children reorder correctly |
 | 0700 | [0700_codegen.md](0700_codegen.md) | Code Generation | Tool reflects WPF assemblies, emits correct F# for DPs/events/attached props, multi-TFM guards work |
 
 ### Phase 3 — Generated Output
@@ -43,7 +43,7 @@ DSL wrappers for WPF controls, attached properties, and style/template patterns.
 |---|---|---|---|
 | 0800 | [0800_controls.md](0800_controls.md) | Controls | Generated wrappers compile, consumer API usable for all layout controls |
 | 0900 | [0900_attached_props.md](0900_attached_props.md) | Attached Props | Grid.Row, DockPanel.Dock, Canvas.Left work in virtual tree and reconciler |
-| 1000 | [1000_styles_templates.md](1000_styles_templates.md) | Styles & Templates | DataTemplate replacement works, implicit/explicit styles apply correctly |
+| 1000 | [1000_styles_templates.md](1000_styles_templates.md) | Styles & Templates | `ItemTemplate` takes a WPF `DataTemplate`, implicit/explicit styles and resources apply correctly |
 
 ### Phase 4 — Runtime
 
@@ -60,7 +60,7 @@ Component architecture, testing toolkit, and cross-component messaging.
 
 | # | Document | Domain | Done When |
 |---|---|---|---|
-| 1300 | [1300_components.md](1300_components.md) | Components | Parent-child composition works, multi-window launches independent loops, IWindowService mockable |
+| 1300 | [1300_components.md](1300_components.md) | Components | Parent-child composition runs in one loop per window, `Program.runChildWindow` launches a window with its own loop, IWindowService mockable |
 | 1400 | [1400_testing.md](1400_testing.md) | Testing | TestProgram creates/dispatches/asserts, VirtualTree queries work, CmdTest inspects commands |
 | 1500 | [1500_appbus.md](1500_appbus.md) | App Bus | Publish/subscribe works, subscription lifecycle correct, IDisposable cleanup verified |
 
@@ -73,9 +73,9 @@ Patterns for common LOB scenarios. Each is independent — implement as needed.
 | 1600 | [1600_events_permissions.md](1600_events_permissions.md) | Events & Permissions | Event handling patterns work, RBAC/ReBAC testable with Theory |
 | 1700 | [1700_state.md](1700_state.md) | State Management | Model/cache boundary clear, form state pattern works, normalization available when needed |
 | 1800 | [1800_data_grid.md](1800_data_grid.md) | Data & Grids | Leaf node contract works, ObservableCollection cache works, virtual sources documented |
-| 1900 | [1900_dialogs.md](1900_dialogs.md) | Dialogs | Dialog module wraps standard dialogs, custom modal Elmish windows work |
-| 2000 | [2000_async_external.md](2000_async_external.md) | Async & External | Task commands work, subscriptions wire external events, Elmish 4.x API correct |
-| 2100 | [2100_cancellation.md](2100_cancellation.md) | Cancellation | CTS hierarchy works, operation registry tracks ops, app close warns correctly |
+| 1900 | [1900_dialogs.md](1900_dialogs.md) | Dialogs | Dialog module wraps standard dialogs |
+| 2000 | [2000_async_external.md](2000_async_external.md) | Async & External | Task commands work, subscriptions wire external events, Elmish 5.x API correct |
+| 2100 | [2100_cancellation.md](2100_cancellation.md) | Cancellation | `OperationRegistry` tracks ops. The rest (CTS scopes, foreground/background commands, close warning) is planned, not built — see #33 |
 
 ### Reference
 
@@ -88,14 +88,15 @@ Patterns for common LOB scenarios. Each is independent — implement as needed.
 
 ```
 FSharp.Windows.Dsl              → virtual tree, reconciler, props, VirtualTree queries
-FSharp.Windows.Dsl.Elmish       → Program.runWindow, Cmd extensions, ComponentContext, AppBus
-FSharp.Windows.Dsl.Controls     → codegen'd WPF control wrappers
-FSharp.Windows.Dsl.Testing      → TestProgram, CmdTest (for test projects)
+FSharp.Windows.Dsl.Elmish       → Program.runWindow, ComponentContext, AppBus, Dialog, DebugState, OperationRegistry
+FSharp.Windows.Dsl.Controls     → codegen'd WPF control wrappers, Style, Validation
+FSharp.Windows.Dsl.Testing      → TestProgram, CmdTest, VirtualTreeQuery (for test projects)
 FSharp.Windows.Dsl.Codegen      → reflection-based code generation tool
-FSharp.DevExpress.Wpf           → codegen'd DevExpress wrappers (optional)
-FSharp.Telerik.Wpf              → codegen'd Telerik wrappers (optional)
-FSharp.Syncfusion.Wpf           → codegen'd Syncfusion wrappers (optional)
 ```
+
+DevExpress wrappers (`FSharp.DevExpress.Wpf.<Area>`) are not published: the vendor EULA
+keeps them out of the repo, so each user generates them locally into the gitignored
+`vendor/` folder with `tools/generate-devexpress.sh` (or `.ps1`).
 
 ## TDD Methodology
 
@@ -107,10 +108,10 @@ Every component has tests before implementation.
 
 ## Verification Status
 
-All technical claims have been independently verified. Seven corrections applied and integrated into the relevant documents. See [2300_verification.md](2300_verification.md).
+Technical claims were checked in [2300_verification.md](2300_verification.md). Corrections 2–7 hold; correction 1 introduced a name that does not exist and is restated below.
 
 Corrections applied:
-1. `Sub.ofEffect` → `Sub.effect` (Elmish 4.x API — key is `string list`, callback returns `IDisposable`)
+1. Neither `Sub.ofEffect` nor `Sub.effect` exists (Elmish 5.x `Sub` has only `none`, `batch`, `map`). Write `Sub<'msg>` directly as a list of `string list * (Dispatch<'msg> -> IDisposable)` pairs
 2. `Cmd.OfTask.attempt` → `Cmd.OfTask.either` where success+error handling needed
 3. `Cmd.ofTask` does not exist → use `Cmd.OfTask.perform` or `Cmd.OfTask.either`
 4. ObservableCollection `Clear()+Add()` drops selection/current row (scroll is kept); `DataCache.Update` syncs in place

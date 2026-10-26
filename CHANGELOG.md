@@ -5,7 +5,75 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
-This file is automatically updated by [versionize](https://github.com/versionize/versionize).
+Entries are written by hand.
+
+## [Unreleased]
+
+### Changed — BREAKING
+
+- `VirtualNode.InternalId` and `VirtualTree.makeId` are removed; nothing read them.
+- `ChildView.Live` is a `LiveTree`, no longer an option.
+- Codegen no longer emits element-reference DPs (`Popup.PlacementTarget`,
+  `ToolTip`/`ContextMenu.PlacementTarget`, `Label.Target`), read-only collection
+  helpers (`DocumentViewer.pageViews`) or `Sibling*` collection helpers: none of
+  them could work from a view.
+- `FSharp.Windows.Dsl.Testing` no longer depends on FsUnit/xunit.v3 and targets
+  `net462`. `CmdTest.isNone`/`isSome` throw a plain exception on failure.
+- `Style.ofNode` rejects node props and any typed prop holding a node;
+  `Resource.implicitStyle` and `Style.applyImplicit` reject a style without a
+  `TargetType`.
+
+### Added
+
+- An obj-typed prop (`content`, `header`, `toolTip`) given a `VirtualNode`
+  materializes it (`Materializer.valueOf`) instead of showing the record.
+- VirtualTree queries walk nodes held in props (`CollectionProp` items, `NodeProp`,
+  `contextMenu`), the same subtrees `Validate.tree` walks.
+- New diagnostics: a `Panel`/`Decorator` child that is not a `UIElement`
+  (`UnusableMember`, left out instead of throwing), resource props on an element
+  without resources (`PropNotForElement`), an event swap that cannot resolve its
+  CLR event (`UnappliedProp`).
+- CI fails when the committed generated controls drift from a fresh regeneration.
+- The release workflow verifies the tag against `<Version>` and packs the codegen tool.
+
+### Fixed
+
+- Two handlers of one event on an element are both swapped on update; other
+  repeated props stay last-wins.
+- The keyed child diff skips a child that is the same reference.
+- Re-registering an apply or clear reaches DU cases already dispatched.
+- `runWindow` creates (or reuses) the `Application` before `init` runs; a view
+  root that is not a `Window` fails with a message naming its type.
+- AppBus: a subscriber disposed during delivery is not called; a throwing
+  subscriber is traced instead of silently swallowed.
+- `Dialog` and `Focus.element` use the active window, not `MainWindow`.
+- `KeyBindings.bind` accepts an unmodified letter or digit key.
+- `EntityMap.ofList` is linear; `DebugState`'s default file lives next to the app.
+- `Validation.collect` keeps the first error per field, `pattern` treats null as
+  empty, `range` rejects NaN; `Validate.tree` skips null props.
+- Codegen: complete F# keyword escaping, version-aware runtime folder selection,
+  failure (not exit 0) on a missing assembly, unordered `--tfms` or a fantomas
+  error; generated headers no longer carry a date.
+
+### Corrections to earlier entries
+
+- 0.4.0, Performance: the measurement recorded in commit d099512 is an inherited
+  prop apply 17.0 us -> 0.31 us, an unhandled prop 50.5 us -> 0.04 us, the tree
+  15.4 ms -> 3.6 ms, and an own-type prop apply 0.10 us -> 0.25 us (slower). No
+  benchmark in the repo reproduces these figures.
+- 0.4.0, Declarative resources: entries merge before the node's `children`
+  attach. Subtrees held in props (`Node.prop`, `CollectionProp`) materialize in
+  props-list order, so a `Resource.dictionary` listed after them merges later.
+- 0.4.0, `Style.ofNode`: read-only DPs are excluded from the setters too.
+- 0.4.0, Diagnostics / `Validate.tree`: attached props are not checked against
+  the element, so an attached prop never reports `PropNotForElement`.
+- 0.3.0, Codegen `#if` guards: only `#if NET8_0_OR_GREATER` guards are emitted;
+  there are no 9/10 variants. The command shown also lacks the mandatory
+  `--assembly`, `--namespace` and `--output` arguments; the full invocation is
+  the `codegen-drift` job in `.github/workflows/ci.yml`.
+- 0.2.0, `MaterializeBeforeSet`: `ToolTip` is not an example. `FrameworkElement.ToolTip`
+  is typed `obj`; a node given to it is materialized through `Materializer.valueOf`
+  (Unreleased), not through `MaterializeBeforeSet`.
 
 ## [0.4.0] — 2026-08-14
 

@@ -27,44 +27,38 @@ This is why it is the first feature implemented.
 ## What It Does
 
 You change a `Button.width`. You change a margin. You tweak a condition. You adjust a color.
-The running application updates **instantly**. Your model is untouched. Your 5000-row grid
-is still loaded. Your selected row is still selected. Your open child windows are still open.
+With Tier 1, the running application would update **instantly**; today every F# edit takes
+the Tier 2 restart, and `DebugState` brings the model back. Under Tier 1 your model is untouched,
+your 5000-row grid is still loaded, your open child windows are still open. A Tier 2 restart
+restores only the model: grid data kept outside it is reloaded and child windows are not reopened.
 
-## How It Works
+## How It Works (Tier 1 design)
 
 .NET's `MetadataUpdateHandlerAttribute` fires whenever the IDE applies a hot reload delta
-to the running process. The handler re-runs `view` with the current model. The reconciler
-diffs the new virtual tree against the live WPF tree.
+to the running process. The handler would re-run `view` with the current model, and the
+reconciler would diff the new virtual tree against the live WPF tree.
+
+What exists today, in `FSharp.Windows.Dsl.Elmish`:
 
 ```fsharp
+module ElmishRuntime =
+    val register    : (unit -> unit) -> unit   // store a re-render action
+    val forceRender : unit -> unit             // run it, if one is registered
+
 #if DEBUG
-[<assembly: System.Reflection.Metadata.MetadataUpdateHandlerAttribute(typeof<ElmishHotReload>)>]
-do ()
-#endif
-
 type ElmishHotReload =
-    static member UpdateApplication(_updatedTypes: Type[]) =
-        ElmishRuntime.forceRender()
+    static member UpdateApplication(_updatedTypes: Type[]) = ElmishRuntime.forceRender ()
+#endif
 ```
 
-`forceRender` on the runtime:
-
-```fsharp
-let forceRender () =
-    currentModel
-    |> Option.iter (fun model ->
-        window.Dispatcher.Invoke(fun () ->
-            let newTree = view model dispatch
-            reconcile liveRoot currentTree newTree
-            currentTree <- Some newTree
-        )
-    )
-```
-
-One attribute. One static method. Three lines in the core package.
-**Automatically active in every app that depends on the package.**
+It is not wired up: no assembly-level `MetadataUpdateHandlerAttribute` is declared, the
+run functions never call `register`, and `ElmishHotReload` exists only in a Debug build of
+the library itself. `forceRender` is therefore a no-op in every app today. Wiring it is
+part of Tier 1 (issue #1).
 
 ## What Works vs What Requires Restart
+
+The "Hot Reload" column is the Tier 1 design; in F# today every row restarts (Tier 2).
 
 | Change | Hot Reload | Notes |
 |---|---|---|
@@ -88,42 +82,45 @@ One attribute. One static method. Three lines in the core package.
 ## Adding & Moving Children at Runtime — The Key Scenario
 
 You have a DockPanel. App is running with `dotnet watch`. You add a button, save.
-The button appears instantly. Your data is untouched.
+Under Tier 1 the button would appear instantly with your data untouched; under Tier 2 the
+app restarts and `DebugState` restores the model.
 
 ```fsharp
 // v1 — app is running
 let view model dispatch =
     dockPanel [
         DockPanel.children [
-            border [ key "toolbar";   DockPanel.dock Dock.Top;    Border.contentChild toolbar ]
-            border [ key "statusbar"; DockPanel.dock Dock.Bottom; Border.contentChild statusBar ]
-            mainContent |> key "main"
+            border [ Border.key "toolbar";   DockPanel.dock Dock.Top;    Border.contentChild toolbar ]
+            border [ Border.key "statusbar"; DockPanel.dock Dock.Bottom; Border.contentChild statusBar ]
+            border [ Border.key "main"; Border.contentChild mainContent ]
         ]
     ]
 
-// v2 — add a button, hit save, app updates instantly
+// v2 — add a button, hit save
 let view model dispatch =
     dockPanel [
         DockPanel.children [
-            border [ key "toolbar";   DockPanel.dock Dock.Top;    Border.contentChild toolbar ]
-            button [                                     // NEW — appears instantly
-                key "debug-btn"
+            border [ Border.key "toolbar";   DockPanel.dock Dock.Top;    Border.contentChild toolbar ]
+            button [                                     // NEW
+                Button.key "debug-btn"
                 DockPanel.dock Dock.Top
                 Button.content "New Button"
                 Button.width 120.0
-                Button.onClick (fun _ -> dispatch Refresh)  // must be existing Msg
+                Button.onClick (RoutedEventHandler(fun _ _ -> dispatch Refresh))  // must be existing Msg
             ]
-            border [ key "statusbar"; DockPanel.dock Dock.Bottom; Border.contentChild statusBar ]
-            mainContent |> key "main"
+            border [ Border.key "statusbar"; DockPanel.dock Dock.Bottom; Border.contentChild statusBar ]
+            border [ Border.key "main"; Border.contentChild mainContent ]
         ]
     ]
 ```
 
-**Why this works:** The view function signature is unchanged — `Model -> Dispatch -> VirtualNode`.
-Only the method body changed (the returned data structure is different). F# compiler emits a
-delta. `MetadataUpdateHandler` fires. `forceRender()` calls `view` with the current model.
-The reconciler diffs old tree vs new tree, sees `"debug-btn"` is new, inserts a real `Button`
-into the live `DockPanel.Children`.
+**Why this would work under Tier 1:** The view function signature is unchanged —
+`Model -> Dispatch -> VirtualNode`. Only the method body changed (the returned data
+structure is different), so the compiler can emit a delta, `MetadataUpdateHandler` fires
+and `forceRender()` calls `view` with the current model. The reconciler diffs old tree vs
+new tree, sees `"debug-btn"` is new, and inserts a real `Button` into the live
+`DockPanel.Children`. Keys matter under Tier 2 as well: every model change re-renders the
+same way.
 
 ### Keys Are Critical For This
 
@@ -148,7 +145,7 @@ New: toolbar="toolbar", newButton="debug-btn", statusBar="statusbar", main="main
 
 ### What the new button CAN do
 
-- Dispatch any **existing** `Msg` case: `Button.onClick (fun _ -> dispatch Refresh)`
+- Dispatch any **existing** `Msg` case: `Button.onClick (RoutedEventHandler(fun _ _ -> dispatch Refresh))`
 - Use any existing model state: `Button.isEnabled (not model.Loading)`
 - Any layout prop: width, margin, padding, colors
 
@@ -159,7 +156,9 @@ New: toolbar="toolbar", newButton="debug-btn", statusBar="statusbar", main="main
 
 For those, Tier 2 kicks in: restart with state serialization (2-5s), feels instant.
 
-## The Visual Iteration Workflow
+## The Visual Iteration Workflow (Tier 1)
+
+Today, with Tier 2, steps 5 and 8 are a restart with the model restored.
 
 ```
 1. dotnet watch run                     <- start app once
@@ -209,7 +208,8 @@ What is saved and restored:
   `{"Case": name, "Fields": [...]}`. The format is private to the app across restarts and
   makes no stability promise between library releases.
 - `restore` returns `None` when the file is missing or no longer matches the model: a
-  field added, renamed or removed, or a union case renamed or removed. The app then
+  field added or renamed, or a union case renamed or removed. (A removed field is ignored
+  and the rest restores.) The app then
   starts from `init`'s defaults; a schema change costs one restart without restored state.
 - A failed save or restore is written to `Trace` (visible in the debugger output) and the
   app goes on. `DebugState.strict <- true` throws instead, for while a model is being
@@ -262,7 +262,7 @@ view : Model -> Dispatch -> VirtualNode
 ```
 
 Hot reload updates the method body in place. Next call to `view` executes new code.
-Same model. Same dispatch. New virtual tree. Reconciler patches only what changed.
+Same model. Same dispatch. New virtual tree. The reconciler updates only what changed.
 
 This works because the view function has no side effects and holds no state.
 Replacing the method body is sufficient — there is no window reconstruction or
@@ -270,43 +270,22 @@ re-binding step, so application state is preserved across reloads.
 
 ## Tests for Hot Reload
 
-Hot reload itself must be tested. The core behaviors to verify:
+Tier 2 is what is tested (`tests/FSharp.Windows.Dsl.Elmish.Tests/DebugStateTests.fs`):
+round-trips (including unions), missing file, corrupt JSON and schema mismatch, all
+through `saveTo` / `restoreFrom` with a test-local path, so no test touches the app's
+default file:
 
 ```fsharp
 [<Fact>]
-let ``forceRender with unchanged model produces zero patches`` () =
-    let model = { Text = "hello" }
-    let tree1 = view model ignore
-    let tree2 = view model ignore
-    let patches = diff tree1 tree2
-    patches |> should be Empty
-
-[<Fact>]
-let ``forceRender with changed view produces correct patches`` () =
-    let model = { Text = "hello" }
-    let tree1 = viewV1 model ignore    // old view function
-    let tree2 = viewV2 model ignore    // new view function (e.g. wider button)
-    let patches = diff tree1 tree2
-    patches |> should not' (be Empty)
-    patches |> should contain (SetProp(FrameworkElement.WidthProperty, 200.0))
-
-[<Fact>]
-let ``state serialization round-trips model`` () =
+let ``save and restore round-trips model`` () =
     let model = { Text = "hello"; Count = 42; Loading = false }
-    DebugState.save model
-    let restored = DebugState.restore<Model>()
-    restored |> should equal (Some model)
+    DebugState.saveTo testPath model
+    DebugState.restoreFrom<TestModel> testPath |> should equal (Some model)
 
 [<Fact>]
-let ``state restore returns None when file missing`` () =
-    if File.Exists(".elmish-debug-state.json") then
-        File.Delete(".elmish-debug-state.json")
-    let restored = DebugState.restore<Model>()
-    restored |> should equal None
-
-[<Fact>]
-let ``state restore returns None on corrupt json`` () =
-    File.WriteAllText(".elmish-debug-state.json", "not json{{{")
-    let restored = DebugState.restore<Model>()
-    restored |> should equal None
+let ``restore returns None on corrupt json`` () =
+    File.WriteAllText(testPath, "not json{{{")
+    DebugState.restoreFrom<TestModel> testPath |> should equal None
 ```
+
+Tier 1 has no tests: `forceRender` is not wired to anything (see How It Works).

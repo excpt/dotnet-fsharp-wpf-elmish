@@ -1,7 +1,7 @@
 # Testing — FSharp.Windows.Dsl.Testing Toolkit
 
 > **Package:** FSharp.Windows.Dsl.Testing (ships as a separate NuGet package)
-> **Also:** FSharp.Windows.Dsl ships VirtualTree query module
+> **Also:** FSharp.Windows.Dsl ships the `VirtualTree` search queries and `Validate`
 >
 > **Priority:** The project uses TDD. The testing toolkit provides
 > zero-infrastructure testing of init, update, and dispatch flows.
@@ -13,20 +13,23 @@ SPECS -> TESTS -> RED -> GREEN -> REFACTOR -> DOCUMENTATION
 ```
 
 Every component must have tests before implementation. No exceptions.
-Tests run without WPF, without a window, without STA thread, without a display server.
-Tests run in CI on Linux if needed — the virtual tree is just F# data.
+Testing `init`, `update` and `view` needs no window and no STA thread — the virtual tree
+is just F# data. The packages still reference WPF types, so every test run needs the
+Windows Desktop runtime (Windows only); see Runtime Requirements below.
 
 ## Package: FSharp.Windows.Dsl.Testing
 
 This is a **separate NuGet package** users add to their test project:
 
 ```xml
-<PackageReference Include="FSharp.Windows.Dsl.Testing" Version="1.0.0" />
+<PackageReference Include="FSharp.Windows.Dsl.Testing" Version="0.4.0" />
 ```
+
+It depends on no test framework; the samples below use xunit and FsUnit's `should`.
 
 It provides three things:
 1. **`TestProgram`** — a test harness that simulates the full init/update/dispatch cycle
-2. **`VirtualTree`** — query module for asserting on view output
+2. **`VirtualTreeQuery`** — query module for asserting on view output
 3. **`CmdTest`** — helpers for inspecting commands
 
 ---
@@ -85,7 +88,7 @@ let ``full load flow: load -> loaded -> model updated`` () =
     let program = TestProgram.create init update
 
     // step 1: user triggers load
-    program |> TestProgram.dispatch (LoadOrders (DateRange.thisMonth()))
+    program |> TestProgram.dispatch LoadOrders
     program.Model.Loading |> should equal true
 
     // step 2: simulate async result arriving
@@ -237,13 +240,12 @@ module TestProgram =
 ```fsharp
 module CmdTest =
 
-    /// Assert that a command is Cmd.none (empty).
-    let isNone (cmd: Cmd<'msg>) =
-        cmd |> should be Empty
+    /// Assert that a command is Cmd.none (empty). Throws otherwise, which any
+    /// test framework reports as a failure.
+    let isNone (cmd: Cmd<'msg>) : unit
 
-    /// Assert that a command is NOT Cmd.none.
-    let isSome (cmd: Cmd<'msg>) =
-        cmd |> should not' (be Empty)
+    /// Assert that a command is NOT Cmd.none. Throws otherwise.
+    let isSome (cmd: Cmd<'msg>) : unit
 
     /// Run synchronous commands; collect dispatched messages in order.
     /// An exception a command throws propagates.
@@ -300,20 +302,21 @@ It reports the same `PropDiagnostic` cases the materializer records:
 | Case | Means |
 |---|---|
 | `UnappliedProp` | Nothing owns this prop type — a value that is not a prop, or a control package whose `Registration.register()` was never called |
-| `PropNotForElement` | A real prop, on a control it does not belong to |
+| `PropNotForElement` | A real prop, on a control it does not belong to (attached-property helpers such as `Grid.row` are not checked) |
 | `UnusableMember` | A `NodeProp`/`CollectionProp` name the element cannot take — unknown, read-only, or the wrong type — or a `Panel`/`Decorator` child that is not a `UIElement` (`"Children"`) |
 | `ApplyFailed` | Runtime only: WPF rejected the value (a validate callback, a read-only DP, a wrong type). `Validate.tree` cannot see it |
 | `ChildrenNotHeld` | More children than the element holds (a ContentControl or Decorator one, other non-containers none); the rest are not attached |
 
 Worth one assertion per view function. The runtime side of the same information
-is `Materializer.diagnostics ()`, and `Materializer.strictProps <- true` turns
+is `Materializer.diagnostics ()` (reset with `Materializer.clearDiagnostics ()`), and `Materializer.strictProps <- true` turns
 any of it into a failure — useful in a test run, and during development where
 hot reload is the designer.
 
-## VirtualTree — View Assertion Queries
+## VirtualTreeQuery — View Assertion Queries
 
-Ships in **FSharp.Windows.Dsl** (not Testing) because it's useful at runtime too.
-But the Testing package re-exports it for convenience.
+`VirtualTreeQuery` ships in **FSharp.Windows.Dsl.Testing**. It re-exports the search
+queries of the core `VirtualTree` module (**FSharp.Windows.Dsl**, usable at runtime too)
+and adds the prop readers, which need the generated control types.
 
 The search queries (`findByType`, `findAllByType`, `findByKey`, `exists`) walk the
 same subtrees as `Validate.tree`: children, the nodes held in `CollectionProp` (grid
@@ -321,40 +324,44 @@ columns), and any prop case whose field is a node (`NodeProp`, `Button.contextMe
 `Popup.child`).
 
 ```fsharp
-module VirtualTree =
+module VirtualTreeQuery =
+
+    // re-exported from VirtualTree (FSharp.Windows.Dsl)
 
     /// Find first node of a given control type (depth-first).
-    let rec findByType (t: Type) (node: VirtualNode) : VirtualNode option
+    let findByType (t: Type) (node: VirtualNode) : VirtualNode option
 
     /// Find all nodes of a given control type.
     let findAllByType (t: Type) (node: VirtualNode) : VirtualNode list
 
     /// Find a node by its user key.
-    let rec findByKey (key: string) (node: VirtualNode) : VirtualNode option
-
-    /// Get a prop value from a node.
-    let getProp<'v> (helper: 'v -> Prop) (node: VirtualNode) : 'v option
+    let findByKey (key: string) (node: VirtualNode) : VirtualNode option
 
     /// Get children of a node.
     let children (node: VirtualNode) : VirtualNode list
 
-    /// Check if a node is visible (defaults to true if no visibility prop set).
-    let isVisible (node: VirtualNode) : bool
-
-    /// Check if a node is enabled (defaults to true if no isEnabled prop set).
-    let isEnabled (node: VirtualNode) : bool
-
-    /// Get the text content of a TextBlock or content of a ContentControl.
-    let text (node: VirtualNode) : string option
-
     /// Count children of a node.
     let childCount (node: VirtualNode) : int
 
-    /// Check if a node exists in the tree.
+    /// Check if a node matching the predicate exists in the tree.
     let exists (predicate: VirtualNode -> bool) (root: VirtualNode) : bool
+
+    /// First prop the extractor accepts; EventProp wrappers are unwrapped.
+    let tryFindProp (extract: obj -> 'v option) (node: VirtualNode) : 'v option
+
+    // prop readers (FSharp.Windows.Dsl.Testing only)
+
+    /// Visibility = Visible (true if no Visibility prop is set).
+    let isVisible (node: VirtualNode) : bool
+
+    /// IsEnabled (true if no IsEnabled prop is set).
+    let isEnabled (node: VirtualNode) : bool
+
+    /// The Text prop of a TextBlock node; ContentControl content is not read.
+    let text (node: VirtualNode) : string option
 ```
 
-### Testing the View — Combine TestProgram + VirtualTree
+### Testing the View — Combine TestProgram + VirtualTreeQuery
 
 ```fsharp
 [<Fact>]
@@ -364,8 +371,8 @@ let ``delete button disabled when nothing selected`` () =
     let tree = OrderList.view program.Model ignore
 
     tree
-    |> VirtualTree.findByKey "delete-btn"
-    |> Option.map VirtualTree.isEnabled
+    |> VirtualTreeQuery.findByKey "delete-btn"
+    |> Option.map VirtualTreeQuery.isEnabled
     |> should equal (Some false)
 
 [<Fact>]
@@ -378,8 +385,8 @@ let ``delete button enabled after selection`` () =
     let tree = OrderList.view program.Model ignore
 
     tree
-    |> VirtualTree.findByKey "delete-btn"
-    |> Option.map VirtualTree.isEnabled
+    |> VirtualTreeQuery.findByKey "delete-btn"
+    |> Option.map VirtualTreeQuery.isEnabled
     |> should equal (Some true)
 
 [<Fact>]
@@ -391,8 +398,8 @@ let ``loading spinner visible when loading`` () =
     let tree = OrderList.view program.Model ignore
 
     tree
-    |> VirtualTree.findByKey "spinner"
-    |> Option.map VirtualTree.isVisible
+    |> VirtualTreeQuery.findByKey "spinner"
+    |> Option.map VirtualTreeQuery.isVisible
     |> should equal (Some true)
 
 [<Fact>]
@@ -400,7 +407,7 @@ let ``loading spinner hidden when not loading`` () =
     let tree = OrderList.view initialModel ignore
 
     tree
-    |> VirtualTree.findByKey "spinner"
+    |> VirtualTreeQuery.findByKey "spinner"
     |> should equal None    // not in tree at all
 ```
 
@@ -413,9 +420,15 @@ let ``save button dispatches Save message`` () =
     let tree = OrderForm.view initialModel dispatched.Add
 
     tree
-    |> VirtualTree.findByKey "save-btn"
-    |> Option.bind (VirtualTree.getEventHandler Button.onClick)
-    |> Option.iter (fun handler -> handler ())
+    |> VirtualTreeQuery.findByKey "save-btn"
+    |> Option.bind (
+        VirtualTreeQuery.tryFindProp (function
+            | :? ButtonBaseProp as p ->
+                match p with
+                | ButtonBaseProp.OnClick h -> Some h
+                | _ -> None
+            | _ -> None))
+    |> Option.iter (fun handler -> handler.Invoke(null, null))
 
     dispatched |> Seq.toList |> should equal [Save]
 ```
@@ -439,8 +452,8 @@ let ``delete button enabled matches role`` (roleName, expectedEnabled) =
     let tree = OrderList.view program.Model ignore
 
     tree
-    |> VirtualTree.findByKey "delete-btn"
-    |> Option.map VirtualTree.isEnabled
+    |> VirtualTreeQuery.findByKey "delete-btn"
+    |> Option.map VirtualTreeQuery.isEnabled
     |> should equal (Some expectedEnabled)
 ```
 
@@ -448,7 +461,7 @@ let ``delete button enabled matches role`` (roleName, expectedEnabled) =
 
 ## Full Integration Test — Init Through View
 
-Test the entire flow without WPF:
+Test the entire flow without a window:
 
 ```fsharp
 [<Fact>]
@@ -458,7 +471,7 @@ let ``complete order list lifecycle`` () =
     program.Model.Loading |> should equal false
 
     // 2. user triggers load
-    program |> TestProgram.dispatch (LoadOrders DateRange.thisMonth)
+    program |> TestProgram.dispatch LoadOrders
     program.Model.Loading |> should equal true
 
     // 3. data arrives
@@ -468,8 +481,8 @@ let ``complete order list lifecycle`` () =
     // 4. verify view reflects loaded state
     let tree = OrderList.view program.Model ignore
 
-    tree |> VirtualTree.findByKey "spinner" |> should equal None
-    tree |> VirtualTree.findByKey "order-grid" |> should not' (equal None)
+    tree |> VirtualTreeQuery.findByKey "spinner" |> should equal None
+    tree |> VirtualTreeQuery.findByKey "order-grid" |> should not' (equal None)
 
     // 5. user selects a row
     program |> TestProgram.dispatch (SelectionChanged (Set.singleton order1.Id))
@@ -478,8 +491,8 @@ let ``complete order list lifecycle`` () =
     // 6. delete button now enabled
     let tree2 = OrderList.view program.Model ignore
     tree2
-    |> VirtualTree.findByKey "delete-btn"
-    |> Option.map VirtualTree.isEnabled
+    |> VirtualTreeQuery.findByKey "delete-btn"
+    |> Option.map VirtualTreeQuery.isEnabled
     |> should equal (Some true)
 ```
 
@@ -487,7 +500,7 @@ let ``complete order list lifecycle`` () =
 
 ## Runtime Requirements
 
-`view` and `update` are pure functions that return data; testing them needs no WPF runtime. Reconciler and control tests create WPF elements on an STA thread. Elmish runtime tests (`ElmishProgramTests.fs`) drive `Program.runChildWindow` against real, shown windows and need an interactive Windows desktop session (a `windows-latest` CI runner has one; Server Core containers do not).
+`view` and `update` are pure functions that return data; testing them needs no window and no STA thread, but the test process still loads WPF (on .NET 10, the `Microsoft.WindowsDesktop.App` runtime), because the props and nodes reference WPF types. Reconciler and control tests create WPF elements on an STA thread. Elmish runtime tests (`ElmishProgramTests.fs`) drive `Program.runChildWindow` against real, shown windows and need an interactive Windows desktop session (a `windows-latest` CI runner has one; Server Core containers do not).
 
 ---
 
@@ -511,7 +524,7 @@ program.Model.SomeField |> should equal expectedValue
 
 // 6. Assert on view
 let tree = MyModule.view program.Model ignore
-tree |> VirtualTree.findByKey "my-button" |> Option.map VirtualTree.isEnabled
+tree |> VirtualTreeQuery.findByKey "my-button" |> Option.map VirtualTreeQuery.isEnabled
 ```
 
 Minimal setup required.

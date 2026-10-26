@@ -1,6 +1,6 @@
 # DSL Attached Properties
 
-> **Package:** FSharp.Windows.Dsl.Controls (generated)
+> **Package:** FSharp.Windows.Dsl (`AttachedProp` marker, materializer, reconciler), FSharp.Windows.Dsl.Controls (generated helpers)
 
 ## What Are Attached Properties
 
@@ -64,6 +64,11 @@ One shape removes the trap: every helper takes its value and returns a prop.
 The samples in this repo each carried a live instance of that bug before the
 change (`TextBlock.foreground` in a props list, doing nothing).
 
+The remaining case, a helper boxed without its argument (`box Grid.row`), still
+compiles and applies nothing, but it is no longer silent: the materializer records
+it as `UnappliedProp` (`Materializer.diagnostics ()`) and `Validate.tree` reports
+it. See `1400_testing.md`.
+
 ## How Attached Properties Work in Virtual Tree
 
 Attached props are stored as regular props in the child's prop list, carried by
@@ -79,16 +84,36 @@ identity, so one changing does not disturb the others, and re-applies only what
 changed — `SetValue` is idempotent.
 An attached prop dropped from the new tree is cleared with `el.ClearValue(dp)`, so
 `if model.Wide then Grid.columnSpan 2` stops spanning when `Wide` turns false.
+The root element's props go through the same diff, so this holds there too.
+
+Elsewhere:
+
+- `Validate.tree` does not check attached props. WPF lets any element carry any
+  attached DP, so there is no owner to compare against, and one set on an element
+  that ignores it (`Grid.row` outside a `Grid`) is not reported.
+- `Style.ofNode` turns an attached prop into a setter like any other DP.
 
 ## Codegen Rule
 
-- `DependencyProperty.Register(...)` → case in the control's prop DU
-- `DependencyProperty.RegisterAttached(...)` → `let name (v: T) : obj` in the
-  control's module, carrying an `AttachedProp`
-
-Detection is by the presence of a static `SetX` method:
+The registration call is never inspected. A DP whose declaring type has a public
+static `SetX` method is attached; every other writable DP is a case in the
+control's prop DU (except element references such as `Popup.PlacementTarget`,
+which are not emitted; see `0700_codegen.md`):
 
 ```fsharp
 // Grid.RowProperty → Grid.SetRow(element, value) exists → attached
 // Button.ContentProperty → Button.SetContent(...) does not → not attached
 ```
+
+An attached DP becomes `let name (v: T) : obj` in the declaring type's module,
+carrying an `AttachedProp`. Read-only attached DPs and those with a generic value
+type are skipped.
+
+Attached helpers are not repeated in derived modules: `Grid.row` exists, but a
+module deriving from `Grid` has no `row`.
+
+The rule also catches instance DPs that a type exposes a static setter for.
+`TextBlock.FontSize` (`TextBlock.SetFontSize`) and `FrameworkElement.FlowDirection`
+(`FrameworkElement.SetFlowDirection`) are attached helpers with no DU case, so
+`Button` has no `flowDirection`: write `FrameworkElement.flowDirection`.
+`Control.fontSize` is an ordinary DU case, because `Control` has no `SetFontSize`.

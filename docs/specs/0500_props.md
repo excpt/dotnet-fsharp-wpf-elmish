@@ -2,80 +2,50 @@
 
 > **Package:** FSharp.Windows.Dsl (base types), FSharp.Windows.Dsl.Controls (generated)
 
-## Interface Hierarchy
+## Prop DUs — One per WPF Type
 
-Mirror the WPF class hierarchy using F# interfaces:
-
-```fsharp
-type IFrameworkElement =
-    abstract Width         : float option
-    abstract Height        : float option
-    abstract Margin        : Thickness option
-
-type IControl =
-    inherit IFrameworkElement
-    abstract Background    : Brush option
-    abstract Padding       : Thickness option
-    abstract FontSize      : float option
-
-type IContentControl =
-    inherit IControl
-    abstract Content       : obj option
-
-type IButtonBase =
-    inherit IContentControl
-    abstract OnClick       : RoutedEventHandler option
-```
-
-IDE autocomplete shows valid props for each control based on its position in the hierarchy.
-
-## Nested Hierarchy DUs — The Prop System
-
-Props are not duplicated per control. Each level wraps its parent:
+Each wrapped WPF type gets a `[<RequireQualifiedAccess>]` DU of the DPs and events
+it declares itself. Below `FrameworkElement`, each DU also has a `Base` case
+carrying its parent type's DU; `UIElementProp` and `FrameworkElementProp` are roots
+with no `Base`:
 
 ```fsharp
-type FrameworkElementProp =
-    | Width  of float
-    | Height of float
-    | Margin of Thickness
-
+[<RequireQualifiedAccess>]
 type ControlProp =
-    | Base       of FrameworkElementProp  // wraps parent
-    | Background of Brush
-    | Padding    of Thickness
+    | Base       of FrameworkElementProp       // wraps parent
+    | Background of System.Windows.Media.Brush
+    | Padding    of System.Windows.Thickness
+    | OnMouseDoubleClick of System.Windows.Input.MouseButtonEventHandler
+    // ...
 
+[<RequireQualifiedAccess>]
 type ButtonProp =
-    | Base    of ControlProp              // wraps parent
-    | Content of obj
-    | OnClick of RoutedEventHandler
+    | Base      of ButtonBaseProp             // Button : ButtonBase : ContentControl : Control
+    | IsDefault of bool
+    | IsCancel  of bool
 ```
 
-F# structural equality handles nested DU diffing automatically — no extra diff logic needed.
+Props are not duplicated per control: `Width` exists once, in `FrameworkElementProp`,
+and every control uses that case. F# structural equality compares them — no extra
+diff logic needed.
 
 ## Apply Functions — Written Once Per Level
 
 ```fsharp
-let applyFrameworkElementProp (el: FrameworkElement) prop =
-    match prop with
-    | Width  v -> el.SetValue(FrameworkElement.WidthProperty, v)
-    | Height v -> el.SetValue(FrameworkElement.HeightProperty, v)
-    | Margin v -> el.SetValue(FrameworkElement.MarginProperty, v)
-
-let applyControlProp (el: Control) prop =
-    match prop with
-    | Base       p -> applyFrameworkElementProp el p   // delegate up
-    | Background v -> el.SetValue(Control.BackgroundProperty, v)
-    | Padding    v -> el.SetValue(Control.PaddingProperty, v)
-
-let applyButtonProp (el: Button) prop =
-    match prop with
-    | Base    p -> applyControlProp el p               // delegate up
-    | Content v -> el.SetValue(ContentControl.ContentProperty, v)
-    | OnClick h -> el.Click.AddHandler(RoutedEventHandler h)
+module Button =
+    let apply (el: System.Windows.Controls.Button) (prop: ButtonProp) =
+        match prop with
+        | ButtonProp.Base p -> ButtonBase.apply el p        // delegate up
+        | ButtonProp.IsDefault v -> el.SetValue(System.Windows.Controls.Button.IsDefaultProperty, box v)
+        | ButtonProp.IsCancel v -> el.SetValue(System.Windows.Controls.Button.IsCancelProperty, box v)
 ```
 
-`applyFrameworkElementProp` exists **once**. Every control reuses it via delegation.
-Each apply function exists once per hierarchy level. The type system ensures correct setters.
+`FrameworkElement.apply` exists **once**. Each apply function exists once per
+hierarchy level and the type system ensures correct setters. The `Base` case lets
+an apply delegate up, but the helpers do not use it: an inherited helper boxes the
+case of the DU that declares the prop (`Button.width v` is
+`box (FrameworkElementProp.Width v)`), and dispatch sends it straight to that
+level's apply.
 
 ### Dispatch — Finding the Apply That Owns a Prop
 
@@ -92,9 +62,8 @@ registration and the answer is remembered under the case type.
 
 > Dispatch used to work by *trying* the element's own apply and walking up the
 > hierarchy on the caught `InvalidCastException`. Every inherited prop — every
-> `margin`, `width`, `background` in the app — therefore threw on every apply,
-> at roughly 17 us against 0.3 us for a lookup. Registration knows both types;
-> nothing needs to be discovered by failing.
+> `margin`, `width`, `background` in the app — therefore threw on every apply.
+> Registration knows both types; nothing needs to be discovered by failing.
 
 ### What Did Not Apply
 
@@ -102,78 +71,81 @@ A prop no registration owns cannot be applied. That is silent by design — a
 wrong prop must not take a live window down — so it is recorded instead of
 discarded:
 
-- `Materializer.diagnostics ()` — every `PropDiagnostic` since the last clear,
-  each recorded once, also written to `Debug`.
+- `Materializer.diagnostics ()` — every `PropDiagnostic` since the last
+  `Materializer.clearDiagnostics ()`, each recorded once, also written to `Debug`.
 - `Materializer.strictProps <- true` — fail instead, for development and tests. The
   failure is raised once the render has finished, so the live tree stays in step with
   the virtual one.
 - `Validate.tree node` — the same checks over a virtual tree, statically, with
   nothing materialized. See `1400_testing.md`.
 
-The three cases: `UnappliedProp` (nothing owns this prop type — a value that is
-not a prop, or a package whose `Registration.register()` was never called),
-`PropNotForElement` (a real prop on the wrong control), and `UnusableMember`
-(a `NodeProp`/`CollectionProp` name the element cannot take).
+The `PropDiagnostic` cases: `UnappliedProp` (nothing owns this prop type — a value
+that is not a prop, or a package whose `Registration.register()` was never called),
+`PropNotForElement` (a real prop on the wrong control), `UnusableMember` (a
+`NodeProp`/`CollectionProp` name the element cannot take), `ChildrenNotHeld` (more
+children than the element holds) and `ApplyFailed` (WPF rejected the value; runtime
+only). `AttachedProp` is not checked for ownership by either path.
 
-## What Gets Generated — Five Things Per Control
+## What Gets Generated — Per Control
 
-For each control the codegen tool emits five blocks:
+For each control the codegen tool emits one `Generated/NNN_<Type>.generated.fs`
+holding the DU and a module, plus one line each in two shared files.
 
-**1. The Prop DU**
-```fsharp
-type ButtonProp =
-    | Base    of ControlProp
-    | Content of obj
-    | OnClick of RoutedEventHandler
-```
+**1. The Prop DU** — the type's own DPs and events, `Base` of the parent DU (see above).
 
-**2. The prop helper functions**
+**2. The prop helper functions** — own and inherited, each boxed at the DU that
+declares the prop; event helpers wrap the case in `EventProp`:
 ```fsharp
 module Button =
-    // inherited — generated, wraps automatically
-    let width   v = ButtonProp.Base (ControlProp.Base (FrameworkElementProp.Width v))
-    let padding v = ButtonProp.Base (ControlProp.Padding v)
-    // own props
-    let content v = ButtonProp.Content v
-    let onClick h = ButtonProp.OnClick h
+    let isDefault v : obj = box (ButtonProp.IsDefault v)         // own
+    let padding v : obj = box (ControlProp.Padding v)            // inherited
+    let width v : obj = box (FrameworkElementProp.Width v)       // inherited
+    let onClick v : obj = box (EventProp(box (ButtonBaseProp.OnClick v)))
 ```
 
-**3. The apply function**
-```fsharp
-    let apply (el: Button) (prop: ButtonProp) =
-        match prop with
-        | Base    p -> applyControlProp el p
-        | Content v -> el.SetValue(ContentControl.ContentProperty, v)
-        | OnClick h -> el.Click.AddHandler(RoutedEventHandler h)
-```
+**3. The apply function** — shown above.
 
-**4. The create function**
-```fsharp
-    let create (props: ButtonProp list) : VirtualNode =
-        {
-            Type       = typeof<Button>
-            Props      = props |> List.map box
-            Children   = []
-            UserKey    = None
-        }
-```
-
-**5. The clear function**, the inverse of `apply`, called when a prop is dropped from
+**4. The clear function**, the inverse of `apply`, called when a prop is dropped from
 the new tree:
 ```fsharp
-    let clear (el: Button) (prop: ButtonProp) =
+    let clear (el: System.Windows.Controls.Button) (prop: ButtonProp) =
         match prop with
-        | Base    p -> Control.clear el p
-        | Content _ -> el.ClearValue(ContentControl.ContentProperty)
-        | OnClick h -> el.Click.RemoveHandler(h)
+        | ButtonProp.Base p -> ButtonBase.clear el p
+        | ButtonProp.IsDefault _ -> el.ClearValue(System.Windows.Controls.Button.IsDefaultProperty)
+        | ButtonProp.IsCancel _ -> el.ClearValue(System.Windows.Controls.Button.IsCancelProperty)
 ```
 
-Registration registers both: `Materializer.registerApply` and `Materializer.registerClear`.
-A package generated before `clear` existed still works; its dropped value props are
-left as they were.
+**5. The marker helpers and the create function**
+```fsharp
+    let children (cs: VirtualNode list) : obj = box (Children cs)
+    let contentChild (c: VirtualNode) : obj = box (ContentChild c)
+    let key (k: string) : obj = box (Key k)
 
-The `apply` function is what the reconciler calls when diffing props.
-Everything else is sugar over the virtual tree.
+    let create (props: obj list) : VirtualNode =
+        let cs, uk, ps = VirtualTree.extractSpecialProps props
+
+        { Type = typeof<System.Windows.Controls.Button>
+          Props = ps
+          Children = cs
+          UserKey = uk }
+```
+
+**6. The element function**, in `Elements.generated.fs` (`[<AutoOpen>]`):
+```fsharp
+    let button (props: obj list) : VirtualNode = Button.create props
+```
+
+**7. The registration**, in `Registration.generated.fs`:
+```fsharp
+        Materializer.registerApply<System.Windows.Controls.Button, ButtonProp> Button.apply
+        Materializer.registerClear<System.Windows.Controls.Button, ButtonProp> Button.clear
+```
+
+`Registration.register ()` must run once before the first render. A package generated
+before `clear` existed still works; its dropped value props are left as they were.
+
+The reconciler applies a changed prop through `Materializer.tryApplyProp`, which
+finds the owning `apply` by prop type. Everything else is sugar over the virtual tree.
 
 ## Prop Markers
 
@@ -183,13 +155,15 @@ markers in `FSharp.Windows.Dsl`:
 
 | Marker | Purpose | Apply behaviour |
 |---|---|---|
-| `Children of VirtualNode list` | Multi-child visual containers | `Materializer.attachChildren` adds to `Panel.Children` / `ItemsControl.Items` |
-| `ContentChild of VirtualNode` | Single-child visual containers | Sets `ContentControl.Content` / `Decorator.Child` |
-| `Key of string` | Reconciler match identity | Stripped before apply; reconciler keys diff by it |
+| `Children of VirtualNode list` | Multi-child visual containers | Moved into `VirtualNode.Children` by `create`; the materializer adds them to `Panel.Children` / `ItemsControl.Items` |
+| `ContentChild of VirtualNode` | Single-child visual containers | Moved into `VirtualNode.Children` by `create`; sets `ContentControl.Content` / `Decorator.Child` |
+| `Key of string` | Reconciler match identity | Moved into `VirtualNode.UserKey` by `create`; reconciler keys diff by it |
 | `AttachedProp of DependencyProperty * obj` | `Grid.Row`, `DockPanel.Dock`, … | `el.SetValue(dp, value)` on the **child** |
 | `EventProp of obj` | Wrapper for routed/CLR event handlers | Reconciler swaps via `RemoveHandler` + `AddHandler` |
-| `CollectionProp of name * VirtualNode list` | Auto-init list collections (`GridControl.Columns`) | Reflects the named property, expects `IList`, clears + adds materialized children |
+| `CollectionProp of name * VirtualNode list` | Auto-init list collections (`DataGrid.Columns`) | Reflects the named property, expects `IList`, clears + adds materialized children |
 | `NodeProp of name * VirtualNode` | CLR properties holding one element (`NavBarItem.Content`) | Reflects the named property, materializes the node, assigns it |
+| `ResourcesProp of (obj * obj) list` | `Resource.dictionary` — the element's resource entries | Merged into `Resources` before children attach; one slot, only changed keys updated |
+| `ResourceRefProp of DependencyProperty * obj` | `Resource.reference`, `Resource.styleRef` | `SetResourceReference(dp, key)` (dynamic lookup) |
 
 `CollectionProp` is the v0.2.0 entry — it bridges CLR collection properties of
 `DependencyObject` element type that aren't part of the visual children
@@ -205,17 +179,17 @@ so the DSL composes column/section lists the same way it composes children.
 and falls outside the content model the reconciler walks — typed
 `DependencyObject` (`RibbonControl.ApplicationMenu`) or typed `obj` but used as
 content (`NavBarItem.Content`, `NavBarGroup.Header`). Written by hand where no
-typed slot exists:
+typed slot exists. Shown here on a WPF property, as the tests use it:
 
 ```fsharp
-navBarItem [ Node.prop "Content" (textBlock [ TextBlock.text "Kunde" ]) ]
+groupBox [ Node.prop "Header" (textBlock [ TextBlock.text "Kunde" ]) ]
 ```
 
 The alternative — handing over an already-built element — puts that subtree
 outside the reconciler: rebuilt on every render, never diffed. As `NodeProp` it
 is materialized at apply time and compared structurally on update, so an equal
 node is no work. An unknown, read-only, or type-incompatible property name is
-ignored rather than fatal — the same tolerance `CollectionProp` has, and for the
+reported as `UnusableMember` rather than fatal — the same tolerance `CollectionProp` has, and for the
 same reason: the name comes from the caller, not the codegen.
 
 ## Obj-Valued DPs
@@ -235,25 +209,25 @@ case to carry a `VirtualNode` instead of the concrete instance, and `apply`
 calls `Materializer.materialize` before `SetValue`:
 
 ```fsharp
-type GridControlProp =
-    | View of VirtualNode    // not DataViewBase
+type FrameworkElementProp =
+    | ContextMenu of VirtualNode    // not System.Windows.Controls.ContextMenu
     | …
 
-let apply (el: GridControl) (prop: GridControlProp) =
+let apply (el: FrameworkElement) (prop: FrameworkElementProp) =
     match prop with
-    | View v ->
-        el.SetValue(GridControl.ViewProperty, Materializer.materialize v |> box)
+    | FrameworkElementProp.ContextMenu v ->
+        el.SetValue(FrameworkElement.ContextMenuProperty, Materializer.materialize v |> box)
     | …
 ```
 
 The DSL writer composes the inner element with the same syntax as the outer:
 
 ```fsharp
-gridControl
-    [ GridControl.view (
-          tableView
-              [ TableView.allowEditing false
-                TableView.showGroupPanel false ]) ]
+button
+    [ Button.contextMenu (
+          contextMenu
+              [ ContextMenu.children
+                    [ menuItem [ MenuItem.header "Copy" ] ] ]) ]
 ```
 
 Detection threads a `uiElementFullNames` set (every `UIElement` subtype across
