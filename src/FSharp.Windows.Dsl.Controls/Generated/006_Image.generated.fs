@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -36,6 +36,16 @@ module Image =
         | ImageProp.StretchDirection v -> el.SetValue(System.Windows.Controls.Image.StretchDirectionProperty, box v)
 #if NET8_0_OR_GREATER
         | ImageProp.OnDpiChanged h -> el.DpiChanged.AddHandler(h)
+#endif
+
+    let clear (el: System.Windows.Controls.Image) (prop: ImageProp) =
+        match prop with
+        | ImageProp.Base p -> FrameworkElement.clear el p
+        | ImageProp.Source _ -> el.ClearValue(System.Windows.Controls.Image.SourceProperty)
+        | ImageProp.Stretch _ -> el.ClearValue(System.Windows.Controls.Image.StretchProperty)
+        | ImageProp.StretchDirection _ -> el.ClearValue(System.Windows.Controls.Image.StretchDirectionProperty)
+#if NET8_0_OR_GREATER
+        | ImageProp.OnDpiChanged h -> el.DpiChanged.RemoveHandler(h)
 #endif
 
     let style v : obj = box (FrameworkElementProp.Style v)

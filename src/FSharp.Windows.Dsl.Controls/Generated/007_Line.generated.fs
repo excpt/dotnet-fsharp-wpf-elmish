@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -30,6 +30,14 @@ module Line =
         | LineProp.Y1 v -> el.SetValue(System.Windows.Shapes.Line.Y1Property, box v)
         | LineProp.X2 v -> el.SetValue(System.Windows.Shapes.Line.X2Property, box v)
         | LineProp.Y2 v -> el.SetValue(System.Windows.Shapes.Line.Y2Property, box v)
+
+    let clear (el: System.Windows.Shapes.Line) (prop: LineProp) =
+        match prop with
+        | LineProp.Base p -> Shape.clear el p
+        | LineProp.X1 _ -> el.ClearValue(System.Windows.Shapes.Line.X1Property)
+        | LineProp.Y1 _ -> el.ClearValue(System.Windows.Shapes.Line.Y1Property)
+        | LineProp.X2 _ -> el.ClearValue(System.Windows.Shapes.Line.X2Property)
+        | LineProp.Y2 _ -> el.ClearValue(System.Windows.Shapes.Line.Y2Property)
 
     let stretch v : obj = box (ShapeProp.Stretch v)
     let fill v : obj = box (ShapeProp.Fill v)

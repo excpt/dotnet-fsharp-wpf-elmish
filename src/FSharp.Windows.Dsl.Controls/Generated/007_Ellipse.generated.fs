@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -17,6 +17,10 @@ module Ellipse =
     let apply (el: System.Windows.Shapes.Ellipse) (prop: EllipseProp) =
         match prop with
         | EllipseProp.Base p -> Shape.apply el p
+
+    let clear (el: System.Windows.Shapes.Ellipse) (prop: EllipseProp) =
+        match prop with
+        | EllipseProp.Base p -> Shape.clear el p
 
     let stretch v : obj = box (ShapeProp.Stretch v)
     let fill v : obj = box (ShapeProp.Fill v)

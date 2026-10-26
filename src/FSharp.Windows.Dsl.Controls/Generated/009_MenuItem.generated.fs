@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -85,6 +85,28 @@ module MenuItem =
         | MenuItemProp.OnUnchecked h -> el.Unchecked.AddHandler(h)
         | MenuItemProp.OnSubmenuOpened h -> el.SubmenuOpened.AddHandler(h)
         | MenuItemProp.OnSubmenuClosed h -> el.SubmenuClosed.AddHandler(h)
+
+    let clear (el: System.Windows.Controls.MenuItem) (prop: MenuItemProp) =
+        match prop with
+        | MenuItemProp.Base p -> HeaderedItemsControl.clear el p
+        | MenuItemProp.Command _ -> el.ClearValue(System.Windows.Controls.MenuItem.CommandProperty)
+        | MenuItemProp.CommandParameter _ -> el.ClearValue(System.Windows.Controls.MenuItem.CommandParameterProperty)
+        | MenuItemProp.CommandTarget _ -> el.ClearValue(System.Windows.Controls.MenuItem.CommandTargetProperty)
+        | MenuItemProp.IsSubmenuOpen _ -> el.ClearValue(System.Windows.Controls.MenuItem.IsSubmenuOpenProperty)
+        | MenuItemProp.IsCheckable _ -> el.ClearValue(System.Windows.Controls.MenuItem.IsCheckableProperty)
+        | MenuItemProp.IsChecked _ -> el.ClearValue(System.Windows.Controls.MenuItem.IsCheckedProperty)
+        | MenuItemProp.StaysOpenOnClick _ -> el.ClearValue(System.Windows.Controls.MenuItem.StaysOpenOnClickProperty)
+        | MenuItemProp.InputGestureText _ -> el.ClearValue(System.Windows.Controls.MenuItem.InputGestureTextProperty)
+        | MenuItemProp.Icon _ -> el.ClearValue(System.Windows.Controls.MenuItem.IconProperty)
+        | MenuItemProp.ItemContainerTemplateSelector _ ->
+            el.ClearValue(System.Windows.Controls.MenuItem.ItemContainerTemplateSelectorProperty)
+        | MenuItemProp.UsesItemContainerTemplate _ ->
+            el.ClearValue(System.Windows.Controls.MenuItem.UsesItemContainerTemplateProperty)
+        | MenuItemProp.OnClick h -> el.Click.RemoveHandler(h)
+        | MenuItemProp.OnChecked h -> el.Checked.RemoveHandler(h)
+        | MenuItemProp.OnUnchecked h -> el.Unchecked.RemoveHandler(h)
+        | MenuItemProp.OnSubmenuOpened h -> el.SubmenuOpened.RemoveHandler(h)
+        | MenuItemProp.OnSubmenuClosed h -> el.SubmenuClosed.RemoveHandler(h)
 
     let header v : obj = box (HeaderedItemsControlProp.Header v)
 

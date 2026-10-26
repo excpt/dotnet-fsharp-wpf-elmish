@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -17,6 +17,10 @@ module AmbientLight =
     let apply (el: System.Windows.Media.Media3D.AmbientLight) (prop: AmbientLightProp) =
         match prop with
         | AmbientLightProp.Base p -> Light.apply el p
+
+    let clear (el: System.Windows.Media.Media3D.AmbientLight) (prop: AmbientLightProp) =
+        match prop with
+        | AmbientLightProp.Base p -> Light.clear el p
 
     let color v : obj = box (LightProp.Color v)
     let transform v : obj = box (Model3DProp.Transform v)

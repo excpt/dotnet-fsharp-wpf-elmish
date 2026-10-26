@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -24,6 +24,12 @@ module TextElement =
         | TextElementProp.Base p -> FrameworkContentElement.apply el p
         | TextElementProp.Background v -> el.SetValue(System.Windows.Documents.TextElement.BackgroundProperty, box v)
         | TextElementProp.TextEffects v -> el.SetValue(System.Windows.Documents.TextElement.TextEffectsProperty, box v)
+
+    let clear (el: System.Windows.Documents.TextElement) (prop: TextElementProp) =
+        match prop with
+        | TextElementProp.Base p -> FrameworkContentElement.clear el p
+        | TextElementProp.Background _ -> el.ClearValue(System.Windows.Documents.TextElement.BackgroundProperty)
+        | TextElementProp.TextEffects _ -> el.ClearValue(System.Windows.Documents.TextElement.TextEffectsProperty)
 
     let style v : obj =
         box (FrameworkContentElementProp.Style v)

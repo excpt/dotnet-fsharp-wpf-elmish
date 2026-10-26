@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -102,6 +102,36 @@ module DataGridColumn =
             el.SetValue(System.Windows.Controls.DataGridColumn.CanUserResizeProperty, box v)
         | DataGridColumnProp.Visibility v ->
             el.SetValue(System.Windows.Controls.DataGridColumn.VisibilityProperty, box v)
+
+    let clear (el: System.Windows.Controls.DataGridColumn) (prop: DataGridColumnProp) =
+        match prop with
+        | DataGridColumnProp.Header _ -> el.ClearValue(System.Windows.Controls.DataGridColumn.HeaderProperty)
+        | DataGridColumnProp.HeaderStyle _ -> el.ClearValue(System.Windows.Controls.DataGridColumn.HeaderStyleProperty)
+        | DataGridColumnProp.HeaderStringFormat _ ->
+            el.ClearValue(System.Windows.Controls.DataGridColumn.HeaderStringFormatProperty)
+        | DataGridColumnProp.HeaderTemplate _ ->
+            el.ClearValue(System.Windows.Controls.DataGridColumn.HeaderTemplateProperty)
+        | DataGridColumnProp.HeaderTemplateSelector _ ->
+            el.ClearValue(System.Windows.Controls.DataGridColumn.HeaderTemplateSelectorProperty)
+        | DataGridColumnProp.CellStyle _ -> el.ClearValue(System.Windows.Controls.DataGridColumn.CellStyleProperty)
+        | DataGridColumnProp.IsReadOnly _ -> el.ClearValue(System.Windows.Controls.DataGridColumn.IsReadOnlyProperty)
+        | DataGridColumnProp.Width _ -> el.ClearValue(System.Windows.Controls.DataGridColumn.WidthProperty)
+        | DataGridColumnProp.MinWidth _ -> el.ClearValue(System.Windows.Controls.DataGridColumn.MinWidthProperty)
+        | DataGridColumnProp.MaxWidth _ -> el.ClearValue(System.Windows.Controls.DataGridColumn.MaxWidthProperty)
+        | DataGridColumnProp.DisplayIndex _ ->
+            el.ClearValue(System.Windows.Controls.DataGridColumn.DisplayIndexProperty)
+        | DataGridColumnProp.SortMemberPath _ ->
+            el.ClearValue(System.Windows.Controls.DataGridColumn.SortMemberPathProperty)
+        | DataGridColumnProp.CanUserSort _ -> el.ClearValue(System.Windows.Controls.DataGridColumn.CanUserSortProperty)
+        | DataGridColumnProp.SortDirection _ ->
+            el.ClearValue(System.Windows.Controls.DataGridColumn.SortDirectionProperty)
+        | DataGridColumnProp.CanUserReorder _ ->
+            el.ClearValue(System.Windows.Controls.DataGridColumn.CanUserReorderProperty)
+        | DataGridColumnProp.DragIndicatorStyle _ ->
+            el.ClearValue(System.Windows.Controls.DataGridColumn.DragIndicatorStyleProperty)
+        | DataGridColumnProp.CanUserResize _ ->
+            el.ClearValue(System.Windows.Controls.DataGridColumn.CanUserResizeProperty)
+        | DataGridColumnProp.Visibility _ -> el.ClearValue(System.Windows.Controls.DataGridColumn.VisibilityProperty)
 
 
     let children (cs: VirtualNode list) : obj = box (Children cs)

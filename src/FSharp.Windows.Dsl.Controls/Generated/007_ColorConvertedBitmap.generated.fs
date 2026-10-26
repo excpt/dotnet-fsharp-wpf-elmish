@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -40,6 +40,18 @@ module ColorConvertedBitmap =
             el.SetValue(System.Windows.Media.Imaging.ColorConvertedBitmap.DestinationColorContextProperty, box v)
         | ColorConvertedBitmapProp.DestinationFormat v ->
             el.SetValue(System.Windows.Media.Imaging.ColorConvertedBitmap.DestinationFormatProperty, box v)
+
+    let clear (el: System.Windows.Media.Imaging.ColorConvertedBitmap) (prop: ColorConvertedBitmapProp) =
+        match prop with
+        | ColorConvertedBitmapProp.Base p -> BitmapSource.clear el p
+        | ColorConvertedBitmapProp.Source _ ->
+            el.ClearValue(System.Windows.Media.Imaging.ColorConvertedBitmap.SourceProperty)
+        | ColorConvertedBitmapProp.SourceColorContext _ ->
+            el.ClearValue(System.Windows.Media.Imaging.ColorConvertedBitmap.SourceColorContextProperty)
+        | ColorConvertedBitmapProp.DestinationColorContext _ ->
+            el.ClearValue(System.Windows.Media.Imaging.ColorConvertedBitmap.DestinationColorContextProperty)
+        | ColorConvertedBitmapProp.DestinationFormat _ ->
+            el.ClearValue(System.Windows.Media.Imaging.ColorConvertedBitmap.DestinationFormatProperty)
 
     let onDownloadCompleted v : obj =
         box (EventProp(box (BitmapSourceProp.OnDownloadCompleted v)))

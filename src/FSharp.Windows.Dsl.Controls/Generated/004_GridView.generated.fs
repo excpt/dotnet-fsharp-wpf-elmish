@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -60,6 +60,23 @@ module GridView =
             )
         | GridViewProp.ColumnHeaderToolTip v ->
             el.SetValue(System.Windows.Controls.GridView.ColumnHeaderToolTipProperty, box v)
+
+    let clear (el: System.Windows.Controls.GridView) (prop: GridViewProp) =
+        match prop with
+        | GridViewProp.ColumnHeaderContainerStyle _ ->
+            el.ClearValue(System.Windows.Controls.GridView.ColumnHeaderContainerStyleProperty)
+        | GridViewProp.ColumnHeaderTemplate _ ->
+            el.ClearValue(System.Windows.Controls.GridView.ColumnHeaderTemplateProperty)
+        | GridViewProp.ColumnHeaderTemplateSelector _ ->
+            el.ClearValue(System.Windows.Controls.GridView.ColumnHeaderTemplateSelectorProperty)
+        | GridViewProp.ColumnHeaderStringFormat _ ->
+            el.ClearValue(System.Windows.Controls.GridView.ColumnHeaderStringFormatProperty)
+        | GridViewProp.AllowsColumnReorder _ ->
+            el.ClearValue(System.Windows.Controls.GridView.AllowsColumnReorderProperty)
+        | GridViewProp.ColumnHeaderContextMenu _ ->
+            el.ClearValue(System.Windows.Controls.GridView.ColumnHeaderContextMenuProperty)
+        | GridViewProp.ColumnHeaderToolTip _ ->
+            el.ClearValue(System.Windows.Controls.GridView.ColumnHeaderToolTipProperty)
 
 
     let children (cs: VirtualNode list) : obj = box (Children cs)

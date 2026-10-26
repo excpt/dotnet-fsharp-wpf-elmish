@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -22,6 +22,11 @@ module MaterialGroup =
         | MaterialGroupProp.Base p -> Freezable.apply el p
         | MaterialGroupProp.Children v ->
             el.SetValue(System.Windows.Media.Media3D.MaterialGroup.ChildrenProperty, box v)
+
+    let clear (el: System.Windows.Media.Media3D.MaterialGroup) (prop: MaterialGroupProp) =
+        match prop with
+        | MaterialGroupProp.Base p -> Freezable.clear el p
+        | MaterialGroupProp.Children _ -> el.ClearValue(System.Windows.Media.Media3D.MaterialGroup.ChildrenProperty)
 
     let onChanged v : obj =
         box (EventProp(box (FreezableProp.OnChanged v)))

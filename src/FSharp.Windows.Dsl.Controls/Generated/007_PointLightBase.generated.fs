@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -43,6 +43,18 @@ module PointLightBase =
             el.SetValue(System.Windows.Media.Media3D.PointLightBase.LinearAttenuationProperty, box v)
         | PointLightBaseProp.QuadraticAttenuation v ->
             el.SetValue(System.Windows.Media.Media3D.PointLightBase.QuadraticAttenuationProperty, box v)
+
+    let clear (el: System.Windows.Media.Media3D.PointLightBase) (prop: PointLightBaseProp) =
+        match prop with
+        | PointLightBaseProp.Base p -> Light.clear el p
+        | PointLightBaseProp.Position _ -> el.ClearValue(System.Windows.Media.Media3D.PointLightBase.PositionProperty)
+        | PointLightBaseProp.Range _ -> el.ClearValue(System.Windows.Media.Media3D.PointLightBase.RangeProperty)
+        | PointLightBaseProp.ConstantAttenuation _ ->
+            el.ClearValue(System.Windows.Media.Media3D.PointLightBase.ConstantAttenuationProperty)
+        | PointLightBaseProp.LinearAttenuation _ ->
+            el.ClearValue(System.Windows.Media.Media3D.PointLightBase.LinearAttenuationProperty)
+        | PointLightBaseProp.QuadraticAttenuation _ ->
+            el.ClearValue(System.Windows.Media.Media3D.PointLightBase.QuadraticAttenuationProperty)
 
     let color v : obj = box (LightProp.Color v)
     let transform v : obj = box (Model3DProp.Transform v)

@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -23,6 +23,12 @@ module DefinitionBase =
         | DefinitionBaseProp.Base p -> FrameworkContentElement.apply el p
         | DefinitionBaseProp.SharedSizeGroup v ->
             el.SetValue(System.Windows.Controls.DefinitionBase.SharedSizeGroupProperty, box v)
+
+    let clear (el: System.Windows.Controls.DefinitionBase) (prop: DefinitionBaseProp) =
+        match prop with
+        | DefinitionBaseProp.Base p -> FrameworkContentElement.clear el p
+        | DefinitionBaseProp.SharedSizeGroup _ ->
+            el.ClearValue(System.Windows.Controls.DefinitionBase.SharedSizeGroupProperty)
 
     let style v : obj =
         box (FrameworkContentElementProp.Style v)

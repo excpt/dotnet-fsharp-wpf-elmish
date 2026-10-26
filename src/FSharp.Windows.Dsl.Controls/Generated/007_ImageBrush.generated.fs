@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -21,6 +21,11 @@ module ImageBrush =
         match prop with
         | ImageBrushProp.Base p -> TileBrush.apply el p
         | ImageBrushProp.ImageSource v -> el.SetValue(System.Windows.Media.ImageBrush.ImageSourceProperty, box v)
+
+    let clear (el: System.Windows.Media.ImageBrush) (prop: ImageBrushProp) =
+        match prop with
+        | ImageBrushProp.Base p -> TileBrush.clear el p
+        | ImageBrushProp.ImageSource _ -> el.ClearValue(System.Windows.Media.ImageBrush.ImageSourceProperty)
 
     let viewportUnits v : obj = box (TileBrushProp.ViewportUnits v)
     let viewboxUnits v : obj = box (TileBrushProp.ViewboxUnits v)

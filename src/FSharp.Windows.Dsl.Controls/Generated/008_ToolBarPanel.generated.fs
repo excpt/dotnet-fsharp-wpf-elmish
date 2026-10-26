@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -17,6 +17,10 @@ module ToolBarPanel =
     let apply (el: System.Windows.Controls.Primitives.ToolBarPanel) (prop: ToolBarPanelProp) =
         match prop with
         | ToolBarPanelProp.Base p -> StackPanel.apply el p
+
+    let clear (el: System.Windows.Controls.Primitives.ToolBarPanel) (prop: ToolBarPanelProp) =
+        match prop with
+        | ToolBarPanelProp.Base p -> StackPanel.clear el p
 
     let orientation v : obj = box (StackPanelProp.Orientation v)
     let background v : obj = box (PanelProp.Background v)

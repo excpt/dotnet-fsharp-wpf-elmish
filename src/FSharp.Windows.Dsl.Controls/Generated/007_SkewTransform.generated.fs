@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -30,6 +30,14 @@ module SkewTransform =
         | SkewTransformProp.AngleY v -> el.SetValue(System.Windows.Media.SkewTransform.AngleYProperty, box v)
         | SkewTransformProp.CenterX v -> el.SetValue(System.Windows.Media.SkewTransform.CenterXProperty, box v)
         | SkewTransformProp.CenterY v -> el.SetValue(System.Windows.Media.SkewTransform.CenterYProperty, box v)
+
+    let clear (el: System.Windows.Media.SkewTransform) (prop: SkewTransformProp) =
+        match prop with
+        | SkewTransformProp.Base p -> Freezable.clear el p
+        | SkewTransformProp.AngleX _ -> el.ClearValue(System.Windows.Media.SkewTransform.AngleXProperty)
+        | SkewTransformProp.AngleY _ -> el.ClearValue(System.Windows.Media.SkewTransform.AngleYProperty)
+        | SkewTransformProp.CenterX _ -> el.ClearValue(System.Windows.Media.SkewTransform.CenterXProperty)
+        | SkewTransformProp.CenterY _ -> el.ClearValue(System.Windows.Media.SkewTransform.CenterYProperty)
 
     let onChanged v : obj =
         box (EventProp(box (FreezableProp.OnChanged v)))

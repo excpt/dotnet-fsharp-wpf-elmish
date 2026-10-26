@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -27,6 +27,13 @@ module List =
         | ListProp.MarkerStyle v -> el.SetValue(System.Windows.Documents.List.MarkerStyleProperty, box v)
         | ListProp.MarkerOffset v -> el.SetValue(System.Windows.Documents.List.MarkerOffsetProperty, box v)
         | ListProp.StartIndex v -> el.SetValue(System.Windows.Documents.List.StartIndexProperty, box v)
+
+    let clear (el: System.Windows.Documents.List) (prop: ListProp) =
+        match prop with
+        | ListProp.Base p -> Block.clear el p
+        | ListProp.MarkerStyle _ -> el.ClearValue(System.Windows.Documents.List.MarkerStyleProperty)
+        | ListProp.MarkerOffset _ -> el.ClearValue(System.Windows.Documents.List.MarkerOffsetProperty)
+        | ListProp.StartIndex _ -> el.ClearValue(System.Windows.Documents.List.StartIndexProperty)
 
     let margin v : obj = box (BlockProp.Margin v)
     let padding v : obj = box (BlockProp.Padding v)

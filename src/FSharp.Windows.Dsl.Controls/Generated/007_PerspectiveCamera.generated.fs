@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -23,6 +23,12 @@ module PerspectiveCamera =
         | PerspectiveCameraProp.Base p -> ProjectionCamera.apply el p
         | PerspectiveCameraProp.FieldOfView v ->
             el.SetValue(System.Windows.Media.Media3D.PerspectiveCamera.FieldOfViewProperty, box v)
+
+    let clear (el: System.Windows.Media.Media3D.PerspectiveCamera) (prop: PerspectiveCameraProp) =
+        match prop with
+        | PerspectiveCameraProp.Base p -> ProjectionCamera.clear el p
+        | PerspectiveCameraProp.FieldOfView _ ->
+            el.ClearValue(System.Windows.Media.Media3D.PerspectiveCamera.FieldOfViewProperty)
 
     let nearPlaneDistance v : obj =
         box (ProjectionCameraProp.NearPlaneDistance v)

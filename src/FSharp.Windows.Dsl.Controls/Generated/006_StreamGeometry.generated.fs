@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -21,6 +21,11 @@ module StreamGeometry =
         match prop with
         | StreamGeometryProp.Base p -> Geometry.apply el p
         | StreamGeometryProp.FillRule v -> el.SetValue(System.Windows.Media.StreamGeometry.FillRuleProperty, box v)
+
+    let clear (el: System.Windows.Media.StreamGeometry) (prop: StreamGeometryProp) =
+        match prop with
+        | StreamGeometryProp.Base p -> Geometry.clear el p
+        | StreamGeometryProp.FillRule _ -> el.ClearValue(System.Windows.Media.StreamGeometry.FillRuleProperty)
 
     let transform v : obj = box (GeometryProp.Transform v)
 

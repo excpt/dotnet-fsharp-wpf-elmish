@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -39,6 +39,17 @@ module ContentControl =
             el.SetValue(System.Windows.Controls.ContentControl.ContentTemplateSelectorProperty, box v)
         | ContentControlProp.ContentStringFormat v ->
             el.SetValue(System.Windows.Controls.ContentControl.ContentStringFormatProperty, box v)
+
+    let clear (el: System.Windows.Controls.ContentControl) (prop: ContentControlProp) =
+        match prop with
+        | ContentControlProp.Base p -> Control.clear el p
+        | ContentControlProp.Content _ -> el.ClearValue(System.Windows.Controls.ContentControl.ContentProperty)
+        | ContentControlProp.ContentTemplate _ ->
+            el.ClearValue(System.Windows.Controls.ContentControl.ContentTemplateProperty)
+        | ContentControlProp.ContentTemplateSelector _ ->
+            el.ClearValue(System.Windows.Controls.ContentControl.ContentTemplateSelectorProperty)
+        | ContentControlProp.ContentStringFormat _ ->
+            el.ClearValue(System.Windows.Controls.ContentControl.ContentStringFormatProperty)
 
     let borderBrush v : obj = box (ControlProp.BorderBrush v)
     let borderThickness v : obj = box (ControlProp.BorderThickness v)

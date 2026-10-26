@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -54,6 +54,20 @@ module ComboBox =
         | ComboBoxProp.StaysOpenOnEdit v -> el.SetValue(System.Windows.Controls.ComboBox.StaysOpenOnEditProperty, box v)
         | ComboBoxProp.OnDropDownOpened h -> el.DropDownOpened.AddHandler(h)
         | ComboBoxProp.OnDropDownClosed h -> el.DropDownClosed.AddHandler(h)
+
+    let clear (el: System.Windows.Controls.ComboBox) (prop: ComboBoxProp) =
+        match prop with
+        | ComboBoxProp.Base p -> Selector.clear el p
+        | ComboBoxProp.MaxDropDownHeight _ -> el.ClearValue(System.Windows.Controls.ComboBox.MaxDropDownHeightProperty)
+        | ComboBoxProp.IsDropDownOpen _ -> el.ClearValue(System.Windows.Controls.ComboBox.IsDropDownOpenProperty)
+        | ComboBoxProp.ShouldPreserveUserEnteredPrefix _ ->
+            el.ClearValue(System.Windows.Controls.ComboBox.ShouldPreserveUserEnteredPrefixProperty)
+        | ComboBoxProp.IsEditable _ -> el.ClearValue(System.Windows.Controls.ComboBox.IsEditableProperty)
+        | ComboBoxProp.Text _ -> el.ClearValue(System.Windows.Controls.ComboBox.TextProperty)
+        | ComboBoxProp.IsReadOnly _ -> el.ClearValue(System.Windows.Controls.ComboBox.IsReadOnlyProperty)
+        | ComboBoxProp.StaysOpenOnEdit _ -> el.ClearValue(System.Windows.Controls.ComboBox.StaysOpenOnEditProperty)
+        | ComboBoxProp.OnDropDownOpened h -> el.DropDownOpened.RemoveHandler(h)
+        | ComboBoxProp.OnDropDownClosed h -> el.DropDownClosed.RemoveHandler(h)
 
     let isSynchronizedWithCurrentItem v : obj =
         box (SelectorProp.IsSynchronizedWithCurrentItem v)

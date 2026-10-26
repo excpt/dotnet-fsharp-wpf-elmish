@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -21,6 +21,11 @@ module Geometry =
         match prop with
         | GeometryProp.Base p -> Freezable.apply el p
         | GeometryProp.Transform v -> el.SetValue(System.Windows.Media.Geometry.TransformProperty, box v)
+
+    let clear (el: System.Windows.Media.Geometry) (prop: GeometryProp) =
+        match prop with
+        | GeometryProp.Base p -> Freezable.clear el p
+        | GeometryProp.Transform _ -> el.ClearValue(System.Windows.Media.Geometry.TransformProperty)
 
     let onChanged v : obj =
         box (EventProp(box (FreezableProp.OnChanged v)))

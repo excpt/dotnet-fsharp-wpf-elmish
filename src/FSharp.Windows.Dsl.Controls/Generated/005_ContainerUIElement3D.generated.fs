@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -17,6 +17,10 @@ module ContainerUIElement3D =
     let apply (el: System.Windows.Media.Media3D.ContainerUIElement3D) (prop: ContainerUIElement3DProp) =
         match prop with
         | ContainerUIElement3DProp.Base p -> UIElement3D.apply el p
+
+    let clear (el: System.Windows.Media.Media3D.ContainerUIElement3D) (prop: ContainerUIElement3DProp) =
+        match prop with
+        | ContainerUIElement3DProp.Base p -> UIElement3D.clear el p
 
     let isMouseDirectlyOver v : obj =
         box (UIElement3DProp.IsMouseDirectlyOver v)

@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -32,6 +32,13 @@ module Thumb =
         | ThumbProp.OnDragStarted h -> el.DragStarted.AddHandler(h)
         | ThumbProp.OnDragDelta h -> el.DragDelta.AddHandler(h)
         | ThumbProp.OnDragCompleted h -> el.DragCompleted.AddHandler(h)
+
+    let clear (el: System.Windows.Controls.Primitives.Thumb) (prop: ThumbProp) =
+        match prop with
+        | ThumbProp.Base p -> Control.clear el p
+        | ThumbProp.OnDragStarted h -> el.DragStarted.RemoveHandler(h)
+        | ThumbProp.OnDragDelta h -> el.DragDelta.RemoveHandler(h)
+        | ThumbProp.OnDragCompleted h -> el.DragCompleted.RemoveHandler(h)
 
     let borderBrush v : obj = box (ControlProp.BorderBrush v)
     let borderThickness v : obj = box (ControlProp.BorderThickness v)

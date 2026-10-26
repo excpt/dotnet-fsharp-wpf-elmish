@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -17,6 +17,10 @@ module Storyboard =
     let apply (el: System.Windows.Media.Animation.Storyboard) (prop: StoryboardProp) =
         match prop with
         | StoryboardProp.Base p -> ParallelTimeline.apply el p
+
+    let clear (el: System.Windows.Media.Animation.Storyboard) (prop: StoryboardProp) =
+        match prop with
+        | StoryboardProp.Base p -> ParallelTimeline.clear el p
 
     let slipBehavior v : obj =
         box (ParallelTimelineProp.SlipBehavior v)

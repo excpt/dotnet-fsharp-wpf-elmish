@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -27,6 +27,13 @@ module ToolBar =
         | ToolBarProp.Band v -> el.SetValue(System.Windows.Controls.ToolBar.BandProperty, box v)
         | ToolBarProp.BandIndex v -> el.SetValue(System.Windows.Controls.ToolBar.BandIndexProperty, box v)
         | ToolBarProp.IsOverflowOpen v -> el.SetValue(System.Windows.Controls.ToolBar.IsOverflowOpenProperty, box v)
+
+    let clear (el: System.Windows.Controls.ToolBar) (prop: ToolBarProp) =
+        match prop with
+        | ToolBarProp.Base p -> HeaderedItemsControl.clear el p
+        | ToolBarProp.Band _ -> el.ClearValue(System.Windows.Controls.ToolBar.BandProperty)
+        | ToolBarProp.BandIndex _ -> el.ClearValue(System.Windows.Controls.ToolBar.BandIndexProperty)
+        | ToolBarProp.IsOverflowOpen _ -> el.ClearValue(System.Windows.Controls.ToolBar.IsOverflowOpenProperty)
 
     let header v : obj = box (HeaderedItemsControlProp.Header v)
 

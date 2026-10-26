@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -33,6 +33,15 @@ module TextEffect =
         | TextEffectProp.Foreground v -> el.SetValue(System.Windows.Media.TextEffect.ForegroundProperty, box v)
         | TextEffectProp.PositionStart v -> el.SetValue(System.Windows.Media.TextEffect.PositionStartProperty, box v)
         | TextEffectProp.PositionCount v -> el.SetValue(System.Windows.Media.TextEffect.PositionCountProperty, box v)
+
+    let clear (el: System.Windows.Media.TextEffect) (prop: TextEffectProp) =
+        match prop with
+        | TextEffectProp.Base p -> Freezable.clear el p
+        | TextEffectProp.Transform _ -> el.ClearValue(System.Windows.Media.TextEffect.TransformProperty)
+        | TextEffectProp.Clip _ -> el.ClearValue(System.Windows.Media.TextEffect.ClipProperty)
+        | TextEffectProp.Foreground _ -> el.ClearValue(System.Windows.Media.TextEffect.ForegroundProperty)
+        | TextEffectProp.PositionStart _ -> el.ClearValue(System.Windows.Media.TextEffect.PositionStartProperty)
+        | TextEffectProp.PositionCount _ -> el.ClearValue(System.Windows.Media.TextEffect.PositionCountProperty)
 
     let onChanged v : obj =
         box (EventProp(box (FreezableProp.OnChanged v)))

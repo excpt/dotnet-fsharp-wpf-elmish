@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -115,6 +115,32 @@ module InkCanvas =
         | InkCanvasProp.OnSelectionResized h -> el.SelectionResized.AddHandler(h)
         | InkCanvasProp.OnSelectionChanging h -> el.SelectionChanging.AddHandler(h)
         | InkCanvasProp.OnSelectionChanged h -> el.SelectionChanged.AddHandler(h)
+
+    let clear (el: System.Windows.Controls.InkCanvas) (prop: InkCanvasProp) =
+        match prop with
+        | InkCanvasProp.Base p -> FrameworkElement.clear el p
+        | InkCanvasProp.Background _ -> el.ClearValue(System.Windows.Controls.InkCanvas.BackgroundProperty)
+        | InkCanvasProp.Strokes _ -> el.ClearValue(System.Windows.Controls.InkCanvas.StrokesProperty)
+        | InkCanvasProp.DefaultDrawingAttributes _ ->
+            el.ClearValue(System.Windows.Controls.InkCanvas.DefaultDrawingAttributesProperty)
+        | InkCanvasProp.EditingMode _ -> el.ClearValue(System.Windows.Controls.InkCanvas.EditingModeProperty)
+        | InkCanvasProp.EditingModeInverted _ ->
+            el.ClearValue(System.Windows.Controls.InkCanvas.EditingModeInvertedProperty)
+        | InkCanvasProp.OnStrokeCollected h -> el.StrokeCollected.RemoveHandler(h)
+        | InkCanvasProp.OnGesture h -> el.Gesture.RemoveHandler(h)
+        | InkCanvasProp.OnActiveEditingModeChanged h -> el.ActiveEditingModeChanged.RemoveHandler(h)
+        | InkCanvasProp.OnEditingModeChanged h -> el.EditingModeChanged.RemoveHandler(h)
+        | InkCanvasProp.OnEditingModeInvertedChanged h -> el.EditingModeInvertedChanged.RemoveHandler(h)
+        | InkCanvasProp.OnStrokeErased h -> el.StrokeErased.RemoveHandler(h)
+        | InkCanvasProp.OnStrokesReplaced h -> el.StrokesReplaced.RemoveHandler(h)
+        | InkCanvasProp.OnDefaultDrawingAttributesReplaced h -> el.DefaultDrawingAttributesReplaced.RemoveHandler(h)
+        | InkCanvasProp.OnSelectionMoving h -> el.SelectionMoving.RemoveHandler(h)
+        | InkCanvasProp.OnSelectionMoved h -> el.SelectionMoved.RemoveHandler(h)
+        | InkCanvasProp.OnStrokeErasing h -> el.StrokeErasing.RemoveHandler(h)
+        | InkCanvasProp.OnSelectionResizing h -> el.SelectionResizing.RemoveHandler(h)
+        | InkCanvasProp.OnSelectionResized h -> el.SelectionResized.RemoveHandler(h)
+        | InkCanvasProp.OnSelectionChanging h -> el.SelectionChanging.RemoveHandler(h)
+        | InkCanvasProp.OnSelectionChanged h -> el.SelectionChanged.RemoveHandler(h)
 
     let style v : obj = box (FrameworkElementProp.Style v)
 

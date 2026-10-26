@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -37,6 +37,14 @@ module MediaPlayer =
         | MediaPlayerProp.OnMediaEnded h -> el.MediaEnded.AddHandler(h)
         | MediaPlayerProp.OnBufferingStarted h -> el.BufferingStarted.AddHandler(h)
         | MediaPlayerProp.OnBufferingEnded h -> el.BufferingEnded.AddHandler(h)
+
+    let clear (el: System.Windows.Media.MediaPlayer) (prop: MediaPlayerProp) =
+        match prop with
+        | MediaPlayerProp.Base p -> Freezable.clear el p
+        | MediaPlayerProp.OnMediaOpened h -> el.MediaOpened.RemoveHandler(h)
+        | MediaPlayerProp.OnMediaEnded h -> el.MediaEnded.RemoveHandler(h)
+        | MediaPlayerProp.OnBufferingStarted h -> el.BufferingStarted.RemoveHandler(h)
+        | MediaPlayerProp.OnBufferingEnded h -> el.BufferingEnded.RemoveHandler(h)
 
     let onChanged v : obj =
         box (EventProp(box (FreezableProp.OnChanged v)))

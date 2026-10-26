@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -22,6 +22,11 @@ module Label =
         | LabelProp.Base p -> ContentControl.apply el p
         | LabelProp.Target v ->
             el.SetValue(System.Windows.Controls.Label.TargetProperty, Materializer.materialize v |> box)
+
+    let clear (el: System.Windows.Controls.Label) (prop: LabelProp) =
+        match prop with
+        | LabelProp.Base p -> ContentControl.clear el p
+        | LabelProp.Target _ -> el.ClearValue(System.Windows.Controls.Label.TargetProperty)
 
     let content v : obj = box (ContentControlProp.Content v)
 

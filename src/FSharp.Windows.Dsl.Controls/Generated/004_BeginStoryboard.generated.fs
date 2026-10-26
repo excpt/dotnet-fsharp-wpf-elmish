@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -19,6 +19,11 @@ module BeginStoryboard =
         match prop with
         | BeginStoryboardProp.Storyboard v ->
             el.SetValue(System.Windows.Media.Animation.BeginStoryboard.StoryboardProperty, box v)
+
+    let clear (el: System.Windows.Media.Animation.BeginStoryboard) (prop: BeginStoryboardProp) =
+        match prop with
+        | BeginStoryboardProp.Storyboard _ ->
+            el.ClearValue(System.Windows.Media.Animation.BeginStoryboard.StoryboardProperty)
 
 
     let children (cs: VirtualNode list) : obj = box (Children cs)

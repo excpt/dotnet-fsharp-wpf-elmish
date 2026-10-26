@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -21,6 +21,11 @@ module Model3D =
         match prop with
         | Model3DProp.Base p -> Freezable.apply el p
         | Model3DProp.Transform v -> el.SetValue(System.Windows.Media.Media3D.Model3D.TransformProperty, box v)
+
+    let clear (el: System.Windows.Media.Media3D.Model3D) (prop: Model3DProp) =
+        match prop with
+        | Model3DProp.Base p -> Freezable.clear el p
+        | Model3DProp.Transform _ -> el.ClearValue(System.Windows.Media.Media3D.Model3D.TransformProperty)
 
     let onChanged v : obj =
         box (EventProp(box (FreezableProp.OnChanged v)))

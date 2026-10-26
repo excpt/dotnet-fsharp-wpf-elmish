@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -29,6 +29,14 @@ module DataGridRowHeader =
             el.SetValue(System.Windows.Controls.Primitives.DataGridRowHeader.SeparatorBrushProperty, box v)
         | DataGridRowHeaderProp.SeparatorVisibility v ->
             el.SetValue(System.Windows.Controls.Primitives.DataGridRowHeader.SeparatorVisibilityProperty, box v)
+
+    let clear (el: System.Windows.Controls.Primitives.DataGridRowHeader) (prop: DataGridRowHeaderProp) =
+        match prop with
+        | DataGridRowHeaderProp.Base p -> ButtonBase.clear el p
+        | DataGridRowHeaderProp.SeparatorBrush _ ->
+            el.ClearValue(System.Windows.Controls.Primitives.DataGridRowHeader.SeparatorBrushProperty)
+        | DataGridRowHeaderProp.SeparatorVisibility _ ->
+            el.ClearValue(System.Windows.Controls.Primitives.DataGridRowHeader.SeparatorVisibilityProperty)
 
     let command v : obj = box (ButtonBaseProp.Command v)
     let commandParameter v : obj = box (ButtonBaseProp.CommandParameter v)

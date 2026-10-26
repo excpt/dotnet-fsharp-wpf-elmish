@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -22,6 +22,11 @@ module OrthographicCamera =
         | OrthographicCameraProp.Base p -> ProjectionCamera.apply el p
         | OrthographicCameraProp.Width v ->
             el.SetValue(System.Windows.Media.Media3D.OrthographicCamera.WidthProperty, box v)
+
+    let clear (el: System.Windows.Media.Media3D.OrthographicCamera) (prop: OrthographicCameraProp) =
+        match prop with
+        | OrthographicCameraProp.Base p -> ProjectionCamera.clear el p
+        | OrthographicCameraProp.Width _ -> el.ClearValue(System.Windows.Media.Media3D.OrthographicCamera.WidthProperty)
 
     let nearPlaneDistance v : obj =
         box (ProjectionCameraProp.NearPlaneDistance v)

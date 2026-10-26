@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -98,6 +98,36 @@ module FlowDocumentScrollViewer =
                 System.Windows.Controls.FlowDocumentScrollViewer.IsInactiveSelectionHighlightEnabledProperty,
                 box v
             )
+
+    let clear (el: System.Windows.Controls.FlowDocumentScrollViewer) (prop: FlowDocumentScrollViewerProp) =
+        match prop with
+        | FlowDocumentScrollViewerProp.Base p -> Control.clear el p
+        | FlowDocumentScrollViewerProp.Document _ ->
+            el.ClearValue(System.Windows.Controls.FlowDocumentScrollViewer.DocumentProperty)
+        | FlowDocumentScrollViewerProp.Zoom _ ->
+            el.ClearValue(System.Windows.Controls.FlowDocumentScrollViewer.ZoomProperty)
+        | FlowDocumentScrollViewerProp.MaxZoom _ ->
+            el.ClearValue(System.Windows.Controls.FlowDocumentScrollViewer.MaxZoomProperty)
+        | FlowDocumentScrollViewerProp.MinZoom _ ->
+            el.ClearValue(System.Windows.Controls.FlowDocumentScrollViewer.MinZoomProperty)
+        | FlowDocumentScrollViewerProp.ZoomIncrement _ ->
+            el.ClearValue(System.Windows.Controls.FlowDocumentScrollViewer.ZoomIncrementProperty)
+        | FlowDocumentScrollViewerProp.IsSelectionEnabled _ ->
+            el.ClearValue(System.Windows.Controls.FlowDocumentScrollViewer.IsSelectionEnabledProperty)
+        | FlowDocumentScrollViewerProp.IsToolBarVisible _ ->
+            el.ClearValue(System.Windows.Controls.FlowDocumentScrollViewer.IsToolBarVisibleProperty)
+        | FlowDocumentScrollViewerProp.HorizontalScrollBarVisibility _ ->
+            el.ClearValue(System.Windows.Controls.FlowDocumentScrollViewer.HorizontalScrollBarVisibilityProperty)
+        | FlowDocumentScrollViewerProp.VerticalScrollBarVisibility _ ->
+            el.ClearValue(System.Windows.Controls.FlowDocumentScrollViewer.VerticalScrollBarVisibilityProperty)
+        | FlowDocumentScrollViewerProp.SelectionBrush _ ->
+            el.ClearValue(System.Windows.Controls.FlowDocumentScrollViewer.SelectionBrushProperty)
+        | FlowDocumentScrollViewerProp.SelectionOpacity _ ->
+            el.ClearValue(System.Windows.Controls.FlowDocumentScrollViewer.SelectionOpacityProperty)
+        | FlowDocumentScrollViewerProp.IsSelectionActive _ ->
+            el.ClearValue(System.Windows.Controls.FlowDocumentScrollViewer.IsSelectionActiveProperty)
+        | FlowDocumentScrollViewerProp.IsInactiveSelectionHighlightEnabled _ ->
+            el.ClearValue(System.Windows.Controls.FlowDocumentScrollViewer.IsInactiveSelectionHighlightEnabledProperty)
 
     let borderBrush v : obj = box (ControlProp.BorderBrush v)
     let borderThickness v : obj = box (ControlProp.BorderThickness v)

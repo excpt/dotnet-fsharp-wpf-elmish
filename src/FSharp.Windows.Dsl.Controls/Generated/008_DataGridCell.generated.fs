@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -34,6 +34,14 @@ module DataGridCell =
         | DataGridCellProp.IsSelected v -> el.SetValue(System.Windows.Controls.DataGridCell.IsSelectedProperty, box v)
         | DataGridCellProp.OnSelected h -> el.Selected.AddHandler(h)
         | DataGridCellProp.OnUnselected h -> el.Unselected.AddHandler(h)
+
+    let clear (el: System.Windows.Controls.DataGridCell) (prop: DataGridCellProp) =
+        match prop with
+        | DataGridCellProp.Base p -> ContentControl.clear el p
+        | DataGridCellProp.IsEditing _ -> el.ClearValue(System.Windows.Controls.DataGridCell.IsEditingProperty)
+        | DataGridCellProp.IsSelected _ -> el.ClearValue(System.Windows.Controls.DataGridCell.IsSelectedProperty)
+        | DataGridCellProp.OnSelected h -> el.Selected.RemoveHandler(h)
+        | DataGridCellProp.OnUnselected h -> el.Unselected.RemoveHandler(h)
 
     let content v : obj = box (ContentControlProp.Content v)
 

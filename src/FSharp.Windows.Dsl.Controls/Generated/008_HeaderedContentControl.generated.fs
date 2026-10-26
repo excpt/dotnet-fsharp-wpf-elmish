@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -41,6 +41,18 @@ module HeaderedContentControl =
             el.SetValue(System.Windows.Controls.HeaderedContentControl.HeaderTemplateSelectorProperty, box v)
         | HeaderedContentControlProp.HeaderStringFormat v ->
             el.SetValue(System.Windows.Controls.HeaderedContentControl.HeaderStringFormatProperty, box v)
+
+    let clear (el: System.Windows.Controls.HeaderedContentControl) (prop: HeaderedContentControlProp) =
+        match prop with
+        | HeaderedContentControlProp.Base p -> ContentControl.clear el p
+        | HeaderedContentControlProp.Header _ ->
+            el.ClearValue(System.Windows.Controls.HeaderedContentControl.HeaderProperty)
+        | HeaderedContentControlProp.HeaderTemplate _ ->
+            el.ClearValue(System.Windows.Controls.HeaderedContentControl.HeaderTemplateProperty)
+        | HeaderedContentControlProp.HeaderTemplateSelector _ ->
+            el.ClearValue(System.Windows.Controls.HeaderedContentControl.HeaderTemplateSelectorProperty)
+        | HeaderedContentControlProp.HeaderStringFormat _ ->
+            el.ClearValue(System.Windows.Controls.HeaderedContentControl.HeaderStringFormatProperty)
 
     let content v : obj = box (ContentControlProp.Content v)
 

@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -29,6 +29,14 @@ module UniformGrid =
         | UniformGridProp.Columns v ->
             el.SetValue(System.Windows.Controls.Primitives.UniformGrid.ColumnsProperty, box v)
         | UniformGridProp.Rows v -> el.SetValue(System.Windows.Controls.Primitives.UniformGrid.RowsProperty, box v)
+
+    let clear (el: System.Windows.Controls.Primitives.UniformGrid) (prop: UniformGridProp) =
+        match prop with
+        | UniformGridProp.Base p -> Panel.clear el p
+        | UniformGridProp.FirstColumn _ ->
+            el.ClearValue(System.Windows.Controls.Primitives.UniformGrid.FirstColumnProperty)
+        | UniformGridProp.Columns _ -> el.ClearValue(System.Windows.Controls.Primitives.UniformGrid.ColumnsProperty)
+        | UniformGridProp.Rows _ -> el.ClearValue(System.Windows.Controls.Primitives.UniformGrid.RowsProperty)
 
     let background v : obj = box (PanelProp.Background v)
     let isItemsHost v : obj = box (PanelProp.IsItemsHost v)

@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -69,6 +69,28 @@ module Slider =
         | SliderProp.SelectionEnd v -> el.SetValue(System.Windows.Controls.Slider.SelectionEndProperty, box v)
         | SliderProp.IsMoveToPointEnabled v ->
             el.SetValue(System.Windows.Controls.Slider.IsMoveToPointEnabledProperty, box v)
+
+    let clear (el: System.Windows.Controls.Slider) (prop: SliderProp) =
+        match prop with
+        | SliderProp.Base p -> RangeBase.clear el p
+        | SliderProp.Orientation _ -> el.ClearValue(System.Windows.Controls.Slider.OrientationProperty)
+        | SliderProp.IsDirectionReversed _ -> el.ClearValue(System.Windows.Controls.Slider.IsDirectionReversedProperty)
+        | SliderProp.Delay _ -> el.ClearValue(System.Windows.Controls.Slider.DelayProperty)
+        | SliderProp.Interval _ -> el.ClearValue(System.Windows.Controls.Slider.IntervalProperty)
+        | SliderProp.AutoToolTipPlacement _ ->
+            el.ClearValue(System.Windows.Controls.Slider.AutoToolTipPlacementProperty)
+        | SliderProp.AutoToolTipPrecision _ ->
+            el.ClearValue(System.Windows.Controls.Slider.AutoToolTipPrecisionProperty)
+        | SliderProp.IsSnapToTickEnabled _ -> el.ClearValue(System.Windows.Controls.Slider.IsSnapToTickEnabledProperty)
+        | SliderProp.TickPlacement _ -> el.ClearValue(System.Windows.Controls.Slider.TickPlacementProperty)
+        | SliderProp.TickFrequency _ -> el.ClearValue(System.Windows.Controls.Slider.TickFrequencyProperty)
+        | SliderProp.Ticks _ -> el.ClearValue(System.Windows.Controls.Slider.TicksProperty)
+        | SliderProp.IsSelectionRangeEnabled _ ->
+            el.ClearValue(System.Windows.Controls.Slider.IsSelectionRangeEnabledProperty)
+        | SliderProp.SelectionStart _ -> el.ClearValue(System.Windows.Controls.Slider.SelectionStartProperty)
+        | SliderProp.SelectionEnd _ -> el.ClearValue(System.Windows.Controls.Slider.SelectionEndProperty)
+        | SliderProp.IsMoveToPointEnabled _ ->
+            el.ClearValue(System.Windows.Controls.Slider.IsMoveToPointEnabledProperty)
 
     let minimum v : obj = box (RangeBaseProp.Minimum v)
     let maximum v : obj = box (RangeBaseProp.Maximum v)

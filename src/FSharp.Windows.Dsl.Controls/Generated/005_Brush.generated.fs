@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -27,6 +27,13 @@ module Brush =
         | BrushProp.Opacity v -> el.SetValue(System.Windows.Media.Brush.OpacityProperty, box v)
         | BrushProp.Transform v -> el.SetValue(System.Windows.Media.Brush.TransformProperty, box v)
         | BrushProp.RelativeTransform v -> el.SetValue(System.Windows.Media.Brush.RelativeTransformProperty, box v)
+
+    let clear (el: System.Windows.Media.Brush) (prop: BrushProp) =
+        match prop with
+        | BrushProp.Base p -> Freezable.clear el p
+        | BrushProp.Opacity _ -> el.ClearValue(System.Windows.Media.Brush.OpacityProperty)
+        | BrushProp.Transform _ -> el.ClearValue(System.Windows.Media.Brush.TransformProperty)
+        | BrushProp.RelativeTransform _ -> el.ClearValue(System.Windows.Media.Brush.RelativeTransformProperty)
 
     let onChanged v : obj =
         box (EventProp(box (FreezableProp.OnChanged v)))

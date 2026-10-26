@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -19,6 +19,10 @@ module Freezable =
     let apply (el: System.Windows.Freezable) (prop: FreezableProp) =
         match prop with
         | FreezableProp.OnChanged h -> el.Changed.AddHandler(h)
+
+    let clear (el: System.Windows.Freezable) (prop: FreezableProp) =
+        match prop with
+        | FreezableProp.OnChanged h -> el.Changed.RemoveHandler(h)
 
 
     let children (cs: VirtualNode list) : obj = box (Children cs)

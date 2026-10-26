@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -17,6 +17,10 @@ module Transform3DCollection =
     let apply (el: System.Windows.Media.Media3D.Transform3DCollection) (prop: Transform3DCollectionProp) =
         match prop with
         | Transform3DCollectionProp.Base p -> Freezable.apply el p
+
+    let clear (el: System.Windows.Media.Media3D.Transform3DCollection) (prop: Transform3DCollectionProp) =
+        match prop with
+        | Transform3DCollectionProp.Base p -> Freezable.clear el p
 
     let onChanged v : obj =
         box (EventProp(box (FreezableProp.OnChanged v)))

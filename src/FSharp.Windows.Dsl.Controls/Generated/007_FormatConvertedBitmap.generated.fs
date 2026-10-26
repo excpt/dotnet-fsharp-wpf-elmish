@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -41,6 +41,18 @@ module FormatConvertedBitmap =
             el.SetValue(System.Windows.Media.Imaging.FormatConvertedBitmap.DestinationPaletteProperty, box v)
         | FormatConvertedBitmapProp.AlphaThreshold v ->
             el.SetValue(System.Windows.Media.Imaging.FormatConvertedBitmap.AlphaThresholdProperty, box v)
+
+    let clear (el: System.Windows.Media.Imaging.FormatConvertedBitmap) (prop: FormatConvertedBitmapProp) =
+        match prop with
+        | FormatConvertedBitmapProp.Base p -> BitmapSource.clear el p
+        | FormatConvertedBitmapProp.Source _ ->
+            el.ClearValue(System.Windows.Media.Imaging.FormatConvertedBitmap.SourceProperty)
+        | FormatConvertedBitmapProp.DestinationFormat _ ->
+            el.ClearValue(System.Windows.Media.Imaging.FormatConvertedBitmap.DestinationFormatProperty)
+        | FormatConvertedBitmapProp.DestinationPalette _ ->
+            el.ClearValue(System.Windows.Media.Imaging.FormatConvertedBitmap.DestinationPaletteProperty)
+        | FormatConvertedBitmapProp.AlphaThreshold _ ->
+            el.ClearValue(System.Windows.Media.Imaging.FormatConvertedBitmap.AlphaThresholdProperty)
 
     let onDownloadCompleted v : obj =
         box (EventProp(box (BitmapSourceProp.OnDownloadCompleted v)))

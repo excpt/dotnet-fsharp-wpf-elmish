@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -27,6 +27,13 @@ module RectangleGeometry =
         | RectangleGeometryProp.RadiusX v -> el.SetValue(System.Windows.Media.RectangleGeometry.RadiusXProperty, box v)
         | RectangleGeometryProp.RadiusY v -> el.SetValue(System.Windows.Media.RectangleGeometry.RadiusYProperty, box v)
         | RectangleGeometryProp.Rect v -> el.SetValue(System.Windows.Media.RectangleGeometry.RectProperty, box v)
+
+    let clear (el: System.Windows.Media.RectangleGeometry) (prop: RectangleGeometryProp) =
+        match prop with
+        | RectangleGeometryProp.Base p -> Geometry.clear el p
+        | RectangleGeometryProp.RadiusX _ -> el.ClearValue(System.Windows.Media.RectangleGeometry.RadiusXProperty)
+        | RectangleGeometryProp.RadiusY _ -> el.ClearValue(System.Windows.Media.RectangleGeometry.RadiusYProperty)
+        | RectangleGeometryProp.Rect _ -> el.ClearValue(System.Windows.Media.RectangleGeometry.RectProperty)
 
     let transform v : obj = box (GeometryProp.Transform v)
 

@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -62,6 +62,24 @@ module GridViewHeaderRowPresenter =
             )
         | GridViewHeaderRowPresenterProp.ColumnHeaderToolTip v ->
             el.SetValue(System.Windows.Controls.GridViewHeaderRowPresenter.ColumnHeaderToolTipProperty, box v)
+
+    let clear (el: System.Windows.Controls.GridViewHeaderRowPresenter) (prop: GridViewHeaderRowPresenterProp) =
+        match prop with
+        | GridViewHeaderRowPresenterProp.Base p -> GridViewRowPresenterBase.clear el p
+        | GridViewHeaderRowPresenterProp.ColumnHeaderContainerStyle _ ->
+            el.ClearValue(System.Windows.Controls.GridViewHeaderRowPresenter.ColumnHeaderContainerStyleProperty)
+        | GridViewHeaderRowPresenterProp.ColumnHeaderTemplate _ ->
+            el.ClearValue(System.Windows.Controls.GridViewHeaderRowPresenter.ColumnHeaderTemplateProperty)
+        | GridViewHeaderRowPresenterProp.ColumnHeaderTemplateSelector _ ->
+            el.ClearValue(System.Windows.Controls.GridViewHeaderRowPresenter.ColumnHeaderTemplateSelectorProperty)
+        | GridViewHeaderRowPresenterProp.ColumnHeaderStringFormat _ ->
+            el.ClearValue(System.Windows.Controls.GridViewHeaderRowPresenter.ColumnHeaderStringFormatProperty)
+        | GridViewHeaderRowPresenterProp.AllowsColumnReorder _ ->
+            el.ClearValue(System.Windows.Controls.GridViewHeaderRowPresenter.AllowsColumnReorderProperty)
+        | GridViewHeaderRowPresenterProp.ColumnHeaderContextMenu _ ->
+            el.ClearValue(System.Windows.Controls.GridViewHeaderRowPresenter.ColumnHeaderContextMenuProperty)
+        | GridViewHeaderRowPresenterProp.ColumnHeaderToolTip _ ->
+            el.ClearValue(System.Windows.Controls.GridViewHeaderRowPresenter.ColumnHeaderToolTipProperty)
 
     let columns v : obj =
         box (GridViewRowPresenterBaseProp.Columns v)

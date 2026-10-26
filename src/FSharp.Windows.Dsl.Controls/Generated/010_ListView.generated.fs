@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -21,6 +21,11 @@ module ListView =
         match prop with
         | ListViewProp.Base p -> ListBox.apply el p
         | ListViewProp.View v -> el.SetValue(System.Windows.Controls.ListView.ViewProperty, box v)
+
+    let clear (el: System.Windows.Controls.ListView) (prop: ListViewProp) =
+        match prop with
+        | ListViewProp.Base p -> ListBox.clear el p
+        | ListViewProp.View _ -> el.ClearValue(System.Windows.Controls.ListView.ViewProperty)
 
     let selectionMode v : obj = box (ListBoxProp.SelectionMode v)
 

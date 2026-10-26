@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -24,6 +24,12 @@ module DashStyle =
         | DashStyleProp.Base p -> Freezable.apply el p
         | DashStyleProp.Offset v -> el.SetValue(System.Windows.Media.DashStyle.OffsetProperty, box v)
         | DashStyleProp.Dashes v -> el.SetValue(System.Windows.Media.DashStyle.DashesProperty, box v)
+
+    let clear (el: System.Windows.Media.DashStyle) (prop: DashStyleProp) =
+        match prop with
+        | DashStyleProp.Base p -> Freezable.clear el p
+        | DashStyleProp.Offset _ -> el.ClearValue(System.Windows.Media.DashStyle.OffsetProperty)
+        | DashStyleProp.Dashes _ -> el.ClearValue(System.Windows.Media.DashStyle.DashesProperty)
 
     let onChanged v : obj =
         box (EventProp(box (FreezableProp.OnChanged v)))

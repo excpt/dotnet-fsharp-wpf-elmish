@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -17,6 +17,10 @@ module Section =
     let apply (el: System.Windows.Documents.Section) (prop: SectionProp) =
         match prop with
         | SectionProp.Base p -> Block.apply el p
+
+    let clear (el: System.Windows.Documents.Section) (prop: SectionProp) =
+        match prop with
+        | SectionProp.Base p -> Block.clear el p
 
     let margin v : obj = box (BlockProp.Margin v)
     let padding v : obj = box (BlockProp.Padding v)

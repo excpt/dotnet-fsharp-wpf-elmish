@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -27,6 +27,13 @@ module RowDefinition =
         | RowDefinitionProp.Height v -> el.SetValue(System.Windows.Controls.RowDefinition.HeightProperty, box v)
         | RowDefinitionProp.MinHeight v -> el.SetValue(System.Windows.Controls.RowDefinition.MinHeightProperty, box v)
         | RowDefinitionProp.MaxHeight v -> el.SetValue(System.Windows.Controls.RowDefinition.MaxHeightProperty, box v)
+
+    let clear (el: System.Windows.Controls.RowDefinition) (prop: RowDefinitionProp) =
+        match prop with
+        | RowDefinitionProp.Base p -> DefinitionBase.clear el p
+        | RowDefinitionProp.Height _ -> el.ClearValue(System.Windows.Controls.RowDefinition.HeightProperty)
+        | RowDefinitionProp.MinHeight _ -> el.ClearValue(System.Windows.Controls.RowDefinition.MinHeightProperty)
+        | RowDefinitionProp.MaxHeight _ -> el.ClearValue(System.Windows.Controls.RowDefinition.MaxHeightProperty)
 
     let sharedSizeGroup v : obj =
         box (DefinitionBaseProp.SharedSizeGroup v)

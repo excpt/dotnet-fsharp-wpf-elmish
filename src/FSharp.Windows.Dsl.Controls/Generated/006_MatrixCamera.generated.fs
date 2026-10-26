@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -28,6 +28,13 @@ module MatrixCamera =
             el.SetValue(System.Windows.Media.Media3D.MatrixCamera.ViewMatrixProperty, box v)
         | MatrixCameraProp.ProjectionMatrix v ->
             el.SetValue(System.Windows.Media.Media3D.MatrixCamera.ProjectionMatrixProperty, box v)
+
+    let clear (el: System.Windows.Media.Media3D.MatrixCamera) (prop: MatrixCameraProp) =
+        match prop with
+        | MatrixCameraProp.Base p -> Camera.clear el p
+        | MatrixCameraProp.ViewMatrix _ -> el.ClearValue(System.Windows.Media.Media3D.MatrixCamera.ViewMatrixProperty)
+        | MatrixCameraProp.ProjectionMatrix _ ->
+            el.ClearValue(System.Windows.Media.Media3D.MatrixCamera.ProjectionMatrixProperty)
 
     let transform v : obj = box (CameraProp.Transform v)
 

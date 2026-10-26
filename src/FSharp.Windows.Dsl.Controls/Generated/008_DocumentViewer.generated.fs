@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -57,6 +57,23 @@ module DocumentViewer =
             el.SetValue(System.Windows.Controls.DocumentViewer.VerticalPageSpacingProperty, box v)
         | DocumentViewerProp.HorizontalPageSpacing v ->
             el.SetValue(System.Windows.Controls.DocumentViewer.HorizontalPageSpacingProperty, box v)
+
+    let clear (el: System.Windows.Controls.DocumentViewer) (prop: DocumentViewerProp) =
+        match prop with
+        | DocumentViewerProp.Base p -> DocumentViewerBase.clear el p
+        | DocumentViewerProp.HorizontalOffset _ ->
+            el.ClearValue(System.Windows.Controls.DocumentViewer.HorizontalOffsetProperty)
+        | DocumentViewerProp.VerticalOffset _ ->
+            el.ClearValue(System.Windows.Controls.DocumentViewer.VerticalOffsetProperty)
+        | DocumentViewerProp.ShowPageBorders _ ->
+            el.ClearValue(System.Windows.Controls.DocumentViewer.ShowPageBordersProperty)
+        | DocumentViewerProp.Zoom _ -> el.ClearValue(System.Windows.Controls.DocumentViewer.ZoomProperty)
+        | DocumentViewerProp.MaxPagesAcross _ ->
+            el.ClearValue(System.Windows.Controls.DocumentViewer.MaxPagesAcrossProperty)
+        | DocumentViewerProp.VerticalPageSpacing _ ->
+            el.ClearValue(System.Windows.Controls.DocumentViewer.VerticalPageSpacingProperty)
+        | DocumentViewerProp.HorizontalPageSpacing _ ->
+            el.ClearValue(System.Windows.Controls.DocumentViewer.HorizontalPageSpacingProperty)
 
     let document v : obj = box (DocumentViewerBaseProp.Document v)
     let borderBrush v : obj = box (ControlProp.BorderBrush v)

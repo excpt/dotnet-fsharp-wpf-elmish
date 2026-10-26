@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -21,6 +21,11 @@ module Path =
         match prop with
         | PathProp.Base p -> Shape.apply el p
         | PathProp.Data v -> el.SetValue(System.Windows.Shapes.Path.DataProperty, box v)
+
+    let clear (el: System.Windows.Shapes.Path) (prop: PathProp) =
+        match prop with
+        | PathProp.Base p -> Shape.clear el p
+        | PathProp.Data _ -> el.ClearValue(System.Windows.Shapes.Path.DataProperty)
 
     let stretch v : obj = box (ShapeProp.Stretch v)
     let fill v : obj = box (ShapeProp.Fill v)

@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -27,6 +27,13 @@ module VisualBrush =
         | VisualBrushProp.Visual v -> el.SetValue(System.Windows.Media.VisualBrush.VisualProperty, box v)
         | VisualBrushProp.AutoLayoutContent v ->
             el.SetValue(System.Windows.Media.VisualBrush.AutoLayoutContentProperty, box v)
+
+    let clear (el: System.Windows.Media.VisualBrush) (prop: VisualBrushProp) =
+        match prop with
+        | VisualBrushProp.Base p -> TileBrush.clear el p
+        | VisualBrushProp.Visual _ -> el.ClearValue(System.Windows.Media.VisualBrush.VisualProperty)
+        | VisualBrushProp.AutoLayoutContent _ ->
+            el.ClearValue(System.Windows.Media.VisualBrush.AutoLayoutContentProperty)
 
     let viewportUnits v : obj = box (TileBrushProp.ViewportUnits v)
     let viewboxUnits v : obj = box (TileBrushProp.ViewboxUnits v)

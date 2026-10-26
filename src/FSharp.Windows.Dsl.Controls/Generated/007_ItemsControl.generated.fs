@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -90,6 +90,33 @@ module ItemsControl =
             el.SetValue(System.Windows.Controls.ItemsControl.IsTextSearchEnabledProperty, box v)
         | ItemsControlProp.IsTextSearchCaseSensitive v ->
             el.SetValue(System.Windows.Controls.ItemsControl.IsTextSearchCaseSensitiveProperty, box v)
+
+    let clear (el: System.Windows.Controls.ItemsControl) (prop: ItemsControlProp) =
+        match prop with
+        | ItemsControlProp.Base p -> Control.clear el p
+        | ItemsControlProp.ItemsSource _ -> el.ClearValue(System.Windows.Controls.ItemsControl.ItemsSourceProperty)
+        | ItemsControlProp.DisplayMemberPath _ ->
+            el.ClearValue(System.Windows.Controls.ItemsControl.DisplayMemberPathProperty)
+        | ItemsControlProp.ItemTemplate _ -> el.ClearValue(System.Windows.Controls.ItemsControl.ItemTemplateProperty)
+        | ItemsControlProp.ItemTemplateSelector _ ->
+            el.ClearValue(System.Windows.Controls.ItemsControl.ItemTemplateSelectorProperty)
+        | ItemsControlProp.ItemStringFormat _ ->
+            el.ClearValue(System.Windows.Controls.ItemsControl.ItemStringFormatProperty)
+        | ItemsControlProp.ItemBindingGroup _ ->
+            el.ClearValue(System.Windows.Controls.ItemsControl.ItemBindingGroupProperty)
+        | ItemsControlProp.ItemContainerStyle _ ->
+            el.ClearValue(System.Windows.Controls.ItemsControl.ItemContainerStyleProperty)
+        | ItemsControlProp.ItemContainerStyleSelector _ ->
+            el.ClearValue(System.Windows.Controls.ItemsControl.ItemContainerStyleSelectorProperty)
+        | ItemsControlProp.ItemsPanel _ -> el.ClearValue(System.Windows.Controls.ItemsControl.ItemsPanelProperty)
+        | ItemsControlProp.GroupStyleSelector _ ->
+            el.ClearValue(System.Windows.Controls.ItemsControl.GroupStyleSelectorProperty)
+        | ItemsControlProp.AlternationCount _ ->
+            el.ClearValue(System.Windows.Controls.ItemsControl.AlternationCountProperty)
+        | ItemsControlProp.IsTextSearchEnabled _ ->
+            el.ClearValue(System.Windows.Controls.ItemsControl.IsTextSearchEnabledProperty)
+        | ItemsControlProp.IsTextSearchCaseSensitive _ ->
+            el.ClearValue(System.Windows.Controls.ItemsControl.IsTextSearchCaseSensitiveProperty)
 
     let borderBrush v : obj = box (ControlProp.BorderBrush v)
     let borderThickness v : obj = box (ControlProp.BorderThickness v)

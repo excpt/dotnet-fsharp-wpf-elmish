@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -42,6 +42,18 @@ module TileBrush =
         | TileBrushProp.TileMode v -> el.SetValue(System.Windows.Media.TileBrush.TileModeProperty, box v)
         | TileBrushProp.AlignmentX v -> el.SetValue(System.Windows.Media.TileBrush.AlignmentXProperty, box v)
         | TileBrushProp.AlignmentY v -> el.SetValue(System.Windows.Media.TileBrush.AlignmentYProperty, box v)
+
+    let clear (el: System.Windows.Media.TileBrush) (prop: TileBrushProp) =
+        match prop with
+        | TileBrushProp.Base p -> Brush.clear el p
+        | TileBrushProp.ViewportUnits _ -> el.ClearValue(System.Windows.Media.TileBrush.ViewportUnitsProperty)
+        | TileBrushProp.ViewboxUnits _ -> el.ClearValue(System.Windows.Media.TileBrush.ViewboxUnitsProperty)
+        | TileBrushProp.Viewport _ -> el.ClearValue(System.Windows.Media.TileBrush.ViewportProperty)
+        | TileBrushProp.Viewbox _ -> el.ClearValue(System.Windows.Media.TileBrush.ViewboxProperty)
+        | TileBrushProp.Stretch _ -> el.ClearValue(System.Windows.Media.TileBrush.StretchProperty)
+        | TileBrushProp.TileMode _ -> el.ClearValue(System.Windows.Media.TileBrush.TileModeProperty)
+        | TileBrushProp.AlignmentX _ -> el.ClearValue(System.Windows.Media.TileBrush.AlignmentXProperty)
+        | TileBrushProp.AlignmentY _ -> el.ClearValue(System.Windows.Media.TileBrush.AlignmentYProperty)
 
     let opacity v : obj = box (BrushProp.Opacity v)
     let transform v : obj = box (BrushProp.Transform v)

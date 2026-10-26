@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -57,6 +57,23 @@ module BitmapImage =
             el.SetValue(System.Windows.Media.Imaging.BitmapImage.CreateOptionsProperty, box v)
         | BitmapImageProp.CacheOption v ->
             el.SetValue(System.Windows.Media.Imaging.BitmapImage.CacheOptionProperty, box v)
+
+    let clear (el: System.Windows.Media.Imaging.BitmapImage) (prop: BitmapImageProp) =
+        match prop with
+        | BitmapImageProp.Base p -> BitmapSource.clear el p
+        | BitmapImageProp.UriCachePolicy _ ->
+            el.ClearValue(System.Windows.Media.Imaging.BitmapImage.UriCachePolicyProperty)
+        | BitmapImageProp.UriSource _ -> el.ClearValue(System.Windows.Media.Imaging.BitmapImage.UriSourceProperty)
+        | BitmapImageProp.StreamSource _ -> el.ClearValue(System.Windows.Media.Imaging.BitmapImage.StreamSourceProperty)
+        | BitmapImageProp.DecodePixelWidth _ ->
+            el.ClearValue(System.Windows.Media.Imaging.BitmapImage.DecodePixelWidthProperty)
+        | BitmapImageProp.DecodePixelHeight _ ->
+            el.ClearValue(System.Windows.Media.Imaging.BitmapImage.DecodePixelHeightProperty)
+        | BitmapImageProp.Rotation _ -> el.ClearValue(System.Windows.Media.Imaging.BitmapImage.RotationProperty)
+        | BitmapImageProp.SourceRect _ -> el.ClearValue(System.Windows.Media.Imaging.BitmapImage.SourceRectProperty)
+        | BitmapImageProp.CreateOptions _ ->
+            el.ClearValue(System.Windows.Media.Imaging.BitmapImage.CreateOptionsProperty)
+        | BitmapImageProp.CacheOption _ -> el.ClearValue(System.Windows.Media.Imaging.BitmapImage.CacheOptionProperty)
 
     let onDownloadCompleted v : obj =
         box (EventProp(box (BitmapSourceProp.OnDownloadCompleted v)))

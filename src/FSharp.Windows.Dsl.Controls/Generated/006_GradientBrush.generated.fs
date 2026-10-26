@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -35,6 +35,15 @@ module GradientBrush =
             el.SetValue(System.Windows.Media.GradientBrush.SpreadMethodProperty, box v)
         | GradientBrushProp.GradientStops v ->
             el.SetValue(System.Windows.Media.GradientBrush.GradientStopsProperty, box v)
+
+    let clear (el: System.Windows.Media.GradientBrush) (prop: GradientBrushProp) =
+        match prop with
+        | GradientBrushProp.Base p -> Brush.clear el p
+        | GradientBrushProp.ColorInterpolationMode _ ->
+            el.ClearValue(System.Windows.Media.GradientBrush.ColorInterpolationModeProperty)
+        | GradientBrushProp.MappingMode _ -> el.ClearValue(System.Windows.Media.GradientBrush.MappingModeProperty)
+        | GradientBrushProp.SpreadMethod _ -> el.ClearValue(System.Windows.Media.GradientBrush.SpreadMethodProperty)
+        | GradientBrushProp.GradientStops _ -> el.ClearValue(System.Windows.Media.GradientBrush.GradientStopsProperty)
 
     let opacity v : obj = box (BrushProp.Opacity v)
     let transform v : obj = box (BrushProp.Transform v)

@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -28,6 +28,14 @@ module EmbossBitmapEffect =
             el.SetValue(System.Windows.Media.Effects.EmbossBitmapEffect.LightAngleProperty, box v)
         | EmbossBitmapEffectProp.Relief v ->
             el.SetValue(System.Windows.Media.Effects.EmbossBitmapEffect.ReliefProperty, box v)
+
+    let clear (el: System.Windows.Media.Effects.EmbossBitmapEffect) (prop: EmbossBitmapEffectProp) =
+        match prop with
+        | EmbossBitmapEffectProp.Base p -> Freezable.clear el p
+        | EmbossBitmapEffectProp.LightAngle _ ->
+            el.ClearValue(System.Windows.Media.Effects.EmbossBitmapEffect.LightAngleProperty)
+        | EmbossBitmapEffectProp.Relief _ ->
+            el.ClearValue(System.Windows.Media.Effects.EmbossBitmapEffect.ReliefProperty)
 
     let onChanged v : obj =
         box (EventProp(box (FreezableProp.OnChanged v)))

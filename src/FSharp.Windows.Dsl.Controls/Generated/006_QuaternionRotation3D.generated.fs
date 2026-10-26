@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -23,6 +23,12 @@ module QuaternionRotation3D =
         | QuaternionRotation3DProp.Base p -> Freezable.apply el p
         | QuaternionRotation3DProp.Quaternion v ->
             el.SetValue(System.Windows.Media.Media3D.QuaternionRotation3D.QuaternionProperty, box v)
+
+    let clear (el: System.Windows.Media.Media3D.QuaternionRotation3D) (prop: QuaternionRotation3DProp) =
+        match prop with
+        | QuaternionRotation3DProp.Base p -> Freezable.clear el p
+        | QuaternionRotation3DProp.Quaternion _ ->
+            el.ClearValue(System.Windows.Media.Media3D.QuaternionRotation3D.QuaternionProperty)
 
     let onChanged v : obj =
         box (EventProp(box (FreezableProp.OnChanged v)))

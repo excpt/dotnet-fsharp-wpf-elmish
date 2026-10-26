@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -42,6 +42,18 @@ module Page =
         | PageProp.FontFamily v -> el.SetValue(System.Windows.Controls.Page.FontFamilyProperty, box v)
         | PageProp.FontSize v -> el.SetValue(System.Windows.Controls.Page.FontSizeProperty, box v)
         | PageProp.Template v -> el.SetValue(System.Windows.Controls.Page.TemplateProperty, box v)
+
+    let clear (el: System.Windows.Controls.Page) (prop: PageProp) =
+        match prop with
+        | PageProp.Base p -> FrameworkElement.clear el p
+        | PageProp.Content _ -> el.ClearValue(System.Windows.Controls.Page.ContentProperty)
+        | PageProp.Background _ -> el.ClearValue(System.Windows.Controls.Page.BackgroundProperty)
+        | PageProp.Title _ -> el.ClearValue(System.Windows.Controls.Page.TitleProperty)
+        | PageProp.KeepAlive _ -> el.ClearValue(System.Windows.Controls.Page.KeepAliveProperty)
+        | PageProp.Foreground _ -> el.ClearValue(System.Windows.Controls.Page.ForegroundProperty)
+        | PageProp.FontFamily _ -> el.ClearValue(System.Windows.Controls.Page.FontFamilyProperty)
+        | PageProp.FontSize _ -> el.ClearValue(System.Windows.Controls.Page.FontSizeProperty)
+        | PageProp.Template _ -> el.ClearValue(System.Windows.Controls.Page.TemplateProperty)
 
     let style v : obj = box (FrameworkElementProp.Style v)
 

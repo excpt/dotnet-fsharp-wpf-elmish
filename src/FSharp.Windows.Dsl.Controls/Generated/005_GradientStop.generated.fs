@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -24,6 +24,12 @@ module GradientStop =
         | GradientStopProp.Base p -> Freezable.apply el p
         | GradientStopProp.Color v -> el.SetValue(System.Windows.Media.GradientStop.ColorProperty, box v)
         | GradientStopProp.Offset v -> el.SetValue(System.Windows.Media.GradientStop.OffsetProperty, box v)
+
+    let clear (el: System.Windows.Media.GradientStop) (prop: GradientStopProp) =
+        match prop with
+        | GradientStopProp.Base p -> Freezable.clear el p
+        | GradientStopProp.Color _ -> el.ClearValue(System.Windows.Media.GradientStop.ColorProperty)
+        | GradientStopProp.Offset _ -> el.ClearValue(System.Windows.Media.GradientStop.OffsetProperty)
 
     let onChanged v : obj =
         box (EventProp(box (FreezableProp.OnChanged v)))

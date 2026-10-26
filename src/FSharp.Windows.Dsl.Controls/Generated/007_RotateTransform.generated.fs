@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -27,6 +27,13 @@ module RotateTransform =
         | RotateTransformProp.Angle v -> el.SetValue(System.Windows.Media.RotateTransform.AngleProperty, box v)
         | RotateTransformProp.CenterX v -> el.SetValue(System.Windows.Media.RotateTransform.CenterXProperty, box v)
         | RotateTransformProp.CenterY v -> el.SetValue(System.Windows.Media.RotateTransform.CenterYProperty, box v)
+
+    let clear (el: System.Windows.Media.RotateTransform) (prop: RotateTransformProp) =
+        match prop with
+        | RotateTransformProp.Base p -> Freezable.clear el p
+        | RotateTransformProp.Angle _ -> el.ClearValue(System.Windows.Media.RotateTransform.AngleProperty)
+        | RotateTransformProp.CenterX _ -> el.ClearValue(System.Windows.Media.RotateTransform.CenterXProperty)
+        | RotateTransformProp.CenterY _ -> el.ClearValue(System.Windows.Media.RotateTransform.CenterYProperty)
 
     let onChanged v : obj =
         box (EventProp(box (FreezableProp.OnChanged v)))

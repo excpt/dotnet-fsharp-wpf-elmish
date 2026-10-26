@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -22,6 +22,11 @@ module ScrollViewer =
         match prop with
         | ScrollViewerProp.Base p -> ContentControl.apply el p
         | ScrollViewerProp.OnScrollChanged h -> el.ScrollChanged.AddHandler(h)
+
+    let clear (el: System.Windows.Controls.ScrollViewer) (prop: ScrollViewerProp) =
+        match prop with
+        | ScrollViewerProp.Base p -> ContentControl.clear el p
+        | ScrollViewerProp.OnScrollChanged h -> el.ScrollChanged.RemoveHandler(h)
 
     let content v : obj = box (ContentControlProp.Content v)
 

@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -109,6 +109,41 @@ module TextBoxBase =
 #if NET8_0_OR_GREATER
         | TextBoxBaseProp.SelectionTextBrush v ->
             el.SetValue(System.Windows.Controls.Primitives.TextBoxBase.SelectionTextBrushProperty, box v)
+#endif
+
+    let clear (el: System.Windows.Controls.Primitives.TextBoxBase) (prop: TextBoxBaseProp) =
+        match prop with
+        | TextBoxBaseProp.Base p -> Control.clear el p
+        | TextBoxBaseProp.IsReadOnly _ ->
+            el.ClearValue(System.Windows.Controls.Primitives.TextBoxBase.IsReadOnlyProperty)
+        | TextBoxBaseProp.IsReadOnlyCaretVisible _ ->
+            el.ClearValue(System.Windows.Controls.Primitives.TextBoxBase.IsReadOnlyCaretVisibleProperty)
+        | TextBoxBaseProp.AcceptsReturn _ ->
+            el.ClearValue(System.Windows.Controls.Primitives.TextBoxBase.AcceptsReturnProperty)
+        | TextBoxBaseProp.AcceptsTab _ ->
+            el.ClearValue(System.Windows.Controls.Primitives.TextBoxBase.AcceptsTabProperty)
+        | TextBoxBaseProp.HorizontalScrollBarVisibility _ ->
+            el.ClearValue(System.Windows.Controls.Primitives.TextBoxBase.HorizontalScrollBarVisibilityProperty)
+        | TextBoxBaseProp.VerticalScrollBarVisibility _ ->
+            el.ClearValue(System.Windows.Controls.Primitives.TextBoxBase.VerticalScrollBarVisibilityProperty)
+        | TextBoxBaseProp.IsUndoEnabled _ ->
+            el.ClearValue(System.Windows.Controls.Primitives.TextBoxBase.IsUndoEnabledProperty)
+        | TextBoxBaseProp.UndoLimit _ -> el.ClearValue(System.Windows.Controls.Primitives.TextBoxBase.UndoLimitProperty)
+        | TextBoxBaseProp.AutoWordSelection _ ->
+            el.ClearValue(System.Windows.Controls.Primitives.TextBoxBase.AutoWordSelectionProperty)
+        | TextBoxBaseProp.SelectionBrush _ ->
+            el.ClearValue(System.Windows.Controls.Primitives.TextBoxBase.SelectionBrushProperty)
+        | TextBoxBaseProp.SelectionOpacity _ ->
+            el.ClearValue(System.Windows.Controls.Primitives.TextBoxBase.SelectionOpacityProperty)
+        | TextBoxBaseProp.CaretBrush _ ->
+            el.ClearValue(System.Windows.Controls.Primitives.TextBoxBase.CaretBrushProperty)
+        | TextBoxBaseProp.IsInactiveSelectionHighlightEnabled _ ->
+            el.ClearValue(System.Windows.Controls.Primitives.TextBoxBase.IsInactiveSelectionHighlightEnabledProperty)
+        | TextBoxBaseProp.OnTextChanged h -> el.TextChanged.RemoveHandler(h)
+        | TextBoxBaseProp.OnSelectionChanged h -> el.SelectionChanged.RemoveHandler(h)
+#if NET8_0_OR_GREATER
+        | TextBoxBaseProp.SelectionTextBrush _ ->
+            el.ClearValue(System.Windows.Controls.Primitives.TextBoxBase.SelectionTextBrushProperty)
 #endif
 
     let borderBrush v : obj = box (ControlProp.BorderBrush v)

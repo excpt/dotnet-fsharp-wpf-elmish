@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -28,6 +28,13 @@ module BlurEffect =
         | BlurEffectProp.KernelType v -> el.SetValue(System.Windows.Media.Effects.BlurEffect.KernelTypeProperty, box v)
         | BlurEffectProp.RenderingBias v ->
             el.SetValue(System.Windows.Media.Effects.BlurEffect.RenderingBiasProperty, box v)
+
+    let clear (el: System.Windows.Media.Effects.BlurEffect) (prop: BlurEffectProp) =
+        match prop with
+        | BlurEffectProp.Base p -> Freezable.clear el p
+        | BlurEffectProp.Radius _ -> el.ClearValue(System.Windows.Media.Effects.BlurEffect.RadiusProperty)
+        | BlurEffectProp.KernelType _ -> el.ClearValue(System.Windows.Media.Effects.BlurEffect.KernelTypeProperty)
+        | BlurEffectProp.RenderingBias _ -> el.ClearValue(System.Windows.Media.Effects.BlurEffect.RenderingBiasProperty)
 
     let onChanged v : obj =
         box (EventProp(box (FreezableProp.OnChanged v)))

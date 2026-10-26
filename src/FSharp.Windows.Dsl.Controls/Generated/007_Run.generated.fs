@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -21,6 +21,11 @@ module Run =
         match prop with
         | RunProp.Base p -> Inline.apply el p
         | RunProp.Text v -> el.SetValue(System.Windows.Documents.Run.TextProperty, box v)
+
+    let clear (el: System.Windows.Documents.Run) (prop: RunProp) =
+        match prop with
+        | RunProp.Base p -> Inline.clear el p
+        | RunProp.Text _ -> el.ClearValue(System.Windows.Documents.Run.TextProperty)
 
     let baselineAlignment v : obj = box (InlineProp.BaselineAlignment v)
     let textDecorations v : obj = box (InlineProp.TextDecorations v)

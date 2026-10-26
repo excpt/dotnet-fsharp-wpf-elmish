@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -29,6 +29,14 @@ module QuadraticBezierSegment =
             el.SetValue(System.Windows.Media.QuadraticBezierSegment.Point1Property, box v)
         | QuadraticBezierSegmentProp.Point2 v ->
             el.SetValue(System.Windows.Media.QuadraticBezierSegment.Point2Property, box v)
+
+    let clear (el: System.Windows.Media.QuadraticBezierSegment) (prop: QuadraticBezierSegmentProp) =
+        match prop with
+        | QuadraticBezierSegmentProp.Base p -> PathSegment.clear el p
+        | QuadraticBezierSegmentProp.Point1 _ ->
+            el.ClearValue(System.Windows.Media.QuadraticBezierSegment.Point1Property)
+        | QuadraticBezierSegmentProp.Point2 _ ->
+            el.ClearValue(System.Windows.Media.QuadraticBezierSegment.Point2Property)
 
     let isStroked v : obj = box (PathSegmentProp.IsStroked v)
     let isSmoothJoin v : obj = box (PathSegmentProp.IsSmoothJoin v)

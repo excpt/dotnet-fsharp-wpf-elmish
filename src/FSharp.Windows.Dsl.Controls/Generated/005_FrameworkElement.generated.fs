@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -165,6 +165,48 @@ module FrameworkElement =
         | FrameworkElementProp.OnContextMenuOpening h -> el.ContextMenuOpening.AddHandler(h)
         | FrameworkElementProp.OnContextMenuClosing h -> el.ContextMenuClosing.AddHandler(h)
         | FrameworkElementProp.OnInitialized h -> el.Initialized.AddHandler(h)
+
+    let clear (el: System.Windows.FrameworkElement) (prop: FrameworkElementProp) =
+        match prop with
+        | FrameworkElementProp.Style _ -> el.ClearValue(System.Windows.FrameworkElement.StyleProperty)
+        | FrameworkElementProp.OverridesDefaultStyle _ ->
+            el.ClearValue(System.Windows.FrameworkElement.OverridesDefaultStyleProperty)
+        | FrameworkElementProp.UseLayoutRounding _ ->
+            el.ClearValue(System.Windows.FrameworkElement.UseLayoutRoundingProperty)
+        | FrameworkElementProp.DataContext _ -> el.ClearValue(System.Windows.FrameworkElement.DataContextProperty)
+        | FrameworkElementProp.BindingGroup _ -> el.ClearValue(System.Windows.FrameworkElement.BindingGroupProperty)
+        | FrameworkElementProp.Language _ -> el.ClearValue(System.Windows.FrameworkElement.LanguageProperty)
+        | FrameworkElementProp.Name _ -> el.ClearValue(System.Windows.FrameworkElement.NameProperty)
+        | FrameworkElementProp.Tag _ -> el.ClearValue(System.Windows.FrameworkElement.TagProperty)
+        | FrameworkElementProp.InputScope _ -> el.ClearValue(System.Windows.FrameworkElement.InputScopeProperty)
+        | FrameworkElementProp.LayoutTransform _ ->
+            el.ClearValue(System.Windows.FrameworkElement.LayoutTransformProperty)
+        | FrameworkElementProp.Width _ -> el.ClearValue(System.Windows.FrameworkElement.WidthProperty)
+        | FrameworkElementProp.MinWidth _ -> el.ClearValue(System.Windows.FrameworkElement.MinWidthProperty)
+        | FrameworkElementProp.MaxWidth _ -> el.ClearValue(System.Windows.FrameworkElement.MaxWidthProperty)
+        | FrameworkElementProp.Height _ -> el.ClearValue(System.Windows.FrameworkElement.HeightProperty)
+        | FrameworkElementProp.MinHeight _ -> el.ClearValue(System.Windows.FrameworkElement.MinHeightProperty)
+        | FrameworkElementProp.MaxHeight _ -> el.ClearValue(System.Windows.FrameworkElement.MaxHeightProperty)
+        | FrameworkElementProp.Margin _ -> el.ClearValue(System.Windows.FrameworkElement.MarginProperty)
+        | FrameworkElementProp.HorizontalAlignment _ ->
+            el.ClearValue(System.Windows.FrameworkElement.HorizontalAlignmentProperty)
+        | FrameworkElementProp.VerticalAlignment _ ->
+            el.ClearValue(System.Windows.FrameworkElement.VerticalAlignmentProperty)
+        | FrameworkElementProp.FocusVisualStyle _ ->
+            el.ClearValue(System.Windows.FrameworkElement.FocusVisualStyleProperty)
+        | FrameworkElementProp.Cursor _ -> el.ClearValue(System.Windows.FrameworkElement.CursorProperty)
+        | FrameworkElementProp.ForceCursor _ -> el.ClearValue(System.Windows.FrameworkElement.ForceCursorProperty)
+        | FrameworkElementProp.ToolTip _ -> el.ClearValue(System.Windows.FrameworkElement.ToolTipProperty)
+        | FrameworkElementProp.ContextMenu _ -> el.ClearValue(System.Windows.FrameworkElement.ContextMenuProperty)
+        | FrameworkElementProp.OnRequestBringIntoView h -> el.RequestBringIntoView.RemoveHandler(h)
+        | FrameworkElementProp.OnSizeChanged h -> el.SizeChanged.RemoveHandler(h)
+        | FrameworkElementProp.OnLoaded h -> el.Loaded.RemoveHandler(h)
+        | FrameworkElementProp.OnUnloaded h -> el.Unloaded.RemoveHandler(h)
+        | FrameworkElementProp.OnToolTipOpening h -> el.ToolTipOpening.RemoveHandler(h)
+        | FrameworkElementProp.OnToolTipClosing h -> el.ToolTipClosing.RemoveHandler(h)
+        | FrameworkElementProp.OnContextMenuOpening h -> el.ContextMenuOpening.RemoveHandler(h)
+        | FrameworkElementProp.OnContextMenuClosing h -> el.ContextMenuClosing.RemoveHandler(h)
+        | FrameworkElementProp.OnInitialized h -> el.Initialized.RemoveHandler(h)
 
     let allowDrop v : obj = box (UIElementProp.AllowDrop v)
     let renderTransform v : obj = box (UIElementProp.RenderTransform v)

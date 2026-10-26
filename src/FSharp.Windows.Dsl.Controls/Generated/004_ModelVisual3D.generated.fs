@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -25,6 +25,12 @@ module ModelVisual3D =
         | ModelVisual3DProp.Content v -> el.SetValue(System.Windows.Media.Media3D.ModelVisual3D.ContentProperty, box v)
         | ModelVisual3DProp.Transform v ->
             el.SetValue(System.Windows.Media.Media3D.ModelVisual3D.TransformProperty, box v)
+
+    let clear (el: System.Windows.Media.Media3D.ModelVisual3D) (prop: ModelVisual3DProp) =
+        match prop with
+        | ModelVisual3DProp.Base p -> Visual3D.clear el p
+        | ModelVisual3DProp.Content _ -> el.ClearValue(System.Windows.Media.Media3D.ModelVisual3D.ContentProperty)
+        | ModelVisual3DProp.Transform _ -> el.ClearValue(System.Windows.Media.Media3D.ModelVisual3D.TransformProperty)
 
 
     let children (cs: VirtualNode list) : obj = box (Children cs)

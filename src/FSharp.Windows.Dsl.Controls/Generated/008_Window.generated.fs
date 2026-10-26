@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -106,6 +106,34 @@ module Window =
         | WindowProp.OnContentRendered h -> el.ContentRendered.AddHandler(h)
 #if NET8_0_OR_GREATER
         | WindowProp.OnDpiChanged h -> el.DpiChanged.AddHandler(h)
+#endif
+
+    let clear (el: System.Windows.Window) (prop: WindowProp) =
+        match prop with
+        | WindowProp.Base p -> ContentControl.clear el p
+        | WindowProp.TaskbarItemInfo _ -> el.ClearValue(System.Windows.Window.TaskbarItemInfoProperty)
+        | WindowProp.AllowsTransparency _ -> el.ClearValue(System.Windows.Window.AllowsTransparencyProperty)
+        | WindowProp.Title _ -> el.ClearValue(System.Windows.Window.TitleProperty)
+        | WindowProp.Icon _ -> el.ClearValue(System.Windows.Window.IconProperty)
+        | WindowProp.SizeToContent _ -> el.ClearValue(System.Windows.Window.SizeToContentProperty)
+        | WindowProp.Top _ -> el.ClearValue(System.Windows.Window.TopProperty)
+        | WindowProp.Left _ -> el.ClearValue(System.Windows.Window.LeftProperty)
+        | WindowProp.ShowInTaskbar _ -> el.ClearValue(System.Windows.Window.ShowInTaskbarProperty)
+        | WindowProp.WindowStyle _ -> el.ClearValue(System.Windows.Window.WindowStyleProperty)
+        | WindowProp.WindowState _ -> el.ClearValue(System.Windows.Window.WindowStateProperty)
+        | WindowProp.ResizeMode _ -> el.ClearValue(System.Windows.Window.ResizeModeProperty)
+        | WindowProp.Topmost _ -> el.ClearValue(System.Windows.Window.TopmostProperty)
+        | WindowProp.ShowActivated _ -> el.ClearValue(System.Windows.Window.ShowActivatedProperty)
+        | WindowProp.OnSourceInitialized h -> el.SourceInitialized.RemoveHandler(h)
+        | WindowProp.OnActivated h -> el.Activated.RemoveHandler(h)
+        | WindowProp.OnDeactivated h -> el.Deactivated.RemoveHandler(h)
+        | WindowProp.OnStateChanged h -> el.StateChanged.RemoveHandler(h)
+        | WindowProp.OnLocationChanged h -> el.LocationChanged.RemoveHandler(h)
+        | WindowProp.OnClosing h -> el.Closing.RemoveHandler(h)
+        | WindowProp.OnClosed h -> el.Closed.RemoveHandler(h)
+        | WindowProp.OnContentRendered h -> el.ContentRendered.RemoveHandler(h)
+#if NET8_0_OR_GREATER
+        | WindowProp.OnDpiChanged h -> el.DpiChanged.RemoveHandler(h)
 #endif
 
     let content v : obj = box (ContentControlProp.Content v)

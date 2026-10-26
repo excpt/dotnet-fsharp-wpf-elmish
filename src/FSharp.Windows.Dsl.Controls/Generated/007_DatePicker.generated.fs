@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -70,6 +70,25 @@ module DatePicker =
         | DatePickerProp.Text v -> el.SetValue(System.Windows.Controls.DatePicker.TextProperty, box v)
         | DatePickerProp.OnCalendarClosed h -> el.CalendarClosed.AddHandler(h)
         | DatePickerProp.OnCalendarOpened h -> el.CalendarOpened.AddHandler(h)
+
+    let clear (el: System.Windows.Controls.DatePicker) (prop: DatePickerProp) =
+        match prop with
+        | DatePickerProp.Base p -> Control.clear el p
+        | DatePickerProp.CalendarStyle _ -> el.ClearValue(System.Windows.Controls.DatePicker.CalendarStyleProperty)
+        | DatePickerProp.DisplayDate _ -> el.ClearValue(System.Windows.Controls.DatePicker.DisplayDateProperty)
+        | DatePickerProp.DisplayDateEnd _ -> el.ClearValue(System.Windows.Controls.DatePicker.DisplayDateEndProperty)
+        | DatePickerProp.DisplayDateStart _ ->
+            el.ClearValue(System.Windows.Controls.DatePicker.DisplayDateStartProperty)
+        | DatePickerProp.FirstDayOfWeek _ -> el.ClearValue(System.Windows.Controls.DatePicker.FirstDayOfWeekProperty)
+        | DatePickerProp.IsDropDownOpen _ -> el.ClearValue(System.Windows.Controls.DatePicker.IsDropDownOpenProperty)
+        | DatePickerProp.IsTodayHighlighted _ ->
+            el.ClearValue(System.Windows.Controls.DatePicker.IsTodayHighlightedProperty)
+        | DatePickerProp.SelectedDate _ -> el.ClearValue(System.Windows.Controls.DatePicker.SelectedDateProperty)
+        | DatePickerProp.SelectedDateFormat _ ->
+            el.ClearValue(System.Windows.Controls.DatePicker.SelectedDateFormatProperty)
+        | DatePickerProp.Text _ -> el.ClearValue(System.Windows.Controls.DatePicker.TextProperty)
+        | DatePickerProp.OnCalendarClosed h -> el.CalendarClosed.RemoveHandler(h)
+        | DatePickerProp.OnCalendarOpened h -> el.CalendarOpened.RemoveHandler(h)
 
     let borderBrush v : obj = box (ControlProp.BorderBrush v)
     let borderThickness v : obj = box (ControlProp.BorderThickness v)

@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -30,6 +30,14 @@ module ScaleTransform =
         | ScaleTransformProp.ScaleY v -> el.SetValue(System.Windows.Media.ScaleTransform.ScaleYProperty, box v)
         | ScaleTransformProp.CenterX v -> el.SetValue(System.Windows.Media.ScaleTransform.CenterXProperty, box v)
         | ScaleTransformProp.CenterY v -> el.SetValue(System.Windows.Media.ScaleTransform.CenterYProperty, box v)
+
+    let clear (el: System.Windows.Media.ScaleTransform) (prop: ScaleTransformProp) =
+        match prop with
+        | ScaleTransformProp.Base p -> Freezable.clear el p
+        | ScaleTransformProp.ScaleX _ -> el.ClearValue(System.Windows.Media.ScaleTransform.ScaleXProperty)
+        | ScaleTransformProp.ScaleY _ -> el.ClearValue(System.Windows.Media.ScaleTransform.ScaleYProperty)
+        | ScaleTransformProp.CenterX _ -> el.ClearValue(System.Windows.Media.ScaleTransform.CenterXProperty)
+        | ScaleTransformProp.CenterY _ -> el.ClearValue(System.Windows.Media.ScaleTransform.CenterYProperty)
 
     let onChanged v : obj =
         box (EventProp(box (FreezableProp.OnChanged v)))

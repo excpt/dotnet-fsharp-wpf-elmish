@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -27,6 +27,13 @@ module WrapPanel =
         | WrapPanelProp.ItemWidth v -> el.SetValue(System.Windows.Controls.WrapPanel.ItemWidthProperty, box v)
         | WrapPanelProp.ItemHeight v -> el.SetValue(System.Windows.Controls.WrapPanel.ItemHeightProperty, box v)
         | WrapPanelProp.Orientation v -> el.SetValue(System.Windows.Controls.WrapPanel.OrientationProperty, box v)
+
+    let clear (el: System.Windows.Controls.WrapPanel) (prop: WrapPanelProp) =
+        match prop with
+        | WrapPanelProp.Base p -> Panel.clear el p
+        | WrapPanelProp.ItemWidth _ -> el.ClearValue(System.Windows.Controls.WrapPanel.ItemWidthProperty)
+        | WrapPanelProp.ItemHeight _ -> el.ClearValue(System.Windows.Controls.WrapPanel.ItemHeightProperty)
+        | WrapPanelProp.Orientation _ -> el.ClearValue(System.Windows.Controls.WrapPanel.OrientationProperty)
 
     let background v : obj = box (PanelProp.Background v)
     let isItemsHost v : obj = box (PanelProp.IsItemsHost v)

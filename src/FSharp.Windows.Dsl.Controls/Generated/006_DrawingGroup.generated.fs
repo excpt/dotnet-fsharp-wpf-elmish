@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -45,6 +45,19 @@ module DrawingGroup =
         | DrawingGroupProp.BitmapEffect v -> el.SetValue(System.Windows.Media.DrawingGroup.BitmapEffectProperty, box v)
         | DrawingGroupProp.BitmapEffectInput v ->
             el.SetValue(System.Windows.Media.DrawingGroup.BitmapEffectInputProperty, box v)
+
+    let clear (el: System.Windows.Media.DrawingGroup) (prop: DrawingGroupProp) =
+        match prop with
+        | DrawingGroupProp.Base p -> Freezable.clear el p
+        | DrawingGroupProp.Children _ -> el.ClearValue(System.Windows.Media.DrawingGroup.ChildrenProperty)
+        | DrawingGroupProp.ClipGeometry _ -> el.ClearValue(System.Windows.Media.DrawingGroup.ClipGeometryProperty)
+        | DrawingGroupProp.Opacity _ -> el.ClearValue(System.Windows.Media.DrawingGroup.OpacityProperty)
+        | DrawingGroupProp.OpacityMask _ -> el.ClearValue(System.Windows.Media.DrawingGroup.OpacityMaskProperty)
+        | DrawingGroupProp.Transform _ -> el.ClearValue(System.Windows.Media.DrawingGroup.TransformProperty)
+        | DrawingGroupProp.GuidelineSet _ -> el.ClearValue(System.Windows.Media.DrawingGroup.GuidelineSetProperty)
+        | DrawingGroupProp.BitmapEffect _ -> el.ClearValue(System.Windows.Media.DrawingGroup.BitmapEffectProperty)
+        | DrawingGroupProp.BitmapEffectInput _ ->
+            el.ClearValue(System.Windows.Media.DrawingGroup.BitmapEffectInputProperty)
 
     let onChanged v : obj =
         box (EventProp(box (FreezableProp.OnChanged v)))

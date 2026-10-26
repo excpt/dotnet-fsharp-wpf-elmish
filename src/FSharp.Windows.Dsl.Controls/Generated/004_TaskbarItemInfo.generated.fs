@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -49,6 +49,20 @@ module TaskbarItemInfo =
             el.SetValue(System.Windows.Shell.TaskbarItemInfo.ThumbnailClipMarginProperty, box v)
         | TaskbarItemInfoProp.ThumbButtonInfos v ->
             el.SetValue(System.Windows.Shell.TaskbarItemInfo.ThumbButtonInfosProperty, box v)
+
+    let clear (el: System.Windows.Shell.TaskbarItemInfo) (prop: TaskbarItemInfoProp) =
+        match prop with
+        | TaskbarItemInfoProp.Base p -> Freezable.clear el p
+        | TaskbarItemInfoProp.ProgressState _ ->
+            el.ClearValue(System.Windows.Shell.TaskbarItemInfo.ProgressStateProperty)
+        | TaskbarItemInfoProp.ProgressValue _ ->
+            el.ClearValue(System.Windows.Shell.TaskbarItemInfo.ProgressValueProperty)
+        | TaskbarItemInfoProp.Overlay _ -> el.ClearValue(System.Windows.Shell.TaskbarItemInfo.OverlayProperty)
+        | TaskbarItemInfoProp.Description _ -> el.ClearValue(System.Windows.Shell.TaskbarItemInfo.DescriptionProperty)
+        | TaskbarItemInfoProp.ThumbnailClipMargin _ ->
+            el.ClearValue(System.Windows.Shell.TaskbarItemInfo.ThumbnailClipMarginProperty)
+        | TaskbarItemInfoProp.ThumbButtonInfos _ ->
+            el.ClearValue(System.Windows.Shell.TaskbarItemInfo.ThumbButtonInfosProperty)
 
     let onChanged v : obj =
         box (EventProp(box (FreezableProp.OnChanged v)))

@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -22,6 +22,11 @@ module DocumentReference =
         | DocumentReferenceProp.Base p -> FrameworkElement.apply el p
         | DocumentReferenceProp.Source v ->
             el.SetValue(System.Windows.Documents.DocumentReference.SourceProperty, box v)
+
+    let clear (el: System.Windows.Documents.DocumentReference) (prop: DocumentReferenceProp) =
+        match prop with
+        | DocumentReferenceProp.Base p -> FrameworkElement.clear el p
+        | DocumentReferenceProp.Source _ -> el.ClearValue(System.Windows.Documents.DocumentReference.SourceProperty)
 
     let style v : obj = box (FrameworkElementProp.Style v)
 

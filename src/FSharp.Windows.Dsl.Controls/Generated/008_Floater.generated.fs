@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -25,6 +25,13 @@ module Floater =
         | FloaterProp.HorizontalAlignment v ->
             el.SetValue(System.Windows.Documents.Floater.HorizontalAlignmentProperty, box v)
         | FloaterProp.Width v -> el.SetValue(System.Windows.Documents.Floater.WidthProperty, box v)
+
+    let clear (el: System.Windows.Documents.Floater) (prop: FloaterProp) =
+        match prop with
+        | FloaterProp.Base p -> AnchoredBlock.clear el p
+        | FloaterProp.HorizontalAlignment _ ->
+            el.ClearValue(System.Windows.Documents.Floater.HorizontalAlignmentProperty)
+        | FloaterProp.Width _ -> el.ClearValue(System.Windows.Documents.Floater.WidthProperty)
 
     let margin v : obj = box (AnchoredBlockProp.Margin v)
     let padding v : obj = box (AnchoredBlockProp.Padding v)

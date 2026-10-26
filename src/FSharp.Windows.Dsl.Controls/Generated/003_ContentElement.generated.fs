@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -442,6 +442,104 @@ module ContentElement =
         | ContentElementProp.OnDrop h -> el.Drop.AddHandler(h)
         | ContentElementProp.OnGotFocus h -> el.GotFocus.AddHandler(h)
         | ContentElementProp.OnLostFocus h -> el.LostFocus.AddHandler(h)
+
+    let clear (el: System.Windows.ContentElement) (prop: ContentElementProp) =
+        match prop with
+        | ContentElementProp.IsMouseDirectlyOver _ ->
+            el.ClearValue(System.Windows.ContentElement.IsMouseDirectlyOverProperty)
+        | ContentElementProp.IsMouseOver _ -> el.ClearValue(System.Windows.ContentElement.IsMouseOverProperty)
+        | ContentElementProp.IsStylusOver _ -> el.ClearValue(System.Windows.ContentElement.IsStylusOverProperty)
+        | ContentElementProp.IsKeyboardFocusWithin _ ->
+            el.ClearValue(System.Windows.ContentElement.IsKeyboardFocusWithinProperty)
+        | ContentElementProp.IsMouseCaptured _ -> el.ClearValue(System.Windows.ContentElement.IsMouseCapturedProperty)
+        | ContentElementProp.IsMouseCaptureWithin _ ->
+            el.ClearValue(System.Windows.ContentElement.IsMouseCaptureWithinProperty)
+        | ContentElementProp.IsStylusDirectlyOver _ ->
+            el.ClearValue(System.Windows.ContentElement.IsStylusDirectlyOverProperty)
+        | ContentElementProp.IsStylusCaptured _ -> el.ClearValue(System.Windows.ContentElement.IsStylusCapturedProperty)
+        | ContentElementProp.IsStylusCaptureWithin _ ->
+            el.ClearValue(System.Windows.ContentElement.IsStylusCaptureWithinProperty)
+        | ContentElementProp.IsKeyboardFocused _ ->
+            el.ClearValue(System.Windows.ContentElement.IsKeyboardFocusedProperty)
+        | ContentElementProp.AreAnyTouchesDirectlyOver _ ->
+            el.ClearValue(System.Windows.ContentElement.AreAnyTouchesDirectlyOverProperty)
+        | ContentElementProp.AreAnyTouchesOver _ ->
+            el.ClearValue(System.Windows.ContentElement.AreAnyTouchesOverProperty)
+        | ContentElementProp.AreAnyTouchesCaptured _ ->
+            el.ClearValue(System.Windows.ContentElement.AreAnyTouchesCapturedProperty)
+        | ContentElementProp.AreAnyTouchesCapturedWithin _ ->
+            el.ClearValue(System.Windows.ContentElement.AreAnyTouchesCapturedWithinProperty)
+        | ContentElementProp.IsFocused _ -> el.ClearValue(System.Windows.ContentElement.IsFocusedProperty)
+        | ContentElementProp.IsEnabled _ -> el.ClearValue(System.Windows.ContentElement.IsEnabledProperty)
+        | ContentElementProp.Focusable _ -> el.ClearValue(System.Windows.ContentElement.FocusableProperty)
+        | ContentElementProp.AllowDrop _ -> el.ClearValue(System.Windows.ContentElement.AllowDropProperty)
+        | ContentElementProp.OnPreviewMouseDown h -> el.PreviewMouseDown.RemoveHandler(h)
+        | ContentElementProp.OnMouseDown h -> el.MouseDown.RemoveHandler(h)
+        | ContentElementProp.OnPreviewMouseUp h -> el.PreviewMouseUp.RemoveHandler(h)
+        | ContentElementProp.OnMouseUp h -> el.MouseUp.RemoveHandler(h)
+        | ContentElementProp.OnPreviewMouseLeftButtonDown h -> el.PreviewMouseLeftButtonDown.RemoveHandler(h)
+        | ContentElementProp.OnMouseLeftButtonDown h -> el.MouseLeftButtonDown.RemoveHandler(h)
+        | ContentElementProp.OnPreviewMouseLeftButtonUp h -> el.PreviewMouseLeftButtonUp.RemoveHandler(h)
+        | ContentElementProp.OnMouseLeftButtonUp h -> el.MouseLeftButtonUp.RemoveHandler(h)
+        | ContentElementProp.OnPreviewMouseRightButtonDown h -> el.PreviewMouseRightButtonDown.RemoveHandler(h)
+        | ContentElementProp.OnMouseRightButtonDown h -> el.MouseRightButtonDown.RemoveHandler(h)
+        | ContentElementProp.OnPreviewMouseRightButtonUp h -> el.PreviewMouseRightButtonUp.RemoveHandler(h)
+        | ContentElementProp.OnMouseRightButtonUp h -> el.MouseRightButtonUp.RemoveHandler(h)
+        | ContentElementProp.OnPreviewMouseMove h -> el.PreviewMouseMove.RemoveHandler(h)
+        | ContentElementProp.OnMouseMove h -> el.MouseMove.RemoveHandler(h)
+        | ContentElementProp.OnPreviewMouseWheel h -> el.PreviewMouseWheel.RemoveHandler(h)
+        | ContentElementProp.OnMouseWheel h -> el.MouseWheel.RemoveHandler(h)
+        | ContentElementProp.OnMouseEnter h -> el.MouseEnter.RemoveHandler(h)
+        | ContentElementProp.OnMouseLeave h -> el.MouseLeave.RemoveHandler(h)
+        | ContentElementProp.OnGotMouseCapture h -> el.GotMouseCapture.RemoveHandler(h)
+        | ContentElementProp.OnLostMouseCapture h -> el.LostMouseCapture.RemoveHandler(h)
+        | ContentElementProp.OnQueryCursor h -> el.QueryCursor.RemoveHandler(h)
+        | ContentElementProp.OnPreviewStylusDown h -> el.PreviewStylusDown.RemoveHandler(h)
+        | ContentElementProp.OnStylusDown h -> el.StylusDown.RemoveHandler(h)
+        | ContentElementProp.OnPreviewStylusUp h -> el.PreviewStylusUp.RemoveHandler(h)
+        | ContentElementProp.OnStylusUp h -> el.StylusUp.RemoveHandler(h)
+        | ContentElementProp.OnPreviewStylusMove h -> el.PreviewStylusMove.RemoveHandler(h)
+        | ContentElementProp.OnStylusMove h -> el.StylusMove.RemoveHandler(h)
+        | ContentElementProp.OnPreviewStylusInAirMove h -> el.PreviewStylusInAirMove.RemoveHandler(h)
+        | ContentElementProp.OnStylusInAirMove h -> el.StylusInAirMove.RemoveHandler(h)
+        | ContentElementProp.OnStylusEnter h -> el.StylusEnter.RemoveHandler(h)
+        | ContentElementProp.OnStylusLeave h -> el.StylusLeave.RemoveHandler(h)
+        | ContentElementProp.OnPreviewStylusInRange h -> el.PreviewStylusInRange.RemoveHandler(h)
+        | ContentElementProp.OnStylusInRange h -> el.StylusInRange.RemoveHandler(h)
+        | ContentElementProp.OnPreviewStylusOutOfRange h -> el.PreviewStylusOutOfRange.RemoveHandler(h)
+        | ContentElementProp.OnStylusOutOfRange h -> el.StylusOutOfRange.RemoveHandler(h)
+        | ContentElementProp.OnPreviewStylusSystemGesture h -> el.PreviewStylusSystemGesture.RemoveHandler(h)
+        | ContentElementProp.OnStylusSystemGesture h -> el.StylusSystemGesture.RemoveHandler(h)
+        | ContentElementProp.OnGotStylusCapture h -> el.GotStylusCapture.RemoveHandler(h)
+        | ContentElementProp.OnLostStylusCapture h -> el.LostStylusCapture.RemoveHandler(h)
+        | ContentElementProp.OnStylusButtonDown h -> el.StylusButtonDown.RemoveHandler(h)
+        | ContentElementProp.OnStylusButtonUp h -> el.StylusButtonUp.RemoveHandler(h)
+        | ContentElementProp.OnPreviewStylusButtonDown h -> el.PreviewStylusButtonDown.RemoveHandler(h)
+        | ContentElementProp.OnPreviewStylusButtonUp h -> el.PreviewStylusButtonUp.RemoveHandler(h)
+        | ContentElementProp.OnPreviewKeyDown h -> el.PreviewKeyDown.RemoveHandler(h)
+        | ContentElementProp.OnKeyDown h -> el.KeyDown.RemoveHandler(h)
+        | ContentElementProp.OnPreviewKeyUp h -> el.PreviewKeyUp.RemoveHandler(h)
+        | ContentElementProp.OnKeyUp h -> el.KeyUp.RemoveHandler(h)
+        | ContentElementProp.OnPreviewGotKeyboardFocus h -> el.PreviewGotKeyboardFocus.RemoveHandler(h)
+        | ContentElementProp.OnGotKeyboardFocus h -> el.GotKeyboardFocus.RemoveHandler(h)
+        | ContentElementProp.OnPreviewLostKeyboardFocus h -> el.PreviewLostKeyboardFocus.RemoveHandler(h)
+        | ContentElementProp.OnLostKeyboardFocus h -> el.LostKeyboardFocus.RemoveHandler(h)
+        | ContentElementProp.OnPreviewTextInput h -> el.PreviewTextInput.RemoveHandler(h)
+        | ContentElementProp.OnTextInput h -> el.TextInput.RemoveHandler(h)
+        | ContentElementProp.OnPreviewQueryContinueDrag h -> el.PreviewQueryContinueDrag.RemoveHandler(h)
+        | ContentElementProp.OnQueryContinueDrag h -> el.QueryContinueDrag.RemoveHandler(h)
+        | ContentElementProp.OnPreviewGiveFeedback h -> el.PreviewGiveFeedback.RemoveHandler(h)
+        | ContentElementProp.OnGiveFeedback h -> el.GiveFeedback.RemoveHandler(h)
+        | ContentElementProp.OnPreviewDragEnter h -> el.PreviewDragEnter.RemoveHandler(h)
+        | ContentElementProp.OnDragEnter h -> el.DragEnter.RemoveHandler(h)
+        | ContentElementProp.OnPreviewDragOver h -> el.PreviewDragOver.RemoveHandler(h)
+        | ContentElementProp.OnDragOver h -> el.DragOver.RemoveHandler(h)
+        | ContentElementProp.OnPreviewDragLeave h -> el.PreviewDragLeave.RemoveHandler(h)
+        | ContentElementProp.OnDragLeave h -> el.DragLeave.RemoveHandler(h)
+        | ContentElementProp.OnPreviewDrop h -> el.PreviewDrop.RemoveHandler(h)
+        | ContentElementProp.OnDrop h -> el.Drop.RemoveHandler(h)
+        | ContentElementProp.OnGotFocus h -> el.GotFocus.RemoveHandler(h)
+        | ContentElementProp.OnLostFocus h -> el.LostFocus.RemoveHandler(h)
 
 
     let children (cs: VirtualNode list) : obj = box (Children cs)

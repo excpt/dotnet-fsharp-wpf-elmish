@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -24,6 +24,12 @@ module ToolBarTray =
         | ToolBarTrayProp.Base p -> FrameworkElement.apply el p
         | ToolBarTrayProp.Background v -> el.SetValue(System.Windows.Controls.ToolBarTray.BackgroundProperty, box v)
         | ToolBarTrayProp.Orientation v -> el.SetValue(System.Windows.Controls.ToolBarTray.OrientationProperty, box v)
+
+    let clear (el: System.Windows.Controls.ToolBarTray) (prop: ToolBarTrayProp) =
+        match prop with
+        | ToolBarTrayProp.Base p -> FrameworkElement.clear el p
+        | ToolBarTrayProp.Background _ -> el.ClearValue(System.Windows.Controls.ToolBarTray.BackgroundProperty)
+        | ToolBarTrayProp.Orientation _ -> el.ClearValue(System.Windows.Controls.ToolBarTray.OrientationProperty)
 
     let style v : obj = box (FrameworkElementProp.Style v)
 

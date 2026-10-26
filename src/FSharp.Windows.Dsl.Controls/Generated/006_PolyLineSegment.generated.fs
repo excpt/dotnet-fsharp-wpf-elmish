@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -21,6 +21,11 @@ module PolyLineSegment =
         match prop with
         | PolyLineSegmentProp.Base p -> PathSegment.apply el p
         | PolyLineSegmentProp.Points v -> el.SetValue(System.Windows.Media.PolyLineSegment.PointsProperty, box v)
+
+    let clear (el: System.Windows.Media.PolyLineSegment) (prop: PolyLineSegmentProp) =
+        match prop with
+        | PolyLineSegmentProp.Base p -> PathSegment.clear el p
+        | PolyLineSegmentProp.Points _ -> el.ClearValue(System.Windows.Media.PolyLineSegment.PointsProperty)
 
     let isStroked v : obj = box (PathSegmentProp.IsStroked v)
     let isSmoothJoin v : obj = box (PathSegmentProp.IsSmoothJoin v)

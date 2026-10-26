@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -32,6 +32,14 @@ module CombinedGeometry =
             el.SetValue(System.Windows.Media.CombinedGeometry.Geometry1Property, box v)
         | CombinedGeometryProp.Geometry2 v ->
             el.SetValue(System.Windows.Media.CombinedGeometry.Geometry2Property, box v)
+
+    let clear (el: System.Windows.Media.CombinedGeometry) (prop: CombinedGeometryProp) =
+        match prop with
+        | CombinedGeometryProp.Base p -> Geometry.clear el p
+        | CombinedGeometryProp.GeometryCombineMode _ ->
+            el.ClearValue(System.Windows.Media.CombinedGeometry.GeometryCombineModeProperty)
+        | CombinedGeometryProp.Geometry1 _ -> el.ClearValue(System.Windows.Media.CombinedGeometry.Geometry1Property)
+        | CombinedGeometryProp.Geometry2 _ -> el.ClearValue(System.Windows.Media.CombinedGeometry.Geometry2Property)
 
     let transform v : obj = box (GeometryProp.Transform v)
 

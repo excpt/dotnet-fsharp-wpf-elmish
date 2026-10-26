@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -40,6 +40,17 @@ module TabControl =
             el.SetValue(System.Windows.Controls.TabControl.ContentTemplateSelectorProperty, box v)
         | TabControlProp.ContentStringFormat v ->
             el.SetValue(System.Windows.Controls.TabControl.ContentStringFormatProperty, box v)
+
+    let clear (el: System.Windows.Controls.TabControl) (prop: TabControlProp) =
+        match prop with
+        | TabControlProp.Base p -> Selector.clear el p
+        | TabControlProp.TabStripPlacement _ ->
+            el.ClearValue(System.Windows.Controls.TabControl.TabStripPlacementProperty)
+        | TabControlProp.ContentTemplate _ -> el.ClearValue(System.Windows.Controls.TabControl.ContentTemplateProperty)
+        | TabControlProp.ContentTemplateSelector _ ->
+            el.ClearValue(System.Windows.Controls.TabControl.ContentTemplateSelectorProperty)
+        | TabControlProp.ContentStringFormat _ ->
+            el.ClearValue(System.Windows.Controls.TabControl.ContentStringFormatProperty)
 
     let isSynchronizedWithCurrentItem v : obj =
         box (SelectorProp.IsSynchronizedWithCurrentItem v)

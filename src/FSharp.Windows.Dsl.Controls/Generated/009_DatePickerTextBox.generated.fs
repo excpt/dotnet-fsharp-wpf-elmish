@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -17,6 +17,10 @@ module DatePickerTextBox =
     let apply (el: System.Windows.Controls.Primitives.DatePickerTextBox) (prop: DatePickerTextBoxProp) =
         match prop with
         | DatePickerTextBoxProp.Base p -> TextBox.apply el p
+
+    let clear (el: System.Windows.Controls.Primitives.DatePickerTextBox) (prop: DatePickerTextBoxProp) =
+        match prop with
+        | DatePickerTextBoxProp.Base p -> TextBox.clear el p
 
     let textWrapping v : obj = box (TextBoxProp.TextWrapping v)
     let minLines v : obj = box (TextBoxProp.MinLines v)

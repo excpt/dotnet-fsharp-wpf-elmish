@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -24,6 +24,12 @@ module Polygon =
         | PolygonProp.Base p -> Shape.apply el p
         | PolygonProp.Points v -> el.SetValue(System.Windows.Shapes.Polygon.PointsProperty, box v)
         | PolygonProp.FillRule v -> el.SetValue(System.Windows.Shapes.Polygon.FillRuleProperty, box v)
+
+    let clear (el: System.Windows.Shapes.Polygon) (prop: PolygonProp) =
+        match prop with
+        | PolygonProp.Base p -> Shape.clear el p
+        | PolygonProp.Points _ -> el.ClearValue(System.Windows.Shapes.Polygon.PointsProperty)
+        | PolygonProp.FillRule _ -> el.ClearValue(System.Windows.Shapes.Polygon.FillRuleProperty)
 
     let stretch v : obj = box (ShapeProp.Stretch v)
     let fill v : obj = box (ShapeProp.Fill v)

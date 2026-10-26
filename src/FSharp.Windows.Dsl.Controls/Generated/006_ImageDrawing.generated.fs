@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -24,6 +24,12 @@ module ImageDrawing =
         | ImageDrawingProp.Base p -> Freezable.apply el p
         | ImageDrawingProp.ImageSource v -> el.SetValue(System.Windows.Media.ImageDrawing.ImageSourceProperty, box v)
         | ImageDrawingProp.Rect v -> el.SetValue(System.Windows.Media.ImageDrawing.RectProperty, box v)
+
+    let clear (el: System.Windows.Media.ImageDrawing) (prop: ImageDrawingProp) =
+        match prop with
+        | ImageDrawingProp.Base p -> Freezable.clear el p
+        | ImageDrawingProp.ImageSource _ -> el.ClearValue(System.Windows.Media.ImageDrawing.ImageSourceProperty)
+        | ImageDrawingProp.Rect _ -> el.ClearValue(System.Windows.Media.ImageDrawing.RectProperty)
 
     let onChanged v : obj =
         box (EventProp(box (FreezableProp.OnChanged v)))

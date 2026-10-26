@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -22,6 +22,11 @@ module BitmapSource =
         match prop with
         | BitmapSourceProp.Base p -> Freezable.apply el p
         | BitmapSourceProp.OnDownloadCompleted h -> el.DownloadCompleted.AddHandler(h)
+
+    let clear (el: System.Windows.Media.Imaging.BitmapSource) (prop: BitmapSourceProp) =
+        match prop with
+        | BitmapSourceProp.Base p -> Freezable.clear el p
+        | BitmapSourceProp.OnDownloadCompleted h -> el.DownloadCompleted.RemoveHandler(h)
 
     let onChanged v : obj =
         box (EventProp(box (FreezableProp.OnChanged v)))

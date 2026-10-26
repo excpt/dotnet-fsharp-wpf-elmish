@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -72,6 +72,27 @@ module AccessText =
         | AccessTextProp.TextWrapping v -> el.SetValue(System.Windows.Controls.AccessText.TextWrappingProperty, box v)
         | AccessTextProp.BaselineOffset v ->
             el.SetValue(System.Windows.Controls.AccessText.BaselineOffsetProperty, box v)
+
+    let clear (el: System.Windows.Controls.AccessText) (prop: AccessTextProp) =
+        match prop with
+        | AccessTextProp.Base p -> FrameworkElement.clear el p
+        | AccessTextProp.Text _ -> el.ClearValue(System.Windows.Controls.AccessText.TextProperty)
+        | AccessTextProp.FontFamily _ -> el.ClearValue(System.Windows.Controls.AccessText.FontFamilyProperty)
+        | AccessTextProp.FontStyle _ -> el.ClearValue(System.Windows.Controls.AccessText.FontStyleProperty)
+        | AccessTextProp.FontWeight _ -> el.ClearValue(System.Windows.Controls.AccessText.FontWeightProperty)
+        | AccessTextProp.FontStretch _ -> el.ClearValue(System.Windows.Controls.AccessText.FontStretchProperty)
+        | AccessTextProp.FontSize _ -> el.ClearValue(System.Windows.Controls.AccessText.FontSizeProperty)
+        | AccessTextProp.Foreground _ -> el.ClearValue(System.Windows.Controls.AccessText.ForegroundProperty)
+        | AccessTextProp.Background _ -> el.ClearValue(System.Windows.Controls.AccessText.BackgroundProperty)
+        | AccessTextProp.TextDecorations _ -> el.ClearValue(System.Windows.Controls.AccessText.TextDecorationsProperty)
+        | AccessTextProp.TextEffects _ -> el.ClearValue(System.Windows.Controls.AccessText.TextEffectsProperty)
+        | AccessTextProp.LineHeight _ -> el.ClearValue(System.Windows.Controls.AccessText.LineHeightProperty)
+        | AccessTextProp.LineStackingStrategy _ ->
+            el.ClearValue(System.Windows.Controls.AccessText.LineStackingStrategyProperty)
+        | AccessTextProp.TextAlignment _ -> el.ClearValue(System.Windows.Controls.AccessText.TextAlignmentProperty)
+        | AccessTextProp.TextTrimming _ -> el.ClearValue(System.Windows.Controls.AccessText.TextTrimmingProperty)
+        | AccessTextProp.TextWrapping _ -> el.ClearValue(System.Windows.Controls.AccessText.TextWrappingProperty)
+        | AccessTextProp.BaselineOffset _ -> el.ClearValue(System.Windows.Controls.AccessText.BaselineOffsetProperty)
 
     let style v : obj = box (FrameworkElementProp.Style v)
 

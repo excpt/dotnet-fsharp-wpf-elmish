@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -31,6 +31,13 @@ module ListBoxItem =
         | ListBoxItemProp.IsSelected v -> el.SetValue(System.Windows.Controls.ListBoxItem.IsSelectedProperty, box v)
         | ListBoxItemProp.OnSelected h -> el.Selected.AddHandler(h)
         | ListBoxItemProp.OnUnselected h -> el.Unselected.AddHandler(h)
+
+    let clear (el: System.Windows.Controls.ListBoxItem) (prop: ListBoxItemProp) =
+        match prop with
+        | ListBoxItemProp.Base p -> ContentControl.clear el p
+        | ListBoxItemProp.IsSelected _ -> el.ClearValue(System.Windows.Controls.ListBoxItem.IsSelectedProperty)
+        | ListBoxItemProp.OnSelected h -> el.Selected.RemoveHandler(h)
+        | ListBoxItemProp.OnUnselected h -> el.Unselected.RemoveHandler(h)
 
     let content v : obj = box (ContentControlProp.Content v)
 

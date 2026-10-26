@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -17,6 +17,10 @@ module ResizeGrip =
     let apply (el: System.Windows.Controls.Primitives.ResizeGrip) (prop: ResizeGripProp) =
         match prop with
         | ResizeGripProp.Base p -> Control.apply el p
+
+    let clear (el: System.Windows.Controls.Primitives.ResizeGrip) (prop: ResizeGripProp) =
+        match prop with
+        | ResizeGripProp.Base p -> Control.clear el p
 
     let borderBrush v : obj = box (ControlProp.BorderBrush v)
     let borderThickness v : obj = box (ControlProp.BorderThickness v)

@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -50,6 +50,20 @@ module TableCell =
             el.SetValue(System.Windows.Documents.TableCell.LineStackingStrategyProperty, box v)
         | TableCellProp.ColumnSpan v -> el.SetValue(System.Windows.Documents.TableCell.ColumnSpanProperty, box v)
         | TableCellProp.RowSpan v -> el.SetValue(System.Windows.Documents.TableCell.RowSpanProperty, box v)
+
+    let clear (el: System.Windows.Documents.TableCell) (prop: TableCellProp) =
+        match prop with
+        | TableCellProp.Base p -> TextElement.clear el p
+        | TableCellProp.Padding _ -> el.ClearValue(System.Windows.Documents.TableCell.PaddingProperty)
+        | TableCellProp.BorderThickness _ -> el.ClearValue(System.Windows.Documents.TableCell.BorderThicknessProperty)
+        | TableCellProp.BorderBrush _ -> el.ClearValue(System.Windows.Documents.TableCell.BorderBrushProperty)
+        | TableCellProp.TextAlignment _ -> el.ClearValue(System.Windows.Documents.TableCell.TextAlignmentProperty)
+        | TableCellProp.FlowDirection _ -> el.ClearValue(System.Windows.Documents.TableCell.FlowDirectionProperty)
+        | TableCellProp.LineHeight _ -> el.ClearValue(System.Windows.Documents.TableCell.LineHeightProperty)
+        | TableCellProp.LineStackingStrategy _ ->
+            el.ClearValue(System.Windows.Documents.TableCell.LineStackingStrategyProperty)
+        | TableCellProp.ColumnSpan _ -> el.ClearValue(System.Windows.Documents.TableCell.ColumnSpanProperty)
+        | TableCellProp.RowSpan _ -> el.ClearValue(System.Windows.Documents.TableCell.RowSpanProperty)
 
     let background v : obj = box (TextElementProp.Background v)
     let textEffects v : obj = box (TextElementProp.TextEffects v)

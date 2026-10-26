@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -21,6 +21,11 @@ module Viewport3D =
         match prop with
         | Viewport3DProp.Base p -> FrameworkElement.apply el p
         | Viewport3DProp.Camera v -> el.SetValue(System.Windows.Controls.Viewport3D.CameraProperty, box v)
+
+    let clear (el: System.Windows.Controls.Viewport3D) (prop: Viewport3DProp) =
+        match prop with
+        | Viewport3DProp.Base p -> FrameworkElement.clear el p
+        | Viewport3DProp.Camera _ -> el.ClearValue(System.Windows.Controls.Viewport3D.CameraProperty)
 
     let style v : obj = box (FrameworkElementProp.Style v)
 

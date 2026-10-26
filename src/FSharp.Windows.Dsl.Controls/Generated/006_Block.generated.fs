@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -42,6 +42,18 @@ module Block =
         | BlockProp.BreakPageBefore v -> el.SetValue(System.Windows.Documents.Block.BreakPageBeforeProperty, box v)
         | BlockProp.BreakColumnBefore v -> el.SetValue(System.Windows.Documents.Block.BreakColumnBeforeProperty, box v)
         | BlockProp.ClearFloaters v -> el.SetValue(System.Windows.Documents.Block.ClearFloatersProperty, box v)
+
+    let clear (el: System.Windows.Documents.Block) (prop: BlockProp) =
+        match prop with
+        | BlockProp.Base p -> TextElement.clear el p
+        | BlockProp.Margin _ -> el.ClearValue(System.Windows.Documents.Block.MarginProperty)
+        | BlockProp.Padding _ -> el.ClearValue(System.Windows.Documents.Block.PaddingProperty)
+        | BlockProp.BorderThickness _ -> el.ClearValue(System.Windows.Documents.Block.BorderThicknessProperty)
+        | BlockProp.BorderBrush _ -> el.ClearValue(System.Windows.Documents.Block.BorderBrushProperty)
+        | BlockProp.FlowDirection _ -> el.ClearValue(System.Windows.Documents.Block.FlowDirectionProperty)
+        | BlockProp.BreakPageBefore _ -> el.ClearValue(System.Windows.Documents.Block.BreakPageBeforeProperty)
+        | BlockProp.BreakColumnBefore _ -> el.ClearValue(System.Windows.Documents.Block.BreakColumnBeforeProperty)
+        | BlockProp.ClearFloaters _ -> el.ClearValue(System.Windows.Documents.Block.ClearFloatersProperty)
 
     let background v : obj = box (TextElementProp.Background v)
     let textEffects v : obj = box (TextElementProp.TextEffects v)

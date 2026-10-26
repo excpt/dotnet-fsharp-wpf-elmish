@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -47,6 +47,19 @@ module GridSplitter =
             el.SetValue(System.Windows.Controls.GridSplitter.KeyboardIncrementProperty, box v)
         | GridSplitterProp.DragIncrement v ->
             el.SetValue(System.Windows.Controls.GridSplitter.DragIncrementProperty, box v)
+
+    let clear (el: System.Windows.Controls.GridSplitter) (prop: GridSplitterProp) =
+        match prop with
+        | GridSplitterProp.Base p -> Thumb.clear el p
+        | GridSplitterProp.ResizeDirection _ ->
+            el.ClearValue(System.Windows.Controls.GridSplitter.ResizeDirectionProperty)
+        | GridSplitterProp.ResizeBehavior _ ->
+            el.ClearValue(System.Windows.Controls.GridSplitter.ResizeBehaviorProperty)
+        | GridSplitterProp.ShowsPreview _ -> el.ClearValue(System.Windows.Controls.GridSplitter.ShowsPreviewProperty)
+        | GridSplitterProp.PreviewStyle _ -> el.ClearValue(System.Windows.Controls.GridSplitter.PreviewStyleProperty)
+        | GridSplitterProp.KeyboardIncrement _ ->
+            el.ClearValue(System.Windows.Controls.GridSplitter.KeyboardIncrementProperty)
+        | GridSplitterProp.DragIncrement _ -> el.ClearValue(System.Windows.Controls.GridSplitter.DragIncrementProperty)
 
     let borderBrush v : obj = box (ControlProp.BorderBrush v)
     let borderThickness v : obj = box (ControlProp.BorderThickness v)

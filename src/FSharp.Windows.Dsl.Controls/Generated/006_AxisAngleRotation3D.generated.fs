@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -26,6 +26,13 @@ module AxisAngleRotation3D =
             el.SetValue(System.Windows.Media.Media3D.AxisAngleRotation3D.AxisProperty, box v)
         | AxisAngleRotation3DProp.Angle v ->
             el.SetValue(System.Windows.Media.Media3D.AxisAngleRotation3D.AngleProperty, box v)
+
+    let clear (el: System.Windows.Media.Media3D.AxisAngleRotation3D) (prop: AxisAngleRotation3DProp) =
+        match prop with
+        | AxisAngleRotation3DProp.Base p -> Freezable.clear el p
+        | AxisAngleRotation3DProp.Axis _ -> el.ClearValue(System.Windows.Media.Media3D.AxisAngleRotation3D.AxisProperty)
+        | AxisAngleRotation3DProp.Angle _ ->
+            el.ClearValue(System.Windows.Media.Media3D.AxisAngleRotation3D.AngleProperty)
 
     let onChanged v : obj =
         box (EventProp(box (FreezableProp.OnChanged v)))

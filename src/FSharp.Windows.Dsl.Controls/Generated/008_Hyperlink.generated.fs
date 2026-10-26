@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -44,6 +44,17 @@ module Hyperlink =
         | HyperlinkProp.TargetName v -> el.SetValue(System.Windows.Documents.Hyperlink.TargetNameProperty, box v)
         | HyperlinkProp.OnRequestNavigate h -> el.RequestNavigate.AddHandler(h)
         | HyperlinkProp.OnClick h -> el.Click.AddHandler(h)
+
+    let clear (el: System.Windows.Documents.Hyperlink) (prop: HyperlinkProp) =
+        match prop with
+        | HyperlinkProp.Base p -> Inline.clear el p
+        | HyperlinkProp.Command _ -> el.ClearValue(System.Windows.Documents.Hyperlink.CommandProperty)
+        | HyperlinkProp.CommandParameter _ -> el.ClearValue(System.Windows.Documents.Hyperlink.CommandParameterProperty)
+        | HyperlinkProp.CommandTarget _ -> el.ClearValue(System.Windows.Documents.Hyperlink.CommandTargetProperty)
+        | HyperlinkProp.NavigateUri _ -> el.ClearValue(System.Windows.Documents.Hyperlink.NavigateUriProperty)
+        | HyperlinkProp.TargetName _ -> el.ClearValue(System.Windows.Documents.Hyperlink.TargetNameProperty)
+        | HyperlinkProp.OnRequestNavigate h -> el.RequestNavigate.RemoveHandler(h)
+        | HyperlinkProp.OnClick h -> el.Click.RemoveHandler(h)
 
     let baselineAlignment v : obj = box (InlineProp.BaselineAlignment v)
     let textDecorations v : obj = box (InlineProp.TextDecorations v)

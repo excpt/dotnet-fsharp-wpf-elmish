@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -21,6 +21,11 @@ module LineSegment =
         match prop with
         | LineSegmentProp.Base p -> PathSegment.apply el p
         | LineSegmentProp.Point v -> el.SetValue(System.Windows.Media.LineSegment.PointProperty, box v)
+
+    let clear (el: System.Windows.Media.LineSegment) (prop: LineSegmentProp) =
+        match prop with
+        | LineSegmentProp.Base p -> PathSegment.clear el p
+        | LineSegmentProp.Point _ -> el.ClearValue(System.Windows.Media.LineSegment.PointProperty)
 
     let isStroked v : obj = box (PathSegmentProp.IsStroked v)
     let isSmoothJoin v : obj = box (PathSegmentProp.IsSmoothJoin v)

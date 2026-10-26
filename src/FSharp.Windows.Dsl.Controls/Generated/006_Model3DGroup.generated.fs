@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -21,6 +21,11 @@ module Model3DGroup =
         match prop with
         | Model3DGroupProp.Base p -> Model3D.apply el p
         | Model3DGroupProp.Children v -> el.SetValue(System.Windows.Media.Media3D.Model3DGroup.ChildrenProperty, box v)
+
+    let clear (el: System.Windows.Media.Media3D.Model3DGroup) (prop: Model3DGroupProp) =
+        match prop with
+        | Model3DGroupProp.Base p -> Model3D.clear el p
+        | Model3DGroupProp.Children _ -> el.ClearValue(System.Windows.Media.Media3D.Model3DGroup.ChildrenProperty)
 
     let transform v : obj = box (Model3DProp.Transform v)
 

@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -32,6 +32,14 @@ module GeometryModel3D =
             el.SetValue(System.Windows.Media.Media3D.GeometryModel3D.MaterialProperty, box v)
         | GeometryModel3DProp.BackMaterial v ->
             el.SetValue(System.Windows.Media.Media3D.GeometryModel3D.BackMaterialProperty, box v)
+
+    let clear (el: System.Windows.Media.Media3D.GeometryModel3D) (prop: GeometryModel3DProp) =
+        match prop with
+        | GeometryModel3DProp.Base p -> Model3D.clear el p
+        | GeometryModel3DProp.Geometry _ -> el.ClearValue(System.Windows.Media.Media3D.GeometryModel3D.GeometryProperty)
+        | GeometryModel3DProp.Material _ -> el.ClearValue(System.Windows.Media.Media3D.GeometryModel3D.MaterialProperty)
+        | GeometryModel3DProp.BackMaterial _ ->
+            el.ClearValue(System.Windows.Media.Media3D.GeometryModel3D.BackMaterialProperty)
 
     let transform v : obj = box (Model3DProp.Transform v)
 

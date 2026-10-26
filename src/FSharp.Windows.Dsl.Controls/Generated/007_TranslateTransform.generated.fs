@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -24,6 +24,12 @@ module TranslateTransform =
         | TranslateTransformProp.Base p -> Freezable.apply el p
         | TranslateTransformProp.X v -> el.SetValue(System.Windows.Media.TranslateTransform.XProperty, box v)
         | TranslateTransformProp.Y v -> el.SetValue(System.Windows.Media.TranslateTransform.YProperty, box v)
+
+    let clear (el: System.Windows.Media.TranslateTransform) (prop: TranslateTransformProp) =
+        match prop with
+        | TranslateTransformProp.Base p -> Freezable.clear el p
+        | TranslateTransformProp.X _ -> el.ClearValue(System.Windows.Media.TranslateTransform.XProperty)
+        | TranslateTransformProp.Y _ -> el.ClearValue(System.Windows.Media.TranslateTransform.YProperty)
 
     let onChanged v : obj =
         box (EventProp(box (FreezableProp.OnChanged v)))

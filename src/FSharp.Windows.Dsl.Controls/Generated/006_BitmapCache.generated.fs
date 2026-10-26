@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -32,6 +32,14 @@ module BitmapCache =
             el.SetValue(System.Windows.Media.BitmapCache.SnapsToDevicePixelsProperty, box v)
         | BitmapCacheProp.EnableClearType v ->
             el.SetValue(System.Windows.Media.BitmapCache.EnableClearTypeProperty, box v)
+
+    let clear (el: System.Windows.Media.BitmapCache) (prop: BitmapCacheProp) =
+        match prop with
+        | BitmapCacheProp.Base p -> Freezable.clear el p
+        | BitmapCacheProp.RenderAtScale _ -> el.ClearValue(System.Windows.Media.BitmapCache.RenderAtScaleProperty)
+        | BitmapCacheProp.SnapsToDevicePixels _ ->
+            el.ClearValue(System.Windows.Media.BitmapCache.SnapsToDevicePixelsProperty)
+        | BitmapCacheProp.EnableClearType _ -> el.ClearValue(System.Windows.Media.BitmapCache.EnableClearTypeProperty)
 
     let onChanged v : obj =
         box (EventProp(box (FreezableProp.OnChanged v)))

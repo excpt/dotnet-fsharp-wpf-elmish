@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -23,6 +23,12 @@ module GridViewRowPresenter =
         | GridViewRowPresenterProp.Base p -> GridViewRowPresenterBase.apply el p
         | GridViewRowPresenterProp.Content v ->
             el.SetValue(System.Windows.Controls.GridViewRowPresenter.ContentProperty, box v)
+
+    let clear (el: System.Windows.Controls.GridViewRowPresenter) (prop: GridViewRowPresenterProp) =
+        match prop with
+        | GridViewRowPresenterProp.Base p -> GridViewRowPresenterBase.clear el p
+        | GridViewRowPresenterProp.Content _ ->
+            el.ClearValue(System.Windows.Controls.GridViewRowPresenter.ContentProperty)
 
     let columns v : obj =
         box (GridViewRowPresenterBaseProp.Columns v)

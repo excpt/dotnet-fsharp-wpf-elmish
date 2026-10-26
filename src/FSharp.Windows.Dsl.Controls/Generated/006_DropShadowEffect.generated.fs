@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -46,6 +46,20 @@ module DropShadowEffect =
             el.SetValue(System.Windows.Media.Effects.DropShadowEffect.BlurRadiusProperty, box v)
         | DropShadowEffectProp.RenderingBias v ->
             el.SetValue(System.Windows.Media.Effects.DropShadowEffect.RenderingBiasProperty, box v)
+
+    let clear (el: System.Windows.Media.Effects.DropShadowEffect) (prop: DropShadowEffectProp) =
+        match prop with
+        | DropShadowEffectProp.Base p -> Freezable.clear el p
+        | DropShadowEffectProp.ShadowDepth _ ->
+            el.ClearValue(System.Windows.Media.Effects.DropShadowEffect.ShadowDepthProperty)
+        | DropShadowEffectProp.Color _ -> el.ClearValue(System.Windows.Media.Effects.DropShadowEffect.ColorProperty)
+        | DropShadowEffectProp.Direction _ ->
+            el.ClearValue(System.Windows.Media.Effects.DropShadowEffect.DirectionProperty)
+        | DropShadowEffectProp.Opacity _ -> el.ClearValue(System.Windows.Media.Effects.DropShadowEffect.OpacityProperty)
+        | DropShadowEffectProp.BlurRadius _ ->
+            el.ClearValue(System.Windows.Media.Effects.DropShadowEffect.BlurRadiusProperty)
+        | DropShadowEffectProp.RenderingBias _ ->
+            el.ClearValue(System.Windows.Media.Effects.DropShadowEffect.RenderingBiasProperty)
 
     let onChanged v : obj =
         box (EventProp(box (FreezableProp.OnChanged v)))

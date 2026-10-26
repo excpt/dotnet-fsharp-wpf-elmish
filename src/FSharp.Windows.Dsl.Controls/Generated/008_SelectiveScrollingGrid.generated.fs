@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -17,6 +17,10 @@ module SelectiveScrollingGrid =
     let apply (el: System.Windows.Controls.Primitives.SelectiveScrollingGrid) (prop: SelectiveScrollingGridProp) =
         match prop with
         | SelectiveScrollingGridProp.Base p -> Grid.apply el p
+
+    let clear (el: System.Windows.Controls.Primitives.SelectiveScrollingGrid) (prop: SelectiveScrollingGridProp) =
+        match prop with
+        | SelectiveScrollingGridProp.Base p -> Grid.clear el p
 
     let showGridLines v : obj = box (GridProp.ShowGridLines v)
     let background v : obj = box (PanelProp.Background v)

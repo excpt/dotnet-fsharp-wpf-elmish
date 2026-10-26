@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -23,6 +23,12 @@ module ParallelTimeline =
         | ParallelTimelineProp.Base p -> TimelineGroup.apply el p
         | ParallelTimelineProp.SlipBehavior v ->
             el.SetValue(System.Windows.Media.Animation.ParallelTimeline.SlipBehaviorProperty, box v)
+
+    let clear (el: System.Windows.Media.Animation.ParallelTimeline) (prop: ParallelTimelineProp) =
+        match prop with
+        | ParallelTimelineProp.Base p -> TimelineGroup.clear el p
+        | ParallelTimelineProp.SlipBehavior _ ->
+            el.ClearValue(System.Windows.Media.Animation.ParallelTimeline.SlipBehaviorProperty)
 
     let children v : obj = box (TimelineGroupProp.Children v)
     let accelerationRatio v : obj = box (TimelineProp.AccelerationRatio v)

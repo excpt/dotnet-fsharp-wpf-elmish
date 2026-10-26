@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -24,6 +24,12 @@ module GuidelineSet =
         | GuidelineSetProp.Base p -> Freezable.apply el p
         | GuidelineSetProp.GuidelinesX v -> el.SetValue(System.Windows.Media.GuidelineSet.GuidelinesXProperty, box v)
         | GuidelineSetProp.GuidelinesY v -> el.SetValue(System.Windows.Media.GuidelineSet.GuidelinesYProperty, box v)
+
+    let clear (el: System.Windows.Media.GuidelineSet) (prop: GuidelineSetProp) =
+        match prop with
+        | GuidelineSetProp.Base p -> Freezable.clear el p
+        | GuidelineSetProp.GuidelinesX _ -> el.ClearValue(System.Windows.Media.GuidelineSet.GuidelinesXProperty)
+        | GuidelineSetProp.GuidelinesY _ -> el.ClearValue(System.Windows.Media.GuidelineSet.GuidelinesYProperty)
 
     let onChanged v : obj =
         box (EventProp(box (FreezableProp.OnChanged v)))

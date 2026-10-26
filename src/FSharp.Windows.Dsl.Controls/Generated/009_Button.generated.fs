@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -24,6 +24,12 @@ module Button =
         | ButtonProp.Base p -> ButtonBase.apply el p
         | ButtonProp.IsDefault v -> el.SetValue(System.Windows.Controls.Button.IsDefaultProperty, box v)
         | ButtonProp.IsCancel v -> el.SetValue(System.Windows.Controls.Button.IsCancelProperty, box v)
+
+    let clear (el: System.Windows.Controls.Button) (prop: ButtonProp) =
+        match prop with
+        | ButtonProp.Base p -> ButtonBase.clear el p
+        | ButtonProp.IsDefault _ -> el.ClearValue(System.Windows.Controls.Button.IsDefaultProperty)
+        | ButtonProp.IsCancel _ -> el.ClearValue(System.Windows.Controls.Button.IsCancelProperty)
 
     let command v : obj = box (ButtonBaseProp.Command v)
     let commandParameter v : obj = box (ButtonBaseProp.CommandParameter v)
