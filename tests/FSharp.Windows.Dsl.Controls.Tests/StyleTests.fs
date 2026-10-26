@@ -157,3 +157,15 @@ let ``Style.ofNode rejects event handlers`` () =
             Style.ofNode (button [ Button.onClick (RoutedEventHandler(fun _ _ -> ())) ])
             |> ignore)
         |> should throw typeof<System.ArgumentException>)
+
+// The only test in this process that creates an Application: a process gets one,
+// and a Window registers in Application.Windows only on the Application's thread.
+[<Fact>]
+let ``ofNode on a window node leaves no window registered with the application`` () =
+    runSta (fun () ->
+        register ()
+        let app = Application()
+
+        Style.ofNode (window [ Window.fontSize 13.0 ]) |> ignore
+
+        app.Windows.Count |> should equal 0)
