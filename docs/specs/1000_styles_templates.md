@@ -43,6 +43,13 @@ Children, event handlers, collection and resource props are rejected — a
 style carries values, not behaviour. Requires the control package's
 `Registration.register()`, like materializing the node would.
 
+`ofNode` creates one instance of the node's type as a probe, applies the props to
+it and reads back the local values; the probe is then discarded. A type whose
+constructor has side effects runs them once per `ofNode` call. A `Window` probe is
+closed afterwards, because a `Window` registers itself with
+`Application.Current.Windows` from its constructor and an unclosed one would keep
+the app from shutting down when the last real window closes.
+
 Define styles as module values: the reconciler compares props by reference,
 and a stable `Style` instance is what keeps resource diffs quiet.
 
