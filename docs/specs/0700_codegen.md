@@ -571,7 +571,7 @@ dotnet tool install --global FSharp.Windows.Dsl.Codegen
 
 fsharp-wpf-codegen \
     --assembly "DevExpress.Xpf.Grid.v25.2,DevExpress.Xpf.Grid.v25.2.Core" \
-    --assembly-path "C:/Program Files/DevExpress 25.2/Components/Bin/Framework" \
+    --assembly-path "C:/Program Files/DevExpress 25.2/Components/Bin/NetCore" \
     --namespace FSharp.DevExpress.Wpf.Grid \
     --output vendor/FSharp.DevExpress.Wpf/FSharp.DevExpress.Wpf.Grid/Generated/
 ```
@@ -685,16 +685,20 @@ Output goes to `vendor/FSharp.DevExpress.Wpf/` (gitignored) by default. Custom o
    - Skipped: `DataAccess` (wizard UI types, not useful in declarative DSL)
 4. **Creates `.fsproj` files** (`net10.0-windows`) with correct NuGet `PackageReference` and
    inter-project `ProjectReference` dependencies. The codegen runs with
-   `--assembly-path <install>/Components/Bin/Framework`, so no `#if` guards are emitted
+   `--assembly-path <install>/Components/Bin/NetCore`, the build the DevExpress NuGet
+   packages ship for `net8.0-windows`, so it reflects what the wrappers compile
+   against; no `#if` guards are emitted. The install is the highest version under
+   `C:\Program Files\DevExpress*`. `src` is referenced by absolute path, so any output
+   directory works (a repo path containing `&`, `;` or `%` would need escaping)
 5. **Cleans `Generated/`** before regenerating to prevent stale files
 
 ### Output Structure
 
 ```
 vendor/
-  Directory.Build.props                        ← disables CPM from repo root
   FSharp.DevExpress.Wpf/
-    Directory.Build.props                      ← shared _build/ output dir
+    Directory.Build.props                      ← standalone: CPM off, FSharp.Core pinned
+                                                  to the repo's version, shared _build/
     FSharp.DevExpress.Wpf.Core/
       FSharp.DevExpress.Wpf.Core.fsproj
       Registration.generated.fs

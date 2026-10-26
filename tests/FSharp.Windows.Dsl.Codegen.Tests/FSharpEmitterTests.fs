@@ -281,7 +281,8 @@ let ``emitControlFile emits attached DP helper in prop-list form`` () =
             AttachedDPs =
                 [ { FnName = "row"
                     DPExpression = "System.Windows.Controls.Grid.RowProperty"
-                    ValueType = "int" } ] }
+                    ValueType = "int"
+                    Guard = None } ] }
 
     let output = FSharpEmitter.emitControlFile input
 
@@ -291,6 +292,40 @@ let ``emitControlFile emits attached DP helper in prop-list form`` () =
         "let row (v: int) : obj = box (AttachedProp(System.Windows.Controls.Grid.RowProperty, box v))"
 
     output |> should not' (haveSubstring "let row (v: int) (node: VirtualNode)")
+
+[<Fact>]
+let ``emitStaticAttachedFile emits a module of attached helpers, guarded ones under #if`` () =
+    // A static class (AutomationProperties) owns attached DPs but is no element:
+    // its helpers live in a module of their own, with no Prop DU and no apply.
+    let output =
+        FSharpEmitter.emitStaticAttachedFile
+            "FSharp.Windows.Dsl.Controls"
+            "PresentationCore"
+            "AutomationProperties"
+            [ { FnName = "name"
+                DPExpression = "System.Windows.Automation.AutomationProperties.NameProperty"
+                ValueType = "string"
+                Guard = None }
+              { FnName = "headingLevel"
+                DPExpression = "System.Windows.Automation.AutomationProperties.HeadingLevelProperty"
+                ValueType = "System.Windows.Automation.AutomationHeadingLevel"
+                Guard = Some "NET8_0_OR_GREATER" } ]
+        |> fun s -> s.Replace("\r\n", "\n")
+
+    output |> should haveSubstring "module AutomationProperties ="
+
+    output
+    |> should
+        haveSubstring
+        "let name (v: string) : obj = box (AttachedProp(System.Windows.Automation.AutomationProperties.NameProperty, box v))"
+
+    output
+    |> should
+        haveSubstring
+        "#if NET8_0_OR_GREATER
+    let headingLevel"
+
+    output |> should not' (haveSubstring "type AutomationPropertiesProp")
 
 [<Fact>]
 let ``isEmittableEvent rejects events whose delegate is marked Obsolete`` () =

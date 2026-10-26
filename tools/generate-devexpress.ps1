@@ -29,16 +29,20 @@ $RepoRoot  = Split-Path -Parent $ScriptDir
 $Codegen   = Join-Path $RepoRoot 'tools\Codegen'
 
 # ─── Auto-detect latest DevExpress installation ─────────────────
+# By version, not name: by name "DevExpress 25.10" sorts before "DevExpress 25.2"
 $DxInstall = Get-ChildItem 'C:\Program Files' -Directory -Filter 'DevExpress*' -ErrorAction SilentlyContinue |
-    Sort-Object Name | Select-Object -Last 1
+    Sort-Object { $v = $null; [void][version]::TryParse(($_.Name -replace '^DevExpress\s+', ''), [ref]$v); $v } |
+    Select-Object -Last 1
 
 if (-not $DxInstall) {
     Write-Error 'No DevExpress installation found in C:\Program Files\'
 }
 
-$DxPath = Join-Path $DxInstall.FullName 'Components\Bin\Framework'
+# The NetCore build: the wrappers compile against the DevExpress NuGet packages'
+# net8.0-windows assemblies, so codegen reflects the same build.
+$DxPath = Join-Path $DxInstall.FullName 'Components\Bin\NetCore'
 if (-not (Test-Path $DxPath)) {
-    Write-Error "DevExpress framework not found at $DxPath"
+    Write-Error "DevExpress NetCore assemblies not found at $DxPath"
 }
 
 # Extract major.minor from install dir name (e.g. "DevExpress 25.2" -> "25.2")
@@ -65,29 +69,30 @@ New-Item -ItemType Directory -Force -Path $OutputDir | Out-Null
 # changed, so leaving the cache in place skips most of the work on incremental codegen
 # tweaks. Pass -Force or `dotnet clean` manually for a from-scratch rebuild.
 
-# ─── Directory.Build.props files ────────────────────────────────
-# Vendor parent: disables CPM from repo root.
-$VendorParentProps = @'
+# ─── Directory.Build.props ──────────────────────────────────────
+# Standalone: the repo's own props (central package management) are not imported,
+# so the output can live anywhere. FSharp.Core follows the repo's central pin: a
+# wrapper built against a newer FSharp.Core than the app referencing it fails that
+# app's restore with NU1605. All packages build into _build/ to avoid duplicating
+# DevExpress NuGet DLLs across 26 project bin dirs.
+$FSharpCore = ([xml](Get-Content (Join-Path $RepoRoot 'Directory.Packages.props'))).Project.ItemGroup.PackageVersion |
+    Where-Object Include -eq 'FSharp.Core' | Select-Object -ExpandProperty Version
+# ponytail: written into the fsproj unescaped; a repo path with & ; or % needs escaping
+$RepoSrc = Join-Path $RepoRoot 'src'
+
+$VendorRootProps = @"
 <Project>
     <PropertyGroup>
         <ManagePackageVersionsCentrally>false</ManagePackageVersionsCentrally>
-    </PropertyGroup>
-</Project>
-'@
-$VendorParentPath = Join-Path (Split-Path -Parent $OutputDir) 'Directory.Build.props'
-Set-Content -Path $VendorParentPath -Value $VendorParentProps -Encoding UTF8
-
-# Shared output directory — all packages build into _build/ to avoid
-# duplicating DevExpress NuGet DLLs across 26 project bin dirs.
-$VendorRootProps = @'
-<Project>
-    <Import Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../'))" />
-    <PropertyGroup>
-        <BaseOutputPath>$(MSBuildThisFileDirectory)_build\bin\</BaseOutputPath>
+        <DisableImplicitFSharpCoreReference>true</DisableImplicitFSharpCoreReference>
+        <BaseOutputPath>`$(MSBuildThisFileDirectory)_build\bin\</BaseOutputPath>
         <UseCommonOutputDirectory>true</UseCommonOutputDirectory>
     </PropertyGroup>
+    <ItemGroup>
+        <PackageReference Include="FSharp.Core" Version="$FSharpCore" />
+    </ItemGroup>
 </Project>
-'@
+"@
 $VendorRootPath = Join-Path $OutputDir 'Directory.Build.props'
 Set-Content -Path $VendorRootPath -Value $VendorRootProps -Encoding UTF8
 
@@ -163,8 +168,8 @@ function Invoke-GeneratePackage {
         <Compile Include="Elements.generated.fs" />
     </ItemGroup>
     <ItemGroup>
-        <ProjectReference Include="..\..\..\src\FSharp.Windows.Dsl\FSharp.Windows.Dsl.fsproj" />
-        <ProjectReference Include="..\..\..\src\FSharp.Windows.Dsl.Controls\FSharp.Windows.Dsl.Controls.fsproj" />$projRefs
+        <ProjectReference Include="$script:RepoSrc\FSharp.Windows.Dsl\FSharp.Windows.Dsl.fsproj" />
+        <ProjectReference Include="$script:RepoSrc\FSharp.Windows.Dsl.Controls\FSharp.Windows.Dsl.Controls.fsproj" />$projRefs
     </ItemGroup>
     <ItemGroup>
 $pkgRefs

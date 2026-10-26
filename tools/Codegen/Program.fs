@@ -494,7 +494,8 @@ let buildEmitInput
 
             { FnName = fnName
               DPExpression = $"{dp.OwnerTypeFullName}.{dp.FieldName}"
-              ValueType = mapToFSharpType dp.PropertyTypeFullName })
+              ValueType = mapToFSharpType dp.PropertyTypeFullName
+              Guard = guardMaps.DP |> Map.tryFind $"{dp.OwnerTypeFullName}.{dp.Name}" })
 
     let ownDPNames = ownDPs |> List.map (fun dp -> dp.Name) |> Set.ofList
     let ownEventNames = ownEvents |> List.map (fun ev -> ev.Name) |> Set.ofList
@@ -650,9 +651,6 @@ let main argv =
         let guardMaps =
             match baseline, tfmsArg with
             | Some baselineTfm, Some tfmsStr when extraPaths.IsEmpty ->
-                let baselinePath = AssemblyInspector.resolveAssembly baselineTfm assemblyNames.[0]
-                printfn $"Baseline: {baselineTfm} ({baselinePath})"
-
                 let tfms = tfmsStr.Split(',') |> Array.map (fun t -> t.Trim())
 
                 let major (t: string) =
@@ -663,17 +661,32 @@ let main argv =
                 if tfms |> Array.pairwise |> Array.exists (fun (a, b) -> major a >= major b) then
                     failwith $"--tfms must be in ascending order: {tfmsStr}"
 
-                let tfmChain =
-                    tfms
-                    |> Array.map (fun t ->
-                        let t = t.Trim()
-                        let path = AssemblyInspector.resolveAssembly t assemblyNames.[0]
-                        let guard = tfmToGuard t
-                        printfn $"  TFM: {t} -> {guard} ({path})"
-                        (t, path, guard))
-                    |> Array.toList
+                // PresentationCore and WindowsBase too: static attached owners
+                // (AutomationProperties, RenderOptions) live there and gained DPs later.
+                let diff (assemblyName: string) =
+                    let baselinePath = AssemblyInspector.resolveAssembly baselineTfm assemblyName
+                    printfn $"Baseline: {baselineTfm} ({baselinePath})"
 
-                TfmComparer.diffChain baselineTfm baselinePath tfmChain
+                    let tfmChain =
+                        tfms
+                        |> Array.map (fun t ->
+                            let path = AssemblyInspector.resolveAssembly t assemblyName
+                            let guard = tfmToGuard t
+                            printfn $"  TFM: {t} -> {guard} ({path})"
+                            (t, path, guard))
+                        |> Array.toList
+
+                    TfmComparer.diffChain baselineTfm baselinePath tfmChain
+
+                let merge (a: Map<string, string>) (b: Map<string, string>) =
+                    Map.fold (fun acc k v -> Map.add k v acc) a b
+
+                [ assemblyNames.[0]; "PresentationCore"; "WindowsBase" ]
+                |> List.distinct
+                |> List.map diff
+                |> List.reduce (fun a b ->
+                    { DP = merge a.DP b.DP
+                      Event = merge a.Event b.Event })
             | _ -> TfmComparer.GuardMaps.Empty
 
         if not guardMaps.DP.IsEmpty || not guardMaps.Event.IsEmpty then
@@ -934,6 +947,42 @@ let main argv =
 
                 if AssemblyInspector.isInstantiable t then
                     concreteControls.Add((t.Name, moduleName))
+
+        // Types that own attached DPs but are no element (AutomationProperties,
+        // KeyboardNavigation): one module of helpers each. A name the package already
+        // uses (a wrapper, or hand-written Validation/Style/Build) is skipped.
+        let handWritten = set [ "Build"; "Style"; "Validation" ]
+
+        for t in AssemblyInspector.findAttachedOnlyOwners emitFromAssemblies do
+            if
+                isValidTypeName t.Name
+                && not (generatedTypeNames.Contains t.Name)
+                && not (handWritten.Contains t.Name)
+            then
+                let dps =
+                    AssemblyInspector.discoverDPs t
+                    |> List.filter (fun dp -> dp.IsAttached && not dp.IsReadOnly)
+                    |> List.filter (fun dp -> not (dp.PropertyTypeFullName.Contains('`')))
+                    // An element reference (LabeledBy, PlacementTarget, FocusedElement): a
+                    // view has no live element to hand it, as with isElementReference
+                    |> List.filter (fun dp ->
+                        dp.PropertyTypeFullName <> "System.Windows.UIElement"
+                        && dp.PropertyTypeFullName <> "System.Windows.IInputElement")
+                    |> List.map (fun dp ->
+                        { FnName = toSafeCamelCase dp.Name
+                          DPExpression = $"{dp.OwnerTypeFullName}.{dp.FieldName}"
+                          ValueType = mapToFSharpType dp.PropertyTypeFullName
+                          Guard = guardMaps.DP |> Map.tryFind $"{dp.OwnerTypeFullName}.{dp.Name}" })
+
+                // A module needs a member on every target: with nothing left, or only
+                // guarded helpers, it would be an empty `module X =`, which does not parse.
+                // ponytail: an owner whose helpers are all guarded is dropped, not guarded whole
+                if dps |> List.exists (fun d -> d.Guard.IsNone) then
+                    let code =
+                        FSharpEmitter.emitStaticAttachedFile outputNamespace (t.Assembly.GetName().Name) t.Name dps
+
+                    File.WriteAllText(Path.Combine(outputDir, $"000_{t.Name}.generated.fs"), code)
+                    printfn $"  Generated 000_{t.Name}.generated.fs ({dps.Length} attached DPs)"
 
         // Generate Elements.fs (shorthand constructors)
         let parentDir = Path.GetDirectoryName(outputDir.TrimEnd('/', '\\'))

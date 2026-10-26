@@ -117,3 +117,27 @@ The rule also catches instance DPs that a type exposes a static setter for.
 (`FrameworkElement.SetFlowDirection`) are attached helpers with no DU case, so
 `Button` has no `flowDirection`: write `FrameworkElement.flowDirection`.
 `Control.fontSize` is an ordinary DU case, because `Control` has no `SetFontSize`.
+
+### Owners that are no element
+
+A type that owns settable attached DPs but is no `DependencyObject` gets a module
+of its own, with only those helpers: static classes (`AutomationProperties`,
+`ToolTipService`, `ContextMenuService`, `RenderOptions`, `TextOptions`,
+`FocusManager`) and sealed holders (`KeyboardNavigation`, `SpellCheck`,
+`Typography`, `InputMethod`). They go on any element's props:
+
+```fsharp
+button [
+    Button.content "Save"
+    AutomationProperties.name "Save document"
+    KeyboardNavigation.isTabStop false
+    ToolTipService.showDuration 5000
+]
+```
+
+The module shares its name with the WPF class, like every wrapper: with
+`System.Windows.Automation` open, call the class's own `GetName` fully qualified.
+An attached DP holding an element reference (`AutomationProperties.LabeledBy`,
+`ToolTipService.PlacementTarget`) is skipped, and DPs added after the baseline
+sit under their `#if` guard. Hand-written module names win: there is no generated
+`Validation` module (use `System.Windows.Controls.Validation` directly).

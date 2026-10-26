@@ -22,9 +22,11 @@ if [ -z "$DX_INSTALL" ]; then
     exit 1
 fi
 
-DX_PATH="$DX_INSTALL/Components/Bin/Framework"
+# The NetCore build: the wrappers compile against the DevExpress NuGet packages'
+# net8.0-windows assemblies, so codegen reflects the same build.
+DX_PATH="$DX_INSTALL/Components/Bin/NetCore"
 if [ ! -d "$DX_PATH" ]; then
-    echo "ERROR: DevExpress framework not found at $DX_PATH"
+    echo "ERROR: DevExpress NetCore assemblies not found at $DX_PATH"
     exit 1
 fi
 
@@ -46,24 +48,26 @@ echo ""
 
 mkdir -p "$OUTPUT_ROOT"
 
-# Ensure vendor Directory.Build.props (disables CPM from repo root)
-cat > "$(dirname "$OUTPUT_ROOT")/Directory.Build.props" << 'DBP'
+# Standalone props: the repo's own (central package management) are not imported,
+# so the output can live anywhere. FSharp.Core follows the repo's central pin: a
+# wrapper built against a newer FSharp.Core than the app referencing it fails that
+# app's restore with NU1605. All packages build into _build/ to avoid duplicating
+# DevExpress NuGet DLLs across 26 project bin dirs.
+FSHARP_CORE=$(sed -n 's/.*Include="FSharp.Core" Version="\([^"]*\)".*/\1/p' "$REPO_ROOT/Directory.Packages.props")
+# ponytail: written into the fsproj unescaped; a repo path with & ; or % needs escaping
+REPO_SRC=$(cygpath -w "$REPO_ROOT/src")
+
+cat > "$OUTPUT_ROOT/Directory.Build.props" << DBP
 <Project>
     <PropertyGroup>
         <ManagePackageVersionsCentrally>false</ManagePackageVersionsCentrally>
-    </PropertyGroup>
-</Project>
-DBP
-
-# Shared output directory — all packages build into _build/ to avoid
-# duplicating DevExpress NuGet DLLs across 26 project bin dirs.
-cat > "$OUTPUT_ROOT/Directory.Build.props" << 'DBP'
-<Project>
-    <Import Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../'))" />
-    <PropertyGroup>
-        <BaseOutputPath>$(MSBuildThisFileDirectory)_build\bin\</BaseOutputPath>
+        <DisableImplicitFSharpCoreReference>true</DisableImplicitFSharpCoreReference>
+        <BaseOutputPath>\$(MSBuildThisFileDirectory)_build\\bin\\</BaseOutputPath>
         <UseCommonOutputDirectory>true</UseCommonOutputDirectory>
     </PropertyGroup>
+    <ItemGroup>
+        <PackageReference Include="FSharp.Core" Version="$FSHARP_CORE" />
+    </ItemGroup>
 </Project>
 DBP
 
@@ -141,8 +145,8 @@ generate_package() {
         <Compile Include="Elements.generated.fs" />
     </ItemGroup>
     <ItemGroup>
-        <ProjectReference Include="..\\..\\..\\src\\FSharp.Windows.Dsl\\FSharp.Windows.Dsl.fsproj" />
-        <ProjectReference Include="..\\..\\..\\src\\FSharp.Windows.Dsl.Controls\\FSharp.Windows.Dsl.Controls.fsproj" />
+        <ProjectReference Include="$REPO_SRC\\FSharp.Windows.Dsl\\FSharp.Windows.Dsl.fsproj" />
+        <ProjectReference Include="$REPO_SRC\\FSharp.Windows.Dsl.Controls\\FSharp.Windows.Dsl.Controls.fsproj" />
 $PROJ_REFS    </ItemGroup>
     <ItemGroup>
 $PKG_REFS    </ItemGroup>

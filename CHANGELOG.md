@@ -42,6 +42,11 @@ Entries are written by hand.
   (`UnusableMember`, left out instead of throwing), resource props on an element
   without resources (`PropNotForElement`), an event swap that cannot resolve its
   CLR event (`UnappliedProp`).
+- Attached props of types that are no element get generated modules:
+  `AutomationProperties.name`, `KeyboardNavigation.isTabStop`,
+  `ToolTipService.showDuration`, `RenderOptions`, `TextOptions`, `Typography` and
+  more (spec 0900). The codegen's TFM guard diff now covers PresentationCore and
+  WindowsBase too.
 - CI fails when the committed generated controls drift from a fresh regeneration.
 - The release workflow verifies the tag against `<Version>` and packs the codegen tool.
 

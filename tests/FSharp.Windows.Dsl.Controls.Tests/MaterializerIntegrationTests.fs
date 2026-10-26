@@ -4,6 +4,7 @@ module FSharp.Windows.Dsl.Controls.Tests.MaterializerIntegrationTests
 
 open System
 open System.Threading
+open Microsoft.FSharp.Reflection
 open System.Windows
 open System.Windows.Controls
 open Xunit
@@ -94,6 +95,25 @@ let ``materialize applies Button.IsDefault`` () =
         let el = button [ Button.isDefault true ] |> Materializer.materialize
         let btn = el :?> Button
         btn.IsDefault |> should be True)
+
+[<Fact>]
+let ``attached props of non-element owners apply to the element that carries them`` () =
+    runSta (fun () ->
+        register ()
+
+        let btn =
+            button
+                [ AutomationProperties.name "Save"
+                  KeyboardNavigation.isTabStop false
+                  ToolTipService.showDuration 1234 ]
+            |> Materializer.materialize
+            :?> Button
+
+        System.Windows.Automation.AutomationProperties.GetName btn
+        |> should equal "Save"
+
+        System.Windows.Input.KeyboardNavigation.GetIsTabStop btn |> should be False
+        System.Windows.Controls.ToolTipService.GetShowDuration btn |> should equal 1234)
 
 // --- Children are materialized ---
 
@@ -275,4 +295,83 @@ let ``every generated shorthand materializes with no props`` () =
 
         // Exceptions only: diagnostics are process-wide, shared with tests running alongside
         shorthands.Length |> should be (greaterThan 200)
+        failures |> should be Empty)
+
+[<Fact>]
+let ``every generated prop applies a default value to a live element`` () =
+    runSta (fun () ->
+        let asm = typeof<ButtonProp>.Assembly
+
+        // Element types the shorthands build: the concrete stand-in for an
+        // abstract owner (FrameworkElement, Control) is the first that derives from it
+        let concrete =
+            asm.GetType("FSharp.Windows.Dsl.Controls.Elements").GetMethods()
+            |> Array.filter (fun m -> m.ReturnType = typeof<VirtualNode> && m.GetParameters().Length = 1)
+            |> Array.map (fun m -> (m.Invoke(null, [| box ([]: obj list) |]) :?> VirtualNode).Type)
+
+        // Up to three stand-ins: a subtype may reject an inherited DP on purpose
+        // (BitmapCacheBrush refuses Opacity), a read-only DP rejects it on every type
+        let standIns (t: Type) =
+            if not t.IsAbstract && not (isNull (t.GetConstructor Type.EmptyTypes)) then
+                [ t ]
+            else
+                concrete
+                |> Array.filter (fun c -> t.IsAssignableFrom c && not (typeof<Window>.IsAssignableFrom c))
+                |> Array.distinct
+                |> Array.truncate 3
+                |> Array.toList
+
+        // A default per field type; a VirtualNode field has no default to give
+        let valueFor (ft: Type) =
+            if ft = typeof<VirtualNode> then None
+            elif ft = typeof<string> then Some(box "")
+            elif ft.IsValueType then Some(Activator.CreateInstance ft)
+            else Some null
+
+        let failures = ResizeArray<string>()
+        let mutable applied = 0
+
+        for m in asm.GetTypes() do
+            match m.GetMethod("apply") with
+            | null -> ()
+            | apply when apply.GetParameters().Length = 2 ->
+                let ps = apply.GetParameters()
+
+                if FSharpType.IsUnion ps.[1].ParameterType then
+                    for case in FSharpType.GetUnionCases ps.[1].ParameterType do
+                        match case.GetFields() with
+                        | [| f |] when case.Name <> "Base" && not (case.Name.StartsWith "On") ->
+                            match standIns ps.[0].ParameterType, valueFor f.PropertyType with
+                            | (_ :: _) as types, Some v ->
+                                applied <- applied + 1
+
+                                // A read-only DP throws InvalidOperationException on SetValue;
+                                // a default the DP's validation rejects is not this test's concern
+                                let rejects (t: Type) =
+                                    let el = Activator.CreateInstance t
+
+                                    try
+                                        try
+                                            apply.Invoke(null, [| el; FSharpValue.MakeUnion(case, [| v |]) |])
+                                            |> ignore
+
+                                            None
+                                        with e ->
+                                            match e.InnerException with
+                                            | :? InvalidOperationException as ie -> Some ie.Message
+                                            | _ -> None
+                                    finally
+                                        match el with
+                                        | :? Window as w -> w.Close()
+                                        | _ -> ()
+
+                                let rejections = types |> List.map rejects
+
+                                if rejections |> List.forall Option.isSome then
+                                    failures.Add $"{ps.[1].ParameterType.Name}.{case.Name}: {rejections.Head.Value}"
+                            | _ -> ()
+                        | _ -> ()
+            | _ -> ()
+
+        applied |> should be (greaterThan 900)
         failures |> should be Empty)

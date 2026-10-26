@@ -68,6 +68,28 @@ let ``discoverDPs marks Grid.RowProperty as attached`` () =
     rowDP.IsAttached |> should be True
 
 [<Fact>]
+let ``findAttachedOnlyOwners finds non-element types with settable attached DPs`` () =
+    let pfPath =
+        AssemblyInspector.resolveAssembly "net10.0-windows" "PresentationFramework"
+
+    let runtimeDir = Path.GetDirectoryName(pfPath)
+    use ctx = AssemblyInspector.createContext runtimeDir []
+
+    let assemblies =
+        [ ctx.LoadFromAssemblyPath(pfPath)
+          ctx.LoadFromAssemblyPath(Path.Combine(runtimeDir, "PresentationCore.dll")) ]
+
+    let names =
+        AssemblyInspector.findAttachedOnlyOwners assemblies
+        |> List.map (fun t -> t.Name)
+
+    names |> should contain "AutomationProperties"
+    names |> should contain "ToolTipService"
+    names |> should contain "KeyboardNavigation"
+    // Grid owns attached DPs but is an element: its helpers live on its own wrapper
+    names |> should not' (contain "Grid")
+
+[<Fact>]
 let ``discoverDPs marks Button.IsDefaultProperty as not attached`` () =
     let pfPath =
         AssemblyInspector.resolveAssembly "net10.0-windows" "PresentationFramework"

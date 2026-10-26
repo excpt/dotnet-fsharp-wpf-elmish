@@ -61,7 +61,8 @@ type EmitInheritedHelper =
 type EmitAttachedDP =
     { FnName: string
       DPExpression: string
-      ValueType: string }
+      ValueType: string
+      Guard: string option }
 
 /// Input for emitting a collection-property helper. Generates a single-arg helper
 /// `let foo (cs: VirtualNode list) : obj = box (CollectionProp("Foo", cs))` so the DSL

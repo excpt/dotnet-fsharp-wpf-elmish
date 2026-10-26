@@ -183,6 +183,17 @@ let private emitPropDU (sb: StringBuilder) (input: EmitControlInput) =
 
     sb.AppendLine() |> ignore
 
+/// One helper per attached DP, in prop-list form; a DP added after the baseline
+/// sits under its #if guard.
+let private emitAttachedHelpers (sb: StringBuilder) (dps: EmitAttachedDP list) =
+    for ap in dps do
+        ap.Guard |> Option.iter (fun g -> sb.AppendLine($"#if {g}") |> ignore)
+
+        sb.AppendLine($"    let {ap.FnName} (v: {ap.ValueType}) : obj = box (AttachedProp({ap.DPExpression}, box v))")
+        |> ignore
+
+        ap.Guard |> Option.iter (fun _ -> sb.AppendLine("#endif") |> ignore)
+
 let private emitModule (sb: StringBuilder) (input: EmitControlInput) =
     let propType = $"{input.ControlName}Prop"
     sb.AppendLine($"module {input.ControlName} =") |> ignore
@@ -387,9 +398,7 @@ let private emitModule (sb: StringBuilder) (input: EmitControlInput) =
     // where the materializer applies it from. The earlier `v -> node -> node`
     // shape read well after a pipe but is a partial application inside a list —
     // and since props are obj, that type-checks and then applies to nothing.
-    for ap in input.AttachedDPs do
-        sb.AppendLine($"    let {ap.FnName} (v: {ap.ValueType}) : obj = box (AttachedProp({ap.DPExpression}, box v))")
-        |> ignore
+    emitAttachedHelpers sb input.AttachedDPs
 
     if not input.AttachedDPs.IsEmpty then
         sb.AppendLine() |> ignore
@@ -480,4 +489,21 @@ let emitRegistration (ns: string) (controls: (string * string * string) list) : 
             sb.AppendLine($"        Materializer.registerClear<{controlFullName}, {propTypeName}> {moduleName}.clear")
             |> ignore
 
+    sb.ToString()
+
+/// A type that owns attached DPs but is no element (AutomationProperties,
+/// KeyboardNavigation): no Prop DU and no apply, just a module of attached helpers. The
+/// materializer applies an AttachedProp to whatever element carries it.
+let emitStaticAttachedFile (ns: string) (assemblyInfo: string) (ownerName: string) (dps: EmitAttachedDP list) : string =
+    let sb = StringBuilder()
+    sb.AppendLine("// AUTO-GENERATED — do not edit manually") |> ignore
+    sb.AppendLine("// Regenerate: dotnet run --project tools/Codegen") |> ignore
+    sb.AppendLine($"// Source assembly: {assemblyInfo}") |> ignore
+    sb.AppendLine() |> ignore
+    sb.AppendLine($"namespace {ns}") |> ignore
+    sb.AppendLine() |> ignore
+    sb.AppendLine("open FSharp.Windows.Dsl") |> ignore
+    sb.AppendLine() |> ignore
+    sb.AppendLine($"module {ownerName} =") |> ignore
+    emitAttachedHelpers sb dps
     sb.ToString()

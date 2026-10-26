@@ -410,3 +410,18 @@ let findAllDependencyObjectSubtypes (_mlc: MetadataLoadContext) (assemblies: Ass
                 || t.FullName = "System.Windows.DependencyObject"))
         |> Array.toList)
     |> List.distinctBy (fun t -> t.FullName)
+
+/// Public types that own settable attached DPs but are no DependencyObject: static
+/// classes (AutomationProperties, ToolTipService) and sealed holders
+/// (KeyboardNavigation, SpellCheck). The element scan never sees them.
+let findAttachedOnlyOwners (assemblies: Assembly list) : Type list =
+    assemblies
+    |> List.collect (fun asm ->
+        asm.GetTypes()
+        |> Array.filter (fun t ->
+            t.IsPublic
+            && t.IsClass
+            && not (isSubclassOfByName "System.Windows.DependencyObject" t)
+            && discoverDPs t |> List.exists (fun dp -> dp.IsAttached && not dp.IsReadOnly))
+        |> Array.toList)
+    |> List.distinctBy (fun t -> t.FullName)
