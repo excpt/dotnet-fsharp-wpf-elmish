@@ -40,12 +40,3 @@ module InteropBitmap =
     let children (cs: VirtualNode list) : obj = box (Children cs)
     let contentChild (c: VirtualNode) : obj = box (ContentChild c)
     let key (k: string) : obj = box (Key k)
-
-    let create (props: obj list) : VirtualNode =
-        let cs, uk, ps = VirtualTree.extractSpecialProps props
-
-        { Type = typeof<System.Windows.Interop.InteropBitmap>
-          Props = ps
-          Children = cs
-          UserKey = uk
-          InternalId = "" }

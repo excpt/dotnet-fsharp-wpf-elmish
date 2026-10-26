@@ -366,6 +366,10 @@ let rec isSubclassOfByName (baseTypeName: string) (t: Type) =
     elif t.FullName = baseTypeName then true
     else isSubclassOfByName baseTypeName t.BaseType
 
+/// True when the type is concrete and has a public parameterless constructor (what Materializer needs).
+let isInstantiable (t: Type) =
+    not t.IsAbstract && not (isNull (t.GetConstructor(Type.EmptyTypes)))
+
 /// Find all control types in an assembly (public, non-abstract, subclass of FrameworkElement).
 let findControlTypes (_mlc: MetadataLoadContext) (assembly: Assembly) : Type list =
     assembly.GetTypes()
