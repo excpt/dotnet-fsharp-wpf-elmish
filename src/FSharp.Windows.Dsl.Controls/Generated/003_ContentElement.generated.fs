@@ -79,8 +79,28 @@ type ContentElementProp =
     | OnDragLeave of System.Windows.DragEventHandler
     | OnPreviewDrop of System.Windows.DragEventHandler
     | OnDrop of System.Windows.DragEventHandler
+    | OnPreviewTouchDown of System.EventHandler<System.Windows.Input.TouchEventArgs>
+    | OnTouchDown of System.EventHandler<System.Windows.Input.TouchEventArgs>
+    | OnPreviewTouchMove of System.EventHandler<System.Windows.Input.TouchEventArgs>
+    | OnTouchMove of System.EventHandler<System.Windows.Input.TouchEventArgs>
+    | OnPreviewTouchUp of System.EventHandler<System.Windows.Input.TouchEventArgs>
+    | OnTouchUp of System.EventHandler<System.Windows.Input.TouchEventArgs>
+    | OnGotTouchCapture of System.EventHandler<System.Windows.Input.TouchEventArgs>
+    | OnLostTouchCapture of System.EventHandler<System.Windows.Input.TouchEventArgs>
+    | OnTouchEnter of System.EventHandler<System.Windows.Input.TouchEventArgs>
+    | OnTouchLeave of System.EventHandler<System.Windows.Input.TouchEventArgs>
     | OnGotFocus of System.Windows.RoutedEventHandler
     | OnLostFocus of System.Windows.RoutedEventHandler
+    | OnIsMouseDirectlyOverChanged of System.Windows.DependencyPropertyChangedEventHandler
+    | OnIsKeyboardFocusWithinChanged of System.Windows.DependencyPropertyChangedEventHandler
+    | OnIsMouseCapturedChanged of System.Windows.DependencyPropertyChangedEventHandler
+    | OnIsMouseCaptureWithinChanged of System.Windows.DependencyPropertyChangedEventHandler
+    | OnIsStylusDirectlyOverChanged of System.Windows.DependencyPropertyChangedEventHandler
+    | OnIsStylusCapturedChanged of System.Windows.DependencyPropertyChangedEventHandler
+    | OnIsStylusCaptureWithinChanged of System.Windows.DependencyPropertyChangedEventHandler
+    | OnIsKeyboardFocusedChanged of System.Windows.DependencyPropertyChangedEventHandler
+    | OnIsEnabledChanged of System.Windows.DependencyPropertyChangedEventHandler
+    | OnFocusableChanged of System.Windows.DependencyPropertyChangedEventHandler
 
 module ContentElement =
     let isEnabled v : obj = box (ContentElementProp.IsEnabled v)
@@ -282,11 +302,71 @@ module ContentElement =
     let onDrop v : obj =
         box (EventProp(box (ContentElementProp.OnDrop v)))
 
+    let onPreviewTouchDown v : obj =
+        box (EventProp(box (ContentElementProp.OnPreviewTouchDown v)))
+
+    let onTouchDown v : obj =
+        box (EventProp(box (ContentElementProp.OnTouchDown v)))
+
+    let onPreviewTouchMove v : obj =
+        box (EventProp(box (ContentElementProp.OnPreviewTouchMove v)))
+
+    let onTouchMove v : obj =
+        box (EventProp(box (ContentElementProp.OnTouchMove v)))
+
+    let onPreviewTouchUp v : obj =
+        box (EventProp(box (ContentElementProp.OnPreviewTouchUp v)))
+
+    let onTouchUp v : obj =
+        box (EventProp(box (ContentElementProp.OnTouchUp v)))
+
+    let onGotTouchCapture v : obj =
+        box (EventProp(box (ContentElementProp.OnGotTouchCapture v)))
+
+    let onLostTouchCapture v : obj =
+        box (EventProp(box (ContentElementProp.OnLostTouchCapture v)))
+
+    let onTouchEnter v : obj =
+        box (EventProp(box (ContentElementProp.OnTouchEnter v)))
+
+    let onTouchLeave v : obj =
+        box (EventProp(box (ContentElementProp.OnTouchLeave v)))
+
     let onGotFocus v : obj =
         box (EventProp(box (ContentElementProp.OnGotFocus v)))
 
     let onLostFocus v : obj =
         box (EventProp(box (ContentElementProp.OnLostFocus v)))
+
+    let onIsMouseDirectlyOverChanged v : obj =
+        box (EventProp(box (ContentElementProp.OnIsMouseDirectlyOverChanged v)))
+
+    let onIsKeyboardFocusWithinChanged v : obj =
+        box (EventProp(box (ContentElementProp.OnIsKeyboardFocusWithinChanged v)))
+
+    let onIsMouseCapturedChanged v : obj =
+        box (EventProp(box (ContentElementProp.OnIsMouseCapturedChanged v)))
+
+    let onIsMouseCaptureWithinChanged v : obj =
+        box (EventProp(box (ContentElementProp.OnIsMouseCaptureWithinChanged v)))
+
+    let onIsStylusDirectlyOverChanged v : obj =
+        box (EventProp(box (ContentElementProp.OnIsStylusDirectlyOverChanged v)))
+
+    let onIsStylusCapturedChanged v : obj =
+        box (EventProp(box (ContentElementProp.OnIsStylusCapturedChanged v)))
+
+    let onIsStylusCaptureWithinChanged v : obj =
+        box (EventProp(box (ContentElementProp.OnIsStylusCaptureWithinChanged v)))
+
+    let onIsKeyboardFocusedChanged v : obj =
+        box (EventProp(box (ContentElementProp.OnIsKeyboardFocusedChanged v)))
+
+    let onIsEnabledChanged v : obj =
+        box (EventProp(box (ContentElementProp.OnIsEnabledChanged v)))
+
+    let onFocusableChanged v : obj =
+        box (EventProp(box (ContentElementProp.OnFocusableChanged v)))
 
     let apply (el: System.Windows.ContentElement) (prop: ContentElementProp) =
         match prop with
@@ -358,8 +438,28 @@ module ContentElement =
         | ContentElementProp.OnDragLeave h -> el.DragLeave.AddHandler(h)
         | ContentElementProp.OnPreviewDrop h -> el.PreviewDrop.AddHandler(h)
         | ContentElementProp.OnDrop h -> el.Drop.AddHandler(h)
+        | ContentElementProp.OnPreviewTouchDown h -> el.PreviewTouchDown.AddHandler(h)
+        | ContentElementProp.OnTouchDown h -> el.TouchDown.AddHandler(h)
+        | ContentElementProp.OnPreviewTouchMove h -> el.PreviewTouchMove.AddHandler(h)
+        | ContentElementProp.OnTouchMove h -> el.TouchMove.AddHandler(h)
+        | ContentElementProp.OnPreviewTouchUp h -> el.PreviewTouchUp.AddHandler(h)
+        | ContentElementProp.OnTouchUp h -> el.TouchUp.AddHandler(h)
+        | ContentElementProp.OnGotTouchCapture h -> el.GotTouchCapture.AddHandler(h)
+        | ContentElementProp.OnLostTouchCapture h -> el.LostTouchCapture.AddHandler(h)
+        | ContentElementProp.OnTouchEnter h -> el.TouchEnter.AddHandler(h)
+        | ContentElementProp.OnTouchLeave h -> el.TouchLeave.AddHandler(h)
         | ContentElementProp.OnGotFocus h -> el.GotFocus.AddHandler(h)
         | ContentElementProp.OnLostFocus h -> el.LostFocus.AddHandler(h)
+        | ContentElementProp.OnIsMouseDirectlyOverChanged h -> el.IsMouseDirectlyOverChanged.AddHandler(h)
+        | ContentElementProp.OnIsKeyboardFocusWithinChanged h -> el.IsKeyboardFocusWithinChanged.AddHandler(h)
+        | ContentElementProp.OnIsMouseCapturedChanged h -> el.IsMouseCapturedChanged.AddHandler(h)
+        | ContentElementProp.OnIsMouseCaptureWithinChanged h -> el.IsMouseCaptureWithinChanged.AddHandler(h)
+        | ContentElementProp.OnIsStylusDirectlyOverChanged h -> el.IsStylusDirectlyOverChanged.AddHandler(h)
+        | ContentElementProp.OnIsStylusCapturedChanged h -> el.IsStylusCapturedChanged.AddHandler(h)
+        | ContentElementProp.OnIsStylusCaptureWithinChanged h -> el.IsStylusCaptureWithinChanged.AddHandler(h)
+        | ContentElementProp.OnIsKeyboardFocusedChanged h -> el.IsKeyboardFocusedChanged.AddHandler(h)
+        | ContentElementProp.OnIsEnabledChanged h -> el.IsEnabledChanged.AddHandler(h)
+        | ContentElementProp.OnFocusableChanged h -> el.FocusableChanged.AddHandler(h)
 
     let clear (el: System.Windows.ContentElement) (prop: ContentElementProp) =
         match prop with
@@ -431,8 +531,28 @@ module ContentElement =
         | ContentElementProp.OnDragLeave h -> el.DragLeave.RemoveHandler(h)
         | ContentElementProp.OnPreviewDrop h -> el.PreviewDrop.RemoveHandler(h)
         | ContentElementProp.OnDrop h -> el.Drop.RemoveHandler(h)
+        | ContentElementProp.OnPreviewTouchDown h -> el.PreviewTouchDown.RemoveHandler(h)
+        | ContentElementProp.OnTouchDown h -> el.TouchDown.RemoveHandler(h)
+        | ContentElementProp.OnPreviewTouchMove h -> el.PreviewTouchMove.RemoveHandler(h)
+        | ContentElementProp.OnTouchMove h -> el.TouchMove.RemoveHandler(h)
+        | ContentElementProp.OnPreviewTouchUp h -> el.PreviewTouchUp.RemoveHandler(h)
+        | ContentElementProp.OnTouchUp h -> el.TouchUp.RemoveHandler(h)
+        | ContentElementProp.OnGotTouchCapture h -> el.GotTouchCapture.RemoveHandler(h)
+        | ContentElementProp.OnLostTouchCapture h -> el.LostTouchCapture.RemoveHandler(h)
+        | ContentElementProp.OnTouchEnter h -> el.TouchEnter.RemoveHandler(h)
+        | ContentElementProp.OnTouchLeave h -> el.TouchLeave.RemoveHandler(h)
         | ContentElementProp.OnGotFocus h -> el.GotFocus.RemoveHandler(h)
         | ContentElementProp.OnLostFocus h -> el.LostFocus.RemoveHandler(h)
+        | ContentElementProp.OnIsMouseDirectlyOverChanged h -> el.IsMouseDirectlyOverChanged.RemoveHandler(h)
+        | ContentElementProp.OnIsKeyboardFocusWithinChanged h -> el.IsKeyboardFocusWithinChanged.RemoveHandler(h)
+        | ContentElementProp.OnIsMouseCapturedChanged h -> el.IsMouseCapturedChanged.RemoveHandler(h)
+        | ContentElementProp.OnIsMouseCaptureWithinChanged h -> el.IsMouseCaptureWithinChanged.RemoveHandler(h)
+        | ContentElementProp.OnIsStylusDirectlyOverChanged h -> el.IsStylusDirectlyOverChanged.RemoveHandler(h)
+        | ContentElementProp.OnIsStylusCapturedChanged h -> el.IsStylusCapturedChanged.RemoveHandler(h)
+        | ContentElementProp.OnIsStylusCaptureWithinChanged h -> el.IsStylusCaptureWithinChanged.RemoveHandler(h)
+        | ContentElementProp.OnIsKeyboardFocusedChanged h -> el.IsKeyboardFocusedChanged.RemoveHandler(h)
+        | ContentElementProp.OnIsEnabledChanged h -> el.IsEnabledChanged.RemoveHandler(h)
+        | ContentElementProp.OnFocusableChanged h -> el.FocusableChanged.RemoveHandler(h)
 
 
     let children (cs: VirtualNode list) : obj = box (Children cs)

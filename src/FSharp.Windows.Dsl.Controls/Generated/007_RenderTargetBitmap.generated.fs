@@ -25,6 +25,15 @@ module RenderTargetBitmap =
     let onDownloadCompleted v : obj =
         box (EventProp(box (BitmapSourceProp.OnDownloadCompleted v)))
 
+    let onDownloadProgress v : obj =
+        box (EventProp(box (BitmapSourceProp.OnDownloadProgress v)))
+
+    let onDownloadFailed v : obj =
+        box (EventProp(box (BitmapSourceProp.OnDownloadFailed v)))
+
+    let onDecodeFailed v : obj =
+        box (EventProp(box (BitmapSourceProp.OnDecodeFailed v)))
+
     let onChanged v : obj =
         box (EventProp(box (FreezableProp.OnChanged v)))
 

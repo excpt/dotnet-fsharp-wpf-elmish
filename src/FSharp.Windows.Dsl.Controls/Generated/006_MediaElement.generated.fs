@@ -21,9 +21,11 @@ type MediaElementProp =
     | LoadedBehavior of System.Windows.Controls.MediaState
     | Stretch of System.Windows.Media.Stretch
     | StretchDirection of System.Windows.Controls.StretchDirection
+    | OnMediaFailed of System.EventHandler<System.Windows.ExceptionRoutedEventArgs>
     | OnMediaOpened of System.Windows.RoutedEventHandler
     | OnBufferingStarted of System.Windows.RoutedEventHandler
     | OnBufferingEnded of System.Windows.RoutedEventHandler
+    | OnScriptCommand of System.EventHandler<System.Windows.MediaScriptCommandRoutedEventArgs>
     | OnMediaEnded of System.Windows.RoutedEventHandler
 
 module MediaElement =
@@ -44,6 +46,9 @@ module MediaElement =
     let stretchDirection v : obj =
         box (MediaElementProp.StretchDirection v)
 
+    let onMediaFailed v : obj =
+        box (EventProp(box (MediaElementProp.OnMediaFailed v)))
+
     let onMediaOpened v : obj =
         box (EventProp(box (MediaElementProp.OnMediaOpened v)))
 
@@ -52,6 +57,9 @@ module MediaElement =
 
     let onBufferingEnded v : obj =
         box (EventProp(box (MediaElementProp.OnBufferingEnded v)))
+
+    let onScriptCommand v : obj =
+        box (EventProp(box (MediaElementProp.OnScriptCommand v)))
 
     let onMediaEnded v : obj =
         box (EventProp(box (MediaElementProp.OnMediaEnded v)))
@@ -72,9 +80,11 @@ module MediaElement =
         | MediaElementProp.Stretch v -> el.SetValue(System.Windows.Controls.MediaElement.StretchProperty, box v)
         | MediaElementProp.StretchDirection v ->
             el.SetValue(System.Windows.Controls.MediaElement.StretchDirectionProperty, box v)
+        | MediaElementProp.OnMediaFailed h -> el.MediaFailed.AddHandler(h)
         | MediaElementProp.OnMediaOpened h -> el.MediaOpened.AddHandler(h)
         | MediaElementProp.OnBufferingStarted h -> el.BufferingStarted.AddHandler(h)
         | MediaElementProp.OnBufferingEnded h -> el.BufferingEnded.AddHandler(h)
+        | MediaElementProp.OnScriptCommand h -> el.ScriptCommand.AddHandler(h)
         | MediaElementProp.OnMediaEnded h -> el.MediaEnded.AddHandler(h)
 
     let clear (el: System.Windows.Controls.MediaElement) (prop: MediaElementProp) =
@@ -93,9 +103,11 @@ module MediaElement =
         | MediaElementProp.Stretch _ -> el.ClearValue(System.Windows.Controls.MediaElement.StretchProperty)
         | MediaElementProp.StretchDirection _ ->
             el.ClearValue(System.Windows.Controls.MediaElement.StretchDirectionProperty)
+        | MediaElementProp.OnMediaFailed h -> el.MediaFailed.RemoveHandler(h)
         | MediaElementProp.OnMediaOpened h -> el.MediaOpened.RemoveHandler(h)
         | MediaElementProp.OnBufferingStarted h -> el.BufferingStarted.RemoveHandler(h)
         | MediaElementProp.OnBufferingEnded h -> el.BufferingEnded.RemoveHandler(h)
+        | MediaElementProp.OnScriptCommand h -> el.ScriptCommand.RemoveHandler(h)
         | MediaElementProp.OnMediaEnded h -> el.MediaEnded.RemoveHandler(h)
 
     let style v : obj = box (FrameworkElementProp.Style v)
@@ -393,17 +405,110 @@ module MediaElement =
     let onDrop v : obj =
         box (EventProp(box (UIElementProp.OnDrop v)))
 
+    let onPreviewTouchDown v : obj =
+        box (EventProp(box (UIElementProp.OnPreviewTouchDown v)))
+
+    let onTouchDown v : obj =
+        box (EventProp(box (UIElementProp.OnTouchDown v)))
+
+    let onPreviewTouchMove v : obj =
+        box (EventProp(box (UIElementProp.OnPreviewTouchMove v)))
+
+    let onTouchMove v : obj =
+        box (EventProp(box (UIElementProp.OnTouchMove v)))
+
+    let onPreviewTouchUp v : obj =
+        box (EventProp(box (UIElementProp.OnPreviewTouchUp v)))
+
+    let onTouchUp v : obj =
+        box (EventProp(box (UIElementProp.OnTouchUp v)))
+
+    let onGotTouchCapture v : obj =
+        box (EventProp(box (UIElementProp.OnGotTouchCapture v)))
+
+    let onLostTouchCapture v : obj =
+        box (EventProp(box (UIElementProp.OnLostTouchCapture v)))
+
+    let onTouchEnter v : obj =
+        box (EventProp(box (UIElementProp.OnTouchEnter v)))
+
+    let onTouchLeave v : obj =
+        box (EventProp(box (UIElementProp.OnTouchLeave v)))
+
     let onGotFocus v : obj =
         box (EventProp(box (UIElementProp.OnGotFocus v)))
 
     let onLostFocus v : obj =
         box (EventProp(box (UIElementProp.OnLostFocus v)))
 
+    let onManipulationStarting v : obj =
+        box (EventProp(box (UIElementProp.OnManipulationStarting v)))
+
+    let onManipulationStarted v : obj =
+        box (EventProp(box (UIElementProp.OnManipulationStarted v)))
+
+    let onManipulationDelta v : obj =
+        box (EventProp(box (UIElementProp.OnManipulationDelta v)))
+
+    let onManipulationInertiaStarting v : obj =
+        box (EventProp(box (UIElementProp.OnManipulationInertiaStarting v)))
+
+    let onManipulationBoundaryFeedback v : obj =
+        box (EventProp(box (UIElementProp.OnManipulationBoundaryFeedback v)))
+
+    let onManipulationCompleted v : obj =
+        box (EventProp(box (UIElementProp.OnManipulationCompleted v)))
+
+    let onTargetUpdated v : obj =
+        box (EventProp(box (FrameworkElementProp.OnTargetUpdated v)))
+
+    let onSourceUpdated v : obj =
+        box (EventProp(box (FrameworkElementProp.OnSourceUpdated v)))
+
+    let onDataContextChanged v : obj =
+        box (EventProp(box (FrameworkElementProp.OnDataContextChanged v)))
+
     let onInitialized v : obj =
         box (EventProp(box (FrameworkElementProp.OnInitialized v)))
 
+    let onIsMouseDirectlyOverChanged v : obj =
+        box (EventProp(box (UIElementProp.OnIsMouseDirectlyOverChanged v)))
+
+    let onIsKeyboardFocusWithinChanged v : obj =
+        box (EventProp(box (UIElementProp.OnIsKeyboardFocusWithinChanged v)))
+
+    let onIsMouseCapturedChanged v : obj =
+        box (EventProp(box (UIElementProp.OnIsMouseCapturedChanged v)))
+
+    let onIsMouseCaptureWithinChanged v : obj =
+        box (EventProp(box (UIElementProp.OnIsMouseCaptureWithinChanged v)))
+
+    let onIsStylusDirectlyOverChanged v : obj =
+        box (EventProp(box (UIElementProp.OnIsStylusDirectlyOverChanged v)))
+
+    let onIsStylusCapturedChanged v : obj =
+        box (EventProp(box (UIElementProp.OnIsStylusCapturedChanged v)))
+
+    let onIsStylusCaptureWithinChanged v : obj =
+        box (EventProp(box (UIElementProp.OnIsStylusCaptureWithinChanged v)))
+
+    let onIsKeyboardFocusedChanged v : obj =
+        box (EventProp(box (UIElementProp.OnIsKeyboardFocusedChanged v)))
+
     let onLayoutUpdated v : obj =
         box (EventProp(box (UIElementProp.OnLayoutUpdated v)))
+
+    let onIsEnabledChanged v : obj =
+        box (EventProp(box (UIElementProp.OnIsEnabledChanged v)))
+
+    let onIsHitTestVisibleChanged v : obj =
+        box (EventProp(box (UIElementProp.OnIsHitTestVisibleChanged v)))
+
+    let onIsVisibleChanged v : obj =
+        box (EventProp(box (UIElementProp.OnIsVisibleChanged v)))
+
+    let onFocusableChanged v : obj =
+        box (EventProp(box (UIElementProp.OnFocusableChanged v)))
 
     let children (cs: VirtualNode list) : obj = box (Children cs)
     let contentChild (c: VirtualNode) : obj = box (ContentChild c)

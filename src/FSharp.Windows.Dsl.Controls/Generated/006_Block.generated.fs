@@ -313,14 +313,83 @@ module Block =
     let onDrop v : obj =
         box (EventProp(box (ContentElementProp.OnDrop v)))
 
+    let onPreviewTouchDown v : obj =
+        box (EventProp(box (ContentElementProp.OnPreviewTouchDown v)))
+
+    let onTouchDown v : obj =
+        box (EventProp(box (ContentElementProp.OnTouchDown v)))
+
+    let onPreviewTouchMove v : obj =
+        box (EventProp(box (ContentElementProp.OnPreviewTouchMove v)))
+
+    let onTouchMove v : obj =
+        box (EventProp(box (ContentElementProp.OnTouchMove v)))
+
+    let onPreviewTouchUp v : obj =
+        box (EventProp(box (ContentElementProp.OnPreviewTouchUp v)))
+
+    let onTouchUp v : obj =
+        box (EventProp(box (ContentElementProp.OnTouchUp v)))
+
+    let onGotTouchCapture v : obj =
+        box (EventProp(box (ContentElementProp.OnGotTouchCapture v)))
+
+    let onLostTouchCapture v : obj =
+        box (EventProp(box (ContentElementProp.OnLostTouchCapture v)))
+
+    let onTouchEnter v : obj =
+        box (EventProp(box (ContentElementProp.OnTouchEnter v)))
+
+    let onTouchLeave v : obj =
+        box (EventProp(box (ContentElementProp.OnTouchLeave v)))
+
     let onGotFocus v : obj =
         box (EventProp(box (ContentElementProp.OnGotFocus v)))
 
     let onLostFocus v : obj =
         box (EventProp(box (ContentElementProp.OnLostFocus v)))
 
+    let onTargetUpdated v : obj =
+        box (EventProp(box (FrameworkContentElementProp.OnTargetUpdated v)))
+
+    let onSourceUpdated v : obj =
+        box (EventProp(box (FrameworkContentElementProp.OnSourceUpdated v)))
+
+    let onDataContextChanged v : obj =
+        box (EventProp(box (FrameworkContentElementProp.OnDataContextChanged v)))
+
     let onInitialized v : obj =
         box (EventProp(box (FrameworkContentElementProp.OnInitialized v)))
+
+    let onIsMouseDirectlyOverChanged v : obj =
+        box (EventProp(box (ContentElementProp.OnIsMouseDirectlyOverChanged v)))
+
+    let onIsKeyboardFocusWithinChanged v : obj =
+        box (EventProp(box (ContentElementProp.OnIsKeyboardFocusWithinChanged v)))
+
+    let onIsMouseCapturedChanged v : obj =
+        box (EventProp(box (ContentElementProp.OnIsMouseCapturedChanged v)))
+
+    let onIsMouseCaptureWithinChanged v : obj =
+        box (EventProp(box (ContentElementProp.OnIsMouseCaptureWithinChanged v)))
+
+    let onIsStylusDirectlyOverChanged v : obj =
+        box (EventProp(box (ContentElementProp.OnIsStylusDirectlyOverChanged v)))
+
+    let onIsStylusCapturedChanged v : obj =
+        box (EventProp(box (ContentElementProp.OnIsStylusCapturedChanged v)))
+
+    let onIsStylusCaptureWithinChanged v : obj =
+        box (EventProp(box (ContentElementProp.OnIsStylusCaptureWithinChanged v)))
+
+    let onIsKeyboardFocusedChanged v : obj =
+        box (EventProp(box (ContentElementProp.OnIsKeyboardFocusedChanged v)))
+
+    let onIsEnabledChanged v : obj =
+        box (EventProp(box (ContentElementProp.OnIsEnabledChanged v)))
+
+    let onFocusableChanged v : obj =
+        box (EventProp(box (ContentElementProp.OnFocusableChanged v)))
 
     let children (cs: VirtualNode list) : obj = box (Children cs)
     let contentChild (c: VirtualNode) : obj = box (ContentChild c)

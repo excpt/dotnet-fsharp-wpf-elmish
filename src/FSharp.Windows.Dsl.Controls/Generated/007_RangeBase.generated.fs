@@ -17,6 +17,7 @@ type RangeBaseProp =
     | Value of float
     | LargeChange of float
     | SmallChange of float
+    | OnValueChanged of System.Windows.RoutedPropertyChangedEventHandler<System.Double>
 
 module RangeBase =
     let minimum v : obj = box (RangeBaseProp.Minimum v)
@@ -24,6 +25,9 @@ module RangeBase =
     let value v : obj = box (RangeBaseProp.Value v)
     let largeChange v : obj = box (RangeBaseProp.LargeChange v)
     let smallChange v : obj = box (RangeBaseProp.SmallChange v)
+
+    let onValueChanged v : obj =
+        box (EventProp(box (RangeBaseProp.OnValueChanged v)))
 
     let apply (el: System.Windows.Controls.Primitives.RangeBase) (prop: RangeBaseProp) =
         match prop with
@@ -35,6 +39,7 @@ module RangeBase =
             el.SetValue(System.Windows.Controls.Primitives.RangeBase.LargeChangeProperty, box v)
         | RangeBaseProp.SmallChange v ->
             el.SetValue(System.Windows.Controls.Primitives.RangeBase.SmallChangeProperty, box v)
+        | RangeBaseProp.OnValueChanged h -> el.ValueChanged.AddHandler(h)
 
     let clear (el: System.Windows.Controls.Primitives.RangeBase) (prop: RangeBaseProp) =
         match prop with
@@ -44,6 +49,7 @@ module RangeBase =
         | RangeBaseProp.Value _ -> el.ClearValue(System.Windows.Controls.Primitives.RangeBase.ValueProperty)
         | RangeBaseProp.LargeChange _ -> el.ClearValue(System.Windows.Controls.Primitives.RangeBase.LargeChangeProperty)
         | RangeBaseProp.SmallChange _ -> el.ClearValue(System.Windows.Controls.Primitives.RangeBase.SmallChangeProperty)
+        | RangeBaseProp.OnValueChanged h -> el.ValueChanged.RemoveHandler(h)
 
     let borderBrush v : obj = box (ControlProp.BorderBrush v)
     let borderThickness v : obj = box (ControlProp.BorderThickness v)
@@ -366,17 +372,110 @@ module RangeBase =
     let onDrop v : obj =
         box (EventProp(box (UIElementProp.OnDrop v)))
 
+    let onPreviewTouchDown v : obj =
+        box (EventProp(box (UIElementProp.OnPreviewTouchDown v)))
+
+    let onTouchDown v : obj =
+        box (EventProp(box (UIElementProp.OnTouchDown v)))
+
+    let onPreviewTouchMove v : obj =
+        box (EventProp(box (UIElementProp.OnPreviewTouchMove v)))
+
+    let onTouchMove v : obj =
+        box (EventProp(box (UIElementProp.OnTouchMove v)))
+
+    let onPreviewTouchUp v : obj =
+        box (EventProp(box (UIElementProp.OnPreviewTouchUp v)))
+
+    let onTouchUp v : obj =
+        box (EventProp(box (UIElementProp.OnTouchUp v)))
+
+    let onGotTouchCapture v : obj =
+        box (EventProp(box (UIElementProp.OnGotTouchCapture v)))
+
+    let onLostTouchCapture v : obj =
+        box (EventProp(box (UIElementProp.OnLostTouchCapture v)))
+
+    let onTouchEnter v : obj =
+        box (EventProp(box (UIElementProp.OnTouchEnter v)))
+
+    let onTouchLeave v : obj =
+        box (EventProp(box (UIElementProp.OnTouchLeave v)))
+
     let onGotFocus v : obj =
         box (EventProp(box (UIElementProp.OnGotFocus v)))
 
     let onLostFocus v : obj =
         box (EventProp(box (UIElementProp.OnLostFocus v)))
 
+    let onManipulationStarting v : obj =
+        box (EventProp(box (UIElementProp.OnManipulationStarting v)))
+
+    let onManipulationStarted v : obj =
+        box (EventProp(box (UIElementProp.OnManipulationStarted v)))
+
+    let onManipulationDelta v : obj =
+        box (EventProp(box (UIElementProp.OnManipulationDelta v)))
+
+    let onManipulationInertiaStarting v : obj =
+        box (EventProp(box (UIElementProp.OnManipulationInertiaStarting v)))
+
+    let onManipulationBoundaryFeedback v : obj =
+        box (EventProp(box (UIElementProp.OnManipulationBoundaryFeedback v)))
+
+    let onManipulationCompleted v : obj =
+        box (EventProp(box (UIElementProp.OnManipulationCompleted v)))
+
+    let onTargetUpdated v : obj =
+        box (EventProp(box (FrameworkElementProp.OnTargetUpdated v)))
+
+    let onSourceUpdated v : obj =
+        box (EventProp(box (FrameworkElementProp.OnSourceUpdated v)))
+
+    let onDataContextChanged v : obj =
+        box (EventProp(box (FrameworkElementProp.OnDataContextChanged v)))
+
     let onInitialized v : obj =
         box (EventProp(box (FrameworkElementProp.OnInitialized v)))
 
+    let onIsMouseDirectlyOverChanged v : obj =
+        box (EventProp(box (UIElementProp.OnIsMouseDirectlyOverChanged v)))
+
+    let onIsKeyboardFocusWithinChanged v : obj =
+        box (EventProp(box (UIElementProp.OnIsKeyboardFocusWithinChanged v)))
+
+    let onIsMouseCapturedChanged v : obj =
+        box (EventProp(box (UIElementProp.OnIsMouseCapturedChanged v)))
+
+    let onIsMouseCaptureWithinChanged v : obj =
+        box (EventProp(box (UIElementProp.OnIsMouseCaptureWithinChanged v)))
+
+    let onIsStylusDirectlyOverChanged v : obj =
+        box (EventProp(box (UIElementProp.OnIsStylusDirectlyOverChanged v)))
+
+    let onIsStylusCapturedChanged v : obj =
+        box (EventProp(box (UIElementProp.OnIsStylusCapturedChanged v)))
+
+    let onIsStylusCaptureWithinChanged v : obj =
+        box (EventProp(box (UIElementProp.OnIsStylusCaptureWithinChanged v)))
+
+    let onIsKeyboardFocusedChanged v : obj =
+        box (EventProp(box (UIElementProp.OnIsKeyboardFocusedChanged v)))
+
     let onLayoutUpdated v : obj =
         box (EventProp(box (UIElementProp.OnLayoutUpdated v)))
+
+    let onIsEnabledChanged v : obj =
+        box (EventProp(box (UIElementProp.OnIsEnabledChanged v)))
+
+    let onIsHitTestVisibleChanged v : obj =
+        box (EventProp(box (UIElementProp.OnIsHitTestVisibleChanged v)))
+
+    let onIsVisibleChanged v : obj =
+        box (EventProp(box (UIElementProp.OnIsVisibleChanged v)))
+
+    let onFocusableChanged v : obj =
+        box (EventProp(box (UIElementProp.OnFocusableChanged v)))
 
     let children (cs: VirtualNode list) : obj = box (Children cs)
     let contentChild (c: VirtualNode) : obj = box (ContentChild c)

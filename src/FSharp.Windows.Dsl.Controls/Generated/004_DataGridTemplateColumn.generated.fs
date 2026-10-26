@@ -92,6 +92,12 @@ module DataGridTemplateColumn =
 
     let visibility v : obj = box (DataGridColumnProp.Visibility v)
 
+    let onCopyingCellClipboardContent v : obj =
+        box (EventProp(box (DataGridColumnProp.OnCopyingCellClipboardContent v)))
+
+    let onPastingCellClipboardContent v : obj =
+        box (EventProp(box (DataGridColumnProp.OnPastingCellClipboardContent v)))
+
     let children (cs: VirtualNode list) : obj = box (Children cs)
     let contentChild (c: VirtualNode) : obj = box (ContentChild c)
     let key (k: string) : obj = box (Key k)

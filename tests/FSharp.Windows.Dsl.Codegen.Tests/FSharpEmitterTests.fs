@@ -198,18 +198,7 @@ let ``isEmittableEvent rejects ImageFailedEventHandler with non-standard arg cou
     Program.isEmittableEvent ev |> should be False
 
 [<Fact>]
-let ``isEmittableEvent rejects generic and nested handler types`` () =
-    let generic =
-        { Name = "X"
-          FieldName = ""
-          OwnerTypeName = "T"
-          OwnerTypeFullName = ""
-          HandlerTypeName = Some "System.EventHandler`1"
-          IsStandardDelegate = true
-          IsObsolete = false }
-
-    Program.isEmittableEvent generic |> should be False
-
+let ``isEmittableEvent rejects nested handler types`` () =
     let nested =
         { Name = "Y"
           FieldName = ""

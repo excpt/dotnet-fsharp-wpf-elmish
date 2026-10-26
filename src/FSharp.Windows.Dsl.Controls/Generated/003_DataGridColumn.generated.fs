@@ -29,6 +29,8 @@ type DataGridColumnProp =
     | DragIndicatorStyle of System.Windows.Style
     | CanUserResize of bool
     | Visibility of System.Windows.Visibility
+    | OnCopyingCellClipboardContent of System.EventHandler<System.Windows.Controls.DataGridCellClipboardEventArgs>
+    | OnPastingCellClipboardContent of System.EventHandler<System.Windows.Controls.DataGridCellClipboardEventArgs>
 
 module DataGridColumn =
     let header v : obj = box (DataGridColumnProp.Header v)
@@ -69,6 +71,12 @@ module DataGridColumn =
 
     let visibility v : obj = box (DataGridColumnProp.Visibility v)
 
+    let onCopyingCellClipboardContent v : obj =
+        box (EventProp(box (DataGridColumnProp.OnCopyingCellClipboardContent v)))
+
+    let onPastingCellClipboardContent v : obj =
+        box (EventProp(box (DataGridColumnProp.OnPastingCellClipboardContent v)))
+
     let apply (el: System.Windows.Controls.DataGridColumn) (prop: DataGridColumnProp) =
         match prop with
         | DataGridColumnProp.Header v -> el.SetValue(System.Windows.Controls.DataGridColumn.HeaderProperty, box v)
@@ -102,6 +110,8 @@ module DataGridColumn =
             el.SetValue(System.Windows.Controls.DataGridColumn.CanUserResizeProperty, box v)
         | DataGridColumnProp.Visibility v ->
             el.SetValue(System.Windows.Controls.DataGridColumn.VisibilityProperty, box v)
+        | DataGridColumnProp.OnCopyingCellClipboardContent h -> el.CopyingCellClipboardContent.AddHandler(h)
+        | DataGridColumnProp.OnPastingCellClipboardContent h -> el.PastingCellClipboardContent.AddHandler(h)
 
     let clear (el: System.Windows.Controls.DataGridColumn) (prop: DataGridColumnProp) =
         match prop with
@@ -132,6 +142,8 @@ module DataGridColumn =
         | DataGridColumnProp.CanUserResize _ ->
             el.ClearValue(System.Windows.Controls.DataGridColumn.CanUserResizeProperty)
         | DataGridColumnProp.Visibility _ -> el.ClearValue(System.Windows.Controls.DataGridColumn.VisibilityProperty)
+        | DataGridColumnProp.OnCopyingCellClipboardContent h -> el.CopyingCellClipboardContent.RemoveHandler(h)
+        | DataGridColumnProp.OnPastingCellClipboardContent h -> el.PastingCellClipboardContent.RemoveHandler(h)
 
 
     let children (cs: VirtualNode list) : obj = box (Children cs)

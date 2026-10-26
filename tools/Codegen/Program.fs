@@ -326,20 +326,19 @@ let private isWpfType (t: Type) =
 /// A DP is emittable when it isn't attached and isn't read-only.
 let isEmittableDP (dp: DPInfo) = not dp.IsAttached && not dp.IsReadOnly
 
-/// An event is emittable when its handler delegate has the canonical
-/// `void Invoke(object, T)` shape that F# `.AddHandler` accepts. Anything else trips
-/// FS1091 in the generated wrapper. Captured at discovery time as IsStandardDelegate so
-/// non-standard signatures (HwndSourceHook returning IntPtr, ImageFailedEventHandler with
-/// extra parameters, etc.) are filtered out without re-reflecting on the delegate type.
-/// We also reject generic and nested types since the codegen emits FullName as F# source.
-let isEmittableEvent (ev: EventInfo) =
+/// Why an event cannot be emitted, or None when it can. The handler must be a delegate F#
+/// `.AddHandler` accepts (IsStandardDelegate, captured at discovery), not obsolete (FS0101
+/// even through a member access), and not a nested type (HandlerTypeName keeps the CLR
+/// '+'). Generic handlers are fine: HandlerTypeName renders them as F# source.
+let eventSkipReason (ev: EventInfo) =
     match ev.HandlerTypeName with
-    | None -> false
-    | Some ht ->
-        ev.IsStandardDelegate
-        && not ev.IsObsolete
-        && not (ht.Contains('`'))
-        && not (ht.Contains('+'))
+    | None -> Some "no handler type"
+    | Some _ when ev.IsObsolete -> Some "obsolete"
+    | Some ht when not ev.IsStandardDelegate -> Some $"{ht} is not void Invoke(obj, ...)"
+    | Some ht when ht.Contains('+') -> Some $"nested handler type {ht}"
+    | Some _ -> None
+
+let isEmittableEvent (ev: EventInfo) = (eventSkipReason ev).IsNone
 
 /// Predicate matching the emit skip rule: a type produces a file iff it has at least one
 /// emittable DP or emittable event *declared on itself*. Pass-through types (only
@@ -496,6 +495,12 @@ let buildEmitInput
               DPFieldExpression = $"{dp.OwnerTypeFullName}.{dp.FieldName}"
               Guard = guardMaps.DP |> Map.tryFind guardKey
               MaterializeBeforeSet = isUIElementValue })
+
+    // Name every event left out, so the next gap shows in the generation output.
+    for ev in ownEvents do
+        match eventSkipReason ev with
+        | Some reason -> printfn $"  skip event {ev.OwnerTypeName}.{ev.Name}: {reason}"
+        | None -> ()
 
     let emitEvents =
         ownEvents

@@ -8,6 +8,9 @@ open FSharp.Windows.Dsl
 module Registration =
     /// Register all generated apply functions with the Materializer.
     let register () =
+        Materializer.registerApply<System.Windows.VisualStateGroup, VisualStateGroupProp> VisualStateGroup.apply
+        Materializer.registerClear<System.Windows.VisualStateGroup, VisualStateGroupProp> VisualStateGroup.clear
+
         Materializer.registerApply<System.Windows.Data.CollectionContainer, CollectionContainerProp>
             CollectionContainer.apply
 

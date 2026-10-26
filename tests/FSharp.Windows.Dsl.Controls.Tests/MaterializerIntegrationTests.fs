@@ -223,3 +223,29 @@ let ``every generated value case targets a writable dependency property`` () =
                   | None -> () ]
 
     offenders |> should be Empty
+
+// Events the codegen used to drop: a generic handler (RoutedPropertyChangedEventHandler<float>)
+// and a DependencyPropertyChangedEventHandler, whose args are a struct, not EventArgs.
+[<Fact>]
+let ``generic and dependency-property-changed handlers are generated and fire`` () =
+    runSta (fun () ->
+        register ()
+        let mutable valueChanges = 0
+        let mutable contextChanges = 0
+
+        let slider =
+            Dsl.materializeAs<Slider> (
+                slider
+                    [ Slider.onValueChanged (
+                          RoutedPropertyChangedEventHandler(fun _ _ -> valueChanges <- valueChanges + 1)
+                      )
+                      Slider.onDataContextChanged (
+                          DependencyPropertyChangedEventHandler(fun _ _ -> contextChanges <- contextChanges + 1)
+                      ) ]
+            )
+
+        slider.Value <- 5.0
+        slider.DataContext <- box "model"
+
+        valueChanges |> should equal 1
+        contextChanges |> should equal 1)
