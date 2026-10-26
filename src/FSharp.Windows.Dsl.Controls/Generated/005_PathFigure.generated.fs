@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -30,6 +30,14 @@ module PathFigure =
         | PathFigureProp.IsFilled v -> el.SetValue(System.Windows.Media.PathFigure.IsFilledProperty, box v)
         | PathFigureProp.Segments v -> el.SetValue(System.Windows.Media.PathFigure.SegmentsProperty, box v)
         | PathFigureProp.IsClosed v -> el.SetValue(System.Windows.Media.PathFigure.IsClosedProperty, box v)
+
+    let clear (el: System.Windows.Media.PathFigure) (prop: PathFigureProp) =
+        match prop with
+        | PathFigureProp.Base p -> Freezable.clear el p
+        | PathFigureProp.StartPoint _ -> el.ClearValue(System.Windows.Media.PathFigure.StartPointProperty)
+        | PathFigureProp.IsFilled _ -> el.ClearValue(System.Windows.Media.PathFigure.IsFilledProperty)
+        | PathFigureProp.Segments _ -> el.ClearValue(System.Windows.Media.PathFigure.SegmentsProperty)
+        | PathFigureProp.IsClosed _ -> el.ClearValue(System.Windows.Media.PathFigure.IsClosedProperty)
 
     let onChanged v : obj =
         box (EventProp(box (FreezableProp.OnChanged v)))

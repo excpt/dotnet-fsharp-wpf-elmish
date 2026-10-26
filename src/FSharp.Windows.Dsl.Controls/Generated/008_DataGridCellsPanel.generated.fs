@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -17,6 +17,10 @@ module DataGridCellsPanel =
     let apply (el: System.Windows.Controls.DataGridCellsPanel) (prop: DataGridCellsPanelProp) =
         match prop with
         | DataGridCellsPanelProp.Base p -> Panel.apply el p
+
+    let clear (el: System.Windows.Controls.DataGridCellsPanel) (prop: DataGridCellsPanelProp) =
+        match prop with
+        | DataGridCellsPanelProp.Base p -> Panel.clear el p
 
     let background v : obj = box (PanelProp.Background v)
     let isItemsHost v : obj = box (PanelProp.IsItemsHost v)

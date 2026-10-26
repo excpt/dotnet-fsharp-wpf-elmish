@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -35,6 +35,15 @@ module RangeBase =
             el.SetValue(System.Windows.Controls.Primitives.RangeBase.LargeChangeProperty, box v)
         | RangeBaseProp.SmallChange v ->
             el.SetValue(System.Windows.Controls.Primitives.RangeBase.SmallChangeProperty, box v)
+
+    let clear (el: System.Windows.Controls.Primitives.RangeBase) (prop: RangeBaseProp) =
+        match prop with
+        | RangeBaseProp.Base p -> Control.clear el p
+        | RangeBaseProp.Minimum _ -> el.ClearValue(System.Windows.Controls.Primitives.RangeBase.MinimumProperty)
+        | RangeBaseProp.Maximum _ -> el.ClearValue(System.Windows.Controls.Primitives.RangeBase.MaximumProperty)
+        | RangeBaseProp.Value _ -> el.ClearValue(System.Windows.Controls.Primitives.RangeBase.ValueProperty)
+        | RangeBaseProp.LargeChange _ -> el.ClearValue(System.Windows.Controls.Primitives.RangeBase.LargeChangeProperty)
+        | RangeBaseProp.SmallChange _ -> el.ClearValue(System.Windows.Controls.Primitives.RangeBase.SmallChangeProperty)
 
     let borderBrush v : obj = box (ControlProp.BorderBrush v)
     let borderThickness v : obj = box (ControlProp.BorderThickness v)

@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -17,6 +17,10 @@ module Underline =
     let apply (el: System.Windows.Documents.Underline) (prop: UnderlineProp) =
         match prop with
         | UnderlineProp.Base p -> Inline.apply el p
+
+    let clear (el: System.Windows.Documents.Underline) (prop: UnderlineProp) =
+        match prop with
+        | UnderlineProp.Base p -> Inline.clear el p
 
     let baselineAlignment v : obj = box (InlineProp.BaselineAlignment v)
     let textDecorations v : obj = box (InlineProp.TextDecorations v)

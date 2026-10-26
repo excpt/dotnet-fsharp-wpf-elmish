@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -34,6 +34,18 @@ module RotateTransform3D =
             el.SetValue(System.Windows.Media.Media3D.RotateTransform3D.CenterZProperty, box v)
         | RotateTransform3DProp.Rotation v ->
             el.SetValue(System.Windows.Media.Media3D.RotateTransform3D.RotationProperty, box v)
+
+    let clear (el: System.Windows.Media.Media3D.RotateTransform3D) (prop: RotateTransform3DProp) =
+        match prop with
+        | RotateTransform3DProp.Base p -> Freezable.clear el p
+        | RotateTransform3DProp.CenterX _ ->
+            el.ClearValue(System.Windows.Media.Media3D.RotateTransform3D.CenterXProperty)
+        | RotateTransform3DProp.CenterY _ ->
+            el.ClearValue(System.Windows.Media.Media3D.RotateTransform3D.CenterYProperty)
+        | RotateTransform3DProp.CenterZ _ ->
+            el.ClearValue(System.Windows.Media.Media3D.RotateTransform3D.CenterZProperty)
+        | RotateTransform3DProp.Rotation _ ->
+            el.ClearValue(System.Windows.Media.Media3D.RotateTransform3D.RotationProperty)
 
     let onChanged v : obj =
         box (EventProp(box (FreezableProp.OnChanged v)))

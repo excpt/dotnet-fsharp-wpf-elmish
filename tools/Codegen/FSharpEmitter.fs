@@ -258,6 +258,43 @@ let private emitModule (sb: StringBuilder) (input: EmitControlInput) =
 
     sb.AppendLine() |> ignore
 
+    // Clear function — undoes apply for a prop dropped from the new tree:
+    // ClearValue for DPs, RemoveHandler for events, Base delegates to the parent.
+    sb.AppendLine($"    let clear (el: {input.ControlFullName}) (prop: {propType}) =")
+    |> ignore
+
+    sb.AppendLine($"        match prop with") |> ignore
+
+    match input.ParentApplyFnName with
+    | Some applyFn ->
+        let clearFn = applyFn.Substring(0, applyFn.Length - "apply".Length) + "clear"
+        sb.AppendLine($"        | {propType}.Base p -> {clearFn} el p") |> ignore
+    | None -> ()
+
+    let clearCase (item: Choice<EmitDP, EmitEvent>) =
+        let line =
+            match item with
+            | Choice1Of2 dp -> $"        | {propType}.{dp.CaseName} _ -> el.ClearValue({dp.DPFieldExpression})"
+            | Choice2Of2 ev -> $"        | {propType}.{ev.CaseName} h -> {ev.EventExpression}.RemoveHandler(h)"
+
+        sb.AppendLine(line) |> ignore
+
+    for dp in baselineDPs do
+        clearCase (Choice1Of2 dp)
+
+    for ev in baselineEvents do
+        clearCase (Choice2Of2 ev)
+
+    for guard, items in guardedGroups do
+        sb.AppendLine($"#if {guard}") |> ignore
+
+        for item in items do
+            clearCase item
+
+        sb.AppendLine("#endif") |> ignore
+
+    sb.AppendLine() |> ignore
+
     // Inherited helpers (width, height, content, etc. from ancestor types). Helpers whose
     // underlying member was added in a non-baseline TFM must be guarded — otherwise a
     // derived-type file would reference a Prop DU case that's #if'd out on the baseline.
@@ -421,6 +458,9 @@ let emitRegistration (ns: string) (controls: (string * string * string) list) : 
         // Skip WPF base types in third-party packages — already registered by base Controls
         if not (isThirdParty && controlFullName.StartsWith("System.Windows.")) then
             sb.AppendLine($"        Materializer.registerApply<{controlFullName}, {propTypeName}> {moduleName}.apply")
+            |> ignore
+
+            sb.AppendLine($"        Materializer.registerClear<{controlFullName}, {propTypeName}> {moduleName}.clear")
             |> ignore
 
     sb.ToString()

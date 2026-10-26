@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -22,6 +22,12 @@ module BulletDecorator =
         | BulletDecoratorProp.Base p -> FrameworkElement.apply el p
         | BulletDecoratorProp.Background v ->
             el.SetValue(System.Windows.Controls.Primitives.BulletDecorator.BackgroundProperty, box v)
+
+    let clear (el: System.Windows.Controls.Primitives.BulletDecorator) (prop: BulletDecoratorProp) =
+        match prop with
+        | BulletDecoratorProp.Base p -> FrameworkElement.clear el p
+        | BulletDecoratorProp.Background _ ->
+            el.ClearValue(System.Windows.Controls.Primitives.BulletDecorator.BackgroundProperty)
 
     let style v : obj = box (FrameworkElementProp.Style v)
 

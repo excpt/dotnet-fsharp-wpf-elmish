@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -23,6 +23,12 @@ module RichTextBox =
         | RichTextBoxProp.Base p -> TextBoxBase.apply el p
         | RichTextBoxProp.IsDocumentEnabled v ->
             el.SetValue(System.Windows.Controls.RichTextBox.IsDocumentEnabledProperty, box v)
+
+    let clear (el: System.Windows.Controls.RichTextBox) (prop: RichTextBoxProp) =
+        match prop with
+        | RichTextBoxProp.Base p -> TextBoxBase.clear el p
+        | RichTextBoxProp.IsDocumentEnabled _ ->
+            el.ClearValue(System.Windows.Controls.RichTextBox.IsDocumentEnabledProperty)
 
     let isReadOnly v : obj = box (TextBoxBaseProp.IsReadOnly v)
 

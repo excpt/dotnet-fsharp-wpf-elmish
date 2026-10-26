@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -29,6 +29,14 @@ module DataGridBoundColumn =
             el.SetValue(System.Windows.Controls.DataGridBoundColumn.ElementStyleProperty, box v)
         | DataGridBoundColumnProp.EditingElementStyle v ->
             el.SetValue(System.Windows.Controls.DataGridBoundColumn.EditingElementStyleProperty, box v)
+
+    let clear (el: System.Windows.Controls.DataGridBoundColumn) (prop: DataGridBoundColumnProp) =
+        match prop with
+        | DataGridBoundColumnProp.Base p -> DataGridColumn.clear el p
+        | DataGridBoundColumnProp.ElementStyle _ ->
+            el.ClearValue(System.Windows.Controls.DataGridBoundColumn.ElementStyleProperty)
+        | DataGridBoundColumnProp.EditingElementStyle _ ->
+            el.ClearValue(System.Windows.Controls.DataGridBoundColumn.EditingElementStyleProperty)
 
     let header v : obj = box (DataGridColumnProp.Header v)
     let headerStyle v : obj = box (DataGridColumnProp.HeaderStyle v)

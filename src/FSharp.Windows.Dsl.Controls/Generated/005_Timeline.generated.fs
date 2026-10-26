@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -74,6 +74,26 @@ module Timeline =
         | TimelineProp.OnCurrentGlobalSpeedInvalidated h -> el.CurrentGlobalSpeedInvalidated.AddHandler(h)
         | TimelineProp.OnCompleted h -> el.Completed.AddHandler(h)
         | TimelineProp.OnRemoveRequested h -> el.RemoveRequested.AddHandler(h)
+
+    let clear (el: System.Windows.Media.Animation.Timeline) (prop: TimelineProp) =
+        match prop with
+        | TimelineProp.Base p -> Freezable.clear el p
+        | TimelineProp.AccelerationRatio _ ->
+            el.ClearValue(System.Windows.Media.Animation.Timeline.AccelerationRatioProperty)
+        | TimelineProp.AutoReverse _ -> el.ClearValue(System.Windows.Media.Animation.Timeline.AutoReverseProperty)
+        | TimelineProp.BeginTime _ -> el.ClearValue(System.Windows.Media.Animation.Timeline.BeginTimeProperty)
+        | TimelineProp.DecelerationRatio _ ->
+            el.ClearValue(System.Windows.Media.Animation.Timeline.DecelerationRatioProperty)
+        | TimelineProp.Duration _ -> el.ClearValue(System.Windows.Media.Animation.Timeline.DurationProperty)
+        | TimelineProp.FillBehavior _ -> el.ClearValue(System.Windows.Media.Animation.Timeline.FillBehaviorProperty)
+        | TimelineProp.Name _ -> el.ClearValue(System.Windows.Media.Animation.Timeline.NameProperty)
+        | TimelineProp.RepeatBehavior _ -> el.ClearValue(System.Windows.Media.Animation.Timeline.RepeatBehaviorProperty)
+        | TimelineProp.SpeedRatio _ -> el.ClearValue(System.Windows.Media.Animation.Timeline.SpeedRatioProperty)
+        | TimelineProp.OnCurrentStateInvalidated h -> el.CurrentStateInvalidated.RemoveHandler(h)
+        | TimelineProp.OnCurrentTimeInvalidated h -> el.CurrentTimeInvalidated.RemoveHandler(h)
+        | TimelineProp.OnCurrentGlobalSpeedInvalidated h -> el.CurrentGlobalSpeedInvalidated.RemoveHandler(h)
+        | TimelineProp.OnCompleted h -> el.Completed.RemoveHandler(h)
+        | TimelineProp.OnRemoveRequested h -> el.RemoveRequested.RemoveHandler(h)
 
     let onChanged v : obj =
         box (EventProp(box (FreezableProp.OnChanged v)))

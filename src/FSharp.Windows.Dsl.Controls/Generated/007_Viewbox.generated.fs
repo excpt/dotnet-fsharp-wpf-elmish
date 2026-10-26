@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -24,6 +24,12 @@ module Viewbox =
         | ViewboxProp.Base p -> FrameworkElement.apply el p
         | ViewboxProp.Stretch v -> el.SetValue(System.Windows.Controls.Viewbox.StretchProperty, box v)
         | ViewboxProp.StretchDirection v -> el.SetValue(System.Windows.Controls.Viewbox.StretchDirectionProperty, box v)
+
+    let clear (el: System.Windows.Controls.Viewbox) (prop: ViewboxProp) =
+        match prop with
+        | ViewboxProp.Base p -> FrameworkElement.clear el p
+        | ViewboxProp.Stretch _ -> el.ClearValue(System.Windows.Controls.Viewbox.StretchProperty)
+        | ViewboxProp.StretchDirection _ -> el.ClearValue(System.Windows.Controls.Viewbox.StretchDirectionProperty)
 
     let style v : obj = box (FrameworkElementProp.Style v)
 

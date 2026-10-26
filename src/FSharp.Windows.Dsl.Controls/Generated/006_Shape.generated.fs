@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -51,6 +51,21 @@ module Shape =
         | ShapeProp.StrokeMiterLimit v -> el.SetValue(System.Windows.Shapes.Shape.StrokeMiterLimitProperty, box v)
         | ShapeProp.StrokeDashOffset v -> el.SetValue(System.Windows.Shapes.Shape.StrokeDashOffsetProperty, box v)
         | ShapeProp.StrokeDashArray v -> el.SetValue(System.Windows.Shapes.Shape.StrokeDashArrayProperty, box v)
+
+    let clear (el: System.Windows.Shapes.Shape) (prop: ShapeProp) =
+        match prop with
+        | ShapeProp.Base p -> FrameworkElement.clear el p
+        | ShapeProp.Stretch _ -> el.ClearValue(System.Windows.Shapes.Shape.StretchProperty)
+        | ShapeProp.Fill _ -> el.ClearValue(System.Windows.Shapes.Shape.FillProperty)
+        | ShapeProp.Stroke _ -> el.ClearValue(System.Windows.Shapes.Shape.StrokeProperty)
+        | ShapeProp.StrokeThickness _ -> el.ClearValue(System.Windows.Shapes.Shape.StrokeThicknessProperty)
+        | ShapeProp.StrokeStartLineCap _ -> el.ClearValue(System.Windows.Shapes.Shape.StrokeStartLineCapProperty)
+        | ShapeProp.StrokeEndLineCap _ -> el.ClearValue(System.Windows.Shapes.Shape.StrokeEndLineCapProperty)
+        | ShapeProp.StrokeDashCap _ -> el.ClearValue(System.Windows.Shapes.Shape.StrokeDashCapProperty)
+        | ShapeProp.StrokeLineJoin _ -> el.ClearValue(System.Windows.Shapes.Shape.StrokeLineJoinProperty)
+        | ShapeProp.StrokeMiterLimit _ -> el.ClearValue(System.Windows.Shapes.Shape.StrokeMiterLimitProperty)
+        | ShapeProp.StrokeDashOffset _ -> el.ClearValue(System.Windows.Shapes.Shape.StrokeDashOffsetProperty)
+        | ShapeProp.StrokeDashArray _ -> el.ClearValue(System.Windows.Shapes.Shape.StrokeDashArrayProperty)
 
     let style v : obj = box (FrameworkElementProp.Style v)
 

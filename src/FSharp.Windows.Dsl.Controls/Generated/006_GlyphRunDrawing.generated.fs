@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -27,6 +27,13 @@ module GlyphRunDrawing =
         | GlyphRunDrawingProp.GlyphRun v -> el.SetValue(System.Windows.Media.GlyphRunDrawing.GlyphRunProperty, box v)
         | GlyphRunDrawingProp.ForegroundBrush v ->
             el.SetValue(System.Windows.Media.GlyphRunDrawing.ForegroundBrushProperty, box v)
+
+    let clear (el: System.Windows.Media.GlyphRunDrawing) (prop: GlyphRunDrawingProp) =
+        match prop with
+        | GlyphRunDrawingProp.Base p -> Freezable.clear el p
+        | GlyphRunDrawingProp.GlyphRun _ -> el.ClearValue(System.Windows.Media.GlyphRunDrawing.GlyphRunProperty)
+        | GlyphRunDrawingProp.ForegroundBrush _ ->
+            el.ClearValue(System.Windows.Media.GlyphRunDrawing.ForegroundBrushProperty)
 
     let onChanged v : obj =
         box (EventProp(box (FreezableProp.OnChanged v)))

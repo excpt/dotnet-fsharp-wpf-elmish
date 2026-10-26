@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -35,6 +35,16 @@ module VirtualizingStackPanel =
             el.SetValue(System.Windows.Controls.VirtualizingStackPanel.VirtualizationModeProperty, box v)
         | VirtualizingStackPanelProp.Orientation v ->
             el.SetValue(System.Windows.Controls.VirtualizingStackPanel.OrientationProperty, box v)
+
+    let clear (el: System.Windows.Controls.VirtualizingStackPanel) (prop: VirtualizingStackPanelProp) =
+        match prop with
+        | VirtualizingStackPanelProp.Base p -> Panel.clear el p
+        | VirtualizingStackPanelProp.IsVirtualizing _ ->
+            el.ClearValue(System.Windows.Controls.VirtualizingStackPanel.IsVirtualizingProperty)
+        | VirtualizingStackPanelProp.VirtualizationMode _ ->
+            el.ClearValue(System.Windows.Controls.VirtualizingStackPanel.VirtualizationModeProperty)
+        | VirtualizingStackPanelProp.Orientation _ ->
+            el.ClearValue(System.Windows.Controls.VirtualizingStackPanel.OrientationProperty)
 
     let background v : obj = box (PanelProp.Background v)
     let isItemsHost v : obj = box (PanelProp.IsItemsHost v)

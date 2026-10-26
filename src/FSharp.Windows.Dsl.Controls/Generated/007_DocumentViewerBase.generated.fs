@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -27,6 +27,13 @@ module DocumentViewerBase =
         | DocumentViewerBaseProp.Document v ->
             el.SetValue(System.Windows.Controls.Primitives.DocumentViewerBase.DocumentProperty, box v)
         | DocumentViewerBaseProp.OnPageViewsChanged h -> el.PageViewsChanged.AddHandler(h)
+
+    let clear (el: System.Windows.Controls.Primitives.DocumentViewerBase) (prop: DocumentViewerBaseProp) =
+        match prop with
+        | DocumentViewerBaseProp.Base p -> Control.clear el p
+        | DocumentViewerBaseProp.Document _ ->
+            el.ClearValue(System.Windows.Controls.Primitives.DocumentViewerBase.DocumentProperty)
+        | DocumentViewerBaseProp.OnPageViewsChanged h -> el.PageViewsChanged.RemoveHandler(h)
 
     let borderBrush v : obj = box (ControlProp.BorderBrush v)
     let borderThickness v : obj = box (ControlProp.BorderThickness v)

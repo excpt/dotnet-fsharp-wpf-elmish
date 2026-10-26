@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -35,6 +35,16 @@ module TranslateTransform3D =
             el.SetValue(System.Windows.Media.Media3D.TranslateTransform3D.OffsetYProperty, box v)
         | TranslateTransform3DProp.OffsetZ v ->
             el.SetValue(System.Windows.Media.Media3D.TranslateTransform3D.OffsetZProperty, box v)
+
+    let clear (el: System.Windows.Media.Media3D.TranslateTransform3D) (prop: TranslateTransform3DProp) =
+        match prop with
+        | TranslateTransform3DProp.Base p -> Freezable.clear el p
+        | TranslateTransform3DProp.OffsetX _ ->
+            el.ClearValue(System.Windows.Media.Media3D.TranslateTransform3D.OffsetXProperty)
+        | TranslateTransform3DProp.OffsetY _ ->
+            el.ClearValue(System.Windows.Media.Media3D.TranslateTransform3D.OffsetYProperty)
+        | TranslateTransform3DProp.OffsetZ _ ->
+            el.ClearValue(System.Windows.Media.Media3D.TranslateTransform3D.OffsetZProperty)
 
     let onChanged v : obj =
         box (EventProp(box (FreezableProp.OnChanged v)))

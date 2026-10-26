@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -27,6 +27,13 @@ module BezierSegment =
         | BezierSegmentProp.Point1 v -> el.SetValue(System.Windows.Media.BezierSegment.Point1Property, box v)
         | BezierSegmentProp.Point2 v -> el.SetValue(System.Windows.Media.BezierSegment.Point2Property, box v)
         | BezierSegmentProp.Point3 v -> el.SetValue(System.Windows.Media.BezierSegment.Point3Property, box v)
+
+    let clear (el: System.Windows.Media.BezierSegment) (prop: BezierSegmentProp) =
+        match prop with
+        | BezierSegmentProp.Base p -> PathSegment.clear el p
+        | BezierSegmentProp.Point1 _ -> el.ClearValue(System.Windows.Media.BezierSegment.Point1Property)
+        | BezierSegmentProp.Point2 _ -> el.ClearValue(System.Windows.Media.BezierSegment.Point2Property)
+        | BezierSegmentProp.Point3 _ -> el.ClearValue(System.Windows.Media.BezierSegment.Point3Property)
 
     let isStroked v : obj = box (PathSegmentProp.IsStroked v)
     let isSmoothJoin v : obj = box (PathSegmentProp.IsSmoothJoin v)

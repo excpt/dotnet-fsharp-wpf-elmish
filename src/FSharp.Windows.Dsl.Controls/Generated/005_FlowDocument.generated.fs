@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -126,6 +126,42 @@ module FlowDocument =
             el.SetValue(System.Windows.Documents.FlowDocument.PagePaddingProperty, box v)
         | FlowDocumentProp.IsHyphenationEnabled v ->
             el.SetValue(System.Windows.Documents.FlowDocument.IsHyphenationEnabledProperty, box v)
+
+    let clear (el: System.Windows.Documents.FlowDocument) (prop: FlowDocumentProp) =
+        match prop with
+        | FlowDocumentProp.Base p -> FrameworkContentElement.clear el p
+        | FlowDocumentProp.FontFamily _ -> el.ClearValue(System.Windows.Documents.FlowDocument.FontFamilyProperty)
+        | FlowDocumentProp.FontStyle _ -> el.ClearValue(System.Windows.Documents.FlowDocument.FontStyleProperty)
+        | FlowDocumentProp.FontWeight _ -> el.ClearValue(System.Windows.Documents.FlowDocument.FontWeightProperty)
+        | FlowDocumentProp.FontStretch _ -> el.ClearValue(System.Windows.Documents.FlowDocument.FontStretchProperty)
+        | FlowDocumentProp.FontSize _ -> el.ClearValue(System.Windows.Documents.FlowDocument.FontSizeProperty)
+        | FlowDocumentProp.Foreground _ -> el.ClearValue(System.Windows.Documents.FlowDocument.ForegroundProperty)
+        | FlowDocumentProp.Background _ -> el.ClearValue(System.Windows.Documents.FlowDocument.BackgroundProperty)
+        | FlowDocumentProp.TextEffects _ -> el.ClearValue(System.Windows.Documents.FlowDocument.TextEffectsProperty)
+        | FlowDocumentProp.TextAlignment _ -> el.ClearValue(System.Windows.Documents.FlowDocument.TextAlignmentProperty)
+        | FlowDocumentProp.FlowDirection _ -> el.ClearValue(System.Windows.Documents.FlowDocument.FlowDirectionProperty)
+        | FlowDocumentProp.LineHeight _ -> el.ClearValue(System.Windows.Documents.FlowDocument.LineHeightProperty)
+        | FlowDocumentProp.LineStackingStrategy _ ->
+            el.ClearValue(System.Windows.Documents.FlowDocument.LineStackingStrategyProperty)
+        | FlowDocumentProp.ColumnWidth _ -> el.ClearValue(System.Windows.Documents.FlowDocument.ColumnWidthProperty)
+        | FlowDocumentProp.ColumnGap _ -> el.ClearValue(System.Windows.Documents.FlowDocument.ColumnGapProperty)
+        | FlowDocumentProp.IsColumnWidthFlexible _ ->
+            el.ClearValue(System.Windows.Documents.FlowDocument.IsColumnWidthFlexibleProperty)
+        | FlowDocumentProp.ColumnRuleWidth _ ->
+            el.ClearValue(System.Windows.Documents.FlowDocument.ColumnRuleWidthProperty)
+        | FlowDocumentProp.ColumnRuleBrush _ ->
+            el.ClearValue(System.Windows.Documents.FlowDocument.ColumnRuleBrushProperty)
+        | FlowDocumentProp.IsOptimalParagraphEnabled _ ->
+            el.ClearValue(System.Windows.Documents.FlowDocument.IsOptimalParagraphEnabledProperty)
+        | FlowDocumentProp.PageWidth _ -> el.ClearValue(System.Windows.Documents.FlowDocument.PageWidthProperty)
+        | FlowDocumentProp.MinPageWidth _ -> el.ClearValue(System.Windows.Documents.FlowDocument.MinPageWidthProperty)
+        | FlowDocumentProp.MaxPageWidth _ -> el.ClearValue(System.Windows.Documents.FlowDocument.MaxPageWidthProperty)
+        | FlowDocumentProp.PageHeight _ -> el.ClearValue(System.Windows.Documents.FlowDocument.PageHeightProperty)
+        | FlowDocumentProp.MinPageHeight _ -> el.ClearValue(System.Windows.Documents.FlowDocument.MinPageHeightProperty)
+        | FlowDocumentProp.MaxPageHeight _ -> el.ClearValue(System.Windows.Documents.FlowDocument.MaxPageHeightProperty)
+        | FlowDocumentProp.PagePadding _ -> el.ClearValue(System.Windows.Documents.FlowDocument.PagePaddingProperty)
+        | FlowDocumentProp.IsHyphenationEnabled _ ->
+            el.ClearValue(System.Windows.Documents.FlowDocument.IsHyphenationEnabledProperty)
 
     let style v : obj =
         box (FrameworkContentElementProp.Style v)

@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -21,6 +21,11 @@ module Menu =
         match prop with
         | MenuProp.Base p -> MenuBase.apply el p
         | MenuProp.IsMainMenu v -> el.SetValue(System.Windows.Controls.Menu.IsMainMenuProperty, box v)
+
+    let clear (el: System.Windows.Controls.Menu) (prop: MenuProp) =
+        match prop with
+        | MenuProp.Base p -> MenuBase.clear el p
+        | MenuProp.IsMainMenu _ -> el.ClearValue(System.Windows.Controls.Menu.IsMainMenuProperty)
 
     let itemContainerTemplateSelector v : obj =
         box (MenuBaseProp.ItemContainerTemplateSelector v)

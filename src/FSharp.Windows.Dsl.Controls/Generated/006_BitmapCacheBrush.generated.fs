@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -33,6 +33,14 @@ module BitmapCacheBrush =
             el.SetValue(System.Windows.Media.BitmapCacheBrush.BitmapCacheProperty, box v)
         | BitmapCacheBrushProp.AutoLayoutContent v ->
             el.SetValue(System.Windows.Media.BitmapCacheBrush.AutoLayoutContentProperty, box v)
+
+    let clear (el: System.Windows.Media.BitmapCacheBrush) (prop: BitmapCacheBrushProp) =
+        match prop with
+        | BitmapCacheBrushProp.Base p -> Brush.clear el p
+        | BitmapCacheBrushProp.Target _ -> el.ClearValue(System.Windows.Media.BitmapCacheBrush.TargetProperty)
+        | BitmapCacheBrushProp.BitmapCache _ -> el.ClearValue(System.Windows.Media.BitmapCacheBrush.BitmapCacheProperty)
+        | BitmapCacheBrushProp.AutoLayoutContent _ ->
+            el.ClearValue(System.Windows.Media.BitmapCacheBrush.AutoLayoutContentProperty)
 
     let opacity v : obj = box (BrushProp.Opacity v)
     let transform v : obj = box (BrushProp.Transform v)

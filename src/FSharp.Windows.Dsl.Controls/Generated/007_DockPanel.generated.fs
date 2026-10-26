@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -21,6 +21,11 @@ module DockPanel =
         match prop with
         | DockPanelProp.Base p -> Panel.apply el p
         | DockPanelProp.LastChildFill v -> el.SetValue(System.Windows.Controls.DockPanel.LastChildFillProperty, box v)
+
+    let clear (el: System.Windows.Controls.DockPanel) (prop: DockPanelProp) =
+        match prop with
+        | DockPanelProp.Base p -> Panel.clear el p
+        | DockPanelProp.LastChildFill _ -> el.ClearValue(System.Windows.Controls.DockPanel.LastChildFillProperty)
 
     let background v : obj = box (PanelProp.Background v)
     let isItemsHost v : obj = box (PanelProp.IsItemsHost v)

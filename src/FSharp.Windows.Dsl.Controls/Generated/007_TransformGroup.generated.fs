@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -21,6 +21,11 @@ module TransformGroup =
         match prop with
         | TransformGroupProp.Base p -> Freezable.apply el p
         | TransformGroupProp.Children v -> el.SetValue(System.Windows.Media.TransformGroup.ChildrenProperty, box v)
+
+    let clear (el: System.Windows.Media.TransformGroup) (prop: TransformGroupProp) =
+        match prop with
+        | TransformGroupProp.Base p -> Freezable.clear el p
+        | TransformGroupProp.Children _ -> el.ClearValue(System.Windows.Media.TransformGroup.ChildrenProperty)
 
     let onChanged v : obj =
         box (EventProp(box (FreezableProp.OnChanged v)))

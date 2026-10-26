@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -31,6 +31,14 @@ module DiffuseMaterial =
         | DiffuseMaterialProp.AmbientColor v ->
             el.SetValue(System.Windows.Media.Media3D.DiffuseMaterial.AmbientColorProperty, box v)
         | DiffuseMaterialProp.Brush v -> el.SetValue(System.Windows.Media.Media3D.DiffuseMaterial.BrushProperty, box v)
+
+    let clear (el: System.Windows.Media.Media3D.DiffuseMaterial) (prop: DiffuseMaterialProp) =
+        match prop with
+        | DiffuseMaterialProp.Base p -> Freezable.clear el p
+        | DiffuseMaterialProp.Color _ -> el.ClearValue(System.Windows.Media.Media3D.DiffuseMaterial.ColorProperty)
+        | DiffuseMaterialProp.AmbientColor _ ->
+            el.ClearValue(System.Windows.Media.Media3D.DiffuseMaterial.AmbientColorProperty)
+        | DiffuseMaterialProp.Brush _ -> el.ClearValue(System.Windows.Media.Media3D.DiffuseMaterial.BrushProperty)
 
     let onChanged v : obj =
         box (EventProp(box (FreezableProp.OnChanged v)))

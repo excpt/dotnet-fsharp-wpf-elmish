@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -29,6 +29,14 @@ module StatusBar =
             el.SetValue(System.Windows.Controls.Primitives.StatusBar.ItemContainerTemplateSelectorProperty, box v)
         | StatusBarProp.UsesItemContainerTemplate v ->
             el.SetValue(System.Windows.Controls.Primitives.StatusBar.UsesItemContainerTemplateProperty, box v)
+
+    let clear (el: System.Windows.Controls.Primitives.StatusBar) (prop: StatusBarProp) =
+        match prop with
+        | StatusBarProp.Base p -> ItemsControl.clear el p
+        | StatusBarProp.ItemContainerTemplateSelector _ ->
+            el.ClearValue(System.Windows.Controls.Primitives.StatusBar.ItemContainerTemplateSelectorProperty)
+        | StatusBarProp.UsesItemContainerTemplate _ ->
+            el.ClearValue(System.Windows.Controls.Primitives.StatusBar.UsesItemContainerTemplateProperty)
 
     let itemsSource v : obj = box (ItemsControlProp.ItemsSource v)
 

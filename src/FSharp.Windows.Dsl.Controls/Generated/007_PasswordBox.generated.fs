@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -65,6 +65,25 @@ module PasswordBox =
 #if NET8_0_OR_GREATER
         | PasswordBoxProp.SelectionTextBrush v ->
             el.SetValue(System.Windows.Controls.PasswordBox.SelectionTextBrushProperty, box v)
+#endif
+
+    let clear (el: System.Windows.Controls.PasswordBox) (prop: PasswordBoxProp) =
+        match prop with
+        | PasswordBoxProp.Base p -> Control.clear el p
+        | PasswordBoxProp.PasswordChar _ -> el.ClearValue(System.Windows.Controls.PasswordBox.PasswordCharProperty)
+        | PasswordBoxProp.MaxLength _ -> el.ClearValue(System.Windows.Controls.PasswordBox.MaxLengthProperty)
+        | PasswordBoxProp.SelectionBrush _ -> el.ClearValue(System.Windows.Controls.PasswordBox.SelectionBrushProperty)
+        | PasswordBoxProp.SelectionOpacity _ ->
+            el.ClearValue(System.Windows.Controls.PasswordBox.SelectionOpacityProperty)
+        | PasswordBoxProp.CaretBrush _ -> el.ClearValue(System.Windows.Controls.PasswordBox.CaretBrushProperty)
+        | PasswordBoxProp.IsSelectionActive _ ->
+            el.ClearValue(System.Windows.Controls.PasswordBox.IsSelectionActiveProperty)
+        | PasswordBoxProp.IsInactiveSelectionHighlightEnabled _ ->
+            el.ClearValue(System.Windows.Controls.PasswordBox.IsInactiveSelectionHighlightEnabledProperty)
+        | PasswordBoxProp.OnPasswordChanged h -> el.PasswordChanged.RemoveHandler(h)
+#if NET8_0_OR_GREATER
+        | PasswordBoxProp.SelectionTextBrush _ ->
+            el.ClearValue(System.Windows.Controls.PasswordBox.SelectionTextBrushProperty)
 #endif
 
     let borderBrush v : obj = box (ControlProp.BorderBrush v)

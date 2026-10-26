@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -27,6 +27,13 @@ module EllipseGeometry =
         | EllipseGeometryProp.RadiusX v -> el.SetValue(System.Windows.Media.EllipseGeometry.RadiusXProperty, box v)
         | EllipseGeometryProp.RadiusY v -> el.SetValue(System.Windows.Media.EllipseGeometry.RadiusYProperty, box v)
         | EllipseGeometryProp.Center v -> el.SetValue(System.Windows.Media.EllipseGeometry.CenterProperty, box v)
+
+    let clear (el: System.Windows.Media.EllipseGeometry) (prop: EllipseGeometryProp) =
+        match prop with
+        | EllipseGeometryProp.Base p -> Geometry.clear el p
+        | EllipseGeometryProp.RadiusX _ -> el.ClearValue(System.Windows.Media.EllipseGeometry.RadiusXProperty)
+        | EllipseGeometryProp.RadiusY _ -> el.ClearValue(System.Windows.Media.EllipseGeometry.RadiusYProperty)
+        | EllipseGeometryProp.Center _ -> el.ClearValue(System.Windows.Media.EllipseGeometry.CenterProperty)
 
     let transform v : obj = box (GeometryProp.Transform v)
 

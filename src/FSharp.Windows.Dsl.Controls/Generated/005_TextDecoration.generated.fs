@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -39,6 +39,15 @@ module TextDecoration =
         | TextDecorationProp.PenThicknessUnit v ->
             el.SetValue(System.Windows.TextDecoration.PenThicknessUnitProperty, box v)
         | TextDecorationProp.Location v -> el.SetValue(System.Windows.TextDecoration.LocationProperty, box v)
+
+    let clear (el: System.Windows.TextDecoration) (prop: TextDecorationProp) =
+        match prop with
+        | TextDecorationProp.Base p -> Freezable.clear el p
+        | TextDecorationProp.Pen _ -> el.ClearValue(System.Windows.TextDecoration.PenProperty)
+        | TextDecorationProp.PenOffset _ -> el.ClearValue(System.Windows.TextDecoration.PenOffsetProperty)
+        | TextDecorationProp.PenOffsetUnit _ -> el.ClearValue(System.Windows.TextDecoration.PenOffsetUnitProperty)
+        | TextDecorationProp.PenThicknessUnit _ -> el.ClearValue(System.Windows.TextDecoration.PenThicknessUnitProperty)
+        | TextDecorationProp.Location _ -> el.ClearValue(System.Windows.TextDecoration.LocationProperty)
 
     let onChanged v : obj =
         box (EventProp(box (FreezableProp.OnChanged v)))

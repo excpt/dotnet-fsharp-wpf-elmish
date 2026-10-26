@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -17,6 +17,10 @@ module MultiSelector =
     let apply (el: System.Windows.Controls.Primitives.MultiSelector) (prop: MultiSelectorProp) =
         match prop with
         | MultiSelectorProp.Base p -> Selector.apply el p
+
+    let clear (el: System.Windows.Controls.Primitives.MultiSelector) (prop: MultiSelectorProp) =
+        match prop with
+        | MultiSelectorProp.Base p -> Selector.clear el p
 
     let isSynchronizedWithCurrentItem v : obj =
         box (SelectorProp.IsSynchronizedWithCurrentItem v)

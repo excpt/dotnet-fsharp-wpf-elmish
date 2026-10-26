@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -80,6 +80,29 @@ module Control =
         | ControlProp.Template v -> el.SetValue(System.Windows.Controls.Control.TemplateProperty, box v)
         | ControlProp.OnPreviewMouseDoubleClick h -> el.PreviewMouseDoubleClick.AddHandler(h)
         | ControlProp.OnMouseDoubleClick h -> el.MouseDoubleClick.AddHandler(h)
+
+    let clear (el: System.Windows.Controls.Control) (prop: ControlProp) =
+        match prop with
+        | ControlProp.Base p -> FrameworkElement.clear el p
+        | ControlProp.BorderBrush _ -> el.ClearValue(System.Windows.Controls.Control.BorderBrushProperty)
+        | ControlProp.BorderThickness _ -> el.ClearValue(System.Windows.Controls.Control.BorderThicknessProperty)
+        | ControlProp.Background _ -> el.ClearValue(System.Windows.Controls.Control.BackgroundProperty)
+        | ControlProp.Foreground _ -> el.ClearValue(System.Windows.Controls.Control.ForegroundProperty)
+        | ControlProp.FontFamily _ -> el.ClearValue(System.Windows.Controls.Control.FontFamilyProperty)
+        | ControlProp.FontSize _ -> el.ClearValue(System.Windows.Controls.Control.FontSizeProperty)
+        | ControlProp.FontStretch _ -> el.ClearValue(System.Windows.Controls.Control.FontStretchProperty)
+        | ControlProp.FontStyle _ -> el.ClearValue(System.Windows.Controls.Control.FontStyleProperty)
+        | ControlProp.FontWeight _ -> el.ClearValue(System.Windows.Controls.Control.FontWeightProperty)
+        | ControlProp.HorizontalContentAlignment _ ->
+            el.ClearValue(System.Windows.Controls.Control.HorizontalContentAlignmentProperty)
+        | ControlProp.VerticalContentAlignment _ ->
+            el.ClearValue(System.Windows.Controls.Control.VerticalContentAlignmentProperty)
+        | ControlProp.TabIndex _ -> el.ClearValue(System.Windows.Controls.Control.TabIndexProperty)
+        | ControlProp.IsTabStop _ -> el.ClearValue(System.Windows.Controls.Control.IsTabStopProperty)
+        | ControlProp.Padding _ -> el.ClearValue(System.Windows.Controls.Control.PaddingProperty)
+        | ControlProp.Template _ -> el.ClearValue(System.Windows.Controls.Control.TemplateProperty)
+        | ControlProp.OnPreviewMouseDoubleClick h -> el.PreviewMouseDoubleClick.RemoveHandler(h)
+        | ControlProp.OnMouseDoubleClick h -> el.MouseDoubleClick.RemoveHandler(h)
 
     let style v : obj = box (FrameworkElementProp.Style v)
 

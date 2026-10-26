@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -75,6 +75,27 @@ module Popup =
             el.SetValue(System.Windows.Controls.Primitives.Popup.AllowsTransparencyProperty, box v)
         | PopupProp.OnOpened h -> el.Opened.AddHandler(h)
         | PopupProp.OnClosed h -> el.Closed.AddHandler(h)
+
+    let clear (el: System.Windows.Controls.Primitives.Popup) (prop: PopupProp) =
+        match prop with
+        | PopupProp.Base p -> FrameworkElement.clear el p
+        | PopupProp.Child _ -> el.ClearValue(System.Windows.Controls.Primitives.Popup.ChildProperty)
+        | PopupProp.IsOpen _ -> el.ClearValue(System.Windows.Controls.Primitives.Popup.IsOpenProperty)
+        | PopupProp.Placement _ -> el.ClearValue(System.Windows.Controls.Primitives.Popup.PlacementProperty)
+        | PopupProp.CustomPopupPlacementCallback _ ->
+            el.ClearValue(System.Windows.Controls.Primitives.Popup.CustomPopupPlacementCallbackProperty)
+        | PopupProp.StaysOpen _ -> el.ClearValue(System.Windows.Controls.Primitives.Popup.StaysOpenProperty)
+        | PopupProp.HorizontalOffset _ ->
+            el.ClearValue(System.Windows.Controls.Primitives.Popup.HorizontalOffsetProperty)
+        | PopupProp.VerticalOffset _ -> el.ClearValue(System.Windows.Controls.Primitives.Popup.VerticalOffsetProperty)
+        | PopupProp.PlacementTarget _ -> el.ClearValue(System.Windows.Controls.Primitives.Popup.PlacementTargetProperty)
+        | PopupProp.PlacementRectangle _ ->
+            el.ClearValue(System.Windows.Controls.Primitives.Popup.PlacementRectangleProperty)
+        | PopupProp.PopupAnimation _ -> el.ClearValue(System.Windows.Controls.Primitives.Popup.PopupAnimationProperty)
+        | PopupProp.AllowsTransparency _ ->
+            el.ClearValue(System.Windows.Controls.Primitives.Popup.AllowsTransparencyProperty)
+        | PopupProp.OnOpened h -> el.Opened.RemoveHandler(h)
+        | PopupProp.OnClosed h -> el.Closed.RemoveHandler(h)
 
     let style v : obj = box (FrameworkElementProp.Style v)
 

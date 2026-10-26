@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -17,6 +17,10 @@ module ListViewItem =
     let apply (el: System.Windows.Controls.ListViewItem) (prop: ListViewItemProp) =
         match prop with
         | ListViewItemProp.Base p -> ListBoxItem.apply el p
+
+    let clear (el: System.Windows.Controls.ListViewItem) (prop: ListViewItemProp) =
+        match prop with
+        | ListViewItemProp.Base p -> ListBoxItem.clear el p
 
     let isSelected v : obj = box (ListBoxItemProp.IsSelected v)
     let content v : obj = box (ContentControlProp.Content v)

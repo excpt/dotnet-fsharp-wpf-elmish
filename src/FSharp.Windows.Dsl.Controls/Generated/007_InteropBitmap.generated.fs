@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -17,6 +17,10 @@ module InteropBitmap =
     let apply (el: System.Windows.Interop.InteropBitmap) (prop: InteropBitmapProp) =
         match prop with
         | InteropBitmapProp.Base p -> BitmapSource.apply el p
+
+    let clear (el: System.Windows.Interop.InteropBitmap) (prop: InteropBitmapProp) =
+        match prop with
+        | InteropBitmapProp.Base p -> BitmapSource.clear el p
 
     let onDownloadCompleted v : obj =
         box (EventProp(box (BitmapSourceProp.OnDownloadCompleted v)))

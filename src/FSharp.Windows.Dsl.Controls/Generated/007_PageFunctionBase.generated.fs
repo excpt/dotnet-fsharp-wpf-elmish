@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -17,6 +17,10 @@ module PageFunctionBase =
     let apply (el: System.Windows.Navigation.PageFunctionBase) (prop: PageFunctionBaseProp) =
         match prop with
         | PageFunctionBaseProp.Base p -> Page.apply el p
+
+    let clear (el: System.Windows.Navigation.PageFunctionBase) (prop: PageFunctionBaseProp) =
+        match prop with
+        | PageFunctionBaseProp.Base p -> Page.clear el p
 
     let content v : obj = box (PageProp.Content v)
     let background v : obj = box (PageProp.Background v)

@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -60,6 +60,24 @@ module Calendar =
             el.SetValue(System.Windows.Controls.Calendar.IsTodayHighlightedProperty, box v)
         | CalendarProp.SelectedDate v -> el.SetValue(System.Windows.Controls.Calendar.SelectedDateProperty, box v)
         | CalendarProp.SelectionMode v -> el.SetValue(System.Windows.Controls.Calendar.SelectionModeProperty, box v)
+
+    let clear (el: System.Windows.Controls.Calendar) (prop: CalendarProp) =
+        match prop with
+        | CalendarProp.Base p -> Control.clear el p
+        | CalendarProp.CalendarButtonStyle _ ->
+            el.ClearValue(System.Windows.Controls.Calendar.CalendarButtonStyleProperty)
+        | CalendarProp.CalendarDayButtonStyle _ ->
+            el.ClearValue(System.Windows.Controls.Calendar.CalendarDayButtonStyleProperty)
+        | CalendarProp.CalendarItemStyle _ -> el.ClearValue(System.Windows.Controls.Calendar.CalendarItemStyleProperty)
+        | CalendarProp.DisplayDate _ -> el.ClearValue(System.Windows.Controls.Calendar.DisplayDateProperty)
+        | CalendarProp.DisplayDateEnd _ -> el.ClearValue(System.Windows.Controls.Calendar.DisplayDateEndProperty)
+        | CalendarProp.DisplayDateStart _ -> el.ClearValue(System.Windows.Controls.Calendar.DisplayDateStartProperty)
+        | CalendarProp.DisplayMode _ -> el.ClearValue(System.Windows.Controls.Calendar.DisplayModeProperty)
+        | CalendarProp.FirstDayOfWeek _ -> el.ClearValue(System.Windows.Controls.Calendar.FirstDayOfWeekProperty)
+        | CalendarProp.IsTodayHighlighted _ ->
+            el.ClearValue(System.Windows.Controls.Calendar.IsTodayHighlightedProperty)
+        | CalendarProp.SelectedDate _ -> el.ClearValue(System.Windows.Controls.Calendar.SelectedDateProperty)
+        | CalendarProp.SelectionMode _ -> el.ClearValue(System.Windows.Controls.Calendar.SelectionModeProperty)
 
     let borderBrush v : obj = box (ControlProp.BorderBrush v)
     let borderThickness v : obj = box (ControlProp.BorderThickness v)

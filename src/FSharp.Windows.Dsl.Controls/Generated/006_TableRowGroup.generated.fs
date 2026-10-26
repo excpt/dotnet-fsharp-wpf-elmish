@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -17,6 +17,10 @@ module TableRowGroup =
     let apply (el: System.Windows.Documents.TableRowGroup) (prop: TableRowGroupProp) =
         match prop with
         | TableRowGroupProp.Base p -> TextElement.apply el p
+
+    let clear (el: System.Windows.Documents.TableRowGroup) (prop: TableRowGroupProp) =
+        match prop with
+        | TableRowGroupProp.Base p -> TextElement.clear el p
 
     let background v : obj = box (TextElementProp.Background v)
     let textEffects v : obj = box (TextElementProp.TextEffects v)

@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -99,6 +99,37 @@ module FlowDocumentReader =
             el.SetValue(System.Windows.Controls.FlowDocumentReader.IsSelectionActiveProperty, box v)
         | FlowDocumentReaderProp.IsInactiveSelectionHighlightEnabled v ->
             el.SetValue(System.Windows.Controls.FlowDocumentReader.IsInactiveSelectionHighlightEnabledProperty, box v)
+
+    let clear (el: System.Windows.Controls.FlowDocumentReader) (prop: FlowDocumentReaderProp) =
+        match prop with
+        | FlowDocumentReaderProp.Base p -> Control.clear el p
+        | FlowDocumentReaderProp.ViewingMode _ ->
+            el.ClearValue(System.Windows.Controls.FlowDocumentReader.ViewingModeProperty)
+        | FlowDocumentReaderProp.IsPageViewEnabled _ ->
+            el.ClearValue(System.Windows.Controls.FlowDocumentReader.IsPageViewEnabledProperty)
+        | FlowDocumentReaderProp.IsTwoPageViewEnabled _ ->
+            el.ClearValue(System.Windows.Controls.FlowDocumentReader.IsTwoPageViewEnabledProperty)
+        | FlowDocumentReaderProp.IsScrollViewEnabled _ ->
+            el.ClearValue(System.Windows.Controls.FlowDocumentReader.IsScrollViewEnabledProperty)
+        | FlowDocumentReaderProp.IsFindEnabled _ ->
+            el.ClearValue(System.Windows.Controls.FlowDocumentReader.IsFindEnabledProperty)
+        | FlowDocumentReaderProp.IsPrintEnabled _ ->
+            el.ClearValue(System.Windows.Controls.FlowDocumentReader.IsPrintEnabledProperty)
+        | FlowDocumentReaderProp.Document _ ->
+            el.ClearValue(System.Windows.Controls.FlowDocumentReader.DocumentProperty)
+        | FlowDocumentReaderProp.Zoom _ -> el.ClearValue(System.Windows.Controls.FlowDocumentReader.ZoomProperty)
+        | FlowDocumentReaderProp.MaxZoom _ -> el.ClearValue(System.Windows.Controls.FlowDocumentReader.MaxZoomProperty)
+        | FlowDocumentReaderProp.MinZoom _ -> el.ClearValue(System.Windows.Controls.FlowDocumentReader.MinZoomProperty)
+        | FlowDocumentReaderProp.ZoomIncrement _ ->
+            el.ClearValue(System.Windows.Controls.FlowDocumentReader.ZoomIncrementProperty)
+        | FlowDocumentReaderProp.SelectionBrush _ ->
+            el.ClearValue(System.Windows.Controls.FlowDocumentReader.SelectionBrushProperty)
+        | FlowDocumentReaderProp.SelectionOpacity _ ->
+            el.ClearValue(System.Windows.Controls.FlowDocumentReader.SelectionOpacityProperty)
+        | FlowDocumentReaderProp.IsSelectionActive _ ->
+            el.ClearValue(System.Windows.Controls.FlowDocumentReader.IsSelectionActiveProperty)
+        | FlowDocumentReaderProp.IsInactiveSelectionHighlightEnabled _ ->
+            el.ClearValue(System.Windows.Controls.FlowDocumentReader.IsInactiveSelectionHighlightEnabledProperty)
 
     let borderBrush v : obj = box (ControlProp.BorderBrush v)
     let borderThickness v : obj = box (ControlProp.BorderThickness v)

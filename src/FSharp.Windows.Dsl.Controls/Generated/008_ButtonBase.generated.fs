@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -38,6 +38,17 @@ module ButtonBase =
         | ButtonBaseProp.ClickMode v ->
             el.SetValue(System.Windows.Controls.Primitives.ButtonBase.ClickModeProperty, box v)
         | ButtonBaseProp.OnClick h -> el.Click.AddHandler(h)
+
+    let clear (el: System.Windows.Controls.Primitives.ButtonBase) (prop: ButtonBaseProp) =
+        match prop with
+        | ButtonBaseProp.Base p -> ContentControl.clear el p
+        | ButtonBaseProp.Command _ -> el.ClearValue(System.Windows.Controls.Primitives.ButtonBase.CommandProperty)
+        | ButtonBaseProp.CommandParameter _ ->
+            el.ClearValue(System.Windows.Controls.Primitives.ButtonBase.CommandParameterProperty)
+        | ButtonBaseProp.CommandTarget _ ->
+            el.ClearValue(System.Windows.Controls.Primitives.ButtonBase.CommandTargetProperty)
+        | ButtonBaseProp.ClickMode _ -> el.ClearValue(System.Windows.Controls.Primitives.ButtonBase.ClickModeProperty)
+        | ButtonBaseProp.OnClick h -> el.Click.RemoveHandler(h)
 
     let content v : obj = box (ContentControlProp.Content v)
 

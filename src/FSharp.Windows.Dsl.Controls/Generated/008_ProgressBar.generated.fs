@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -25,6 +25,13 @@ module ProgressBar =
         | ProgressBarProp.IsIndeterminate v ->
             el.SetValue(System.Windows.Controls.ProgressBar.IsIndeterminateProperty, box v)
         | ProgressBarProp.Orientation v -> el.SetValue(System.Windows.Controls.ProgressBar.OrientationProperty, box v)
+
+    let clear (el: System.Windows.Controls.ProgressBar) (prop: ProgressBarProp) =
+        match prop with
+        | ProgressBarProp.Base p -> RangeBase.clear el p
+        | ProgressBarProp.IsIndeterminate _ ->
+            el.ClearValue(System.Windows.Controls.ProgressBar.IsIndeterminateProperty)
+        | ProgressBarProp.Orientation _ -> el.ClearValue(System.Windows.Controls.ProgressBar.OrientationProperty)
 
     let minimum v : obj = box (RangeBaseProp.Minimum v)
     let maximum v : obj = box (RangeBaseProp.Maximum v)

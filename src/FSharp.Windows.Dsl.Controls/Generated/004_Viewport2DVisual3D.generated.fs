@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -36,6 +36,18 @@ module Viewport2DVisual3D =
             el.SetValue(System.Windows.Media.Media3D.Viewport2DVisual3D.MaterialProperty, box v)
         | Viewport2DVisual3DProp.CacheMode v ->
             el.SetValue(System.Windows.Media.Media3D.Viewport2DVisual3D.CacheModeProperty, box v)
+
+    let clear (el: System.Windows.Media.Media3D.Viewport2DVisual3D) (prop: Viewport2DVisual3DProp) =
+        match prop with
+        | Viewport2DVisual3DProp.Base p -> Visual3D.clear el p
+        | Viewport2DVisual3DProp.Visual _ ->
+            el.ClearValue(System.Windows.Media.Media3D.Viewport2DVisual3D.VisualProperty)
+        | Viewport2DVisual3DProp.Geometry _ ->
+            el.ClearValue(System.Windows.Media.Media3D.Viewport2DVisual3D.GeometryProperty)
+        | Viewport2DVisual3DProp.Material _ ->
+            el.ClearValue(System.Windows.Media.Media3D.Viewport2DVisual3D.MaterialProperty)
+        | Viewport2DVisual3DProp.CacheMode _ ->
+            el.ClearValue(System.Windows.Media.Media3D.Viewport2DVisual3D.CacheModeProperty)
 
     let transform v : obj = box (Visual3DProp.Transform v)
 

@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -26,6 +26,13 @@ module BlurBitmapEffect =
             el.SetValue(System.Windows.Media.Effects.BlurBitmapEffect.RadiusProperty, box v)
         | BlurBitmapEffectProp.KernelType v ->
             el.SetValue(System.Windows.Media.Effects.BlurBitmapEffect.KernelTypeProperty, box v)
+
+    let clear (el: System.Windows.Media.Effects.BlurBitmapEffect) (prop: BlurBitmapEffectProp) =
+        match prop with
+        | BlurBitmapEffectProp.Base p -> Freezable.clear el p
+        | BlurBitmapEffectProp.Radius _ -> el.ClearValue(System.Windows.Media.Effects.BlurBitmapEffect.RadiusProperty)
+        | BlurBitmapEffectProp.KernelType _ ->
+            el.ClearValue(System.Windows.Media.Effects.BlurBitmapEffect.KernelTypeProperty)
 
     let onChanged v : obj =
         box (EventProp(box (FreezableProp.OnChanged v)))

@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -46,6 +46,19 @@ module ListItem =
         | ListItemProp.LineHeight v -> el.SetValue(System.Windows.Documents.ListItem.LineHeightProperty, box v)
         | ListItemProp.LineStackingStrategy v ->
             el.SetValue(System.Windows.Documents.ListItem.LineStackingStrategyProperty, box v)
+
+    let clear (el: System.Windows.Documents.ListItem) (prop: ListItemProp) =
+        match prop with
+        | ListItemProp.Base p -> TextElement.clear el p
+        | ListItemProp.Margin _ -> el.ClearValue(System.Windows.Documents.ListItem.MarginProperty)
+        | ListItemProp.Padding _ -> el.ClearValue(System.Windows.Documents.ListItem.PaddingProperty)
+        | ListItemProp.BorderThickness _ -> el.ClearValue(System.Windows.Documents.ListItem.BorderThicknessProperty)
+        | ListItemProp.BorderBrush _ -> el.ClearValue(System.Windows.Documents.ListItem.BorderBrushProperty)
+        | ListItemProp.TextAlignment _ -> el.ClearValue(System.Windows.Documents.ListItem.TextAlignmentProperty)
+        | ListItemProp.FlowDirection _ -> el.ClearValue(System.Windows.Documents.ListItem.FlowDirectionProperty)
+        | ListItemProp.LineHeight _ -> el.ClearValue(System.Windows.Documents.ListItem.LineHeightProperty)
+        | ListItemProp.LineStackingStrategy _ ->
+            el.ClearValue(System.Windows.Documents.ListItem.LineStackingStrategyProperty)
 
     let background v : obj = box (TextElementProp.Background v)
     let textEffects v : obj = box (TextElementProp.TextEffects v)

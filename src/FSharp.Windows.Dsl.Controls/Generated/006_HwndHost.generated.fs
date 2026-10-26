@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -27,6 +27,13 @@ module HwndHost =
         | HwndHostProp.Base p -> FrameworkElement.apply el p
 #if NET8_0_OR_GREATER
         | HwndHostProp.OnDpiChanged h -> el.DpiChanged.AddHandler(h)
+#endif
+
+    let clear (el: System.Windows.Interop.HwndHost) (prop: HwndHostProp) =
+        match prop with
+        | HwndHostProp.Base p -> FrameworkElement.clear el p
+#if NET8_0_OR_GREATER
+        | HwndHostProp.OnDpiChanged h -> el.DpiChanged.RemoveHandler(h)
 #endif
 
     let style v : obj = box (FrameworkElementProp.Style v)

@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -26,6 +26,13 @@ module TransformedBitmap =
             el.SetValue(System.Windows.Media.Imaging.TransformedBitmap.SourceProperty, box v)
         | TransformedBitmapProp.Transform v ->
             el.SetValue(System.Windows.Media.Imaging.TransformedBitmap.TransformProperty, box v)
+
+    let clear (el: System.Windows.Media.Imaging.TransformedBitmap) (prop: TransformedBitmapProp) =
+        match prop with
+        | TransformedBitmapProp.Base p -> BitmapSource.clear el p
+        | TransformedBitmapProp.Source _ -> el.ClearValue(System.Windows.Media.Imaging.TransformedBitmap.SourceProperty)
+        | TransformedBitmapProp.Transform _ ->
+            el.ClearValue(System.Windows.Media.Imaging.TransformedBitmap.TransformProperty)
 
     let onDownloadCompleted v : obj =
         box (EventProp(box (BitmapSourceProp.OnDownloadCompleted v)))

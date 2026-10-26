@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -25,6 +25,12 @@ module CroppedBitmap =
         | CroppedBitmapProp.Source v -> el.SetValue(System.Windows.Media.Imaging.CroppedBitmap.SourceProperty, box v)
         | CroppedBitmapProp.SourceRect v ->
             el.SetValue(System.Windows.Media.Imaging.CroppedBitmap.SourceRectProperty, box v)
+
+    let clear (el: System.Windows.Media.Imaging.CroppedBitmap) (prop: CroppedBitmapProp) =
+        match prop with
+        | CroppedBitmapProp.Base p -> BitmapSource.clear el p
+        | CroppedBitmapProp.Source _ -> el.ClearValue(System.Windows.Media.Imaging.CroppedBitmap.SourceProperty)
+        | CroppedBitmapProp.SourceRect _ -> el.ClearValue(System.Windows.Media.Imaging.CroppedBitmap.SourceRectProperty)
 
     let onDownloadCompleted v : obj =
         box (EventProp(box (BitmapSourceProp.OnDownloadCompleted v)))

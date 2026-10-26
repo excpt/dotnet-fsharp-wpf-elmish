@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -26,6 +26,12 @@ module EmissiveMaterial =
             el.SetValue(System.Windows.Media.Media3D.EmissiveMaterial.ColorProperty, box v)
         | EmissiveMaterialProp.Brush v ->
             el.SetValue(System.Windows.Media.Media3D.EmissiveMaterial.BrushProperty, box v)
+
+    let clear (el: System.Windows.Media.Media3D.EmissiveMaterial) (prop: EmissiveMaterialProp) =
+        match prop with
+        | EmissiveMaterialProp.Base p -> Freezable.clear el p
+        | EmissiveMaterialProp.Color _ -> el.ClearValue(System.Windows.Media.Media3D.EmissiveMaterial.ColorProperty)
+        | EmissiveMaterialProp.Brush _ -> el.ClearValue(System.Windows.Media.Media3D.EmissiveMaterial.BrushProperty)
 
     let onChanged v : obj =
         box (EventProp(box (FreezableProp.OnChanged v)))

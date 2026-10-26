@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -34,6 +34,14 @@ module Expander =
         | ExpanderProp.IsExpanded v -> el.SetValue(System.Windows.Controls.Expander.IsExpandedProperty, box v)
         | ExpanderProp.OnExpanded h -> el.Expanded.AddHandler(h)
         | ExpanderProp.OnCollapsed h -> el.Collapsed.AddHandler(h)
+
+    let clear (el: System.Windows.Controls.Expander) (prop: ExpanderProp) =
+        match prop with
+        | ExpanderProp.Base p -> HeaderedContentControl.clear el p
+        | ExpanderProp.ExpandDirection _ -> el.ClearValue(System.Windows.Controls.Expander.ExpandDirectionProperty)
+        | ExpanderProp.IsExpanded _ -> el.ClearValue(System.Windows.Controls.Expander.IsExpandedProperty)
+        | ExpanderProp.OnExpanded h -> el.Expanded.RemoveHandler(h)
+        | ExpanderProp.OnCollapsed h -> el.Collapsed.RemoveHandler(h)
 
     let header v : obj =
         box (HeaderedContentControlProp.Header v)

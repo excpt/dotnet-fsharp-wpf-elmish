@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -58,6 +58,23 @@ module GridViewColumn =
         | GridViewColumnProp.CellTemplateSelector v ->
             el.SetValue(System.Windows.Controls.GridViewColumn.CellTemplateSelectorProperty, box v)
         | GridViewColumnProp.Width v -> el.SetValue(System.Windows.Controls.GridViewColumn.WidthProperty, box v)
+
+    let clear (el: System.Windows.Controls.GridViewColumn) (prop: GridViewColumnProp) =
+        match prop with
+        | GridViewColumnProp.Header _ -> el.ClearValue(System.Windows.Controls.GridViewColumn.HeaderProperty)
+        | GridViewColumnProp.HeaderContainerStyle _ ->
+            el.ClearValue(System.Windows.Controls.GridViewColumn.HeaderContainerStyleProperty)
+        | GridViewColumnProp.HeaderTemplate _ ->
+            el.ClearValue(System.Windows.Controls.GridViewColumn.HeaderTemplateProperty)
+        | GridViewColumnProp.HeaderTemplateSelector _ ->
+            el.ClearValue(System.Windows.Controls.GridViewColumn.HeaderTemplateSelectorProperty)
+        | GridViewColumnProp.HeaderStringFormat _ ->
+            el.ClearValue(System.Windows.Controls.GridViewColumn.HeaderStringFormatProperty)
+        | GridViewColumnProp.CellTemplate _ ->
+            el.ClearValue(System.Windows.Controls.GridViewColumn.CellTemplateProperty)
+        | GridViewColumnProp.CellTemplateSelector _ ->
+            el.ClearValue(System.Windows.Controls.GridViewColumn.CellTemplateSelectorProperty)
+        | GridViewColumnProp.Width _ -> el.ClearValue(System.Windows.Controls.GridViewColumn.WidthProperty)
 
 
     let children (cs: VirtualNode list) : obj = box (Children cs)

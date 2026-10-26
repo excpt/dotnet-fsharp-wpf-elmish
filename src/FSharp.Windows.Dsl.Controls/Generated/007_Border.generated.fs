@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -33,6 +33,15 @@ module Border =
         | BorderProp.CornerRadius v -> el.SetValue(System.Windows.Controls.Border.CornerRadiusProperty, box v)
         | BorderProp.BorderBrush v -> el.SetValue(System.Windows.Controls.Border.BorderBrushProperty, box v)
         | BorderProp.Background v -> el.SetValue(System.Windows.Controls.Border.BackgroundProperty, box v)
+
+    let clear (el: System.Windows.Controls.Border) (prop: BorderProp) =
+        match prop with
+        | BorderProp.Base p -> FrameworkElement.clear el p
+        | BorderProp.BorderThickness _ -> el.ClearValue(System.Windows.Controls.Border.BorderThicknessProperty)
+        | BorderProp.Padding _ -> el.ClearValue(System.Windows.Controls.Border.PaddingProperty)
+        | BorderProp.CornerRadius _ -> el.ClearValue(System.Windows.Controls.Border.CornerRadiusProperty)
+        | BorderProp.BorderBrush _ -> el.ClearValue(System.Windows.Controls.Border.BorderBrushProperty)
+        | BorderProp.Background _ -> el.ClearValue(System.Windows.Controls.Border.BackgroundProperty)
 
     let style v : obj = box (FrameworkElementProp.Style v)
 

@@ -63,22 +63,32 @@ module Materializer =
         owner.[typeof<'prop>] <-
             (typeof<'el>, (fun (el: DependencyObject) (prop: obj) -> apply (el :?> 'el) (prop :?> 'prop)))
 
-    /// The owner registered for a prop type. A multi-case DU compiles each case
+    /// Undo for each prop type: what clears the slot its apply set, so a prop
+    /// dropped from the new tree does not leave its value or handler behind.
+    let private clearers = ConcurrentDictionary<Type, DependencyObject -> obj -> unit>()
+
+    /// Register the clear function that undoes a control type's apply.
+    let registerClear<'el, 'prop when 'el :> DependencyObject> (clear: 'el -> 'prop -> unit) =
+        clearers.[typeof<'prop>] <- fun (el: DependencyObject) (prop: obj) -> clear (el :?> 'el) (prop :?> 'prop)
+
+    /// The registration for a prop type. A multi-case DU compiles each case
     /// to its own nested subtype, so what arrives boxed is the case type and the
     /// registration is against the DU — walk up to find it, then remember the
     /// answer under the case type so later props of that case are one lookup.
-    let rec private resolveOwner (propType: Type) =
+    let rec private resolveIn (registry: ConcurrentDictionary<Type, 'v>) (propType: Type) =
         if isNull propType then
             None
         else
-            match owner.TryGetValue(propType) with
+            match registry.TryGetValue(propType) with
             | true, found -> Some found
             | _ ->
-                match resolveOwner propType.BaseType with
+                match resolveIn registry propType.BaseType with
                 | Some found ->
-                    owner.[propType] <- found
+                    registry.[propType] <- found
                     Some found
                 | None -> None
+
+    let private resolveOwner = resolveIn owner
 
     /// The element type that owns a prop type, if any registration does.
     /// Answers "would this prop apply?" without an element to apply it to.
@@ -235,3 +245,4 @@ module Materializer =
         // Attach children
         attachChildren el node.Children
         el
+

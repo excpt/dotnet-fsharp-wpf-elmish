@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -20,6 +20,11 @@ module CollectionContainer =
         match prop with
         | CollectionContainerProp.Collection v ->
             el.SetValue(System.Windows.Data.CollectionContainer.CollectionProperty, box v)
+
+    let clear (el: System.Windows.Data.CollectionContainer) (prop: CollectionContainerProp) =
+        match prop with
+        | CollectionContainerProp.Collection _ ->
+            el.ClearValue(System.Windows.Data.CollectionContainer.CollectionProperty)
 
 
     let children (cs: VirtualNode list) : obj = box (Children cs)

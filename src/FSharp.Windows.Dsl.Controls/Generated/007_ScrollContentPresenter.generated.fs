@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -23,6 +23,12 @@ module ScrollContentPresenter =
         | ScrollContentPresenterProp.Base p -> ContentPresenter.apply el p
         | ScrollContentPresenterProp.CanContentScroll v ->
             el.SetValue(System.Windows.Controls.ScrollContentPresenter.CanContentScrollProperty, box v)
+
+    let clear (el: System.Windows.Controls.ScrollContentPresenter) (prop: ScrollContentPresenterProp) =
+        match prop with
+        | ScrollContentPresenterProp.Base p -> ContentPresenter.clear el p
+        | ScrollContentPresenterProp.CanContentScroll _ ->
+            el.ClearValue(System.Windows.Controls.ScrollContentPresenter.CanContentScrollProperty)
 
     let recognizesAccessKey v : obj =
         box (ContentPresenterProp.RecognizesAccessKey v)

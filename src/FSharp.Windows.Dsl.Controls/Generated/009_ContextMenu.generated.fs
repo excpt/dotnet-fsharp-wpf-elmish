@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -69,6 +69,25 @@ module ContextMenu =
         | ContextMenuProp.StaysOpen v -> el.SetValue(System.Windows.Controls.ContextMenu.StaysOpenProperty, box v)
         | ContextMenuProp.OnOpened h -> el.Opened.AddHandler(h)
         | ContextMenuProp.OnClosed h -> el.Closed.AddHandler(h)
+
+    let clear (el: System.Windows.Controls.ContextMenu) (prop: ContextMenuProp) =
+        match prop with
+        | ContextMenuProp.Base p -> MenuBase.clear el p
+        | ContextMenuProp.HorizontalOffset _ ->
+            el.ClearValue(System.Windows.Controls.ContextMenu.HorizontalOffsetProperty)
+        | ContextMenuProp.VerticalOffset _ -> el.ClearValue(System.Windows.Controls.ContextMenu.VerticalOffsetProperty)
+        | ContextMenuProp.IsOpen _ -> el.ClearValue(System.Windows.Controls.ContextMenu.IsOpenProperty)
+        | ContextMenuProp.PlacementTarget _ ->
+            el.ClearValue(System.Windows.Controls.ContextMenu.PlacementTargetProperty)
+        | ContextMenuProp.PlacementRectangle _ ->
+            el.ClearValue(System.Windows.Controls.ContextMenu.PlacementRectangleProperty)
+        | ContextMenuProp.Placement _ -> el.ClearValue(System.Windows.Controls.ContextMenu.PlacementProperty)
+        | ContextMenuProp.HasDropShadow _ -> el.ClearValue(System.Windows.Controls.ContextMenu.HasDropShadowProperty)
+        | ContextMenuProp.CustomPopupPlacementCallback _ ->
+            el.ClearValue(System.Windows.Controls.ContextMenu.CustomPopupPlacementCallbackProperty)
+        | ContextMenuProp.StaysOpen _ -> el.ClearValue(System.Windows.Controls.ContextMenu.StaysOpenProperty)
+        | ContextMenuProp.OnOpened h -> el.Opened.RemoveHandler(h)
+        | ContextMenuProp.OnClosed h -> el.Closed.RemoveHandler(h)
 
     let itemContainerTemplateSelector v : obj =
         box (MenuBaseProp.ItemContainerTemplateSelector v)

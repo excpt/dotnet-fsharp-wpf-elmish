@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -31,6 +31,14 @@ module ScrollBar =
         | ScrollBarProp.ViewportSize v ->
             el.SetValue(System.Windows.Controls.Primitives.ScrollBar.ViewportSizeProperty, box v)
         | ScrollBarProp.OnScroll h -> el.Scroll.AddHandler(h)
+
+    let clear (el: System.Windows.Controls.Primitives.ScrollBar) (prop: ScrollBarProp) =
+        match prop with
+        | ScrollBarProp.Base p -> RangeBase.clear el p
+        | ScrollBarProp.Orientation _ -> el.ClearValue(System.Windows.Controls.Primitives.ScrollBar.OrientationProperty)
+        | ScrollBarProp.ViewportSize _ ->
+            el.ClearValue(System.Windows.Controls.Primitives.ScrollBar.ViewportSizeProperty)
+        | ScrollBarProp.OnScroll h -> el.Scroll.RemoveHandler(h)
 
     let minimum v : obj = box (RangeBaseProp.Minimum v)
     let maximum v : obj = box (RangeBaseProp.Maximum v)

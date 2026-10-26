@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -32,6 +32,14 @@ module SpecularMaterial =
             el.SetValue(System.Windows.Media.Media3D.SpecularMaterial.BrushProperty, box v)
         | SpecularMaterialProp.SpecularPower v ->
             el.SetValue(System.Windows.Media.Media3D.SpecularMaterial.SpecularPowerProperty, box v)
+
+    let clear (el: System.Windows.Media.Media3D.SpecularMaterial) (prop: SpecularMaterialProp) =
+        match prop with
+        | SpecularMaterialProp.Base p -> Freezable.clear el p
+        | SpecularMaterialProp.Color _ -> el.ClearValue(System.Windows.Media.Media3D.SpecularMaterial.ColorProperty)
+        | SpecularMaterialProp.Brush _ -> el.ClearValue(System.Windows.Media.Media3D.SpecularMaterial.BrushProperty)
+        | SpecularMaterialProp.SpecularPower _ ->
+            el.ClearValue(System.Windows.Media.Media3D.SpecularMaterial.SpecularPowerProperty)
 
     let onChanged v : obj =
         box (EventProp(box (FreezableProp.OnChanged v)))

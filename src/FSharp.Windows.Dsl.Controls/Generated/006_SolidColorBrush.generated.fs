@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -21,6 +21,11 @@ module SolidColorBrush =
         match prop with
         | SolidColorBrushProp.Base p -> Brush.apply el p
         | SolidColorBrushProp.Color v -> el.SetValue(System.Windows.Media.SolidColorBrush.ColorProperty, box v)
+
+    let clear (el: System.Windows.Media.SolidColorBrush) (prop: SolidColorBrushProp) =
+        match prop with
+        | SolidColorBrushProp.Base p -> Brush.clear el p
+        | SolidColorBrushProp.Color _ -> el.ClearValue(System.Windows.Media.SolidColorBrush.ColorProperty)
 
     let opacity v : obj = box (BrushProp.Opacity v)
     let transform v : obj = box (BrushProp.Transform v)

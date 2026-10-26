@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -42,6 +42,18 @@ module TextBox =
         | TextBoxProp.MaxLength v -> el.SetValue(System.Windows.Controls.TextBox.MaxLengthProperty, box v)
         | TextBoxProp.TextAlignment v -> el.SetValue(System.Windows.Controls.TextBox.TextAlignmentProperty, box v)
         | TextBoxProp.TextDecorations v -> el.SetValue(System.Windows.Controls.TextBox.TextDecorationsProperty, box v)
+
+    let clear (el: System.Windows.Controls.TextBox) (prop: TextBoxProp) =
+        match prop with
+        | TextBoxProp.Base p -> TextBoxBase.clear el p
+        | TextBoxProp.TextWrapping _ -> el.ClearValue(System.Windows.Controls.TextBox.TextWrappingProperty)
+        | TextBoxProp.MinLines _ -> el.ClearValue(System.Windows.Controls.TextBox.MinLinesProperty)
+        | TextBoxProp.MaxLines _ -> el.ClearValue(System.Windows.Controls.TextBox.MaxLinesProperty)
+        | TextBoxProp.Text _ -> el.ClearValue(System.Windows.Controls.TextBox.TextProperty)
+        | TextBoxProp.CharacterCasing _ -> el.ClearValue(System.Windows.Controls.TextBox.CharacterCasingProperty)
+        | TextBoxProp.MaxLength _ -> el.ClearValue(System.Windows.Controls.TextBox.MaxLengthProperty)
+        | TextBoxProp.TextAlignment _ -> el.ClearValue(System.Windows.Controls.TextBox.TextAlignmentProperty)
+        | TextBoxProp.TextDecorations _ -> el.ClearValue(System.Windows.Controls.TextBox.TextDecorationsProperty)
 
     let isReadOnly v : obj = box (TextBoxBaseProp.IsReadOnly v)
 

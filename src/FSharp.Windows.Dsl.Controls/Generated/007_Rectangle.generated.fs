@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -24,6 +24,12 @@ module Rectangle =
         | RectangleProp.Base p -> Shape.apply el p
         | RectangleProp.RadiusX v -> el.SetValue(System.Windows.Shapes.Rectangle.RadiusXProperty, box v)
         | RectangleProp.RadiusY v -> el.SetValue(System.Windows.Shapes.Rectangle.RadiusYProperty, box v)
+
+    let clear (el: System.Windows.Shapes.Rectangle) (prop: RectangleProp) =
+        match prop with
+        | RectangleProp.Base p -> Shape.clear el p
+        | RectangleProp.RadiusX _ -> el.ClearValue(System.Windows.Shapes.Rectangle.RadiusXProperty)
+        | RectangleProp.RadiusY _ -> el.ClearValue(System.Windows.Shapes.Rectangle.RadiusYProperty)
 
     let stretch v : obj = box (ShapeProp.Stretch v)
     let fill v : obj = box (ShapeProp.Fill v)

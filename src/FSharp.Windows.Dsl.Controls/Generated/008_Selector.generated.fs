@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -45,6 +45,20 @@ module Selector =
         | SelectorProp.SelectedValuePath v ->
             el.SetValue(System.Windows.Controls.Primitives.Selector.SelectedValuePathProperty, box v)
         | SelectorProp.OnSelectionChanged h -> el.SelectionChanged.AddHandler(h)
+
+    let clear (el: System.Windows.Controls.Primitives.Selector) (prop: SelectorProp) =
+        match prop with
+        | SelectorProp.Base p -> ItemsControl.clear el p
+        | SelectorProp.IsSynchronizedWithCurrentItem _ ->
+            el.ClearValue(System.Windows.Controls.Primitives.Selector.IsSynchronizedWithCurrentItemProperty)
+        | SelectorProp.SelectedIndex _ ->
+            el.ClearValue(System.Windows.Controls.Primitives.Selector.SelectedIndexProperty)
+        | SelectorProp.SelectedItem _ -> el.ClearValue(System.Windows.Controls.Primitives.Selector.SelectedItemProperty)
+        | SelectorProp.SelectedValue _ ->
+            el.ClearValue(System.Windows.Controls.Primitives.Selector.SelectedValueProperty)
+        | SelectorProp.SelectedValuePath _ ->
+            el.ClearValue(System.Windows.Controls.Primitives.Selector.SelectedValuePathProperty)
+        | SelectorProp.OnSelectionChanged h -> el.SelectionChanged.RemoveHandler(h)
 
     let itemsSource v : obj = box (ItemsControlProp.ItemsSource v)
 

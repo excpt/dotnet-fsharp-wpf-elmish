@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -42,6 +42,18 @@ module Pen =
         | PenProp.LineJoin v -> el.SetValue(System.Windows.Media.Pen.LineJoinProperty, box v)
         | PenProp.MiterLimit v -> el.SetValue(System.Windows.Media.Pen.MiterLimitProperty, box v)
         | PenProp.DashStyle v -> el.SetValue(System.Windows.Media.Pen.DashStyleProperty, box v)
+
+    let clear (el: System.Windows.Media.Pen) (prop: PenProp) =
+        match prop with
+        | PenProp.Base p -> Freezable.clear el p
+        | PenProp.Brush _ -> el.ClearValue(System.Windows.Media.Pen.BrushProperty)
+        | PenProp.Thickness _ -> el.ClearValue(System.Windows.Media.Pen.ThicknessProperty)
+        | PenProp.StartLineCap _ -> el.ClearValue(System.Windows.Media.Pen.StartLineCapProperty)
+        | PenProp.EndLineCap _ -> el.ClearValue(System.Windows.Media.Pen.EndLineCapProperty)
+        | PenProp.DashCap _ -> el.ClearValue(System.Windows.Media.Pen.DashCapProperty)
+        | PenProp.LineJoin _ -> el.ClearValue(System.Windows.Media.Pen.LineJoinProperty)
+        | PenProp.MiterLimit _ -> el.ClearValue(System.Windows.Media.Pen.MiterLimitProperty)
+        | PenProp.DashStyle _ -> el.ClearValue(System.Windows.Media.Pen.DashStyleProperty)
 
     let onChanged v : obj =
         box (EventProp(box (FreezableProp.OnChanged v)))

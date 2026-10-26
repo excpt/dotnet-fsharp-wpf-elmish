@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -74,6 +74,26 @@ module ThumbButtonInfo =
         | ThumbButtonInfoProp.CommandTarget v ->
             el.SetValue(System.Windows.Shell.ThumbButtonInfo.CommandTargetProperty, box v)
         | ThumbButtonInfoProp.OnClick h -> el.Click.AddHandler(h)
+
+    let clear (el: System.Windows.Shell.ThumbButtonInfo) (prop: ThumbButtonInfoProp) =
+        match prop with
+        | ThumbButtonInfoProp.Base p -> Freezable.clear el p
+        | ThumbButtonInfoProp.Visibility _ -> el.ClearValue(System.Windows.Shell.ThumbButtonInfo.VisibilityProperty)
+        | ThumbButtonInfoProp.DismissWhenClicked _ ->
+            el.ClearValue(System.Windows.Shell.ThumbButtonInfo.DismissWhenClickedProperty)
+        | ThumbButtonInfoProp.ImageSource _ -> el.ClearValue(System.Windows.Shell.ThumbButtonInfo.ImageSourceProperty)
+        | ThumbButtonInfoProp.IsBackgroundVisible _ ->
+            el.ClearValue(System.Windows.Shell.ThumbButtonInfo.IsBackgroundVisibleProperty)
+        | ThumbButtonInfoProp.Description _ -> el.ClearValue(System.Windows.Shell.ThumbButtonInfo.DescriptionProperty)
+        | ThumbButtonInfoProp.IsEnabled _ -> el.ClearValue(System.Windows.Shell.ThumbButtonInfo.IsEnabledProperty)
+        | ThumbButtonInfoProp.IsInteractive _ ->
+            el.ClearValue(System.Windows.Shell.ThumbButtonInfo.IsInteractiveProperty)
+        | ThumbButtonInfoProp.Command _ -> el.ClearValue(System.Windows.Shell.ThumbButtonInfo.CommandProperty)
+        | ThumbButtonInfoProp.CommandParameter _ ->
+            el.ClearValue(System.Windows.Shell.ThumbButtonInfo.CommandParameterProperty)
+        | ThumbButtonInfoProp.CommandTarget _ ->
+            el.ClearValue(System.Windows.Shell.ThumbButtonInfo.CommandTargetProperty)
+        | ThumbButtonInfoProp.OnClick h -> el.Click.RemoveHandler(h)
 
     let onChanged v : obj =
         box (EventProp(box (FreezableProp.OnChanged v)))

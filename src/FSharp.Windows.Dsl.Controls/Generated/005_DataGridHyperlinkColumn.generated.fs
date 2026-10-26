@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -23,6 +23,12 @@ module DataGridHyperlinkColumn =
         | DataGridHyperlinkColumnProp.Base p -> DataGridBoundColumn.apply el p
         | DataGridHyperlinkColumnProp.TargetName v ->
             el.SetValue(System.Windows.Controls.DataGridHyperlinkColumn.TargetNameProperty, box v)
+
+    let clear (el: System.Windows.Controls.DataGridHyperlinkColumn) (prop: DataGridHyperlinkColumnProp) =
+        match prop with
+        | DataGridHyperlinkColumnProp.Base p -> DataGridBoundColumn.clear el p
+        | DataGridHyperlinkColumnProp.TargetName _ ->
+            el.ClearValue(System.Windows.Controls.DataGridHyperlinkColumn.TargetNameProperty)
 
     let elementStyle v : obj =
         box (DataGridBoundColumnProp.ElementStyle v)

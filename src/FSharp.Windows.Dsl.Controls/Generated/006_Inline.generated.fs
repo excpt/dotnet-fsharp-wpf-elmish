@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -28,6 +28,13 @@ module Inline =
             el.SetValue(System.Windows.Documents.Inline.BaselineAlignmentProperty, box v)
         | InlineProp.TextDecorations v -> el.SetValue(System.Windows.Documents.Inline.TextDecorationsProperty, box v)
         | InlineProp.FlowDirection v -> el.SetValue(System.Windows.Documents.Inline.FlowDirectionProperty, box v)
+
+    let clear (el: System.Windows.Documents.Inline) (prop: InlineProp) =
+        match prop with
+        | InlineProp.Base p -> TextElement.clear el p
+        | InlineProp.BaselineAlignment _ -> el.ClearValue(System.Windows.Documents.Inline.BaselineAlignmentProperty)
+        | InlineProp.TextDecorations _ -> el.ClearValue(System.Windows.Documents.Inline.TextDecorationsProperty)
+        | InlineProp.FlowDirection _ -> el.ClearValue(System.Windows.Documents.Inline.FlowDirectionProperty)
 
     let background v : obj = box (TextElementProp.Background v)
     let textEffects v : obj = box (TextElementProp.TextEffects v)

@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -47,6 +47,20 @@ module DataGridComboBoxColumn =
             el.SetValue(System.Windows.Controls.DataGridComboBoxColumn.DisplayMemberPathProperty, box v)
         | DataGridComboBoxColumnProp.SelectedValuePath v ->
             el.SetValue(System.Windows.Controls.DataGridComboBoxColumn.SelectedValuePathProperty, box v)
+
+    let clear (el: System.Windows.Controls.DataGridComboBoxColumn) (prop: DataGridComboBoxColumnProp) =
+        match prop with
+        | DataGridComboBoxColumnProp.Base p -> DataGridColumn.clear el p
+        | DataGridComboBoxColumnProp.ElementStyle _ ->
+            el.ClearValue(System.Windows.Controls.DataGridComboBoxColumn.ElementStyleProperty)
+        | DataGridComboBoxColumnProp.EditingElementStyle _ ->
+            el.ClearValue(System.Windows.Controls.DataGridComboBoxColumn.EditingElementStyleProperty)
+        | DataGridComboBoxColumnProp.ItemsSource _ ->
+            el.ClearValue(System.Windows.Controls.DataGridComboBoxColumn.ItemsSourceProperty)
+        | DataGridComboBoxColumnProp.DisplayMemberPath _ ->
+            el.ClearValue(System.Windows.Controls.DataGridComboBoxColumn.DisplayMemberPathProperty)
+        | DataGridComboBoxColumnProp.SelectedValuePath _ ->
+            el.ClearValue(System.Windows.Controls.DataGridComboBoxColumn.SelectedValuePathProperty)
 
     let header v : obj = box (DataGridColumnProp.Header v)
     let headerStyle v : obj = box (DataGridColumnProp.HeaderStyle v)

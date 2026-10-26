@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -37,6 +37,17 @@ module Track =
         | TrackProp.ViewportSize v -> el.SetValue(System.Windows.Controls.Primitives.Track.ViewportSizeProperty, box v)
         | TrackProp.IsDirectionReversed v ->
             el.SetValue(System.Windows.Controls.Primitives.Track.IsDirectionReversedProperty, box v)
+
+    let clear (el: System.Windows.Controls.Primitives.Track) (prop: TrackProp) =
+        match prop with
+        | TrackProp.Base p -> FrameworkElement.clear el p
+        | TrackProp.Orientation _ -> el.ClearValue(System.Windows.Controls.Primitives.Track.OrientationProperty)
+        | TrackProp.Minimum _ -> el.ClearValue(System.Windows.Controls.Primitives.Track.MinimumProperty)
+        | TrackProp.Maximum _ -> el.ClearValue(System.Windows.Controls.Primitives.Track.MaximumProperty)
+        | TrackProp.Value _ -> el.ClearValue(System.Windows.Controls.Primitives.Track.ValueProperty)
+        | TrackProp.ViewportSize _ -> el.ClearValue(System.Windows.Controls.Primitives.Track.ViewportSizeProperty)
+        | TrackProp.IsDirectionReversed _ ->
+            el.ClearValue(System.Windows.Controls.Primitives.Track.IsDirectionReversedProperty)
 
     let style v : obj = box (FrameworkElementProp.Style v)
 

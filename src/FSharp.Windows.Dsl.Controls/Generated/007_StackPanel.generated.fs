@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -21,6 +21,11 @@ module StackPanel =
         match prop with
         | StackPanelProp.Base p -> Panel.apply el p
         | StackPanelProp.Orientation v -> el.SetValue(System.Windows.Controls.StackPanel.OrientationProperty, box v)
+
+    let clear (el: System.Windows.Controls.StackPanel) (prop: StackPanelProp) =
+        match prop with
+        | StackPanelProp.Base p -> Panel.clear el p
+        | StackPanelProp.Orientation _ -> el.ClearValue(System.Windows.Controls.StackPanel.OrientationProperty)
 
     let background v : obj = box (PanelProp.Background v)
     let isItemsHost v : obj = box (PanelProp.IsItemsHost v)

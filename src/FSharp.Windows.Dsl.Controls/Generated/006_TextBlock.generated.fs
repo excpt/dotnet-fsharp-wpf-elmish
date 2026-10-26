@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -46,6 +46,19 @@ module TextBlock =
         | TextBlockProp.TextWrapping v -> el.SetValue(System.Windows.Controls.TextBlock.TextWrappingProperty, box v)
         | TextBlockProp.IsHyphenationEnabled v ->
             el.SetValue(System.Windows.Controls.TextBlock.IsHyphenationEnabledProperty, box v)
+
+    let clear (el: System.Windows.Controls.TextBlock) (prop: TextBlockProp) =
+        match prop with
+        | TextBlockProp.Base p -> FrameworkElement.clear el p
+        | TextBlockProp.Text _ -> el.ClearValue(System.Windows.Controls.TextBlock.TextProperty)
+        | TextBlockProp.Background _ -> el.ClearValue(System.Windows.Controls.TextBlock.BackgroundProperty)
+        | TextBlockProp.TextDecorations _ -> el.ClearValue(System.Windows.Controls.TextBlock.TextDecorationsProperty)
+        | TextBlockProp.TextEffects _ -> el.ClearValue(System.Windows.Controls.TextBlock.TextEffectsProperty)
+        | TextBlockProp.Padding _ -> el.ClearValue(System.Windows.Controls.TextBlock.PaddingProperty)
+        | TextBlockProp.TextTrimming _ -> el.ClearValue(System.Windows.Controls.TextBlock.TextTrimmingProperty)
+        | TextBlockProp.TextWrapping _ -> el.ClearValue(System.Windows.Controls.TextBlock.TextWrappingProperty)
+        | TextBlockProp.IsHyphenationEnabled _ ->
+            el.ClearValue(System.Windows.Controls.TextBlock.IsHyphenationEnabledProperty)
 
     let style v : obj = box (FrameworkElementProp.Style v)
 

@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -49,6 +49,20 @@ module AnchoredBlock =
             el.SetValue(System.Windows.Documents.AnchoredBlock.LineHeightProperty, box v)
         | AnchoredBlockProp.LineStackingStrategy v ->
             el.SetValue(System.Windows.Documents.AnchoredBlock.LineStackingStrategyProperty, box v)
+
+    let clear (el: System.Windows.Documents.AnchoredBlock) (prop: AnchoredBlockProp) =
+        match prop with
+        | AnchoredBlockProp.Base p -> Inline.clear el p
+        | AnchoredBlockProp.Margin _ -> el.ClearValue(System.Windows.Documents.AnchoredBlock.MarginProperty)
+        | AnchoredBlockProp.Padding _ -> el.ClearValue(System.Windows.Documents.AnchoredBlock.PaddingProperty)
+        | AnchoredBlockProp.BorderThickness _ ->
+            el.ClearValue(System.Windows.Documents.AnchoredBlock.BorderThicknessProperty)
+        | AnchoredBlockProp.BorderBrush _ -> el.ClearValue(System.Windows.Documents.AnchoredBlock.BorderBrushProperty)
+        | AnchoredBlockProp.TextAlignment _ ->
+            el.ClearValue(System.Windows.Documents.AnchoredBlock.TextAlignmentProperty)
+        | AnchoredBlockProp.LineHeight _ -> el.ClearValue(System.Windows.Documents.AnchoredBlock.LineHeightProperty)
+        | AnchoredBlockProp.LineStackingStrategy _ ->
+            el.ClearValue(System.Windows.Documents.AnchoredBlock.LineStackingStrategyProperty)
 
     let baselineAlignment v : obj = box (InlineProp.BaselineAlignment v)
     let textDecorations v : obj = box (InlineProp.TextDecorations v)

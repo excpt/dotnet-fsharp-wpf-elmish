@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -20,6 +20,13 @@ module DataGridColumnHeadersPresenter =
         =
         match prop with
         | DataGridColumnHeadersPresenterProp.Base p -> ItemsControl.apply el p
+
+    let clear
+        (el: System.Windows.Controls.Primitives.DataGridColumnHeadersPresenter)
+        (prop: DataGridColumnHeadersPresenterProp)
+        =
+        match prop with
+        | DataGridColumnHeadersPresenterProp.Base p -> ItemsControl.clear el p
 
     let itemsSource v : obj = box (ItemsControlProp.ItemsSource v)
 

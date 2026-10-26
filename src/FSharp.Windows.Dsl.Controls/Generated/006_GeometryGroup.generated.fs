@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -24,6 +24,12 @@ module GeometryGroup =
         | GeometryGroupProp.Base p -> Geometry.apply el p
         | GeometryGroupProp.FillRule v -> el.SetValue(System.Windows.Media.GeometryGroup.FillRuleProperty, box v)
         | GeometryGroupProp.Children v -> el.SetValue(System.Windows.Media.GeometryGroup.ChildrenProperty, box v)
+
+    let clear (el: System.Windows.Media.GeometryGroup) (prop: GeometryGroupProp) =
+        match prop with
+        | GeometryGroupProp.Base p -> Geometry.clear el p
+        | GeometryGroupProp.FillRule _ -> el.ClearValue(System.Windows.Media.GeometryGroup.FillRuleProperty)
+        | GeometryGroupProp.Children _ -> el.ClearValue(System.Windows.Media.GeometryGroup.ChildrenProperty)
 
     let transform v : obj = box (GeometryProp.Transform v)
 

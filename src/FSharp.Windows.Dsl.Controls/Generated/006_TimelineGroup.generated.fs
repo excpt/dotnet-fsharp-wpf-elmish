@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -22,6 +22,11 @@ module TimelineGroup =
         | TimelineGroupProp.Base p -> Timeline.apply el p
         | TimelineGroupProp.Children v ->
             el.SetValue(System.Windows.Media.Animation.TimelineGroup.ChildrenProperty, box v)
+
+    let clear (el: System.Windows.Media.Animation.TimelineGroup) (prop: TimelineGroupProp) =
+        match prop with
+        | TimelineGroupProp.Base p -> Timeline.clear el p
+        | TimelineGroupProp.Children _ -> el.ClearValue(System.Windows.Media.Animation.TimelineGroup.ChildrenProperty)
 
     let accelerationRatio v : obj = box (TimelineProp.AccelerationRatio v)
     let autoReverse v : obj = box (TimelineProp.AutoReverse v)

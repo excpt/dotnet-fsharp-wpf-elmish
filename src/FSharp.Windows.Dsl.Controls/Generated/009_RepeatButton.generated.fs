@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -25,6 +25,12 @@ module RepeatButton =
         | RepeatButtonProp.Delay v -> el.SetValue(System.Windows.Controls.Primitives.RepeatButton.DelayProperty, box v)
         | RepeatButtonProp.Interval v ->
             el.SetValue(System.Windows.Controls.Primitives.RepeatButton.IntervalProperty, box v)
+
+    let clear (el: System.Windows.Controls.Primitives.RepeatButton) (prop: RepeatButtonProp) =
+        match prop with
+        | RepeatButtonProp.Base p -> ButtonBase.clear el p
+        | RepeatButtonProp.Delay _ -> el.ClearValue(System.Windows.Controls.Primitives.RepeatButton.DelayProperty)
+        | RepeatButtonProp.Interval _ -> el.ClearValue(System.Windows.Controls.Primitives.RepeatButton.IntervalProperty)
 
     let command v : obj = box (ButtonBaseProp.Command v)
     let commandParameter v : obj = box (ButtonBaseProp.CommandParameter v)

@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -29,6 +29,13 @@ module ColumnDefinition =
             el.SetValue(System.Windows.Controls.ColumnDefinition.MinWidthProperty, box v)
         | ColumnDefinitionProp.MaxWidth v ->
             el.SetValue(System.Windows.Controls.ColumnDefinition.MaxWidthProperty, box v)
+
+    let clear (el: System.Windows.Controls.ColumnDefinition) (prop: ColumnDefinitionProp) =
+        match prop with
+        | ColumnDefinitionProp.Base p -> DefinitionBase.clear el p
+        | ColumnDefinitionProp.Width _ -> el.ClearValue(System.Windows.Controls.ColumnDefinition.WidthProperty)
+        | ColumnDefinitionProp.MinWidth _ -> el.ClearValue(System.Windows.Controls.ColumnDefinition.MinWidthProperty)
+        | ColumnDefinitionProp.MaxWidth _ -> el.ClearValue(System.Windows.Controls.ColumnDefinition.MaxWidthProperty)
 
     let sharedSizeGroup v : obj =
         box (DefinitionBaseProp.SharedSizeGroup v)

@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -51,6 +51,21 @@ module ContentPresenter =
             el.SetValue(System.Windows.Controls.ContentPresenter.ContentStringFormatProperty, box v)
         | ContentPresenterProp.ContentSource v ->
             el.SetValue(System.Windows.Controls.ContentPresenter.ContentSourceProperty, box v)
+
+    let clear (el: System.Windows.Controls.ContentPresenter) (prop: ContentPresenterProp) =
+        match prop with
+        | ContentPresenterProp.Base p -> FrameworkElement.clear el p
+        | ContentPresenterProp.RecognizesAccessKey _ ->
+            el.ClearValue(System.Windows.Controls.ContentPresenter.RecognizesAccessKeyProperty)
+        | ContentPresenterProp.Content _ -> el.ClearValue(System.Windows.Controls.ContentPresenter.ContentProperty)
+        | ContentPresenterProp.ContentTemplate _ ->
+            el.ClearValue(System.Windows.Controls.ContentPresenter.ContentTemplateProperty)
+        | ContentPresenterProp.ContentTemplateSelector _ ->
+            el.ClearValue(System.Windows.Controls.ContentPresenter.ContentTemplateSelectorProperty)
+        | ContentPresenterProp.ContentStringFormat _ ->
+            el.ClearValue(System.Windows.Controls.ContentPresenter.ContentStringFormatProperty)
+        | ContentPresenterProp.ContentSource _ ->
+            el.ClearValue(System.Windows.Controls.ContentPresenter.ContentSourceProperty)
 
     let style v : obj = box (FrameworkElementProp.Style v)
 

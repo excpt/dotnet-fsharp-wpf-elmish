@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -89,6 +89,28 @@ module Frame =
         | FrameProp.OnLoadCompleted h -> el.LoadCompleted.AddHandler(h)
         | FrameProp.OnNavigationStopped h -> el.NavigationStopped.AddHandler(h)
         | FrameProp.OnFragmentNavigation h -> el.FragmentNavigation.AddHandler(h)
+
+    let clear (el: System.Windows.Controls.Frame) (prop: FrameProp) =
+        match prop with
+        | FrameProp.Base p -> ContentControl.clear el p
+        | FrameProp.Source _ -> el.ClearValue(System.Windows.Controls.Frame.SourceProperty)
+        | FrameProp.CanGoBack _ -> el.ClearValue(System.Windows.Controls.Frame.CanGoBackProperty)
+        | FrameProp.CanGoForward _ -> el.ClearValue(System.Windows.Controls.Frame.CanGoForwardProperty)
+        | FrameProp.BackStack _ -> el.ClearValue(System.Windows.Controls.Frame.BackStackProperty)
+        | FrameProp.ForwardStack _ -> el.ClearValue(System.Windows.Controls.Frame.ForwardStackProperty)
+        | FrameProp.NavigationUIVisibility _ ->
+            el.ClearValue(System.Windows.Controls.Frame.NavigationUIVisibilityProperty)
+        | FrameProp.SandboxExternalContent _ ->
+            el.ClearValue(System.Windows.Controls.Frame.SandboxExternalContentProperty)
+        | FrameProp.JournalOwnership _ -> el.ClearValue(System.Windows.Controls.Frame.JournalOwnershipProperty)
+        | FrameProp.OnContentRendered h -> el.ContentRendered.RemoveHandler(h)
+        | FrameProp.OnNavigating h -> el.Navigating.RemoveHandler(h)
+        | FrameProp.OnNavigationProgress h -> el.NavigationProgress.RemoveHandler(h)
+        | FrameProp.OnNavigationFailed h -> el.NavigationFailed.RemoveHandler(h)
+        | FrameProp.OnNavigated h -> el.Navigated.RemoveHandler(h)
+        | FrameProp.OnLoadCompleted h -> el.LoadCompleted.RemoveHandler(h)
+        | FrameProp.OnNavigationStopped h -> el.NavigationStopped.RemoveHandler(h)
+        | FrameProp.OnFragmentNavigation h -> el.FragmentNavigation.RemoveHandler(h)
 
     let content v : obj = box (ContentControlProp.Content v)
 

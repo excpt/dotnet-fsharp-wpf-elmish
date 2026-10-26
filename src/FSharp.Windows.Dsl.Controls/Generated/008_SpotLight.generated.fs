@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -29,6 +29,13 @@ module SpotLight =
             el.SetValue(System.Windows.Media.Media3D.SpotLight.OuterConeAngleProperty, box v)
         | SpotLightProp.InnerConeAngle v ->
             el.SetValue(System.Windows.Media.Media3D.SpotLight.InnerConeAngleProperty, box v)
+
+    let clear (el: System.Windows.Media.Media3D.SpotLight) (prop: SpotLightProp) =
+        match prop with
+        | SpotLightProp.Base p -> PointLightBase.clear el p
+        | SpotLightProp.Direction _ -> el.ClearValue(System.Windows.Media.Media3D.SpotLight.DirectionProperty)
+        | SpotLightProp.OuterConeAngle _ -> el.ClearValue(System.Windows.Media.Media3D.SpotLight.OuterConeAngleProperty)
+        | SpotLightProp.InnerConeAngle _ -> el.ClearValue(System.Windows.Media.Media3D.SpotLight.InnerConeAngleProperty)
 
     let position v : obj = box (PointLightBaseProp.Position v)
     let range v : obj = box (PointLightBaseProp.Range v)

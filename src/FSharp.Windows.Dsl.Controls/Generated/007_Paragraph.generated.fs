@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -38,6 +38,16 @@ module Paragraph =
         | ParagraphProp.MinWidowLines v -> el.SetValue(System.Windows.Documents.Paragraph.MinWidowLinesProperty, box v)
         | ParagraphProp.KeepWithNext v -> el.SetValue(System.Windows.Documents.Paragraph.KeepWithNextProperty, box v)
         | ParagraphProp.KeepTogether v -> el.SetValue(System.Windows.Documents.Paragraph.KeepTogetherProperty, box v)
+
+    let clear (el: System.Windows.Documents.Paragraph) (prop: ParagraphProp) =
+        match prop with
+        | ParagraphProp.Base p -> Block.clear el p
+        | ParagraphProp.TextDecorations _ -> el.ClearValue(System.Windows.Documents.Paragraph.TextDecorationsProperty)
+        | ParagraphProp.TextIndent _ -> el.ClearValue(System.Windows.Documents.Paragraph.TextIndentProperty)
+        | ParagraphProp.MinOrphanLines _ -> el.ClearValue(System.Windows.Documents.Paragraph.MinOrphanLinesProperty)
+        | ParagraphProp.MinWidowLines _ -> el.ClearValue(System.Windows.Documents.Paragraph.MinWidowLinesProperty)
+        | ParagraphProp.KeepWithNext _ -> el.ClearValue(System.Windows.Documents.Paragraph.KeepWithNextProperty)
+        | ParagraphProp.KeepTogether _ -> el.ClearValue(System.Windows.Documents.Paragraph.KeepTogetherProperty)
 
     let margin v : obj = box (BlockProp.Margin v)
     let padding v : obj = box (BlockProp.Padding v)

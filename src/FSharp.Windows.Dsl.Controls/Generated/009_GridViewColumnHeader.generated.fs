@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -17,6 +17,10 @@ module GridViewColumnHeader =
     let apply (el: System.Windows.Controls.GridViewColumnHeader) (prop: GridViewColumnHeaderProp) =
         match prop with
         | GridViewColumnHeaderProp.Base p -> ButtonBase.apply el p
+
+    let clear (el: System.Windows.Controls.GridViewColumnHeader) (prop: GridViewColumnHeaderProp) =
+        match prop with
+        | GridViewColumnHeaderProp.Base p -> ButtonBase.clear el p
 
     let command v : obj = box (ButtonBaseProp.Command v)
     let commandParameter v : obj = box (ButtonBaseProp.CommandParameter v)

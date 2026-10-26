@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -67,6 +67,26 @@ module FlowDocumentPageViewer =
                 System.Windows.Controls.FlowDocumentPageViewer.IsInactiveSelectionHighlightEnabledProperty,
                 box v
             )
+
+    let clear (el: System.Windows.Controls.FlowDocumentPageViewer) (prop: FlowDocumentPageViewerProp) =
+        match prop with
+        | FlowDocumentPageViewerProp.Base p -> DocumentViewerBase.clear el p
+        | FlowDocumentPageViewerProp.Zoom _ ->
+            el.ClearValue(System.Windows.Controls.FlowDocumentPageViewer.ZoomProperty)
+        | FlowDocumentPageViewerProp.MaxZoom _ ->
+            el.ClearValue(System.Windows.Controls.FlowDocumentPageViewer.MaxZoomProperty)
+        | FlowDocumentPageViewerProp.MinZoom _ ->
+            el.ClearValue(System.Windows.Controls.FlowDocumentPageViewer.MinZoomProperty)
+        | FlowDocumentPageViewerProp.ZoomIncrement _ ->
+            el.ClearValue(System.Windows.Controls.FlowDocumentPageViewer.ZoomIncrementProperty)
+        | FlowDocumentPageViewerProp.SelectionBrush _ ->
+            el.ClearValue(System.Windows.Controls.FlowDocumentPageViewer.SelectionBrushProperty)
+        | FlowDocumentPageViewerProp.SelectionOpacity _ ->
+            el.ClearValue(System.Windows.Controls.FlowDocumentPageViewer.SelectionOpacityProperty)
+        | FlowDocumentPageViewerProp.IsSelectionActive _ ->
+            el.ClearValue(System.Windows.Controls.FlowDocumentPageViewer.IsSelectionActiveProperty)
+        | FlowDocumentPageViewerProp.IsInactiveSelectionHighlightEnabled _ ->
+            el.ClearValue(System.Windows.Controls.FlowDocumentPageViewer.IsInactiveSelectionHighlightEnabledProperty)
 
     let document v : obj = box (DocumentViewerBaseProp.Document v)
     let borderBrush v : obj = box (ControlProp.BorderBrush v)

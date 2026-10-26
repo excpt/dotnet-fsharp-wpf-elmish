@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -32,6 +32,13 @@ module WebBrowser =
         | WebBrowserProp.OnNavigating h -> el.Navigating.AddHandler(h)
         | WebBrowserProp.OnNavigated h -> el.Navigated.AddHandler(h)
         | WebBrowserProp.OnLoadCompleted h -> el.LoadCompleted.AddHandler(h)
+
+    let clear (el: System.Windows.Controls.WebBrowser) (prop: WebBrowserProp) =
+        match prop with
+        | WebBrowserProp.Base p -> HwndHost.clear el p
+        | WebBrowserProp.OnNavigating h -> el.Navigating.RemoveHandler(h)
+        | WebBrowserProp.OnNavigated h -> el.Navigated.RemoveHandler(h)
+        | WebBrowserProp.OnLoadCompleted h -> el.LoadCompleted.RemoveHandler(h)
 
     let style v : obj = box (FrameworkElementProp.Style v)
 

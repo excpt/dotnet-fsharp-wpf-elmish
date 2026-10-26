@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -33,6 +33,15 @@ module ArcSegment =
         | ArcSegmentProp.RotationAngle v -> el.SetValue(System.Windows.Media.ArcSegment.RotationAngleProperty, box v)
         | ArcSegmentProp.IsLargeArc v -> el.SetValue(System.Windows.Media.ArcSegment.IsLargeArcProperty, box v)
         | ArcSegmentProp.SweepDirection v -> el.SetValue(System.Windows.Media.ArcSegment.SweepDirectionProperty, box v)
+
+    let clear (el: System.Windows.Media.ArcSegment) (prop: ArcSegmentProp) =
+        match prop with
+        | ArcSegmentProp.Base p -> PathSegment.clear el p
+        | ArcSegmentProp.Point _ -> el.ClearValue(System.Windows.Media.ArcSegment.PointProperty)
+        | ArcSegmentProp.Size _ -> el.ClearValue(System.Windows.Media.ArcSegment.SizeProperty)
+        | ArcSegmentProp.RotationAngle _ -> el.ClearValue(System.Windows.Media.ArcSegment.RotationAngleProperty)
+        | ArcSegmentProp.IsLargeArc _ -> el.ClearValue(System.Windows.Media.ArcSegment.IsLargeArcProperty)
+        | ArcSegmentProp.SweepDirection _ -> el.ClearValue(System.Windows.Media.ArcSegment.SweepDirectionProperty)
 
     let isStroked v : obj = box (PathSegmentProp.IsStroked v)
     let isSmoothJoin v : obj = box (PathSegmentProp.IsSmoothJoin v)

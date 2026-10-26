@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -49,6 +49,19 @@ module CollectionViewSource =
         | CollectionViewSourceProp.IsLiveGroupingRequested v ->
             el.SetValue(System.Windows.Data.CollectionViewSource.IsLiveGroupingRequestedProperty, box v)
         | CollectionViewSourceProp.OnFilter h -> el.Filter.AddHandler(h)
+
+    let clear (el: System.Windows.Data.CollectionViewSource) (prop: CollectionViewSourceProp) =
+        match prop with
+        | CollectionViewSourceProp.Source _ -> el.ClearValue(System.Windows.Data.CollectionViewSource.SourceProperty)
+        | CollectionViewSourceProp.CollectionViewType _ ->
+            el.ClearValue(System.Windows.Data.CollectionViewSource.CollectionViewTypeProperty)
+        | CollectionViewSourceProp.IsLiveSortingRequested _ ->
+            el.ClearValue(System.Windows.Data.CollectionViewSource.IsLiveSortingRequestedProperty)
+        | CollectionViewSourceProp.IsLiveFilteringRequested _ ->
+            el.ClearValue(System.Windows.Data.CollectionViewSource.IsLiveFilteringRequestedProperty)
+        | CollectionViewSourceProp.IsLiveGroupingRequested _ ->
+            el.ClearValue(System.Windows.Data.CollectionViewSource.IsLiveGroupingRequestedProperty)
+        | CollectionViewSourceProp.OnFilter h -> el.Filter.RemoveHandler(h)
 
 
     let children (cs: VirtualNode list) : obj = box (Children cs)

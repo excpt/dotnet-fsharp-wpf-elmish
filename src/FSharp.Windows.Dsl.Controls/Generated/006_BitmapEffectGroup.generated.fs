@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -22,6 +22,12 @@ module BitmapEffectGroup =
         | BitmapEffectGroupProp.Base p -> Freezable.apply el p
         | BitmapEffectGroupProp.Children v ->
             el.SetValue(System.Windows.Media.Effects.BitmapEffectGroup.ChildrenProperty, box v)
+
+    let clear (el: System.Windows.Media.Effects.BitmapEffectGroup) (prop: BitmapEffectGroupProp) =
+        match prop with
+        | BitmapEffectGroupProp.Base p -> Freezable.clear el p
+        | BitmapEffectGroupProp.Children _ ->
+            el.ClearValue(System.Windows.Media.Effects.BitmapEffectGroup.ChildrenProperty)
 
     let onChanged v : obj =
         box (EventProp(box (FreezableProp.OnChanged v)))

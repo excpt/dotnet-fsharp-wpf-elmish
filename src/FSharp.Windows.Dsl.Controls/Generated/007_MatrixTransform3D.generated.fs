@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -22,6 +22,11 @@ module MatrixTransform3D =
         | MatrixTransform3DProp.Base p -> Freezable.apply el p
         | MatrixTransform3DProp.Matrix v ->
             el.SetValue(System.Windows.Media.Media3D.MatrixTransform3D.MatrixProperty, box v)
+
+    let clear (el: System.Windows.Media.Media3D.MatrixTransform3D) (prop: MatrixTransform3DProp) =
+        match prop with
+        | MatrixTransform3DProp.Base p -> Freezable.clear el p
+        | MatrixTransform3DProp.Matrix _ -> el.ClearValue(System.Windows.Media.Media3D.MatrixTransform3D.MatrixProperty)
 
     let onChanged v : obj =
         box (EventProp(box (FreezableProp.OnChanged v)))

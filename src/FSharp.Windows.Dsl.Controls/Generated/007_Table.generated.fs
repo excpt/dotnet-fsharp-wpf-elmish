@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -21,6 +21,11 @@ module Table =
         match prop with
         | TableProp.Base p -> Block.apply el p
         | TableProp.CellSpacing v -> el.SetValue(System.Windows.Documents.Table.CellSpacingProperty, box v)
+
+    let clear (el: System.Windows.Documents.Table) (prop: TableProp) =
+        match prop with
+        | TableProp.Base p -> Block.clear el p
+        | TableProp.CellSpacing _ -> el.ClearValue(System.Windows.Documents.Table.CellSpacingProperty)
 
     let margin v : obj = box (BlockProp.Margin v)
     let padding v : obj = box (BlockProp.Padding v)

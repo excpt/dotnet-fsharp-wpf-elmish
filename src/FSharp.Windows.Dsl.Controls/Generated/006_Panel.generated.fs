@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -24,6 +24,12 @@ module Panel =
         | PanelProp.Base p -> FrameworkElement.apply el p
         | PanelProp.Background v -> el.SetValue(System.Windows.Controls.Panel.BackgroundProperty, box v)
         | PanelProp.IsItemsHost v -> el.SetValue(System.Windows.Controls.Panel.IsItemsHostProperty, box v)
+
+    let clear (el: System.Windows.Controls.Panel) (prop: PanelProp) =
+        match prop with
+        | PanelProp.Base p -> FrameworkElement.clear el p
+        | PanelProp.Background _ -> el.ClearValue(System.Windows.Controls.Panel.BackgroundProperty)
+        | PanelProp.IsItemsHost _ -> el.ClearValue(System.Windows.Controls.Panel.IsItemsHostProperty)
 
     let style v : obj = box (FrameworkElementProp.Style v)
 

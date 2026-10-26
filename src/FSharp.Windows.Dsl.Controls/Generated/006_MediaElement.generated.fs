@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -76,6 +76,27 @@ module MediaElement =
         | MediaElementProp.OnBufferingStarted h -> el.BufferingStarted.AddHandler(h)
         | MediaElementProp.OnBufferingEnded h -> el.BufferingEnded.AddHandler(h)
         | MediaElementProp.OnMediaEnded h -> el.MediaEnded.AddHandler(h)
+
+    let clear (el: System.Windows.Controls.MediaElement) (prop: MediaElementProp) =
+        match prop with
+        | MediaElementProp.Base p -> FrameworkElement.clear el p
+        | MediaElementProp.Source _ -> el.ClearValue(System.Windows.Controls.MediaElement.SourceProperty)
+        | MediaElementProp.Volume _ -> el.ClearValue(System.Windows.Controls.MediaElement.VolumeProperty)
+        | MediaElementProp.Balance _ -> el.ClearValue(System.Windows.Controls.MediaElement.BalanceProperty)
+        | MediaElementProp.IsMuted _ -> el.ClearValue(System.Windows.Controls.MediaElement.IsMutedProperty)
+        | MediaElementProp.ScrubbingEnabled _ ->
+            el.ClearValue(System.Windows.Controls.MediaElement.ScrubbingEnabledProperty)
+        | MediaElementProp.UnloadedBehavior _ ->
+            el.ClearValue(System.Windows.Controls.MediaElement.UnloadedBehaviorProperty)
+        | MediaElementProp.LoadedBehavior _ ->
+            el.ClearValue(System.Windows.Controls.MediaElement.LoadedBehaviorProperty)
+        | MediaElementProp.Stretch _ -> el.ClearValue(System.Windows.Controls.MediaElement.StretchProperty)
+        | MediaElementProp.StretchDirection _ ->
+            el.ClearValue(System.Windows.Controls.MediaElement.StretchDirectionProperty)
+        | MediaElementProp.OnMediaOpened h -> el.MediaOpened.RemoveHandler(h)
+        | MediaElementProp.OnBufferingStarted h -> el.BufferingStarted.RemoveHandler(h)
+        | MediaElementProp.OnBufferingEnded h -> el.BufferingEnded.RemoveHandler(h)
+        | MediaElementProp.OnMediaEnded h -> el.MediaEnded.RemoveHandler(h)
 
     let style v : obj = box (FrameworkElementProp.Style v)
 

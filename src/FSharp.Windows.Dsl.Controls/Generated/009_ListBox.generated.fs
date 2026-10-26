@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -21,6 +21,11 @@ module ListBox =
         match prop with
         | ListBoxProp.Base p -> Selector.apply el p
         | ListBoxProp.SelectionMode v -> el.SetValue(System.Windows.Controls.ListBox.SelectionModeProperty, box v)
+
+    let clear (el: System.Windows.Controls.ListBox) (prop: ListBoxProp) =
+        match prop with
+        | ListBoxProp.Base p -> Selector.clear el p
+        | ListBoxProp.SelectionMode _ -> el.ClearValue(System.Windows.Controls.ListBox.SelectionModeProperty)
 
     let isSynchronizedWithCurrentItem v : obj =
         box (SelectorProp.IsSynchronizedWithCurrentItem v)

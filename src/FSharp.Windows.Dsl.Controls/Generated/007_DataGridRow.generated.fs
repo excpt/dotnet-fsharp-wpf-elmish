@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -83,6 +83,30 @@ module DataGridRow =
         | DataGridRowProp.IsSelected v -> el.SetValue(System.Windows.Controls.DataGridRow.IsSelectedProperty, box v)
         | DataGridRowProp.OnSelected h -> el.Selected.AddHandler(h)
         | DataGridRowProp.OnUnselected h -> el.Unselected.AddHandler(h)
+
+    let clear (el: System.Windows.Controls.DataGridRow) (prop: DataGridRowProp) =
+        match prop with
+        | DataGridRowProp.Base p -> Control.clear el p
+        | DataGridRowProp.Item _ -> el.ClearValue(System.Windows.Controls.DataGridRow.ItemProperty)
+        | DataGridRowProp.ItemsPanel _ -> el.ClearValue(System.Windows.Controls.DataGridRow.ItemsPanelProperty)
+        | DataGridRowProp.Header _ -> el.ClearValue(System.Windows.Controls.DataGridRow.HeaderProperty)
+        | DataGridRowProp.HeaderStyle _ -> el.ClearValue(System.Windows.Controls.DataGridRow.HeaderStyleProperty)
+        | DataGridRowProp.HeaderTemplate _ -> el.ClearValue(System.Windows.Controls.DataGridRow.HeaderTemplateProperty)
+        | DataGridRowProp.HeaderTemplateSelector _ ->
+            el.ClearValue(System.Windows.Controls.DataGridRow.HeaderTemplateSelectorProperty)
+        | DataGridRowProp.ValidationErrorTemplate _ ->
+            el.ClearValue(System.Windows.Controls.DataGridRow.ValidationErrorTemplateProperty)
+        | DataGridRowProp.DetailsTemplate _ ->
+            el.ClearValue(System.Windows.Controls.DataGridRow.DetailsTemplateProperty)
+        | DataGridRowProp.DetailsTemplateSelector _ ->
+            el.ClearValue(System.Windows.Controls.DataGridRow.DetailsTemplateSelectorProperty)
+        | DataGridRowProp.DetailsVisibility _ ->
+            el.ClearValue(System.Windows.Controls.DataGridRow.DetailsVisibilityProperty)
+        | DataGridRowProp.AlternationIndex _ ->
+            el.ClearValue(System.Windows.Controls.DataGridRow.AlternationIndexProperty)
+        | DataGridRowProp.IsSelected _ -> el.ClearValue(System.Windows.Controls.DataGridRow.IsSelectedProperty)
+        | DataGridRowProp.OnSelected h -> el.Selected.RemoveHandler(h)
+        | DataGridRowProp.OnUnselected h -> el.Unselected.RemoveHandler(h)
 
     let borderBrush v : obj = box (ControlProp.BorderBrush v)
     let borderThickness v : obj = box (ControlProp.BorderThickness v)

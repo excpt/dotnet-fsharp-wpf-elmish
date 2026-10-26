@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -24,6 +24,12 @@ module PathSegment =
         | PathSegmentProp.Base p -> Freezable.apply el p
         | PathSegmentProp.IsStroked v -> el.SetValue(System.Windows.Media.PathSegment.IsStrokedProperty, box v)
         | PathSegmentProp.IsSmoothJoin v -> el.SetValue(System.Windows.Media.PathSegment.IsSmoothJoinProperty, box v)
+
+    let clear (el: System.Windows.Media.PathSegment) (prop: PathSegmentProp) =
+        match prop with
+        | PathSegmentProp.Base p -> Freezable.clear el p
+        | PathSegmentProp.IsStroked _ -> el.ClearValue(System.Windows.Media.PathSegment.IsStrokedProperty)
+        | PathSegmentProp.IsSmoothJoin _ -> el.ClearValue(System.Windows.Media.PathSegment.IsSmoothJoinProperty)
 
     let onChanged v : obj =
         box (EventProp(box (FreezableProp.OnChanged v)))

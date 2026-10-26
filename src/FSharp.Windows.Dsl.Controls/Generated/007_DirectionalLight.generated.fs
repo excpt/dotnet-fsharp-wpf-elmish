@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -22,6 +22,12 @@ module DirectionalLight =
         | DirectionalLightProp.Base p -> Light.apply el p
         | DirectionalLightProp.Direction v ->
             el.SetValue(System.Windows.Media.Media3D.DirectionalLight.DirectionProperty, box v)
+
+    let clear (el: System.Windows.Media.Media3D.DirectionalLight) (prop: DirectionalLightProp) =
+        match prop with
+        | DirectionalLightProp.Base p -> Light.clear el p
+        | DirectionalLightProp.Direction _ ->
+            el.ClearValue(System.Windows.Media.Media3D.DirectionalLight.DirectionProperty)
 
     let color v : obj = box (LightProp.Color v)
     let transform v : obj = box (Model3DProp.Transform v)

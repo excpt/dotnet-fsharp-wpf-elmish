@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -21,6 +21,11 @@ module TabItem =
         match prop with
         | TabItemProp.Base p -> HeaderedContentControl.apply el p
         | TabItemProp.IsSelected v -> el.SetValue(System.Windows.Controls.TabItem.IsSelectedProperty, box v)
+
+    let clear (el: System.Windows.Controls.TabItem) (prop: TabItemProp) =
+        match prop with
+        | TabItemProp.Base p -> HeaderedContentControl.clear el p
+        | TabItemProp.IsSelected _ -> el.ClearValue(System.Windows.Controls.TabItem.IsSelectedProperty)
 
     let header v : obj =
         box (HeaderedContentControlProp.Header v)

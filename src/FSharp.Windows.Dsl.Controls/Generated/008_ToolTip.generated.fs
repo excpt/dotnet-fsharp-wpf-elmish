@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -71,6 +71,26 @@ module ToolTip =
 #if NET8_0_OR_GREATER
         | ToolTipProp.ShowsToolTipOnKeyboardFocus v ->
             el.SetValue(System.Windows.Controls.ToolTip.ShowsToolTipOnKeyboardFocusProperty, box v)
+#endif
+
+    let clear (el: System.Windows.Controls.ToolTip) (prop: ToolTipProp) =
+        match prop with
+        | ToolTipProp.Base p -> ContentControl.clear el p
+        | ToolTipProp.HorizontalOffset _ -> el.ClearValue(System.Windows.Controls.ToolTip.HorizontalOffsetProperty)
+        | ToolTipProp.VerticalOffset _ -> el.ClearValue(System.Windows.Controls.ToolTip.VerticalOffsetProperty)
+        | ToolTipProp.IsOpen _ -> el.ClearValue(System.Windows.Controls.ToolTip.IsOpenProperty)
+        | ToolTipProp.HasDropShadow _ -> el.ClearValue(System.Windows.Controls.ToolTip.HasDropShadowProperty)
+        | ToolTipProp.PlacementTarget _ -> el.ClearValue(System.Windows.Controls.ToolTip.PlacementTargetProperty)
+        | ToolTipProp.PlacementRectangle _ -> el.ClearValue(System.Windows.Controls.ToolTip.PlacementRectangleProperty)
+        | ToolTipProp.Placement _ -> el.ClearValue(System.Windows.Controls.ToolTip.PlacementProperty)
+        | ToolTipProp.CustomPopupPlacementCallback _ ->
+            el.ClearValue(System.Windows.Controls.ToolTip.CustomPopupPlacementCallbackProperty)
+        | ToolTipProp.StaysOpen _ -> el.ClearValue(System.Windows.Controls.ToolTip.StaysOpenProperty)
+        | ToolTipProp.OnOpened h -> el.Opened.RemoveHandler(h)
+        | ToolTipProp.OnClosed h -> el.Closed.RemoveHandler(h)
+#if NET8_0_OR_GREATER
+        | ToolTipProp.ShowsToolTipOnKeyboardFocus _ ->
+            el.ClearValue(System.Windows.Controls.ToolTip.ShowsToolTipOnKeyboardFocusProperty)
 #endif
 
     let content v : obj = box (ContentControlProp.Content v)

@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -42,6 +42,16 @@ module ScaleTransform3D =
             el.SetValue(System.Windows.Media.Media3D.ScaleTransform3D.CenterYProperty, box v)
         | ScaleTransform3DProp.CenterZ v ->
             el.SetValue(System.Windows.Media.Media3D.ScaleTransform3D.CenterZProperty, box v)
+
+    let clear (el: System.Windows.Media.Media3D.ScaleTransform3D) (prop: ScaleTransform3DProp) =
+        match prop with
+        | ScaleTransform3DProp.Base p -> Freezable.clear el p
+        | ScaleTransform3DProp.ScaleX _ -> el.ClearValue(System.Windows.Media.Media3D.ScaleTransform3D.ScaleXProperty)
+        | ScaleTransform3DProp.ScaleY _ -> el.ClearValue(System.Windows.Media.Media3D.ScaleTransform3D.ScaleYProperty)
+        | ScaleTransform3DProp.ScaleZ _ -> el.ClearValue(System.Windows.Media.Media3D.ScaleTransform3D.ScaleZProperty)
+        | ScaleTransform3DProp.CenterX _ -> el.ClearValue(System.Windows.Media.Media3D.ScaleTransform3D.CenterXProperty)
+        | ScaleTransform3DProp.CenterY _ -> el.ClearValue(System.Windows.Media.Media3D.ScaleTransform3D.CenterYProperty)
+        | ScaleTransform3DProp.CenterZ _ -> el.ClearValue(System.Windows.Media.Media3D.ScaleTransform3D.CenterZProperty)
 
     let onChanged v : obj =
         box (EventProp(box (FreezableProp.OnChanged v)))

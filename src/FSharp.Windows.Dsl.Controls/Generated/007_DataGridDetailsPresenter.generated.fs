@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -17,6 +17,10 @@ module DataGridDetailsPresenter =
     let apply (el: System.Windows.Controls.Primitives.DataGridDetailsPresenter) (prop: DataGridDetailsPresenterProp) =
         match prop with
         | DataGridDetailsPresenterProp.Base p -> ContentPresenter.apply el p
+
+    let clear (el: System.Windows.Controls.Primitives.DataGridDetailsPresenter) (prop: DataGridDetailsPresenterProp) =
+        match prop with
+        | DataGridDetailsPresenterProp.Base p -> ContentPresenter.clear el p
 
     let recognizesAccessKey v : obj =
         box (ContentPresenterProp.RecognizesAccessKey v)

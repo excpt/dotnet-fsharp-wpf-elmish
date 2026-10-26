@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -46,6 +46,20 @@ module ProjectionCamera =
             el.SetValue(System.Windows.Media.Media3D.ProjectionCamera.LookDirectionProperty, box v)
         | ProjectionCameraProp.UpDirection v ->
             el.SetValue(System.Windows.Media.Media3D.ProjectionCamera.UpDirectionProperty, box v)
+
+    let clear (el: System.Windows.Media.Media3D.ProjectionCamera) (prop: ProjectionCameraProp) =
+        match prop with
+        | ProjectionCameraProp.Base p -> Camera.clear el p
+        | ProjectionCameraProp.NearPlaneDistance _ ->
+            el.ClearValue(System.Windows.Media.Media3D.ProjectionCamera.NearPlaneDistanceProperty)
+        | ProjectionCameraProp.FarPlaneDistance _ ->
+            el.ClearValue(System.Windows.Media.Media3D.ProjectionCamera.FarPlaneDistanceProperty)
+        | ProjectionCameraProp.Position _ ->
+            el.ClearValue(System.Windows.Media.Media3D.ProjectionCamera.PositionProperty)
+        | ProjectionCameraProp.LookDirection _ ->
+            el.ClearValue(System.Windows.Media.Media3D.ProjectionCamera.LookDirectionProperty)
+        | ProjectionCameraProp.UpDirection _ ->
+            el.ClearValue(System.Windows.Media.Media3D.ProjectionCamera.UpDirectionProperty)
 
     let transform v : obj = box (CameraProp.Transform v)
 

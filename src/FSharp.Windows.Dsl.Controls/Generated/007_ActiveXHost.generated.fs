@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -17,6 +17,10 @@ module ActiveXHost =
     let apply (el: System.Windows.Interop.ActiveXHost) (prop: ActiveXHostProp) =
         match prop with
         | ActiveXHostProp.Base p -> HwndHost.apply el p
+
+    let clear (el: System.Windows.Interop.ActiveXHost) (prop: ActiveXHostProp) =
+        match prop with
+        | ActiveXHostProp.Base p -> HwndHost.clear el p
 
     let style v : obj = box (FrameworkElementProp.Style v)
 

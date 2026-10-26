@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -21,6 +21,11 @@ module RadioButton =
         match prop with
         | RadioButtonProp.Base p -> ToggleButton.apply el p
         | RadioButtonProp.GroupName v -> el.SetValue(System.Windows.Controls.RadioButton.GroupNameProperty, box v)
+
+    let clear (el: System.Windows.Controls.RadioButton) (prop: RadioButtonProp) =
+        match prop with
+        | RadioButtonProp.Base p -> ToggleButton.clear el p
+        | RadioButtonProp.GroupName _ -> el.ClearValue(System.Windows.Controls.RadioButton.GroupNameProperty)
 
     let isChecked v : obj = box (ToggleButtonProp.IsChecked v)
     let isThreeState v : obj = box (ToggleButtonProp.IsThreeState v)

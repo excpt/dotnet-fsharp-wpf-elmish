@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -53,6 +53,22 @@ module DropShadowBitmapEffect =
             el.SetValue(System.Windows.Media.Effects.DropShadowBitmapEffect.OpacityProperty, box v)
         | DropShadowBitmapEffectProp.Softness v ->
             el.SetValue(System.Windows.Media.Effects.DropShadowBitmapEffect.SoftnessProperty, box v)
+
+    let clear (el: System.Windows.Media.Effects.DropShadowBitmapEffect) (prop: DropShadowBitmapEffectProp) =
+        match prop with
+        | DropShadowBitmapEffectProp.Base p -> Freezable.clear el p
+        | DropShadowBitmapEffectProp.ShadowDepth _ ->
+            el.ClearValue(System.Windows.Media.Effects.DropShadowBitmapEffect.ShadowDepthProperty)
+        | DropShadowBitmapEffectProp.Color _ ->
+            el.ClearValue(System.Windows.Media.Effects.DropShadowBitmapEffect.ColorProperty)
+        | DropShadowBitmapEffectProp.Direction _ ->
+            el.ClearValue(System.Windows.Media.Effects.DropShadowBitmapEffect.DirectionProperty)
+        | DropShadowBitmapEffectProp.Noise _ ->
+            el.ClearValue(System.Windows.Media.Effects.DropShadowBitmapEffect.NoiseProperty)
+        | DropShadowBitmapEffectProp.Opacity _ ->
+            el.ClearValue(System.Windows.Media.Effects.DropShadowBitmapEffect.OpacityProperty)
+        | DropShadowBitmapEffectProp.Softness _ ->
+            el.ClearValue(System.Windows.Media.Effects.DropShadowBitmapEffect.SoftnessProperty)
 
     let onChanged v : obj =
         box (EventProp(box (FreezableProp.OnChanged v)))

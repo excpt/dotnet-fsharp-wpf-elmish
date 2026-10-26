@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -40,6 +40,18 @@ module OuterGlowBitmapEffect =
             el.SetValue(System.Windows.Media.Effects.OuterGlowBitmapEffect.NoiseProperty, box v)
         | OuterGlowBitmapEffectProp.Opacity v ->
             el.SetValue(System.Windows.Media.Effects.OuterGlowBitmapEffect.OpacityProperty, box v)
+
+    let clear (el: System.Windows.Media.Effects.OuterGlowBitmapEffect) (prop: OuterGlowBitmapEffectProp) =
+        match prop with
+        | OuterGlowBitmapEffectProp.Base p -> Freezable.clear el p
+        | OuterGlowBitmapEffectProp.GlowColor _ ->
+            el.ClearValue(System.Windows.Media.Effects.OuterGlowBitmapEffect.GlowColorProperty)
+        | OuterGlowBitmapEffectProp.GlowSize _ ->
+            el.ClearValue(System.Windows.Media.Effects.OuterGlowBitmapEffect.GlowSizeProperty)
+        | OuterGlowBitmapEffectProp.Noise _ ->
+            el.ClearValue(System.Windows.Media.Effects.OuterGlowBitmapEffect.NoiseProperty)
+        | OuterGlowBitmapEffectProp.Opacity _ ->
+            el.ClearValue(System.Windows.Media.Effects.OuterGlowBitmapEffect.OpacityProperty)
 
     let onChanged v : obj =
         box (EventProp(box (FreezableProp.OnChanged v)))

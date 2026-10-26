@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -36,6 +36,15 @@ module RadialGradientBrush =
             el.SetValue(System.Windows.Media.RadialGradientBrush.RadiusYProperty, box v)
         | RadialGradientBrushProp.GradientOrigin v ->
             el.SetValue(System.Windows.Media.RadialGradientBrush.GradientOriginProperty, box v)
+
+    let clear (el: System.Windows.Media.RadialGradientBrush) (prop: RadialGradientBrushProp) =
+        match prop with
+        | RadialGradientBrushProp.Base p -> GradientBrush.clear el p
+        | RadialGradientBrushProp.Center _ -> el.ClearValue(System.Windows.Media.RadialGradientBrush.CenterProperty)
+        | RadialGradientBrushProp.RadiusX _ -> el.ClearValue(System.Windows.Media.RadialGradientBrush.RadiusXProperty)
+        | RadialGradientBrushProp.RadiusY _ -> el.ClearValue(System.Windows.Media.RadialGradientBrush.RadiusYProperty)
+        | RadialGradientBrushProp.GradientOrigin _ ->
+            el.ClearValue(System.Windows.Media.RadialGradientBrush.GradientOriginProperty)
 
     let colorInterpolationMode v : obj =
         box (GradientBrushProp.ColorInterpolationMode v)

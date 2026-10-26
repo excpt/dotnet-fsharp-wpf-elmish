@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -41,6 +41,17 @@ module ToggleButton =
         | ToggleButtonProp.OnChecked h -> el.Checked.AddHandler(h)
         | ToggleButtonProp.OnUnchecked h -> el.Unchecked.AddHandler(h)
         | ToggleButtonProp.OnIndeterminate h -> el.Indeterminate.AddHandler(h)
+
+    let clear (el: System.Windows.Controls.Primitives.ToggleButton) (prop: ToggleButtonProp) =
+        match prop with
+        | ToggleButtonProp.Base p -> ButtonBase.clear el p
+        | ToggleButtonProp.IsChecked _ ->
+            el.ClearValue(System.Windows.Controls.Primitives.ToggleButton.IsCheckedProperty)
+        | ToggleButtonProp.IsThreeState _ ->
+            el.ClearValue(System.Windows.Controls.Primitives.ToggleButton.IsThreeStateProperty)
+        | ToggleButtonProp.OnChecked h -> el.Checked.RemoveHandler(h)
+        | ToggleButtonProp.OnUnchecked h -> el.Unchecked.RemoveHandler(h)
+        | ToggleButtonProp.OnIndeterminate h -> el.Indeterminate.RemoveHandler(h)
 
     let command v : obj = box (ButtonBaseProp.Command v)
     let commandParameter v : obj = box (ButtonBaseProp.CommandParameter v)

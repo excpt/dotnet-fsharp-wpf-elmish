@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -24,6 +24,12 @@ module Polyline =
         | PolylineProp.Base p -> Shape.apply el p
         | PolylineProp.Points v -> el.SetValue(System.Windows.Shapes.Polyline.PointsProperty, box v)
         | PolylineProp.FillRule v -> el.SetValue(System.Windows.Shapes.Polyline.FillRuleProperty, box v)
+
+    let clear (el: System.Windows.Shapes.Polyline) (prop: PolylineProp) =
+        match prop with
+        | PolylineProp.Base p -> Shape.clear el p
+        | PolylineProp.Points _ -> el.ClearValue(System.Windows.Shapes.Polyline.PointsProperty)
+        | PolylineProp.FillRule _ -> el.ClearValue(System.Windows.Shapes.Polyline.FillRuleProperty)
 
     let stretch v : obj = box (ShapeProp.Stretch v)
     let fill v : obj = box (ShapeProp.Fill v)

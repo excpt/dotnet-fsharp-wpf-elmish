@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -22,6 +22,11 @@ module ModelUIElement3D =
         | ModelUIElement3DProp.Base p -> UIElement3D.apply el p
         | ModelUIElement3DProp.Model v ->
             el.SetValue(System.Windows.Media.Media3D.ModelUIElement3D.ModelProperty, box v)
+
+    let clear (el: System.Windows.Media.Media3D.ModelUIElement3D) (prop: ModelUIElement3DProp) =
+        match prop with
+        | ModelUIElement3DProp.Base p -> UIElement3D.clear el p
+        | ModelUIElement3DProp.Model _ -> el.ClearValue(System.Windows.Media.Media3D.ModelUIElement3D.ModelProperty)
 
     let isMouseDirectlyOver v : obj =
         box (UIElement3DProp.IsMouseDirectlyOver v)

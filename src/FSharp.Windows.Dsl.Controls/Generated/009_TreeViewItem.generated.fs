@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -50,6 +50,18 @@ module TreeViewItem =
         | TreeViewItemProp.OnCollapsed h -> el.Collapsed.AddHandler(h)
         | TreeViewItemProp.OnSelected h -> el.Selected.AddHandler(h)
         | TreeViewItemProp.OnUnselected h -> el.Unselected.AddHandler(h)
+
+    let clear (el: System.Windows.Controls.TreeViewItem) (prop: TreeViewItemProp) =
+        match prop with
+        | TreeViewItemProp.Base p -> HeaderedItemsControl.clear el p
+        | TreeViewItemProp.IsExpanded _ -> el.ClearValue(System.Windows.Controls.TreeViewItem.IsExpandedProperty)
+        | TreeViewItemProp.IsSelected _ -> el.ClearValue(System.Windows.Controls.TreeViewItem.IsSelectedProperty)
+        | TreeViewItemProp.IsSelectionActive _ ->
+            el.ClearValue(System.Windows.Controls.TreeViewItem.IsSelectionActiveProperty)
+        | TreeViewItemProp.OnExpanded h -> el.Expanded.RemoveHandler(h)
+        | TreeViewItemProp.OnCollapsed h -> el.Collapsed.RemoveHandler(h)
+        | TreeViewItemProp.OnSelected h -> el.Selected.RemoveHandler(h)
+        | TreeViewItemProp.OnUnselected h -> el.Unselected.RemoveHandler(h)
 
     let header v : obj = box (HeaderedItemsControlProp.Header v)
 

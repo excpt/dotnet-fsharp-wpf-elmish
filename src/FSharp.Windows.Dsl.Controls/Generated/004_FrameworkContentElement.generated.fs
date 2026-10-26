@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -127,6 +127,38 @@ module FrameworkContentElement =
         | FrameworkContentElementProp.OnContextMenuOpening h -> el.ContextMenuOpening.AddHandler(h)
         | FrameworkContentElementProp.OnContextMenuClosing h -> el.ContextMenuClosing.AddHandler(h)
         | FrameworkContentElementProp.OnInitialized h -> el.Initialized.AddHandler(h)
+
+    let clear (el: System.Windows.FrameworkContentElement) (prop: FrameworkContentElementProp) =
+        match prop with
+        | FrameworkContentElementProp.Base p -> ContentElement.clear el p
+        | FrameworkContentElementProp.Style _ -> el.ClearValue(System.Windows.FrameworkContentElement.StyleProperty)
+        | FrameworkContentElementProp.OverridesDefaultStyle _ ->
+            el.ClearValue(System.Windows.FrameworkContentElement.OverridesDefaultStyleProperty)
+        | FrameworkContentElementProp.Name _ -> el.ClearValue(System.Windows.FrameworkContentElement.NameProperty)
+        | FrameworkContentElementProp.Tag _ -> el.ClearValue(System.Windows.FrameworkContentElement.TagProperty)
+        | FrameworkContentElementProp.Language _ ->
+            el.ClearValue(System.Windows.FrameworkContentElement.LanguageProperty)
+        | FrameworkContentElementProp.FocusVisualStyle _ ->
+            el.ClearValue(System.Windows.FrameworkContentElement.FocusVisualStyleProperty)
+        | FrameworkContentElementProp.Cursor _ -> el.ClearValue(System.Windows.FrameworkContentElement.CursorProperty)
+        | FrameworkContentElementProp.ForceCursor _ ->
+            el.ClearValue(System.Windows.FrameworkContentElement.ForceCursorProperty)
+        | FrameworkContentElementProp.InputScope _ ->
+            el.ClearValue(System.Windows.FrameworkContentElement.InputScopeProperty)
+        | FrameworkContentElementProp.DataContext _ ->
+            el.ClearValue(System.Windows.FrameworkContentElement.DataContextProperty)
+        | FrameworkContentElementProp.BindingGroup _ ->
+            el.ClearValue(System.Windows.FrameworkContentElement.BindingGroupProperty)
+        | FrameworkContentElementProp.ToolTip _ -> el.ClearValue(System.Windows.FrameworkContentElement.ToolTipProperty)
+        | FrameworkContentElementProp.ContextMenu _ ->
+            el.ClearValue(System.Windows.FrameworkContentElement.ContextMenuProperty)
+        | FrameworkContentElementProp.OnLoaded h -> el.Loaded.RemoveHandler(h)
+        | FrameworkContentElementProp.OnUnloaded h -> el.Unloaded.RemoveHandler(h)
+        | FrameworkContentElementProp.OnToolTipOpening h -> el.ToolTipOpening.RemoveHandler(h)
+        | FrameworkContentElementProp.OnToolTipClosing h -> el.ToolTipClosing.RemoveHandler(h)
+        | FrameworkContentElementProp.OnContextMenuOpening h -> el.ContextMenuOpening.RemoveHandler(h)
+        | FrameworkContentElementProp.OnContextMenuClosing h -> el.ContextMenuClosing.RemoveHandler(h)
+        | FrameworkContentElementProp.OnInitialized h -> el.Initialized.RemoveHandler(h)
 
     let isMouseDirectlyOver v : obj =
         box (ContentElementProp.IsMouseDirectlyOver v)

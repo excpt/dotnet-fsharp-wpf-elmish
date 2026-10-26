@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -18,6 +18,10 @@ module SoundPlayerAction =
     let apply (el: System.Windows.Controls.SoundPlayerAction) (prop: SoundPlayerActionProp) =
         match prop with
         | SoundPlayerActionProp.Source v -> el.SetValue(System.Windows.Controls.SoundPlayerAction.SourceProperty, box v)
+
+    let clear (el: System.Windows.Controls.SoundPlayerAction) (prop: SoundPlayerActionProp) =
+        match prop with
+        | SoundPlayerActionProp.Source _ -> el.ClearValue(System.Windows.Controls.SoundPlayerAction.SourceProperty)
 
 
     let children (cs: VirtualNode list) : obj = box (Children cs)

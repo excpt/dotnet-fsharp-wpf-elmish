@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -23,6 +23,12 @@ module DataGridCheckBoxColumn =
         | DataGridCheckBoxColumnProp.Base p -> DataGridBoundColumn.apply el p
         | DataGridCheckBoxColumnProp.IsThreeState v ->
             el.SetValue(System.Windows.Controls.DataGridCheckBoxColumn.IsThreeStateProperty, box v)
+
+    let clear (el: System.Windows.Controls.DataGridCheckBoxColumn) (prop: DataGridCheckBoxColumnProp) =
+        match prop with
+        | DataGridCheckBoxColumnProp.Base p -> DataGridBoundColumn.clear el p
+        | DataGridCheckBoxColumnProp.IsThreeState _ ->
+            el.ClearValue(System.Windows.Controls.DataGridCheckBoxColumn.IsThreeStateProperty)
 
     let elementStyle v : obj =
         box (DataGridBoundColumnProp.ElementStyle v)

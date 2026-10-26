@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -24,6 +24,12 @@ module TableColumn =
         | TableColumnProp.Base p -> FrameworkContentElement.apply el p
         | TableColumnProp.Width v -> el.SetValue(System.Windows.Documents.TableColumn.WidthProperty, box v)
         | TableColumnProp.Background v -> el.SetValue(System.Windows.Documents.TableColumn.BackgroundProperty, box v)
+
+    let clear (el: System.Windows.Documents.TableColumn) (prop: TableColumnProp) =
+        match prop with
+        | TableColumnProp.Base p -> FrameworkContentElement.clear el p
+        | TableColumnProp.Width _ -> el.ClearValue(System.Windows.Documents.TableColumn.WidthProperty)
+        | TableColumnProp.Background _ -> el.ClearValue(System.Windows.Documents.TableColumn.BackgroundProperty)
 
     let style v : obj =
         box (FrameworkContentElementProp.Style v)

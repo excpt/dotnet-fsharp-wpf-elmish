@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -46,6 +46,20 @@ module DataGridTextColumn =
             el.SetValue(System.Windows.Controls.DataGridTextColumn.FontWeightProperty, box v)
         | DataGridTextColumnProp.Foreground v ->
             el.SetValue(System.Windows.Controls.DataGridTextColumn.ForegroundProperty, box v)
+
+    let clear (el: System.Windows.Controls.DataGridTextColumn) (prop: DataGridTextColumnProp) =
+        match prop with
+        | DataGridTextColumnProp.Base p -> DataGridBoundColumn.clear el p
+        | DataGridTextColumnProp.FontFamily _ ->
+            el.ClearValue(System.Windows.Controls.DataGridTextColumn.FontFamilyProperty)
+        | DataGridTextColumnProp.FontSize _ ->
+            el.ClearValue(System.Windows.Controls.DataGridTextColumn.FontSizeProperty)
+        | DataGridTextColumnProp.FontStyle _ ->
+            el.ClearValue(System.Windows.Controls.DataGridTextColumn.FontStyleProperty)
+        | DataGridTextColumnProp.FontWeight _ ->
+            el.ClearValue(System.Windows.Controls.DataGridTextColumn.FontWeightProperty)
+        | DataGridTextColumnProp.Foreground _ ->
+            el.ClearValue(System.Windows.Controls.DataGridTextColumn.ForegroundProperty)
 
     let elementStyle v : obj =
         box (DataGridBoundColumnProp.ElementStyle v)

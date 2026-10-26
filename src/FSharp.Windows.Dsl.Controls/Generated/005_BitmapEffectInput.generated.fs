@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -34,6 +34,15 @@ module BitmapEffectInput =
             el.SetValue(System.Windows.Media.Effects.BitmapEffectInput.AreaToApplyEffectUnitsProperty, box v)
         | BitmapEffectInputProp.AreaToApplyEffect v ->
             el.SetValue(System.Windows.Media.Effects.BitmapEffectInput.AreaToApplyEffectProperty, box v)
+
+    let clear (el: System.Windows.Media.Effects.BitmapEffectInput) (prop: BitmapEffectInputProp) =
+        match prop with
+        | BitmapEffectInputProp.Base p -> Freezable.clear el p
+        | BitmapEffectInputProp.Input _ -> el.ClearValue(System.Windows.Media.Effects.BitmapEffectInput.InputProperty)
+        | BitmapEffectInputProp.AreaToApplyEffectUnits _ ->
+            el.ClearValue(System.Windows.Media.Effects.BitmapEffectInput.AreaToApplyEffectUnitsProperty)
+        | BitmapEffectInputProp.AreaToApplyEffect _ ->
+            el.ClearValue(System.Windows.Media.Effects.BitmapEffectInput.AreaToApplyEffectProperty)
 
     let onChanged v : obj =
         box (EventProp(box (FreezableProp.OnChanged v)))

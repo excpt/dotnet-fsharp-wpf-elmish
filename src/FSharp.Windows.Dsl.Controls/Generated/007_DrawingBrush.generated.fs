@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -21,6 +21,11 @@ module DrawingBrush =
         match prop with
         | DrawingBrushProp.Base p -> TileBrush.apply el p
         | DrawingBrushProp.Drawing v -> el.SetValue(System.Windows.Media.DrawingBrush.DrawingProperty, box v)
+
+    let clear (el: System.Windows.Media.DrawingBrush) (prop: DrawingBrushProp) =
+        match prop with
+        | DrawingBrushProp.Base p -> TileBrush.clear el p
+        | DrawingBrushProp.Drawing _ -> el.ClearValue(System.Windows.Media.DrawingBrush.DrawingProperty)
 
     let viewportUnits v : obj = box (TileBrushProp.ViewportUnits v)
     let viewboxUnits v : obj = box (TileBrushProp.ViewboxUnits v)

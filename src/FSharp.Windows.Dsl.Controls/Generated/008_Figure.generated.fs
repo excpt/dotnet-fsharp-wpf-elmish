@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -43,6 +43,18 @@ module Figure =
         | FigureProp.WrapDirection v -> el.SetValue(System.Windows.Documents.Figure.WrapDirectionProperty, box v)
         | FigureProp.Width v -> el.SetValue(System.Windows.Documents.Figure.WidthProperty, box v)
         | FigureProp.Height v -> el.SetValue(System.Windows.Documents.Figure.HeightProperty, box v)
+
+    let clear (el: System.Windows.Documents.Figure) (prop: FigureProp) =
+        match prop with
+        | FigureProp.Base p -> AnchoredBlock.clear el p
+        | FigureProp.HorizontalAnchor _ -> el.ClearValue(System.Windows.Documents.Figure.HorizontalAnchorProperty)
+        | FigureProp.VerticalAnchor _ -> el.ClearValue(System.Windows.Documents.Figure.VerticalAnchorProperty)
+        | FigureProp.HorizontalOffset _ -> el.ClearValue(System.Windows.Documents.Figure.HorizontalOffsetProperty)
+        | FigureProp.VerticalOffset _ -> el.ClearValue(System.Windows.Documents.Figure.VerticalOffsetProperty)
+        | FigureProp.CanDelayPlacement _ -> el.ClearValue(System.Windows.Documents.Figure.CanDelayPlacementProperty)
+        | FigureProp.WrapDirection _ -> el.ClearValue(System.Windows.Documents.Figure.WrapDirectionProperty)
+        | FigureProp.Width _ -> el.ClearValue(System.Windows.Documents.Figure.WidthProperty)
+        | FigureProp.Height _ -> el.ClearValue(System.Windows.Documents.Figure.HeightProperty)
 
     let margin v : obj = box (AnchoredBlockProp.Margin v)
     let padding v : obj = box (AnchoredBlockProp.Padding v)

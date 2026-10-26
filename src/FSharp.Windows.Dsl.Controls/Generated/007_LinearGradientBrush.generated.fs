@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -29,6 +29,13 @@ module LinearGradientBrush =
             el.SetValue(System.Windows.Media.LinearGradientBrush.StartPointProperty, box v)
         | LinearGradientBrushProp.EndPoint v ->
             el.SetValue(System.Windows.Media.LinearGradientBrush.EndPointProperty, box v)
+
+    let clear (el: System.Windows.Media.LinearGradientBrush) (prop: LinearGradientBrushProp) =
+        match prop with
+        | LinearGradientBrushProp.Base p -> GradientBrush.clear el p
+        | LinearGradientBrushProp.StartPoint _ ->
+            el.ClearValue(System.Windows.Media.LinearGradientBrush.StartPointProperty)
+        | LinearGradientBrushProp.EndPoint _ -> el.ClearValue(System.Windows.Media.LinearGradientBrush.EndPointProperty)
 
     let colorInterpolationMode v : obj =
         box (GradientBrushProp.ColorInterpolationMode v)

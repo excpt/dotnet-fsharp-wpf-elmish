@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -17,6 +17,10 @@ module GroupBox =
     let apply (el: System.Windows.Controls.GroupBox) (prop: GroupBoxProp) =
         match prop with
         | GroupBoxProp.Base p -> HeaderedContentControl.apply el p
+
+    let clear (el: System.Windows.Controls.GroupBox) (prop: GroupBoxProp) =
+        match prop with
+        | GroupBoxProp.Base p -> HeaderedContentControl.clear el p
 
     let header v : obj =
         box (HeaderedContentControlProp.Header v)

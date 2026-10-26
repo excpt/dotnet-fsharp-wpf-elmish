@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -24,6 +24,12 @@ module LineGeometry =
         | LineGeometryProp.Base p -> Geometry.apply el p
         | LineGeometryProp.StartPoint v -> el.SetValue(System.Windows.Media.LineGeometry.StartPointProperty, box v)
         | LineGeometryProp.EndPoint v -> el.SetValue(System.Windows.Media.LineGeometry.EndPointProperty, box v)
+
+    let clear (el: System.Windows.Media.LineGeometry) (prop: LineGeometryProp) =
+        match prop with
+        | LineGeometryProp.Base p -> Geometry.clear el p
+        | LineGeometryProp.StartPoint _ -> el.ClearValue(System.Windows.Media.LineGeometry.StartPointProperty)
+        | LineGeometryProp.EndPoint _ -> el.ClearValue(System.Windows.Media.LineGeometry.EndPointProperty)
 
     let transform v : obj = box (GeometryProp.Transform v)
 

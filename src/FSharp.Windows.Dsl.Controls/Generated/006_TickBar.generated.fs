@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -60,6 +60,24 @@ module TickBar =
         | TickBarProp.Placement v -> el.SetValue(System.Windows.Controls.Primitives.TickBar.PlacementProperty, box v)
         | TickBarProp.ReservedSpace v ->
             el.SetValue(System.Windows.Controls.Primitives.TickBar.ReservedSpaceProperty, box v)
+
+    let clear (el: System.Windows.Controls.Primitives.TickBar) (prop: TickBarProp) =
+        match prop with
+        | TickBarProp.Base p -> FrameworkElement.clear el p
+        | TickBarProp.Fill _ -> el.ClearValue(System.Windows.Controls.Primitives.TickBar.FillProperty)
+        | TickBarProp.Minimum _ -> el.ClearValue(System.Windows.Controls.Primitives.TickBar.MinimumProperty)
+        | TickBarProp.Maximum _ -> el.ClearValue(System.Windows.Controls.Primitives.TickBar.MaximumProperty)
+        | TickBarProp.SelectionStart _ ->
+            el.ClearValue(System.Windows.Controls.Primitives.TickBar.SelectionStartProperty)
+        | TickBarProp.SelectionEnd _ -> el.ClearValue(System.Windows.Controls.Primitives.TickBar.SelectionEndProperty)
+        | TickBarProp.IsSelectionRangeEnabled _ ->
+            el.ClearValue(System.Windows.Controls.Primitives.TickBar.IsSelectionRangeEnabledProperty)
+        | TickBarProp.TickFrequency _ -> el.ClearValue(System.Windows.Controls.Primitives.TickBar.TickFrequencyProperty)
+        | TickBarProp.Ticks _ -> el.ClearValue(System.Windows.Controls.Primitives.TickBar.TicksProperty)
+        | TickBarProp.IsDirectionReversed _ ->
+            el.ClearValue(System.Windows.Controls.Primitives.TickBar.IsDirectionReversedProperty)
+        | TickBarProp.Placement _ -> el.ClearValue(System.Windows.Controls.Primitives.TickBar.PlacementProperty)
+        | TickBarProp.ReservedSpace _ -> el.ClearValue(System.Windows.Controls.Primitives.TickBar.ReservedSpaceProperty)
 
     let style v : obj = box (FrameworkElementProp.Style v)
 

@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -46,6 +46,19 @@ module BevelBitmapEffect =
             el.SetValue(System.Windows.Media.Effects.BevelBitmapEffect.SmoothnessProperty, box v)
         | BevelBitmapEffectProp.EdgeProfile v ->
             el.SetValue(System.Windows.Media.Effects.BevelBitmapEffect.EdgeProfileProperty, box v)
+
+    let clear (el: System.Windows.Media.Effects.BevelBitmapEffect) (prop: BevelBitmapEffectProp) =
+        match prop with
+        | BevelBitmapEffectProp.Base p -> Freezable.clear el p
+        | BevelBitmapEffectProp.BevelWidth _ ->
+            el.ClearValue(System.Windows.Media.Effects.BevelBitmapEffect.BevelWidthProperty)
+        | BevelBitmapEffectProp.Relief _ -> el.ClearValue(System.Windows.Media.Effects.BevelBitmapEffect.ReliefProperty)
+        | BevelBitmapEffectProp.LightAngle _ ->
+            el.ClearValue(System.Windows.Media.Effects.BevelBitmapEffect.LightAngleProperty)
+        | BevelBitmapEffectProp.Smoothness _ ->
+            el.ClearValue(System.Windows.Media.Effects.BevelBitmapEffect.SmoothnessProperty)
+        | BevelBitmapEffectProp.EdgeProfile _ ->
+            el.ClearValue(System.Windows.Media.Effects.BevelBitmapEffect.EdgeProfileProperty)
 
     let onChanged v : obj =
         box (EventProp(box (FreezableProp.OnChanged v)))

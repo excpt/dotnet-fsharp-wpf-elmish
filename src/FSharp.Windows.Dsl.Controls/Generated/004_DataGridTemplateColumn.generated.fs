@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -41,6 +41,18 @@ module DataGridTemplateColumn =
             el.SetValue(System.Windows.Controls.DataGridTemplateColumn.CellEditingTemplateProperty, box v)
         | DataGridTemplateColumnProp.CellEditingTemplateSelector v ->
             el.SetValue(System.Windows.Controls.DataGridTemplateColumn.CellEditingTemplateSelectorProperty, box v)
+
+    let clear (el: System.Windows.Controls.DataGridTemplateColumn) (prop: DataGridTemplateColumnProp) =
+        match prop with
+        | DataGridTemplateColumnProp.Base p -> DataGridColumn.clear el p
+        | DataGridTemplateColumnProp.CellTemplate _ ->
+            el.ClearValue(System.Windows.Controls.DataGridTemplateColumn.CellTemplateProperty)
+        | DataGridTemplateColumnProp.CellTemplateSelector _ ->
+            el.ClearValue(System.Windows.Controls.DataGridTemplateColumn.CellTemplateSelectorProperty)
+        | DataGridTemplateColumnProp.CellEditingTemplate _ ->
+            el.ClearValue(System.Windows.Controls.DataGridTemplateColumn.CellEditingTemplateProperty)
+        | DataGridTemplateColumnProp.CellEditingTemplateSelector _ ->
+            el.ClearValue(System.Windows.Controls.DataGridTemplateColumn.CellEditingTemplateSelectorProperty)
 
     let header v : obj = box (DataGridColumnProp.Header v)
     let headerStyle v : obj = box (DataGridColumnProp.HeaderStyle v)

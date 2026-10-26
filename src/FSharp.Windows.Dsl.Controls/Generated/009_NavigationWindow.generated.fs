@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-08-14
+// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -90,6 +90,30 @@ module NavigationWindow =
         | NavigationWindowProp.OnLoadCompleted h -> el.LoadCompleted.AddHandler(h)
         | NavigationWindowProp.OnNavigationStopped h -> el.NavigationStopped.AddHandler(h)
         | NavigationWindowProp.OnFragmentNavigation h -> el.FragmentNavigation.AddHandler(h)
+
+    let clear (el: System.Windows.Navigation.NavigationWindow) (prop: NavigationWindowProp) =
+        match prop with
+        | NavigationWindowProp.Base p -> Window.clear el p
+        | NavigationWindowProp.SandboxExternalContent _ ->
+            el.ClearValue(System.Windows.Navigation.NavigationWindow.SandboxExternalContentProperty)
+        | NavigationWindowProp.ShowsNavigationUI _ ->
+            el.ClearValue(System.Windows.Navigation.NavigationWindow.ShowsNavigationUIProperty)
+        | NavigationWindowProp.BackStack _ ->
+            el.ClearValue(System.Windows.Navigation.NavigationWindow.BackStackProperty)
+        | NavigationWindowProp.ForwardStack _ ->
+            el.ClearValue(System.Windows.Navigation.NavigationWindow.ForwardStackProperty)
+        | NavigationWindowProp.CanGoBack _ ->
+            el.ClearValue(System.Windows.Navigation.NavigationWindow.CanGoBackProperty)
+        | NavigationWindowProp.CanGoForward _ ->
+            el.ClearValue(System.Windows.Navigation.NavigationWindow.CanGoForwardProperty)
+        | NavigationWindowProp.Source _ -> el.ClearValue(System.Windows.Navigation.NavigationWindow.SourceProperty)
+        | NavigationWindowProp.OnNavigating h -> el.Navigating.RemoveHandler(h)
+        | NavigationWindowProp.OnNavigationProgress h -> el.NavigationProgress.RemoveHandler(h)
+        | NavigationWindowProp.OnNavigationFailed h -> el.NavigationFailed.RemoveHandler(h)
+        | NavigationWindowProp.OnNavigated h -> el.Navigated.RemoveHandler(h)
+        | NavigationWindowProp.OnLoadCompleted h -> el.LoadCompleted.RemoveHandler(h)
+        | NavigationWindowProp.OnNavigationStopped h -> el.NavigationStopped.RemoveHandler(h)
+        | NavigationWindowProp.OnFragmentNavigation h -> el.FragmentNavigation.RemoveHandler(h)
 
     let taskbarItemInfo v : obj = box (WindowProp.TaskbarItemInfo v)
     let allowsTransparency v : obj = box (WindowProp.AllowsTransparency v)
