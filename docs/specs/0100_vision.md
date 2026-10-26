@@ -62,6 +62,6 @@ and manual change notification.
 
 ## Target Platform
 
-- .NET 8 and later
+- .NET 10 and .NET Framework 4.6.2+
 - Windows only (WPF is Windows-only)
 - F# 8+

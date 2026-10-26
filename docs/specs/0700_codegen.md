@@ -110,8 +110,8 @@ the shared directory. It picks the latest patch version per major.
 ```bash
 dotnet run --project tools/Codegen -- \
     --assembly PresentationFramework \
-    --baseline net461 \
-    --tfms net8.0-windows,net9.0-windows,net10.0-windows \
+    --baseline net462 \
+    --tfms net10.0-windows \
     --namespace FSharp.Windows.Dsl.Controls \
     --output src/FSharp.Windows.Dsl.Controls/Generated/
 ```
@@ -603,10 +603,10 @@ tools/
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFramework>net10.0</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="System.Reflection.MetadataLoadContext" Version="8.*" />
+    <PackageReference Include="System.Reflection.MetadataLoadContext" Version="10.*" />
     <PackageReference Include="Argu" Version="6.*" />
   </ItemGroup>
 </Project>
@@ -619,7 +619,7 @@ tools/
 ```bash
 dotnet run --project tools/Codegen -- \
     --assembly PresentationFramework \
-    --tfms net8.0-windows,net9.0-windows \
+    --tfms net10.0-windows \
     --namespace FSharp.Windows.Dsl.Controls \
     --output src/FSharp.Windows.Dsl.Controls/Generated/
 ```

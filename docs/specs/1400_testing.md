@@ -472,7 +472,7 @@ let ``complete order list lifecycle`` () =
 
 ## Runtime Requirements
 
-Tests run without WPF runtime, STA thread, or display server. `view` and `update` are pure functions that return data.
+`view` and `update` are pure functions that return data; testing them needs no WPF runtime. Reconciler and control tests create WPF elements on an STA thread. Elmish runtime tests (`ElmishProgramTests.fs`) drive `Program.runChildWindow` against real, shown windows and need an interactive Windows desktop session (a `windows-latest` CI runner has one; Server Core containers do not).
 
 ---
 
