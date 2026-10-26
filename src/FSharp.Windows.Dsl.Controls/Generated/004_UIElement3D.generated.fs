@@ -82,8 +82,30 @@ type UIElement3DProp =
     | OnDragLeave of System.Windows.DragEventHandler
     | OnPreviewDrop of System.Windows.DragEventHandler
     | OnDrop of System.Windows.DragEventHandler
+    | OnPreviewTouchDown of System.EventHandler<System.Windows.Input.TouchEventArgs>
+    | OnTouchDown of System.EventHandler<System.Windows.Input.TouchEventArgs>
+    | OnPreviewTouchMove of System.EventHandler<System.Windows.Input.TouchEventArgs>
+    | OnTouchMove of System.EventHandler<System.Windows.Input.TouchEventArgs>
+    | OnPreviewTouchUp of System.EventHandler<System.Windows.Input.TouchEventArgs>
+    | OnTouchUp of System.EventHandler<System.Windows.Input.TouchEventArgs>
+    | OnGotTouchCapture of System.EventHandler<System.Windows.Input.TouchEventArgs>
+    | OnLostTouchCapture of System.EventHandler<System.Windows.Input.TouchEventArgs>
+    | OnTouchEnter of System.EventHandler<System.Windows.Input.TouchEventArgs>
+    | OnTouchLeave of System.EventHandler<System.Windows.Input.TouchEventArgs>
     | OnGotFocus of System.Windows.RoutedEventHandler
     | OnLostFocus of System.Windows.RoutedEventHandler
+    | OnIsMouseDirectlyOverChanged of System.Windows.DependencyPropertyChangedEventHandler
+    | OnIsKeyboardFocusWithinChanged of System.Windows.DependencyPropertyChangedEventHandler
+    | OnIsMouseCapturedChanged of System.Windows.DependencyPropertyChangedEventHandler
+    | OnIsMouseCaptureWithinChanged of System.Windows.DependencyPropertyChangedEventHandler
+    | OnIsStylusDirectlyOverChanged of System.Windows.DependencyPropertyChangedEventHandler
+    | OnIsStylusCapturedChanged of System.Windows.DependencyPropertyChangedEventHandler
+    | OnIsStylusCaptureWithinChanged of System.Windows.DependencyPropertyChangedEventHandler
+    | OnIsKeyboardFocusedChanged of System.Windows.DependencyPropertyChangedEventHandler
+    | OnIsEnabledChanged of System.Windows.DependencyPropertyChangedEventHandler
+    | OnIsHitTestVisibleChanged of System.Windows.DependencyPropertyChangedEventHandler
+    | OnIsVisibleChanged of System.Windows.DependencyPropertyChangedEventHandler
+    | OnFocusableChanged of System.Windows.DependencyPropertyChangedEventHandler
 
 module UIElement3D =
     let allowDrop v : obj = box (UIElement3DProp.AllowDrop v)
@@ -290,11 +312,77 @@ module UIElement3D =
     let onDrop v : obj =
         box (EventProp(box (UIElement3DProp.OnDrop v)))
 
+    let onPreviewTouchDown v : obj =
+        box (EventProp(box (UIElement3DProp.OnPreviewTouchDown v)))
+
+    let onTouchDown v : obj =
+        box (EventProp(box (UIElement3DProp.OnTouchDown v)))
+
+    let onPreviewTouchMove v : obj =
+        box (EventProp(box (UIElement3DProp.OnPreviewTouchMove v)))
+
+    let onTouchMove v : obj =
+        box (EventProp(box (UIElement3DProp.OnTouchMove v)))
+
+    let onPreviewTouchUp v : obj =
+        box (EventProp(box (UIElement3DProp.OnPreviewTouchUp v)))
+
+    let onTouchUp v : obj =
+        box (EventProp(box (UIElement3DProp.OnTouchUp v)))
+
+    let onGotTouchCapture v : obj =
+        box (EventProp(box (UIElement3DProp.OnGotTouchCapture v)))
+
+    let onLostTouchCapture v : obj =
+        box (EventProp(box (UIElement3DProp.OnLostTouchCapture v)))
+
+    let onTouchEnter v : obj =
+        box (EventProp(box (UIElement3DProp.OnTouchEnter v)))
+
+    let onTouchLeave v : obj =
+        box (EventProp(box (UIElement3DProp.OnTouchLeave v)))
+
     let onGotFocus v : obj =
         box (EventProp(box (UIElement3DProp.OnGotFocus v)))
 
     let onLostFocus v : obj =
         box (EventProp(box (UIElement3DProp.OnLostFocus v)))
+
+    let onIsMouseDirectlyOverChanged v : obj =
+        box (EventProp(box (UIElement3DProp.OnIsMouseDirectlyOverChanged v)))
+
+    let onIsKeyboardFocusWithinChanged v : obj =
+        box (EventProp(box (UIElement3DProp.OnIsKeyboardFocusWithinChanged v)))
+
+    let onIsMouseCapturedChanged v : obj =
+        box (EventProp(box (UIElement3DProp.OnIsMouseCapturedChanged v)))
+
+    let onIsMouseCaptureWithinChanged v : obj =
+        box (EventProp(box (UIElement3DProp.OnIsMouseCaptureWithinChanged v)))
+
+    let onIsStylusDirectlyOverChanged v : obj =
+        box (EventProp(box (UIElement3DProp.OnIsStylusDirectlyOverChanged v)))
+
+    let onIsStylusCapturedChanged v : obj =
+        box (EventProp(box (UIElement3DProp.OnIsStylusCapturedChanged v)))
+
+    let onIsStylusCaptureWithinChanged v : obj =
+        box (EventProp(box (UIElement3DProp.OnIsStylusCaptureWithinChanged v)))
+
+    let onIsKeyboardFocusedChanged v : obj =
+        box (EventProp(box (UIElement3DProp.OnIsKeyboardFocusedChanged v)))
+
+    let onIsEnabledChanged v : obj =
+        box (EventProp(box (UIElement3DProp.OnIsEnabledChanged v)))
+
+    let onIsHitTestVisibleChanged v : obj =
+        box (EventProp(box (UIElement3DProp.OnIsHitTestVisibleChanged v)))
+
+    let onIsVisibleChanged v : obj =
+        box (EventProp(box (UIElement3DProp.OnIsVisibleChanged v)))
+
+    let onFocusableChanged v : obj =
+        box (EventProp(box (UIElement3DProp.OnFocusableChanged v)))
 
     let apply (el: System.Windows.UIElement3D) (prop: UIElement3DProp) =
         match prop with
@@ -369,8 +457,30 @@ module UIElement3D =
         | UIElement3DProp.OnDragLeave h -> el.DragLeave.AddHandler(h)
         | UIElement3DProp.OnPreviewDrop h -> el.PreviewDrop.AddHandler(h)
         | UIElement3DProp.OnDrop h -> el.Drop.AddHandler(h)
+        | UIElement3DProp.OnPreviewTouchDown h -> el.PreviewTouchDown.AddHandler(h)
+        | UIElement3DProp.OnTouchDown h -> el.TouchDown.AddHandler(h)
+        | UIElement3DProp.OnPreviewTouchMove h -> el.PreviewTouchMove.AddHandler(h)
+        | UIElement3DProp.OnTouchMove h -> el.TouchMove.AddHandler(h)
+        | UIElement3DProp.OnPreviewTouchUp h -> el.PreviewTouchUp.AddHandler(h)
+        | UIElement3DProp.OnTouchUp h -> el.TouchUp.AddHandler(h)
+        | UIElement3DProp.OnGotTouchCapture h -> el.GotTouchCapture.AddHandler(h)
+        | UIElement3DProp.OnLostTouchCapture h -> el.LostTouchCapture.AddHandler(h)
+        | UIElement3DProp.OnTouchEnter h -> el.TouchEnter.AddHandler(h)
+        | UIElement3DProp.OnTouchLeave h -> el.TouchLeave.AddHandler(h)
         | UIElement3DProp.OnGotFocus h -> el.GotFocus.AddHandler(h)
         | UIElement3DProp.OnLostFocus h -> el.LostFocus.AddHandler(h)
+        | UIElement3DProp.OnIsMouseDirectlyOverChanged h -> el.IsMouseDirectlyOverChanged.AddHandler(h)
+        | UIElement3DProp.OnIsKeyboardFocusWithinChanged h -> el.IsKeyboardFocusWithinChanged.AddHandler(h)
+        | UIElement3DProp.OnIsMouseCapturedChanged h -> el.IsMouseCapturedChanged.AddHandler(h)
+        | UIElement3DProp.OnIsMouseCaptureWithinChanged h -> el.IsMouseCaptureWithinChanged.AddHandler(h)
+        | UIElement3DProp.OnIsStylusDirectlyOverChanged h -> el.IsStylusDirectlyOverChanged.AddHandler(h)
+        | UIElement3DProp.OnIsStylusCapturedChanged h -> el.IsStylusCapturedChanged.AddHandler(h)
+        | UIElement3DProp.OnIsStylusCaptureWithinChanged h -> el.IsStylusCaptureWithinChanged.AddHandler(h)
+        | UIElement3DProp.OnIsKeyboardFocusedChanged h -> el.IsKeyboardFocusedChanged.AddHandler(h)
+        | UIElement3DProp.OnIsEnabledChanged h -> el.IsEnabledChanged.AddHandler(h)
+        | UIElement3DProp.OnIsHitTestVisibleChanged h -> el.IsHitTestVisibleChanged.AddHandler(h)
+        | UIElement3DProp.OnIsVisibleChanged h -> el.IsVisibleChanged.AddHandler(h)
+        | UIElement3DProp.OnFocusableChanged h -> el.FocusableChanged.AddHandler(h)
 
     let clear (el: System.Windows.UIElement3D) (prop: UIElement3DProp) =
         match prop with
@@ -445,8 +555,30 @@ module UIElement3D =
         | UIElement3DProp.OnDragLeave h -> el.DragLeave.RemoveHandler(h)
         | UIElement3DProp.OnPreviewDrop h -> el.PreviewDrop.RemoveHandler(h)
         | UIElement3DProp.OnDrop h -> el.Drop.RemoveHandler(h)
+        | UIElement3DProp.OnPreviewTouchDown h -> el.PreviewTouchDown.RemoveHandler(h)
+        | UIElement3DProp.OnTouchDown h -> el.TouchDown.RemoveHandler(h)
+        | UIElement3DProp.OnPreviewTouchMove h -> el.PreviewTouchMove.RemoveHandler(h)
+        | UIElement3DProp.OnTouchMove h -> el.TouchMove.RemoveHandler(h)
+        | UIElement3DProp.OnPreviewTouchUp h -> el.PreviewTouchUp.RemoveHandler(h)
+        | UIElement3DProp.OnTouchUp h -> el.TouchUp.RemoveHandler(h)
+        | UIElement3DProp.OnGotTouchCapture h -> el.GotTouchCapture.RemoveHandler(h)
+        | UIElement3DProp.OnLostTouchCapture h -> el.LostTouchCapture.RemoveHandler(h)
+        | UIElement3DProp.OnTouchEnter h -> el.TouchEnter.RemoveHandler(h)
+        | UIElement3DProp.OnTouchLeave h -> el.TouchLeave.RemoveHandler(h)
         | UIElement3DProp.OnGotFocus h -> el.GotFocus.RemoveHandler(h)
         | UIElement3DProp.OnLostFocus h -> el.LostFocus.RemoveHandler(h)
+        | UIElement3DProp.OnIsMouseDirectlyOverChanged h -> el.IsMouseDirectlyOverChanged.RemoveHandler(h)
+        | UIElement3DProp.OnIsKeyboardFocusWithinChanged h -> el.IsKeyboardFocusWithinChanged.RemoveHandler(h)
+        | UIElement3DProp.OnIsMouseCapturedChanged h -> el.IsMouseCapturedChanged.RemoveHandler(h)
+        | UIElement3DProp.OnIsMouseCaptureWithinChanged h -> el.IsMouseCaptureWithinChanged.RemoveHandler(h)
+        | UIElement3DProp.OnIsStylusDirectlyOverChanged h -> el.IsStylusDirectlyOverChanged.RemoveHandler(h)
+        | UIElement3DProp.OnIsStylusCapturedChanged h -> el.IsStylusCapturedChanged.RemoveHandler(h)
+        | UIElement3DProp.OnIsStylusCaptureWithinChanged h -> el.IsStylusCaptureWithinChanged.RemoveHandler(h)
+        | UIElement3DProp.OnIsKeyboardFocusedChanged h -> el.IsKeyboardFocusedChanged.RemoveHandler(h)
+        | UIElement3DProp.OnIsEnabledChanged h -> el.IsEnabledChanged.RemoveHandler(h)
+        | UIElement3DProp.OnIsHitTestVisibleChanged h -> el.IsHitTestVisibleChanged.RemoveHandler(h)
+        | UIElement3DProp.OnIsVisibleChanged h -> el.IsVisibleChanged.RemoveHandler(h)
+        | UIElement3DProp.OnFocusableChanged h -> el.FocusableChanged.RemoveHandler(h)
 
     let transform v : obj = box (Visual3DProp.Transform v)
 

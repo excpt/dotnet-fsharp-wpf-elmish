@@ -31,6 +31,9 @@ type FrameworkContentElementProp =
     | OnToolTipClosing of System.Windows.Controls.ToolTipEventHandler
     | OnContextMenuOpening of System.Windows.Controls.ContextMenuEventHandler
     | OnContextMenuClosing of System.Windows.Controls.ContextMenuEventHandler
+    | OnTargetUpdated of System.EventHandler<System.Windows.Data.DataTransferEventArgs>
+    | OnSourceUpdated of System.EventHandler<System.Windows.Data.DataTransferEventArgs>
+    | OnDataContextChanged of System.Windows.DependencyPropertyChangedEventHandler
     | OnInitialized of System.EventHandler
 
 module FrameworkContentElement =
@@ -90,6 +93,15 @@ module FrameworkContentElement =
     let onContextMenuClosing v : obj =
         box (EventProp(box (FrameworkContentElementProp.OnContextMenuClosing v)))
 
+    let onTargetUpdated v : obj =
+        box (EventProp(box (FrameworkContentElementProp.OnTargetUpdated v)))
+
+    let onSourceUpdated v : obj =
+        box (EventProp(box (FrameworkContentElementProp.OnSourceUpdated v)))
+
+    let onDataContextChanged v : obj =
+        box (EventProp(box (FrameworkContentElementProp.OnDataContextChanged v)))
+
     let onInitialized v : obj =
         box (EventProp(box (FrameworkContentElementProp.OnInitialized v)))
 
@@ -126,6 +138,9 @@ module FrameworkContentElement =
         | FrameworkContentElementProp.OnToolTipClosing h -> el.ToolTipClosing.AddHandler(h)
         | FrameworkContentElementProp.OnContextMenuOpening h -> el.ContextMenuOpening.AddHandler(h)
         | FrameworkContentElementProp.OnContextMenuClosing h -> el.ContextMenuClosing.AddHandler(h)
+        | FrameworkContentElementProp.OnTargetUpdated h -> el.TargetUpdated.AddHandler(h)
+        | FrameworkContentElementProp.OnSourceUpdated h -> el.SourceUpdated.AddHandler(h)
+        | FrameworkContentElementProp.OnDataContextChanged h -> el.DataContextChanged.AddHandler(h)
         | FrameworkContentElementProp.OnInitialized h -> el.Initialized.AddHandler(h)
 
     let clear (el: System.Windows.FrameworkContentElement) (prop: FrameworkContentElementProp) =
@@ -158,6 +173,9 @@ module FrameworkContentElement =
         | FrameworkContentElementProp.OnToolTipClosing h -> el.ToolTipClosing.RemoveHandler(h)
         | FrameworkContentElementProp.OnContextMenuOpening h -> el.ContextMenuOpening.RemoveHandler(h)
         | FrameworkContentElementProp.OnContextMenuClosing h -> el.ContextMenuClosing.RemoveHandler(h)
+        | FrameworkContentElementProp.OnTargetUpdated h -> el.TargetUpdated.RemoveHandler(h)
+        | FrameworkContentElementProp.OnSourceUpdated h -> el.SourceUpdated.RemoveHandler(h)
+        | FrameworkContentElementProp.OnDataContextChanged h -> el.DataContextChanged.RemoveHandler(h)
         | FrameworkContentElementProp.OnInitialized h -> el.Initialized.RemoveHandler(h)
 
     let isEnabled v : obj = box (ContentElementProp.IsEnabled v)
@@ -359,11 +377,71 @@ module FrameworkContentElement =
     let onDrop v : obj =
         box (EventProp(box (ContentElementProp.OnDrop v)))
 
+    let onPreviewTouchDown v : obj =
+        box (EventProp(box (ContentElementProp.OnPreviewTouchDown v)))
+
+    let onTouchDown v : obj =
+        box (EventProp(box (ContentElementProp.OnTouchDown v)))
+
+    let onPreviewTouchMove v : obj =
+        box (EventProp(box (ContentElementProp.OnPreviewTouchMove v)))
+
+    let onTouchMove v : obj =
+        box (EventProp(box (ContentElementProp.OnTouchMove v)))
+
+    let onPreviewTouchUp v : obj =
+        box (EventProp(box (ContentElementProp.OnPreviewTouchUp v)))
+
+    let onTouchUp v : obj =
+        box (EventProp(box (ContentElementProp.OnTouchUp v)))
+
+    let onGotTouchCapture v : obj =
+        box (EventProp(box (ContentElementProp.OnGotTouchCapture v)))
+
+    let onLostTouchCapture v : obj =
+        box (EventProp(box (ContentElementProp.OnLostTouchCapture v)))
+
+    let onTouchEnter v : obj =
+        box (EventProp(box (ContentElementProp.OnTouchEnter v)))
+
+    let onTouchLeave v : obj =
+        box (EventProp(box (ContentElementProp.OnTouchLeave v)))
+
     let onGotFocus v : obj =
         box (EventProp(box (ContentElementProp.OnGotFocus v)))
 
     let onLostFocus v : obj =
         box (EventProp(box (ContentElementProp.OnLostFocus v)))
+
+    let onIsMouseDirectlyOverChanged v : obj =
+        box (EventProp(box (ContentElementProp.OnIsMouseDirectlyOverChanged v)))
+
+    let onIsKeyboardFocusWithinChanged v : obj =
+        box (EventProp(box (ContentElementProp.OnIsKeyboardFocusWithinChanged v)))
+
+    let onIsMouseCapturedChanged v : obj =
+        box (EventProp(box (ContentElementProp.OnIsMouseCapturedChanged v)))
+
+    let onIsMouseCaptureWithinChanged v : obj =
+        box (EventProp(box (ContentElementProp.OnIsMouseCaptureWithinChanged v)))
+
+    let onIsStylusDirectlyOverChanged v : obj =
+        box (EventProp(box (ContentElementProp.OnIsStylusDirectlyOverChanged v)))
+
+    let onIsStylusCapturedChanged v : obj =
+        box (EventProp(box (ContentElementProp.OnIsStylusCapturedChanged v)))
+
+    let onIsStylusCaptureWithinChanged v : obj =
+        box (EventProp(box (ContentElementProp.OnIsStylusCaptureWithinChanged v)))
+
+    let onIsKeyboardFocusedChanged v : obj =
+        box (EventProp(box (ContentElementProp.OnIsKeyboardFocusedChanged v)))
+
+    let onIsEnabledChanged v : obj =
+        box (EventProp(box (ContentElementProp.OnIsEnabledChanged v)))
+
+    let onFocusableChanged v : obj =
+        box (EventProp(box (ContentElementProp.OnFocusableChanged v)))
 
     let children (cs: VirtualNode list) : obj = box (Children cs)
     let contentChild (c: VirtualNode) : obj = box (ContentChild c)

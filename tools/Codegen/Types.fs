@@ -18,9 +18,9 @@ type EventInfo =
       OwnerTypeName: string
       OwnerTypeFullName: string
       HandlerTypeName: string option
-      // True when the handler delegate has the canonical `void Invoke(object, T)` shape.
-      // F# `.AddHandler` requires this; non-standard signatures (extra parameters, non-void
-      // return) trigger FS1091. Captured at discovery time so we can filter without
+      // True when F# `.AddHandler` accepts the handler: `Invoke` returns void, takes at least
+      // two parameters, the first exactly obj, none by reference (the second need not be
+      // EventArgs). Otherwise FS1091. Captured at discovery time so we can filter without
       // re-reflecting on the delegate type.
       IsStandardDelegate: bool
       // True when the event itself or its delegate type is marked [Obsolete]. F# raises

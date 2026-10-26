@@ -23,6 +23,10 @@ type CalendarProp =
     | IsTodayHighlighted of bool
     | SelectedDate of obj
     | SelectionMode of System.Windows.Controls.CalendarSelectionMode
+    | OnSelectedDatesChanged of System.EventHandler<System.Windows.Controls.SelectionChangedEventArgs>
+    | OnDisplayDateChanged of System.EventHandler<System.Windows.Controls.CalendarDateChangedEventArgs>
+    | OnDisplayModeChanged of System.EventHandler<System.Windows.Controls.CalendarModeChangedEventArgs>
+    | OnSelectionModeChanged of System.EventHandler<System.EventArgs>
 
 module Calendar =
     let calendarButtonStyle v : obj =
@@ -40,6 +44,18 @@ module Calendar =
     let isTodayHighlighted v : obj = box (CalendarProp.IsTodayHighlighted v)
     let selectedDate v : obj = box (CalendarProp.SelectedDate v)
     let selectionMode v : obj = box (CalendarProp.SelectionMode v)
+
+    let onSelectedDatesChanged v : obj =
+        box (EventProp(box (CalendarProp.OnSelectedDatesChanged v)))
+
+    let onDisplayDateChanged v : obj =
+        box (EventProp(box (CalendarProp.OnDisplayDateChanged v)))
+
+    let onDisplayModeChanged v : obj =
+        box (EventProp(box (CalendarProp.OnDisplayModeChanged v)))
+
+    let onSelectionModeChanged v : obj =
+        box (EventProp(box (CalendarProp.OnSelectionModeChanged v)))
 
     let apply (el: System.Windows.Controls.Calendar) (prop: CalendarProp) =
         match prop with
@@ -60,6 +76,10 @@ module Calendar =
             el.SetValue(System.Windows.Controls.Calendar.IsTodayHighlightedProperty, box v)
         | CalendarProp.SelectedDate v -> el.SetValue(System.Windows.Controls.Calendar.SelectedDateProperty, box v)
         | CalendarProp.SelectionMode v -> el.SetValue(System.Windows.Controls.Calendar.SelectionModeProperty, box v)
+        | CalendarProp.OnSelectedDatesChanged h -> el.SelectedDatesChanged.AddHandler(h)
+        | CalendarProp.OnDisplayDateChanged h -> el.DisplayDateChanged.AddHandler(h)
+        | CalendarProp.OnDisplayModeChanged h -> el.DisplayModeChanged.AddHandler(h)
+        | CalendarProp.OnSelectionModeChanged h -> el.SelectionModeChanged.AddHandler(h)
 
     let clear (el: System.Windows.Controls.Calendar) (prop: CalendarProp) =
         match prop with
@@ -78,6 +98,10 @@ module Calendar =
             el.ClearValue(System.Windows.Controls.Calendar.IsTodayHighlightedProperty)
         | CalendarProp.SelectedDate _ -> el.ClearValue(System.Windows.Controls.Calendar.SelectedDateProperty)
         | CalendarProp.SelectionMode _ -> el.ClearValue(System.Windows.Controls.Calendar.SelectionModeProperty)
+        | CalendarProp.OnSelectedDatesChanged h -> el.SelectedDatesChanged.RemoveHandler(h)
+        | CalendarProp.OnDisplayDateChanged h -> el.DisplayDateChanged.RemoveHandler(h)
+        | CalendarProp.OnDisplayModeChanged h -> el.DisplayModeChanged.RemoveHandler(h)
+        | CalendarProp.OnSelectionModeChanged h -> el.SelectionModeChanged.RemoveHandler(h)
 
     let borderBrush v : obj = box (ControlProp.BorderBrush v)
     let borderThickness v : obj = box (ControlProp.BorderThickness v)
@@ -400,17 +424,110 @@ module Calendar =
     let onDrop v : obj =
         box (EventProp(box (UIElementProp.OnDrop v)))
 
+    let onPreviewTouchDown v : obj =
+        box (EventProp(box (UIElementProp.OnPreviewTouchDown v)))
+
+    let onTouchDown v : obj =
+        box (EventProp(box (UIElementProp.OnTouchDown v)))
+
+    let onPreviewTouchMove v : obj =
+        box (EventProp(box (UIElementProp.OnPreviewTouchMove v)))
+
+    let onTouchMove v : obj =
+        box (EventProp(box (UIElementProp.OnTouchMove v)))
+
+    let onPreviewTouchUp v : obj =
+        box (EventProp(box (UIElementProp.OnPreviewTouchUp v)))
+
+    let onTouchUp v : obj =
+        box (EventProp(box (UIElementProp.OnTouchUp v)))
+
+    let onGotTouchCapture v : obj =
+        box (EventProp(box (UIElementProp.OnGotTouchCapture v)))
+
+    let onLostTouchCapture v : obj =
+        box (EventProp(box (UIElementProp.OnLostTouchCapture v)))
+
+    let onTouchEnter v : obj =
+        box (EventProp(box (UIElementProp.OnTouchEnter v)))
+
+    let onTouchLeave v : obj =
+        box (EventProp(box (UIElementProp.OnTouchLeave v)))
+
     let onGotFocus v : obj =
         box (EventProp(box (UIElementProp.OnGotFocus v)))
 
     let onLostFocus v : obj =
         box (EventProp(box (UIElementProp.OnLostFocus v)))
 
+    let onManipulationStarting v : obj =
+        box (EventProp(box (UIElementProp.OnManipulationStarting v)))
+
+    let onManipulationStarted v : obj =
+        box (EventProp(box (UIElementProp.OnManipulationStarted v)))
+
+    let onManipulationDelta v : obj =
+        box (EventProp(box (UIElementProp.OnManipulationDelta v)))
+
+    let onManipulationInertiaStarting v : obj =
+        box (EventProp(box (UIElementProp.OnManipulationInertiaStarting v)))
+
+    let onManipulationBoundaryFeedback v : obj =
+        box (EventProp(box (UIElementProp.OnManipulationBoundaryFeedback v)))
+
+    let onManipulationCompleted v : obj =
+        box (EventProp(box (UIElementProp.OnManipulationCompleted v)))
+
+    let onTargetUpdated v : obj =
+        box (EventProp(box (FrameworkElementProp.OnTargetUpdated v)))
+
+    let onSourceUpdated v : obj =
+        box (EventProp(box (FrameworkElementProp.OnSourceUpdated v)))
+
+    let onDataContextChanged v : obj =
+        box (EventProp(box (FrameworkElementProp.OnDataContextChanged v)))
+
     let onInitialized v : obj =
         box (EventProp(box (FrameworkElementProp.OnInitialized v)))
 
+    let onIsMouseDirectlyOverChanged v : obj =
+        box (EventProp(box (UIElementProp.OnIsMouseDirectlyOverChanged v)))
+
+    let onIsKeyboardFocusWithinChanged v : obj =
+        box (EventProp(box (UIElementProp.OnIsKeyboardFocusWithinChanged v)))
+
+    let onIsMouseCapturedChanged v : obj =
+        box (EventProp(box (UIElementProp.OnIsMouseCapturedChanged v)))
+
+    let onIsMouseCaptureWithinChanged v : obj =
+        box (EventProp(box (UIElementProp.OnIsMouseCaptureWithinChanged v)))
+
+    let onIsStylusDirectlyOverChanged v : obj =
+        box (EventProp(box (UIElementProp.OnIsStylusDirectlyOverChanged v)))
+
+    let onIsStylusCapturedChanged v : obj =
+        box (EventProp(box (UIElementProp.OnIsStylusCapturedChanged v)))
+
+    let onIsStylusCaptureWithinChanged v : obj =
+        box (EventProp(box (UIElementProp.OnIsStylusCaptureWithinChanged v)))
+
+    let onIsKeyboardFocusedChanged v : obj =
+        box (EventProp(box (UIElementProp.OnIsKeyboardFocusedChanged v)))
+
     let onLayoutUpdated v : obj =
         box (EventProp(box (UIElementProp.OnLayoutUpdated v)))
+
+    let onIsEnabledChanged v : obj =
+        box (EventProp(box (UIElementProp.OnIsEnabledChanged v)))
+
+    let onIsHitTestVisibleChanged v : obj =
+        box (EventProp(box (UIElementProp.OnIsHitTestVisibleChanged v)))
+
+    let onIsVisibleChanged v : obj =
+        box (EventProp(box (UIElementProp.OnIsVisibleChanged v)))
+
+    let onFocusableChanged v : obj =
+        box (EventProp(box (UIElementProp.OnFocusableChanged v)))
 
     let children (cs: VirtualNode list) : obj = box (Children cs)
     let contentChild (c: VirtualNode) : obj = box (ContentChild c)

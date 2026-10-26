@@ -295,3 +295,33 @@ let ``discoverDPs marks an AddOwner'd read-only DP as read-only``
 
     let dp = AssemblyInspector.discoverDPs t |> List.find (fun dp -> dp.Name = dpName)
     dp.IsReadOnly |> should be True
+
+let private presentationFrameworkType (typeName: string) (f: System.Type -> 'a) =
+    let path =
+        AssemblyInspector.resolveAssembly "net10.0-windows" "PresentationFramework"
+
+    use ctx = AssemblyInspector.createContext (Path.GetDirectoryName(path)) []
+    f (ctx.LoadFromAssemblyPath(path).GetType(typeName))
+
+// F# AddHandler needs void Invoke(obj, ...) with no byref; the second parameter
+// need not derive from EventArgs (DependencyPropertyChangedEventArgs is a struct).
+[<Fact>]
+let ``a DependencyPropertyChangedEventHandler event is a standard delegate`` () =
+    presentationFrameworkType "System.Windows.FrameworkElement" (fun t ->
+        let ev =
+            AssemblyInspector.discoverAllEvents t
+            |> List.find (fun e -> e.Name = "DataContextChanged")
+
+        ev.IsStandardDelegate |> should be True)
+
+[<Fact>]
+let ``a generic handler type is rendered as F# source and is emittable`` () =
+    presentationFrameworkType "System.Windows.Controls.DataGrid" (fun t ->
+        let ev =
+            AssemblyInspector.discoverAllEvents t
+            |> List.find (fun e -> e.Name = "BeginningEdit")
+
+        ev.HandlerTypeName
+        |> should equal (Some "System.EventHandler<System.Windows.Controls.DataGridBeginningEditEventArgs>")
+
+        Program.isEmittableEvent ev |> should be True)

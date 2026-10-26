@@ -10,17 +10,23 @@ open System.Windows
 open FSharp.Windows.Dsl
 
 [<RequireQualifiedAccess>]
-type D3DImageProp = Base of FreezableProp
+type D3DImageProp =
+    | Base of FreezableProp
+    | OnIsFrontBufferAvailableChanged of System.Windows.DependencyPropertyChangedEventHandler
 
 module D3DImage =
+    let onIsFrontBufferAvailableChanged v : obj =
+        box (EventProp(box (D3DImageProp.OnIsFrontBufferAvailableChanged v)))
 
     let apply (el: System.Windows.Interop.D3DImage) (prop: D3DImageProp) =
         match prop with
         | D3DImageProp.Base p -> Freezable.apply el p
+        | D3DImageProp.OnIsFrontBufferAvailableChanged h -> el.IsFrontBufferAvailableChanged.AddHandler(h)
 
     let clear (el: System.Windows.Interop.D3DImage) (prop: D3DImageProp) =
         match prop with
         | D3DImageProp.Base p -> Freezable.clear el p
+        | D3DImageProp.OnIsFrontBufferAvailableChanged h -> el.IsFrontBufferAvailableChanged.RemoveHandler(h)
 
     let onChanged v : obj =
         box (EventProp(box (FreezableProp.OnChanged v)))

@@ -147,35 +147,40 @@ let private hasObsoleteAttribute (member': MemberInfo) =
         with _ ->
             false
 
-/// True when the delegate type has the strict `void Invoke(System.Object, System.EventArgs)`
-/// shape that F# `el.MyEvent.AddHandler(h)` accepts (via the IEvent<_,_> projection).
-/// First parameter must be exactly System.Object (not a derived sender type) and the
-/// second must descend from System.EventArgs — otherwise F# refuses with FS1091, even if
-/// the delegate name ends with EventHandler.
+/// True when F# `el.MyEvent.AddHandler(h)` accepts the delegate: `Invoke` returns void,
+/// takes at least two parameters, the first exactly System.Object, and none by reference.
+/// The second need not derive from EventArgs: DependencyPropertyChangedEventArgs is a
+/// struct, and DataContextChanged or IsVisibleChanged compile like any other event.
 let private isStandardEventDelegate (delegateType: Type) =
-    let rec inheritsEventArgs (t: Type) =
-        if isNull t then false
-        elif t.FullName = "System.EventArgs" then true
-        else inheritsEventArgs t.BaseType
-
     if isNull delegateType then
         false
     else
         try
-            let invoke = delegateType.GetMethod("Invoke")
-
-            if isNull invoke then
-                false
-            elif invoke.ReturnType.FullName <> "System.Void" then
-                false
-            else
+            match delegateType.GetMethod("Invoke") with
+            | null -> false
+            | invoke ->
                 let parms = invoke.GetParameters()
 
-                parms.Length = 2
+                invoke.ReturnType.FullName = "System.Void"
+                && parms.Length >= 2
                 && parms.[0].ParameterType.FullName = "System.Object"
-                && inheritsEventArgs parms.[1].ParameterType
+                && parms |> Array.forall (fun p -> not p.ParameterType.IsByRef)
         with _ ->
             false
+
+/// A type as F# source. A constructed generic renders as `Def<Arg, ...>` instead of the
+/// CLR's EventHandler`1[[Arg, Assembly, ...]], so DataGrid's EventHandler<T> events and
+/// RangeBase.ValueChanged can be emitted. A nested type keeps its '+', which
+/// isEmittableEvent still rejects.
+let rec fsharpTypeName (t: Type) : string =
+    if t.IsGenericType && not t.IsGenericTypeDefinition then
+        let def = t.GetGenericTypeDefinition().FullName
+        let args = t.GetGenericArguments() |> Array.map fsharpTypeName |> String.concat ", "
+        $"{def.Substring(0, def.IndexOf('`'))}<{args}>"
+    elif isNull t.FullName then
+        t.Name
+    else
+        t.FullName
 
 /// Check if a DP field represents an attached property by looking for a static SetXxx method.
 let private isAttached (field: FieldInfo) =
@@ -320,9 +325,7 @@ let discoverEvents (controlType: Type) : EventInfo list =
                 f.DeclaringType.Name
             else
                 f.DeclaringType.FullName
-          HandlerTypeName =
-            handlerType
-            |> Option.map (fun ht -> if isNull ht.FullName then ht.Name else ht.FullName)
+          HandlerTypeName = handlerType |> Option.map fsharpTypeName
           IsStandardDelegate = handlerType |> Option.exists isStandardEventDelegate
           IsObsolete =
             hasObsoleteAttribute (clrEvent :> MemberInfo)
@@ -347,13 +350,7 @@ let discoverClrEvents (controlType: Type) (routedEventNames: Set<string>) : Even
           IsObsolete =
             hasObsoleteAttribute (e :> MemberInfo)
             || hasObsoleteAttribute (e.EventHandlerType :> MemberInfo)
-          HandlerTypeName =
-            if isNull e.EventHandlerType then
-                None
-            elif isNull e.EventHandlerType.FullName then
-                Some e.EventHandlerType.Name
-            else
-                Some e.EventHandlerType.FullName })
+          HandlerTypeName = e.EventHandlerType |> Option.ofObj |> Option.map fsharpTypeName })
     |> Array.toList
 
 /// Discover all events on a type — routed events plus CLR-only events, deduplicated.

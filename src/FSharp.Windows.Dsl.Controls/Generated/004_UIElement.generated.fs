@@ -94,9 +94,37 @@ type UIElementProp =
     | OnDragLeave of System.Windows.DragEventHandler
     | OnPreviewDrop of System.Windows.DragEventHandler
     | OnDrop of System.Windows.DragEventHandler
+    | OnPreviewTouchDown of System.EventHandler<System.Windows.Input.TouchEventArgs>
+    | OnTouchDown of System.EventHandler<System.Windows.Input.TouchEventArgs>
+    | OnPreviewTouchMove of System.EventHandler<System.Windows.Input.TouchEventArgs>
+    | OnTouchMove of System.EventHandler<System.Windows.Input.TouchEventArgs>
+    | OnPreviewTouchUp of System.EventHandler<System.Windows.Input.TouchEventArgs>
+    | OnTouchUp of System.EventHandler<System.Windows.Input.TouchEventArgs>
+    | OnGotTouchCapture of System.EventHandler<System.Windows.Input.TouchEventArgs>
+    | OnLostTouchCapture of System.EventHandler<System.Windows.Input.TouchEventArgs>
+    | OnTouchEnter of System.EventHandler<System.Windows.Input.TouchEventArgs>
+    | OnTouchLeave of System.EventHandler<System.Windows.Input.TouchEventArgs>
     | OnGotFocus of System.Windows.RoutedEventHandler
     | OnLostFocus of System.Windows.RoutedEventHandler
+    | OnManipulationStarting of System.EventHandler<System.Windows.Input.ManipulationStartingEventArgs>
+    | OnManipulationStarted of System.EventHandler<System.Windows.Input.ManipulationStartedEventArgs>
+    | OnManipulationDelta of System.EventHandler<System.Windows.Input.ManipulationDeltaEventArgs>
+    | OnManipulationInertiaStarting of System.EventHandler<System.Windows.Input.ManipulationInertiaStartingEventArgs>
+    | OnManipulationBoundaryFeedback of System.EventHandler<System.Windows.Input.ManipulationBoundaryFeedbackEventArgs>
+    | OnManipulationCompleted of System.EventHandler<System.Windows.Input.ManipulationCompletedEventArgs>
+    | OnIsMouseDirectlyOverChanged of System.Windows.DependencyPropertyChangedEventHandler
+    | OnIsKeyboardFocusWithinChanged of System.Windows.DependencyPropertyChangedEventHandler
+    | OnIsMouseCapturedChanged of System.Windows.DependencyPropertyChangedEventHandler
+    | OnIsMouseCaptureWithinChanged of System.Windows.DependencyPropertyChangedEventHandler
+    | OnIsStylusDirectlyOverChanged of System.Windows.DependencyPropertyChangedEventHandler
+    | OnIsStylusCapturedChanged of System.Windows.DependencyPropertyChangedEventHandler
+    | OnIsStylusCaptureWithinChanged of System.Windows.DependencyPropertyChangedEventHandler
+    | OnIsKeyboardFocusedChanged of System.Windows.DependencyPropertyChangedEventHandler
     | OnLayoutUpdated of System.EventHandler
+    | OnIsEnabledChanged of System.Windows.DependencyPropertyChangedEventHandler
+    | OnIsHitTestVisibleChanged of System.Windows.DependencyPropertyChangedEventHandler
+    | OnIsVisibleChanged of System.Windows.DependencyPropertyChangedEventHandler
+    | OnFocusableChanged of System.Windows.DependencyPropertyChangedEventHandler
 
 module UIElement =
     let allowDrop v : obj = box (UIElementProp.AllowDrop v)
@@ -321,14 +349,98 @@ module UIElement =
     let onDrop v : obj =
         box (EventProp(box (UIElementProp.OnDrop v)))
 
+    let onPreviewTouchDown v : obj =
+        box (EventProp(box (UIElementProp.OnPreviewTouchDown v)))
+
+    let onTouchDown v : obj =
+        box (EventProp(box (UIElementProp.OnTouchDown v)))
+
+    let onPreviewTouchMove v : obj =
+        box (EventProp(box (UIElementProp.OnPreviewTouchMove v)))
+
+    let onTouchMove v : obj =
+        box (EventProp(box (UIElementProp.OnTouchMove v)))
+
+    let onPreviewTouchUp v : obj =
+        box (EventProp(box (UIElementProp.OnPreviewTouchUp v)))
+
+    let onTouchUp v : obj =
+        box (EventProp(box (UIElementProp.OnTouchUp v)))
+
+    let onGotTouchCapture v : obj =
+        box (EventProp(box (UIElementProp.OnGotTouchCapture v)))
+
+    let onLostTouchCapture v : obj =
+        box (EventProp(box (UIElementProp.OnLostTouchCapture v)))
+
+    let onTouchEnter v : obj =
+        box (EventProp(box (UIElementProp.OnTouchEnter v)))
+
+    let onTouchLeave v : obj =
+        box (EventProp(box (UIElementProp.OnTouchLeave v)))
+
     let onGotFocus v : obj =
         box (EventProp(box (UIElementProp.OnGotFocus v)))
 
     let onLostFocus v : obj =
         box (EventProp(box (UIElementProp.OnLostFocus v)))
 
+    let onManipulationStarting v : obj =
+        box (EventProp(box (UIElementProp.OnManipulationStarting v)))
+
+    let onManipulationStarted v : obj =
+        box (EventProp(box (UIElementProp.OnManipulationStarted v)))
+
+    let onManipulationDelta v : obj =
+        box (EventProp(box (UIElementProp.OnManipulationDelta v)))
+
+    let onManipulationInertiaStarting v : obj =
+        box (EventProp(box (UIElementProp.OnManipulationInertiaStarting v)))
+
+    let onManipulationBoundaryFeedback v : obj =
+        box (EventProp(box (UIElementProp.OnManipulationBoundaryFeedback v)))
+
+    let onManipulationCompleted v : obj =
+        box (EventProp(box (UIElementProp.OnManipulationCompleted v)))
+
+    let onIsMouseDirectlyOverChanged v : obj =
+        box (EventProp(box (UIElementProp.OnIsMouseDirectlyOverChanged v)))
+
+    let onIsKeyboardFocusWithinChanged v : obj =
+        box (EventProp(box (UIElementProp.OnIsKeyboardFocusWithinChanged v)))
+
+    let onIsMouseCapturedChanged v : obj =
+        box (EventProp(box (UIElementProp.OnIsMouseCapturedChanged v)))
+
+    let onIsMouseCaptureWithinChanged v : obj =
+        box (EventProp(box (UIElementProp.OnIsMouseCaptureWithinChanged v)))
+
+    let onIsStylusDirectlyOverChanged v : obj =
+        box (EventProp(box (UIElementProp.OnIsStylusDirectlyOverChanged v)))
+
+    let onIsStylusCapturedChanged v : obj =
+        box (EventProp(box (UIElementProp.OnIsStylusCapturedChanged v)))
+
+    let onIsStylusCaptureWithinChanged v : obj =
+        box (EventProp(box (UIElementProp.OnIsStylusCaptureWithinChanged v)))
+
+    let onIsKeyboardFocusedChanged v : obj =
+        box (EventProp(box (UIElementProp.OnIsKeyboardFocusedChanged v)))
+
     let onLayoutUpdated v : obj =
         box (EventProp(box (UIElementProp.OnLayoutUpdated v)))
+
+    let onIsEnabledChanged v : obj =
+        box (EventProp(box (UIElementProp.OnIsEnabledChanged v)))
+
+    let onIsHitTestVisibleChanged v : obj =
+        box (EventProp(box (UIElementProp.OnIsHitTestVisibleChanged v)))
+
+    let onIsVisibleChanged v : obj =
+        box (EventProp(box (UIElementProp.OnIsVisibleChanged v)))
+
+    let onFocusableChanged v : obj =
+        box (EventProp(box (UIElementProp.OnFocusableChanged v)))
 
     let apply (el: System.Windows.UIElement) (prop: UIElementProp) =
         match prop with
@@ -418,9 +530,37 @@ module UIElement =
         | UIElementProp.OnDragLeave h -> el.DragLeave.AddHandler(h)
         | UIElementProp.OnPreviewDrop h -> el.PreviewDrop.AddHandler(h)
         | UIElementProp.OnDrop h -> el.Drop.AddHandler(h)
+        | UIElementProp.OnPreviewTouchDown h -> el.PreviewTouchDown.AddHandler(h)
+        | UIElementProp.OnTouchDown h -> el.TouchDown.AddHandler(h)
+        | UIElementProp.OnPreviewTouchMove h -> el.PreviewTouchMove.AddHandler(h)
+        | UIElementProp.OnTouchMove h -> el.TouchMove.AddHandler(h)
+        | UIElementProp.OnPreviewTouchUp h -> el.PreviewTouchUp.AddHandler(h)
+        | UIElementProp.OnTouchUp h -> el.TouchUp.AddHandler(h)
+        | UIElementProp.OnGotTouchCapture h -> el.GotTouchCapture.AddHandler(h)
+        | UIElementProp.OnLostTouchCapture h -> el.LostTouchCapture.AddHandler(h)
+        | UIElementProp.OnTouchEnter h -> el.TouchEnter.AddHandler(h)
+        | UIElementProp.OnTouchLeave h -> el.TouchLeave.AddHandler(h)
         | UIElementProp.OnGotFocus h -> el.GotFocus.AddHandler(h)
         | UIElementProp.OnLostFocus h -> el.LostFocus.AddHandler(h)
+        | UIElementProp.OnManipulationStarting h -> el.ManipulationStarting.AddHandler(h)
+        | UIElementProp.OnManipulationStarted h -> el.ManipulationStarted.AddHandler(h)
+        | UIElementProp.OnManipulationDelta h -> el.ManipulationDelta.AddHandler(h)
+        | UIElementProp.OnManipulationInertiaStarting h -> el.ManipulationInertiaStarting.AddHandler(h)
+        | UIElementProp.OnManipulationBoundaryFeedback h -> el.ManipulationBoundaryFeedback.AddHandler(h)
+        | UIElementProp.OnManipulationCompleted h -> el.ManipulationCompleted.AddHandler(h)
+        | UIElementProp.OnIsMouseDirectlyOverChanged h -> el.IsMouseDirectlyOverChanged.AddHandler(h)
+        | UIElementProp.OnIsKeyboardFocusWithinChanged h -> el.IsKeyboardFocusWithinChanged.AddHandler(h)
+        | UIElementProp.OnIsMouseCapturedChanged h -> el.IsMouseCapturedChanged.AddHandler(h)
+        | UIElementProp.OnIsMouseCaptureWithinChanged h -> el.IsMouseCaptureWithinChanged.AddHandler(h)
+        | UIElementProp.OnIsStylusDirectlyOverChanged h -> el.IsStylusDirectlyOverChanged.AddHandler(h)
+        | UIElementProp.OnIsStylusCapturedChanged h -> el.IsStylusCapturedChanged.AddHandler(h)
+        | UIElementProp.OnIsStylusCaptureWithinChanged h -> el.IsStylusCaptureWithinChanged.AddHandler(h)
+        | UIElementProp.OnIsKeyboardFocusedChanged h -> el.IsKeyboardFocusedChanged.AddHandler(h)
         | UIElementProp.OnLayoutUpdated h -> el.LayoutUpdated.AddHandler(h)
+        | UIElementProp.OnIsEnabledChanged h -> el.IsEnabledChanged.AddHandler(h)
+        | UIElementProp.OnIsHitTestVisibleChanged h -> el.IsHitTestVisibleChanged.AddHandler(h)
+        | UIElementProp.OnIsVisibleChanged h -> el.IsVisibleChanged.AddHandler(h)
+        | UIElementProp.OnFocusableChanged h -> el.FocusableChanged.AddHandler(h)
 
     let clear (el: System.Windows.UIElement) (prop: UIElementProp) =
         match prop with
@@ -507,9 +647,37 @@ module UIElement =
         | UIElementProp.OnDragLeave h -> el.DragLeave.RemoveHandler(h)
         | UIElementProp.OnPreviewDrop h -> el.PreviewDrop.RemoveHandler(h)
         | UIElementProp.OnDrop h -> el.Drop.RemoveHandler(h)
+        | UIElementProp.OnPreviewTouchDown h -> el.PreviewTouchDown.RemoveHandler(h)
+        | UIElementProp.OnTouchDown h -> el.TouchDown.RemoveHandler(h)
+        | UIElementProp.OnPreviewTouchMove h -> el.PreviewTouchMove.RemoveHandler(h)
+        | UIElementProp.OnTouchMove h -> el.TouchMove.RemoveHandler(h)
+        | UIElementProp.OnPreviewTouchUp h -> el.PreviewTouchUp.RemoveHandler(h)
+        | UIElementProp.OnTouchUp h -> el.TouchUp.RemoveHandler(h)
+        | UIElementProp.OnGotTouchCapture h -> el.GotTouchCapture.RemoveHandler(h)
+        | UIElementProp.OnLostTouchCapture h -> el.LostTouchCapture.RemoveHandler(h)
+        | UIElementProp.OnTouchEnter h -> el.TouchEnter.RemoveHandler(h)
+        | UIElementProp.OnTouchLeave h -> el.TouchLeave.RemoveHandler(h)
         | UIElementProp.OnGotFocus h -> el.GotFocus.RemoveHandler(h)
         | UIElementProp.OnLostFocus h -> el.LostFocus.RemoveHandler(h)
+        | UIElementProp.OnManipulationStarting h -> el.ManipulationStarting.RemoveHandler(h)
+        | UIElementProp.OnManipulationStarted h -> el.ManipulationStarted.RemoveHandler(h)
+        | UIElementProp.OnManipulationDelta h -> el.ManipulationDelta.RemoveHandler(h)
+        | UIElementProp.OnManipulationInertiaStarting h -> el.ManipulationInertiaStarting.RemoveHandler(h)
+        | UIElementProp.OnManipulationBoundaryFeedback h -> el.ManipulationBoundaryFeedback.RemoveHandler(h)
+        | UIElementProp.OnManipulationCompleted h -> el.ManipulationCompleted.RemoveHandler(h)
+        | UIElementProp.OnIsMouseDirectlyOverChanged h -> el.IsMouseDirectlyOverChanged.RemoveHandler(h)
+        | UIElementProp.OnIsKeyboardFocusWithinChanged h -> el.IsKeyboardFocusWithinChanged.RemoveHandler(h)
+        | UIElementProp.OnIsMouseCapturedChanged h -> el.IsMouseCapturedChanged.RemoveHandler(h)
+        | UIElementProp.OnIsMouseCaptureWithinChanged h -> el.IsMouseCaptureWithinChanged.RemoveHandler(h)
+        | UIElementProp.OnIsStylusDirectlyOverChanged h -> el.IsStylusDirectlyOverChanged.RemoveHandler(h)
+        | UIElementProp.OnIsStylusCapturedChanged h -> el.IsStylusCapturedChanged.RemoveHandler(h)
+        | UIElementProp.OnIsStylusCaptureWithinChanged h -> el.IsStylusCaptureWithinChanged.RemoveHandler(h)
+        | UIElementProp.OnIsKeyboardFocusedChanged h -> el.IsKeyboardFocusedChanged.RemoveHandler(h)
         | UIElementProp.OnLayoutUpdated h -> el.LayoutUpdated.RemoveHandler(h)
+        | UIElementProp.OnIsEnabledChanged h -> el.IsEnabledChanged.RemoveHandler(h)
+        | UIElementProp.OnIsHitTestVisibleChanged h -> el.IsHitTestVisibleChanged.RemoveHandler(h)
+        | UIElementProp.OnIsVisibleChanged h -> el.IsVisibleChanged.RemoveHandler(h)
+        | UIElementProp.OnFocusableChanged h -> el.FocusableChanged.RemoveHandler(h)
 
 
     let children (cs: VirtualNode list) : obj = box (Children cs)

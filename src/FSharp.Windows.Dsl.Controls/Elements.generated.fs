@@ -8,6 +8,7 @@ module Elements =
 
     open FSharp.Windows.Dsl
 
+    let visualStateGroup (props: obj list) : VirtualNode = VisualStateGroup.create props
     let collectionContainer (props: obj list) : VirtualNode = CollectionContainer.create props
     let collectionViewSource (props: obj list) : VirtualNode = CollectionViewSource.create props
     let gridViewColumn (props: obj list) : VirtualNode = GridViewColumn.create props

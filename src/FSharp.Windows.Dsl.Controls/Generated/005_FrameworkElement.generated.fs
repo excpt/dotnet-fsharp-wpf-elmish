@@ -43,6 +43,9 @@ type FrameworkElementProp =
     | OnToolTipClosing of System.Windows.Controls.ToolTipEventHandler
     | OnContextMenuOpening of System.Windows.Controls.ContextMenuEventHandler
     | OnContextMenuClosing of System.Windows.Controls.ContextMenuEventHandler
+    | OnTargetUpdated of System.EventHandler<System.Windows.Data.DataTransferEventArgs>
+    | OnSourceUpdated of System.EventHandler<System.Windows.Data.DataTransferEventArgs>
+    | OnDataContextChanged of System.Windows.DependencyPropertyChangedEventHandler
     | OnInitialized of System.EventHandler
 
 module FrameworkElement =
@@ -119,6 +122,15 @@ module FrameworkElement =
     let onContextMenuClosing v : obj =
         box (EventProp(box (FrameworkElementProp.OnContextMenuClosing v)))
 
+    let onTargetUpdated v : obj =
+        box (EventProp(box (FrameworkElementProp.OnTargetUpdated v)))
+
+    let onSourceUpdated v : obj =
+        box (EventProp(box (FrameworkElementProp.OnSourceUpdated v)))
+
+    let onDataContextChanged v : obj =
+        box (EventProp(box (FrameworkElementProp.OnDataContextChanged v)))
+
     let onInitialized v : obj =
         box (EventProp(box (FrameworkElementProp.OnInitialized v)))
 
@@ -164,6 +176,9 @@ module FrameworkElement =
         | FrameworkElementProp.OnToolTipClosing h -> el.ToolTipClosing.AddHandler(h)
         | FrameworkElementProp.OnContextMenuOpening h -> el.ContextMenuOpening.AddHandler(h)
         | FrameworkElementProp.OnContextMenuClosing h -> el.ContextMenuClosing.AddHandler(h)
+        | FrameworkElementProp.OnTargetUpdated h -> el.TargetUpdated.AddHandler(h)
+        | FrameworkElementProp.OnSourceUpdated h -> el.SourceUpdated.AddHandler(h)
+        | FrameworkElementProp.OnDataContextChanged h -> el.DataContextChanged.AddHandler(h)
         | FrameworkElementProp.OnInitialized h -> el.Initialized.AddHandler(h)
 
     let clear (el: System.Windows.FrameworkElement) (prop: FrameworkElementProp) =
@@ -206,6 +221,9 @@ module FrameworkElement =
         | FrameworkElementProp.OnToolTipClosing h -> el.ToolTipClosing.RemoveHandler(h)
         | FrameworkElementProp.OnContextMenuOpening h -> el.ContextMenuOpening.RemoveHandler(h)
         | FrameworkElementProp.OnContextMenuClosing h -> el.ContextMenuClosing.RemoveHandler(h)
+        | FrameworkElementProp.OnTargetUpdated h -> el.TargetUpdated.RemoveHandler(h)
+        | FrameworkElementProp.OnSourceUpdated h -> el.SourceUpdated.RemoveHandler(h)
+        | FrameworkElementProp.OnDataContextChanged h -> el.DataContextChanged.RemoveHandler(h)
         | FrameworkElementProp.OnInitialized h -> el.Initialized.RemoveHandler(h)
 
     let allowDrop v : obj = box (UIElementProp.AllowDrop v)
@@ -430,14 +448,98 @@ module FrameworkElement =
     let onDrop v : obj =
         box (EventProp(box (UIElementProp.OnDrop v)))
 
+    let onPreviewTouchDown v : obj =
+        box (EventProp(box (UIElementProp.OnPreviewTouchDown v)))
+
+    let onTouchDown v : obj =
+        box (EventProp(box (UIElementProp.OnTouchDown v)))
+
+    let onPreviewTouchMove v : obj =
+        box (EventProp(box (UIElementProp.OnPreviewTouchMove v)))
+
+    let onTouchMove v : obj =
+        box (EventProp(box (UIElementProp.OnTouchMove v)))
+
+    let onPreviewTouchUp v : obj =
+        box (EventProp(box (UIElementProp.OnPreviewTouchUp v)))
+
+    let onTouchUp v : obj =
+        box (EventProp(box (UIElementProp.OnTouchUp v)))
+
+    let onGotTouchCapture v : obj =
+        box (EventProp(box (UIElementProp.OnGotTouchCapture v)))
+
+    let onLostTouchCapture v : obj =
+        box (EventProp(box (UIElementProp.OnLostTouchCapture v)))
+
+    let onTouchEnter v : obj =
+        box (EventProp(box (UIElementProp.OnTouchEnter v)))
+
+    let onTouchLeave v : obj =
+        box (EventProp(box (UIElementProp.OnTouchLeave v)))
+
     let onGotFocus v : obj =
         box (EventProp(box (UIElementProp.OnGotFocus v)))
 
     let onLostFocus v : obj =
         box (EventProp(box (UIElementProp.OnLostFocus v)))
 
+    let onManipulationStarting v : obj =
+        box (EventProp(box (UIElementProp.OnManipulationStarting v)))
+
+    let onManipulationStarted v : obj =
+        box (EventProp(box (UIElementProp.OnManipulationStarted v)))
+
+    let onManipulationDelta v : obj =
+        box (EventProp(box (UIElementProp.OnManipulationDelta v)))
+
+    let onManipulationInertiaStarting v : obj =
+        box (EventProp(box (UIElementProp.OnManipulationInertiaStarting v)))
+
+    let onManipulationBoundaryFeedback v : obj =
+        box (EventProp(box (UIElementProp.OnManipulationBoundaryFeedback v)))
+
+    let onManipulationCompleted v : obj =
+        box (EventProp(box (UIElementProp.OnManipulationCompleted v)))
+
+    let onIsMouseDirectlyOverChanged v : obj =
+        box (EventProp(box (UIElementProp.OnIsMouseDirectlyOverChanged v)))
+
+    let onIsKeyboardFocusWithinChanged v : obj =
+        box (EventProp(box (UIElementProp.OnIsKeyboardFocusWithinChanged v)))
+
+    let onIsMouseCapturedChanged v : obj =
+        box (EventProp(box (UIElementProp.OnIsMouseCapturedChanged v)))
+
+    let onIsMouseCaptureWithinChanged v : obj =
+        box (EventProp(box (UIElementProp.OnIsMouseCaptureWithinChanged v)))
+
+    let onIsStylusDirectlyOverChanged v : obj =
+        box (EventProp(box (UIElementProp.OnIsStylusDirectlyOverChanged v)))
+
+    let onIsStylusCapturedChanged v : obj =
+        box (EventProp(box (UIElementProp.OnIsStylusCapturedChanged v)))
+
+    let onIsStylusCaptureWithinChanged v : obj =
+        box (EventProp(box (UIElementProp.OnIsStylusCaptureWithinChanged v)))
+
+    let onIsKeyboardFocusedChanged v : obj =
+        box (EventProp(box (UIElementProp.OnIsKeyboardFocusedChanged v)))
+
     let onLayoutUpdated v : obj =
         box (EventProp(box (UIElementProp.OnLayoutUpdated v)))
+
+    let onIsEnabledChanged v : obj =
+        box (EventProp(box (UIElementProp.OnIsEnabledChanged v)))
+
+    let onIsHitTestVisibleChanged v : obj =
+        box (EventProp(box (UIElementProp.OnIsHitTestVisibleChanged v)))
+
+    let onIsVisibleChanged v : obj =
+        box (EventProp(box (UIElementProp.OnIsVisibleChanged v)))
+
+    let onFocusableChanged v : obj =
+        box (EventProp(box (UIElementProp.OnFocusableChanged v)))
 
     let children (cs: VirtualNode list) : obj = box (Children cs)
     let contentChild (c: VirtualNode) : obj = box (ContentChild c)
