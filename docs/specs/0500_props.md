@@ -104,7 +104,9 @@ discarded:
 
 - `Materializer.diagnostics ()` — every `PropDiagnostic` since the last clear,
   each recorded once, also written to `Debug`.
-- `Materializer.strictProps <- true` — fail instead, for development and tests.
+- `Materializer.strictProps <- true` — fail instead, for development and tests. The
+  failure is raised once the render has finished, so the live tree stays in step with
+  the virtual one.
 - `Validate.tree node` — the same checks over a virtual tree, statically, with
   nothing materialized. See `1400_testing.md`.
 

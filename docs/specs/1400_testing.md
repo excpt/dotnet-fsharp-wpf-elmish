@@ -294,6 +294,7 @@ It reports the same `PropDiagnostic` cases the materializer records:
 | `UnappliedProp` | Nothing owns this prop type — a value that is not a prop, or a control package whose `Registration.register()` was never called |
 | `PropNotForElement` | A real prop, on a control it does not belong to |
 | `UnusableMember` | A `NodeProp`/`CollectionProp` name the element cannot take — unknown, read-only, or the wrong type |
+| `ApplyFailed` | Runtime only: WPF rejected the value (a validate callback, a read-only DP, a wrong type). `Validate.tree` cannot see it |
 
 Worth one assertion per view function. The runtime side of the same information
 is `Materializer.diagnostics ()`, and `Materializer.strictProps <- true` turns
