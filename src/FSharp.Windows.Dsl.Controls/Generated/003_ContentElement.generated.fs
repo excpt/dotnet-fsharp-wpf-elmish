@@ -11,21 +11,6 @@ open FSharp.Windows.Dsl
 
 [<RequireQualifiedAccess>]
 type ContentElementProp =
-    | IsMouseDirectlyOver of bool
-    | IsMouseOver of bool
-    | IsStylusOver of bool
-    | IsKeyboardFocusWithin of bool
-    | IsMouseCaptured of bool
-    | IsMouseCaptureWithin of bool
-    | IsStylusDirectlyOver of bool
-    | IsStylusCaptured of bool
-    | IsStylusCaptureWithin of bool
-    | IsKeyboardFocused of bool
-    | AreAnyTouchesDirectlyOver of bool
-    | AreAnyTouchesOver of bool
-    | AreAnyTouchesCaptured of bool
-    | AreAnyTouchesCapturedWithin of bool
-    | IsFocused of bool
     | IsEnabled of bool
     | Focusable of bool
     | AllowDrop of bool
@@ -98,46 +83,6 @@ type ContentElementProp =
     | OnLostFocus of System.Windows.RoutedEventHandler
 
 module ContentElement =
-    let isMouseDirectlyOver v : obj =
-        box (ContentElementProp.IsMouseDirectlyOver v)
-
-    let isMouseOver v : obj = box (ContentElementProp.IsMouseOver v)
-    let isStylusOver v : obj = box (ContentElementProp.IsStylusOver v)
-
-    let isKeyboardFocusWithin v : obj =
-        box (ContentElementProp.IsKeyboardFocusWithin v)
-
-    let isMouseCaptured v : obj =
-        box (ContentElementProp.IsMouseCaptured v)
-
-    let isMouseCaptureWithin v : obj =
-        box (ContentElementProp.IsMouseCaptureWithin v)
-
-    let isStylusDirectlyOver v : obj =
-        box (ContentElementProp.IsStylusDirectlyOver v)
-
-    let isStylusCaptured v : obj =
-        box (ContentElementProp.IsStylusCaptured v)
-
-    let isStylusCaptureWithin v : obj =
-        box (ContentElementProp.IsStylusCaptureWithin v)
-
-    let isKeyboardFocused v : obj =
-        box (ContentElementProp.IsKeyboardFocused v)
-
-    let areAnyTouchesDirectlyOver v : obj =
-        box (ContentElementProp.AreAnyTouchesDirectlyOver v)
-
-    let areAnyTouchesOver v : obj =
-        box (ContentElementProp.AreAnyTouchesOver v)
-
-    let areAnyTouchesCaptured v : obj =
-        box (ContentElementProp.AreAnyTouchesCaptured v)
-
-    let areAnyTouchesCapturedWithin v : obj =
-        box (ContentElementProp.AreAnyTouchesCapturedWithin v)
-
-    let isFocused v : obj = box (ContentElementProp.IsFocused v)
     let isEnabled v : obj = box (ContentElementProp.IsEnabled v)
     let focusable v : obj = box (ContentElementProp.Focusable v)
     let allowDrop v : obj = box (ContentElementProp.AllowDrop v)
@@ -345,33 +290,6 @@ module ContentElement =
 
     let apply (el: System.Windows.ContentElement) (prop: ContentElementProp) =
         match prop with
-        | ContentElementProp.IsMouseDirectlyOver v ->
-            el.SetValue(System.Windows.ContentElement.IsMouseDirectlyOverProperty, box v)
-        | ContentElementProp.IsMouseOver v -> el.SetValue(System.Windows.ContentElement.IsMouseOverProperty, box v)
-        | ContentElementProp.IsStylusOver v -> el.SetValue(System.Windows.ContentElement.IsStylusOverProperty, box v)
-        | ContentElementProp.IsKeyboardFocusWithin v ->
-            el.SetValue(System.Windows.ContentElement.IsKeyboardFocusWithinProperty, box v)
-        | ContentElementProp.IsMouseCaptured v ->
-            el.SetValue(System.Windows.ContentElement.IsMouseCapturedProperty, box v)
-        | ContentElementProp.IsMouseCaptureWithin v ->
-            el.SetValue(System.Windows.ContentElement.IsMouseCaptureWithinProperty, box v)
-        | ContentElementProp.IsStylusDirectlyOver v ->
-            el.SetValue(System.Windows.ContentElement.IsStylusDirectlyOverProperty, box v)
-        | ContentElementProp.IsStylusCaptured v ->
-            el.SetValue(System.Windows.ContentElement.IsStylusCapturedProperty, box v)
-        | ContentElementProp.IsStylusCaptureWithin v ->
-            el.SetValue(System.Windows.ContentElement.IsStylusCaptureWithinProperty, box v)
-        | ContentElementProp.IsKeyboardFocused v ->
-            el.SetValue(System.Windows.ContentElement.IsKeyboardFocusedProperty, box v)
-        | ContentElementProp.AreAnyTouchesDirectlyOver v ->
-            el.SetValue(System.Windows.ContentElement.AreAnyTouchesDirectlyOverProperty, box v)
-        | ContentElementProp.AreAnyTouchesOver v ->
-            el.SetValue(System.Windows.ContentElement.AreAnyTouchesOverProperty, box v)
-        | ContentElementProp.AreAnyTouchesCaptured v ->
-            el.SetValue(System.Windows.ContentElement.AreAnyTouchesCapturedProperty, box v)
-        | ContentElementProp.AreAnyTouchesCapturedWithin v ->
-            el.SetValue(System.Windows.ContentElement.AreAnyTouchesCapturedWithinProperty, box v)
-        | ContentElementProp.IsFocused v -> el.SetValue(System.Windows.ContentElement.IsFocusedProperty, box v)
         | ContentElementProp.IsEnabled v -> el.SetValue(System.Windows.ContentElement.IsEnabledProperty, box v)
         | ContentElementProp.Focusable v -> el.SetValue(System.Windows.ContentElement.FocusableProperty, box v)
         | ContentElementProp.AllowDrop v -> el.SetValue(System.Windows.ContentElement.AllowDropProperty, box v)
@@ -445,31 +363,6 @@ module ContentElement =
 
     let clear (el: System.Windows.ContentElement) (prop: ContentElementProp) =
         match prop with
-        | ContentElementProp.IsMouseDirectlyOver _ ->
-            el.ClearValue(System.Windows.ContentElement.IsMouseDirectlyOverProperty)
-        | ContentElementProp.IsMouseOver _ -> el.ClearValue(System.Windows.ContentElement.IsMouseOverProperty)
-        | ContentElementProp.IsStylusOver _ -> el.ClearValue(System.Windows.ContentElement.IsStylusOverProperty)
-        | ContentElementProp.IsKeyboardFocusWithin _ ->
-            el.ClearValue(System.Windows.ContentElement.IsKeyboardFocusWithinProperty)
-        | ContentElementProp.IsMouseCaptured _ -> el.ClearValue(System.Windows.ContentElement.IsMouseCapturedProperty)
-        | ContentElementProp.IsMouseCaptureWithin _ ->
-            el.ClearValue(System.Windows.ContentElement.IsMouseCaptureWithinProperty)
-        | ContentElementProp.IsStylusDirectlyOver _ ->
-            el.ClearValue(System.Windows.ContentElement.IsStylusDirectlyOverProperty)
-        | ContentElementProp.IsStylusCaptured _ -> el.ClearValue(System.Windows.ContentElement.IsStylusCapturedProperty)
-        | ContentElementProp.IsStylusCaptureWithin _ ->
-            el.ClearValue(System.Windows.ContentElement.IsStylusCaptureWithinProperty)
-        | ContentElementProp.IsKeyboardFocused _ ->
-            el.ClearValue(System.Windows.ContentElement.IsKeyboardFocusedProperty)
-        | ContentElementProp.AreAnyTouchesDirectlyOver _ ->
-            el.ClearValue(System.Windows.ContentElement.AreAnyTouchesDirectlyOverProperty)
-        | ContentElementProp.AreAnyTouchesOver _ ->
-            el.ClearValue(System.Windows.ContentElement.AreAnyTouchesOverProperty)
-        | ContentElementProp.AreAnyTouchesCaptured _ ->
-            el.ClearValue(System.Windows.ContentElement.AreAnyTouchesCapturedProperty)
-        | ContentElementProp.AreAnyTouchesCapturedWithin _ ->
-            el.ClearValue(System.Windows.ContentElement.AreAnyTouchesCapturedWithinProperty)
-        | ContentElementProp.IsFocused _ -> el.ClearValue(System.Windows.ContentElement.IsFocusedProperty)
         | ContentElementProp.IsEnabled _ -> el.ClearValue(System.Windows.ContentElement.IsEnabledProperty)
         | ContentElementProp.Focusable _ -> el.ClearValue(System.Windows.ContentElement.FocusableProperty)
         | ContentElementProp.AllowDrop _ -> el.ClearValue(System.Windows.ContentElement.AllowDropProperty)

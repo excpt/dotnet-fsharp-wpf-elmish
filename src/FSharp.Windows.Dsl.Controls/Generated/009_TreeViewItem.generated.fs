@@ -14,7 +14,6 @@ type TreeViewItemProp =
     | Base of HeaderedItemsControlProp
     | IsExpanded of bool
     | IsSelected of bool
-    | IsSelectionActive of bool
     | OnExpanded of System.Windows.RoutedEventHandler
     | OnCollapsed of System.Windows.RoutedEventHandler
     | OnSelected of System.Windows.RoutedEventHandler
@@ -23,9 +22,6 @@ type TreeViewItemProp =
 module TreeViewItem =
     let isExpanded v : obj = box (TreeViewItemProp.IsExpanded v)
     let isSelected v : obj = box (TreeViewItemProp.IsSelected v)
-
-    let isSelectionActive v : obj =
-        box (TreeViewItemProp.IsSelectionActive v)
 
     let onExpanded v : obj =
         box (EventProp(box (TreeViewItemProp.OnExpanded v)))
@@ -44,8 +40,6 @@ module TreeViewItem =
         | TreeViewItemProp.Base p -> HeaderedItemsControl.apply el p
         | TreeViewItemProp.IsExpanded v -> el.SetValue(System.Windows.Controls.TreeViewItem.IsExpandedProperty, box v)
         | TreeViewItemProp.IsSelected v -> el.SetValue(System.Windows.Controls.TreeViewItem.IsSelectedProperty, box v)
-        | TreeViewItemProp.IsSelectionActive v ->
-            el.SetValue(System.Windows.Controls.TreeViewItem.IsSelectionActiveProperty, box v)
         | TreeViewItemProp.OnExpanded h -> el.Expanded.AddHandler(h)
         | TreeViewItemProp.OnCollapsed h -> el.Collapsed.AddHandler(h)
         | TreeViewItemProp.OnSelected h -> el.Selected.AddHandler(h)
@@ -56,8 +50,6 @@ module TreeViewItem =
         | TreeViewItemProp.Base p -> HeaderedItemsControl.clear el p
         | TreeViewItemProp.IsExpanded _ -> el.ClearValue(System.Windows.Controls.TreeViewItem.IsExpandedProperty)
         | TreeViewItemProp.IsSelected _ -> el.ClearValue(System.Windows.Controls.TreeViewItem.IsSelectedProperty)
-        | TreeViewItemProp.IsSelectionActive _ ->
-            el.ClearValue(System.Windows.Controls.TreeViewItem.IsSelectionActiveProperty)
         | TreeViewItemProp.OnExpanded h -> el.Expanded.RemoveHandler(h)
         | TreeViewItemProp.OnCollapsed h -> el.Collapsed.RemoveHandler(h)
         | TreeViewItemProp.OnSelected h -> el.Selected.RemoveHandler(h)

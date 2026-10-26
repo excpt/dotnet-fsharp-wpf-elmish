@@ -17,7 +17,6 @@ type PasswordBoxProp =
     | SelectionBrush of System.Windows.Media.Brush
     | SelectionOpacity of float
     | CaretBrush of System.Windows.Media.Brush
-    | IsSelectionActive of bool
     | IsInactiveSelectionHighlightEnabled of bool
     | OnPasswordChanged of System.Windows.RoutedEventHandler
 #if NET8_0_OR_GREATER
@@ -33,9 +32,6 @@ module PasswordBox =
         box (PasswordBoxProp.SelectionOpacity v)
 
     let caretBrush v : obj = box (PasswordBoxProp.CaretBrush v)
-
-    let isSelectionActive v : obj =
-        box (PasswordBoxProp.IsSelectionActive v)
 
     let isInactiveSelectionHighlightEnabled v : obj =
         box (PasswordBoxProp.IsInactiveSelectionHighlightEnabled v)
@@ -57,8 +53,6 @@ module PasswordBox =
         | PasswordBoxProp.SelectionOpacity v ->
             el.SetValue(System.Windows.Controls.PasswordBox.SelectionOpacityProperty, box v)
         | PasswordBoxProp.CaretBrush v -> el.SetValue(System.Windows.Controls.PasswordBox.CaretBrushProperty, box v)
-        | PasswordBoxProp.IsSelectionActive v ->
-            el.SetValue(System.Windows.Controls.PasswordBox.IsSelectionActiveProperty, box v)
         | PasswordBoxProp.IsInactiveSelectionHighlightEnabled v ->
             el.SetValue(System.Windows.Controls.PasswordBox.IsInactiveSelectionHighlightEnabledProperty, box v)
         | PasswordBoxProp.OnPasswordChanged h -> el.PasswordChanged.AddHandler(h)
@@ -76,8 +70,6 @@ module PasswordBox =
         | PasswordBoxProp.SelectionOpacity _ ->
             el.ClearValue(System.Windows.Controls.PasswordBox.SelectionOpacityProperty)
         | PasswordBoxProp.CaretBrush _ -> el.ClearValue(System.Windows.Controls.PasswordBox.CaretBrushProperty)
-        | PasswordBoxProp.IsSelectionActive _ ->
-            el.ClearValue(System.Windows.Controls.PasswordBox.IsSelectionActiveProperty)
         | PasswordBoxProp.IsInactiveSelectionHighlightEnabled _ ->
             el.ClearValue(System.Windows.Controls.PasswordBox.IsInactiveSelectionHighlightEnabledProperty)
         | PasswordBoxProp.OnPasswordChanged h -> el.PasswordChanged.RemoveHandler(h)

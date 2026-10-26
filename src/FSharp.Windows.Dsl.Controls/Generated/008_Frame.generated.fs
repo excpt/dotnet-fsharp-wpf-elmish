@@ -13,10 +13,6 @@ open FSharp.Windows.Dsl
 type FrameProp =
     | Base of ContentControlProp
     | Source of System.Uri
-    | CanGoBack of bool
-    | CanGoForward of bool
-    | BackStack of System.Collections.IEnumerable
-    | ForwardStack of System.Collections.IEnumerable
     | NavigationUIVisibility of System.Windows.Navigation.NavigationUIVisibility
     | SandboxExternalContent of bool
     | JournalOwnership of System.Windows.Navigation.JournalOwnership
@@ -31,10 +27,6 @@ type FrameProp =
 
 module Frame =
     let source v : obj = box (FrameProp.Source v)
-    let canGoBack v : obj = box (FrameProp.CanGoBack v)
-    let canGoForward v : obj = box (FrameProp.CanGoForward v)
-    let backStack v : obj = box (FrameProp.BackStack v)
-    let forwardStack v : obj = box (FrameProp.ForwardStack v)
 
     let navigationUIVisibility v : obj =
         box (FrameProp.NavigationUIVisibility v)
@@ -72,10 +64,6 @@ module Frame =
         match prop with
         | FrameProp.Base p -> ContentControl.apply el p
         | FrameProp.Source v -> el.SetValue(System.Windows.Controls.Frame.SourceProperty, box v)
-        | FrameProp.CanGoBack v -> el.SetValue(System.Windows.Controls.Frame.CanGoBackProperty, box v)
-        | FrameProp.CanGoForward v -> el.SetValue(System.Windows.Controls.Frame.CanGoForwardProperty, box v)
-        | FrameProp.BackStack v -> el.SetValue(System.Windows.Controls.Frame.BackStackProperty, box v)
-        | FrameProp.ForwardStack v -> el.SetValue(System.Windows.Controls.Frame.ForwardStackProperty, box v)
         | FrameProp.NavigationUIVisibility v ->
             el.SetValue(System.Windows.Controls.Frame.NavigationUIVisibilityProperty, box v)
         | FrameProp.SandboxExternalContent v ->
@@ -94,10 +82,6 @@ module Frame =
         match prop with
         | FrameProp.Base p -> ContentControl.clear el p
         | FrameProp.Source _ -> el.ClearValue(System.Windows.Controls.Frame.SourceProperty)
-        | FrameProp.CanGoBack _ -> el.ClearValue(System.Windows.Controls.Frame.CanGoBackProperty)
-        | FrameProp.CanGoForward _ -> el.ClearValue(System.Windows.Controls.Frame.CanGoForwardProperty)
-        | FrameProp.BackStack _ -> el.ClearValue(System.Windows.Controls.Frame.BackStackProperty)
-        | FrameProp.ForwardStack _ -> el.ClearValue(System.Windows.Controls.Frame.ForwardStackProperty)
         | FrameProp.NavigationUIVisibility _ ->
             el.ClearValue(System.Windows.Controls.Frame.NavigationUIVisibilityProperty)
         | FrameProp.SandboxExternalContent _ ->

@@ -23,7 +23,6 @@ type FlowDocumentScrollViewerProp =
     | VerticalScrollBarVisibility of System.Windows.Controls.ScrollBarVisibility
     | SelectionBrush of System.Windows.Media.Brush
     | SelectionOpacity of float
-    | IsSelectionActive of bool
     | IsInactiveSelectionHighlightEnabled of bool
 
 module FlowDocumentScrollViewer =
@@ -60,9 +59,6 @@ module FlowDocumentScrollViewer =
     let selectionOpacity v : obj =
         box (FlowDocumentScrollViewerProp.SelectionOpacity v)
 
-    let isSelectionActive v : obj =
-        box (FlowDocumentScrollViewerProp.IsSelectionActive v)
-
     let isInactiveSelectionHighlightEnabled v : obj =
         box (FlowDocumentScrollViewerProp.IsInactiveSelectionHighlightEnabled v)
 
@@ -91,8 +87,6 @@ module FlowDocumentScrollViewer =
             el.SetValue(System.Windows.Controls.FlowDocumentScrollViewer.SelectionBrushProperty, box v)
         | FlowDocumentScrollViewerProp.SelectionOpacity v ->
             el.SetValue(System.Windows.Controls.FlowDocumentScrollViewer.SelectionOpacityProperty, box v)
-        | FlowDocumentScrollViewerProp.IsSelectionActive v ->
-            el.SetValue(System.Windows.Controls.FlowDocumentScrollViewer.IsSelectionActiveProperty, box v)
         | FlowDocumentScrollViewerProp.IsInactiveSelectionHighlightEnabled v ->
             el.SetValue(
                 System.Windows.Controls.FlowDocumentScrollViewer.IsInactiveSelectionHighlightEnabledProperty,
@@ -124,8 +118,6 @@ module FlowDocumentScrollViewer =
             el.ClearValue(System.Windows.Controls.FlowDocumentScrollViewer.SelectionBrushProperty)
         | FlowDocumentScrollViewerProp.SelectionOpacity _ ->
             el.ClearValue(System.Windows.Controls.FlowDocumentScrollViewer.SelectionOpacityProperty)
-        | FlowDocumentScrollViewerProp.IsSelectionActive _ ->
-            el.ClearValue(System.Windows.Controls.FlowDocumentScrollViewer.IsSelectionActiveProperty)
         | FlowDocumentScrollViewerProp.IsInactiveSelectionHighlightEnabled _ ->
             el.ClearValue(System.Windows.Controls.FlowDocumentScrollViewer.IsInactiveSelectionHighlightEnabledProperty)
 

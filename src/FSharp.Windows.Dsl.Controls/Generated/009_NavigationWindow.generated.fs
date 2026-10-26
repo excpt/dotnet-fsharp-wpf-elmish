@@ -14,10 +14,6 @@ type NavigationWindowProp =
     | Base of WindowProp
     | SandboxExternalContent of bool
     | ShowsNavigationUI of bool
-    | BackStack of System.Collections.IEnumerable
-    | ForwardStack of System.Collections.IEnumerable
-    | CanGoBack of bool
-    | CanGoForward of bool
     | Source of System.Uri
     | OnNavigating of System.Windows.Navigation.NavigatingCancelEventHandler
     | OnNavigationProgress of System.Windows.Navigation.NavigationProgressEventHandler
@@ -33,16 +29,6 @@ module NavigationWindow =
 
     let showsNavigationUI v : obj =
         box (NavigationWindowProp.ShowsNavigationUI v)
-
-    let backStack v : obj = box (NavigationWindowProp.BackStack v)
-
-    let forwardStack v : obj =
-        box (NavigationWindowProp.ForwardStack v)
-
-    let canGoBack v : obj = box (NavigationWindowProp.CanGoBack v)
-
-    let canGoForward v : obj =
-        box (NavigationWindowProp.CanGoForward v)
 
     let source v : obj = box (NavigationWindowProp.Source v)
 
@@ -74,14 +60,6 @@ module NavigationWindow =
             el.SetValue(System.Windows.Navigation.NavigationWindow.SandboxExternalContentProperty, box v)
         | NavigationWindowProp.ShowsNavigationUI v ->
             el.SetValue(System.Windows.Navigation.NavigationWindow.ShowsNavigationUIProperty, box v)
-        | NavigationWindowProp.BackStack v ->
-            el.SetValue(System.Windows.Navigation.NavigationWindow.BackStackProperty, box v)
-        | NavigationWindowProp.ForwardStack v ->
-            el.SetValue(System.Windows.Navigation.NavigationWindow.ForwardStackProperty, box v)
-        | NavigationWindowProp.CanGoBack v ->
-            el.SetValue(System.Windows.Navigation.NavigationWindow.CanGoBackProperty, box v)
-        | NavigationWindowProp.CanGoForward v ->
-            el.SetValue(System.Windows.Navigation.NavigationWindow.CanGoForwardProperty, box v)
         | NavigationWindowProp.Source v -> el.SetValue(System.Windows.Navigation.NavigationWindow.SourceProperty, box v)
         | NavigationWindowProp.OnNavigating h -> el.Navigating.AddHandler(h)
         | NavigationWindowProp.OnNavigationProgress h -> el.NavigationProgress.AddHandler(h)
@@ -98,14 +76,6 @@ module NavigationWindow =
             el.ClearValue(System.Windows.Navigation.NavigationWindow.SandboxExternalContentProperty)
         | NavigationWindowProp.ShowsNavigationUI _ ->
             el.ClearValue(System.Windows.Navigation.NavigationWindow.ShowsNavigationUIProperty)
-        | NavigationWindowProp.BackStack _ ->
-            el.ClearValue(System.Windows.Navigation.NavigationWindow.BackStackProperty)
-        | NavigationWindowProp.ForwardStack _ ->
-            el.ClearValue(System.Windows.Navigation.NavigationWindow.ForwardStackProperty)
-        | NavigationWindowProp.CanGoBack _ ->
-            el.ClearValue(System.Windows.Navigation.NavigationWindow.CanGoBackProperty)
-        | NavigationWindowProp.CanGoForward _ ->
-            el.ClearValue(System.Windows.Navigation.NavigationWindow.CanGoForwardProperty)
         | NavigationWindowProp.Source _ -> el.ClearValue(System.Windows.Navigation.NavigationWindow.SourceProperty)
         | NavigationWindowProp.OnNavigating h -> el.Navigating.RemoveHandler(h)
         | NavigationWindowProp.OnNavigationProgress h -> el.NavigationProgress.RemoveHandler(h)
