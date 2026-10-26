@@ -184,3 +184,32 @@ let ``memoView misses for a value-type slice`` () =
     view 1 |> ignore
     view 1 |> ignore
     calls.Value |> should equal 2
+
+// --- Auto-save for restart-based hot reload (DebugState) ---
+
+// runChildWindow installs its own setState; a trace the app adds must survive it,
+// because that is where DebugState.save hooks in.
+[<Fact>]
+let ``withTrace auto-save keeps the latest model across the run functions`` () =
+    withOwner (fun owner ->
+        let path =
+            System.IO.Path.Combine(System.IO.Path.GetTempPath(), $"elmish-autosave-{Guid.NewGuid()}.json")
+
+        let renders = ref 0
+        let viewThread = ref 0
+        let dispatch = ref ignore
+
+        try
+            Program.mkSimple
+                (fun () -> 0)
+                (fun () count -> count + 1)
+                (counterView renders viewThread dispatch "Saved")
+            |> Program.withTrace (fun _ model _ -> DebugState.saveTo path model)
+            |> Program.runChildWindow owner
+
+            dispatch.Value()
+            dispatch.Value()
+
+            DebugState.restoreFrom<int> path |> should equal (Some 2)
+        finally
+            System.IO.File.Delete path)
