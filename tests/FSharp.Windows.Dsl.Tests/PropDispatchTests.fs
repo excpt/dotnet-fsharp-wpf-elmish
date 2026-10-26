@@ -276,3 +276,33 @@ let ``Validate skips a null prop, as the materializer does`` () =
           UserKey = None }
 
     Validate.tree node |> should be Empty
+
+[<Fact>]
+let ``strict mode does not re-raise a child the previous tree could not hold`` () =
+    runSta (fun () ->
+        let leaf t =
+            { Type = t
+              Props = []
+              Children = []
+              UserKey = None }
+
+        let panel children =
+            { Type = typeof<System.Windows.Controls.StackPanel>
+              Props = []
+              Children = children
+              UserKey = None }
+
+        // Built leniently with a Run a StackPanel cannot hold...
+        let live =
+            Dsl.createLive (panel [ leaf typeof<System.Windows.Documents.Run>; leaf typeof<BaseElement> ])
+
+        Materializer.strictProps <- true
+
+        // ...then fixed: the corrected tree must not fail for the old one's child
+        try
+            Dsl.update live (panel [ leaf typeof<BaseElement> ])
+        finally
+            Materializer.strictProps <- false
+
+        (live.Root :?> System.Windows.Controls.StackPanel).Children.Count
+        |> should equal 1)

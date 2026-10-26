@@ -240,14 +240,17 @@ let private isWpfType (t: Type) =
 /// Skips candidates with the same short name as `t` to prevent self-referencing
 /// Base cases when two types share a short name (e.g., VisualElements.ControlBoxButton
 /// vs Docking.ControlBoxButton).
-/// DPs that point at another live element (Popup.PlacementTarget, Label.Target).
-/// A view has no reference to an element it declares, and materializing a node
-/// for them would build a new orphan element, so they are not emitted.
-let private referenceDPs = set [ "PlacementTarget"; "Target" ]
+/// A UIElement-typed DP that points at another live element (Popup.PlacementTarget,
+/// Label.Target). A view has no reference to an element it declares, and
+/// materializing a node for it would build a new orphan element, so it is not
+/// emitted. Same-named DPs of other types (BitmapCacheBrush.Target: Visual) stay.
+let private isElementReference (dp: DPInfo) =
+    (dp.Name = "PlacementTarget" || dp.Name = "Target")
+    && dp.PropertyTypeFullName = "System.Windows.UIElement"
 
 /// A DP is emittable when it isn't attached, read-only, or an element reference.
 let isEmittableDP (dp: DPInfo) =
-    not dp.IsAttached && not dp.IsReadOnly && not (referenceDPs.Contains dp.Name)
+    not dp.IsAttached && not dp.IsReadOnly && not (isElementReference dp)
 
 /// Why an event cannot be emitted, or None when it can. The handler must be a delegate F#
 /// `.AddHandler` accepts (IsStandardDelegate, captured at discovery), not obsolete (FS0101
@@ -467,7 +470,12 @@ let buildEmitInput
                 ))
             |> Array.choose (fun p ->
                 match propertyElementType p with
-                | Some elem when AssemblyInspector.isSubclassOfByName "System.Windows.DependencyObject" elem ->
+                | Some elem when
+                    (try
+                        AssemblyInspector.isSubclassOfByName "System.Windows.DependencyObject" elem
+                     with _ ->
+                         false)
+                    ->
                     Some
                         { FnName = toSafeCamelCase p.Name
                           PropertyName = p.Name }

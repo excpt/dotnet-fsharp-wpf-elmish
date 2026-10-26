@@ -11,10 +11,13 @@ open FSharp.Windows.Dsl
 [<RequireQualifiedAccess>]
 type BitmapCacheBrushProp =
     | Base of BrushProp
+    | Target of System.Windows.Media.Visual
     | BitmapCache of System.Windows.Media.BitmapCache
     | AutoLayoutContent of bool
 
 module BitmapCacheBrush =
+    let target v : obj = box (BitmapCacheBrushProp.Target v)
+
     let bitmapCache v : obj =
         box (BitmapCacheBrushProp.BitmapCache v)
 
@@ -24,6 +27,7 @@ module BitmapCacheBrush =
     let apply (el: System.Windows.Media.BitmapCacheBrush) (prop: BitmapCacheBrushProp) =
         match prop with
         | BitmapCacheBrushProp.Base p -> Brush.apply el p
+        | BitmapCacheBrushProp.Target v -> el.SetValue(System.Windows.Media.BitmapCacheBrush.TargetProperty, box v)
         | BitmapCacheBrushProp.BitmapCache v ->
             el.SetValue(System.Windows.Media.BitmapCacheBrush.BitmapCacheProperty, box v)
         | BitmapCacheBrushProp.AutoLayoutContent v ->
@@ -32,6 +36,7 @@ module BitmapCacheBrush =
     let clear (el: System.Windows.Media.BitmapCacheBrush) (prop: BitmapCacheBrushProp) =
         match prop with
         | BitmapCacheBrushProp.Base p -> Brush.clear el p
+        | BitmapCacheBrushProp.Target _ -> el.ClearValue(System.Windows.Media.BitmapCacheBrush.TargetProperty)
         | BitmapCacheBrushProp.BitmapCache _ -> el.ClearValue(System.Windows.Media.BitmapCacheBrush.BitmapCacheProperty)
         | BitmapCacheBrushProp.AutoLayoutContent _ ->
             el.ClearValue(System.Windows.Media.BitmapCacheBrush.AutoLayoutContentProperty)

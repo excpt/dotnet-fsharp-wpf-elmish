@@ -4,8 +4,8 @@ open System.Windows.Controls
 open FSharp.Windows.Dsl
 
 /// Build helpers that materialize VirtualNodes into concrete WPF objects, for
-/// code that needs a live instance (an obj-typed ToolTip, imperative WPF code).
-/// Node-typed props such as Button.contextMenu take the VirtualNode directly.
+/// imperative WPF code that needs a live instance. DSL props take the VirtualNode
+/// directly: Button.contextMenu, and obj-typed ones such as toolTip and content.
 [<RequireQualifiedAccess>]
 module Build =
 

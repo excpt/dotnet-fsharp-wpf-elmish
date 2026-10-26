@@ -190,3 +190,11 @@ let ``an untyped style cannot be registered as implicit`` () =
 
         (fun () -> Style.applyImplicit (ResourceDictionary()) untyped)
         |> should throw typeof<System.ArgumentException>)
+
+[<Fact>]
+let ``Style.ofNode rejects a node given to an obj-typed prop`` () =
+    runSta (fun () ->
+        register ()
+
+        (fun () -> Style.ofNode (button [ Button.content (textBlock []) ]) |> ignore)
+        |> should throw typeof<System.ArgumentException>)

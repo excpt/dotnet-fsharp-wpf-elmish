@@ -3,6 +3,7 @@ namespace FSharp.Windows.Dsl.Controls
 open System
 open System.Collections.Generic
 open System.Windows
+open Microsoft.FSharp.Reflection
 open FSharp.Windows.Dsl
 
 /// Helpers for creating WPF styles in F# without XAML.
@@ -41,6 +42,15 @@ module Style =
                 | :? ResourcesProp
                 | :? ResourceRefProp -> invalidArg (nameof node) "a style cannot carry resource props"
                 | :? AttachedProp as (AttachedProp(dp, value)) -> probe.SetValue(dp, value)
+                // A node anywhere in a typed prop (Button.content (textBlock ...))
+                // would become one live element shared by every styled element.
+                | p when
+                    FSharpType.IsUnion(p.GetType(), true)
+                    && FSharpValue.GetUnionFields(p, p.GetType(), true)
+                       |> snd
+                       |> Array.exists (fun f -> f :? VirtualNode)
+                    ->
+                    invalidArg (nameof node) "a style cannot carry element values"
                 | p -> Materializer.tryApplyProp probe node.Type p
 
             let style = Style(node.Type)

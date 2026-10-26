@@ -424,8 +424,8 @@ already handles them. So are read-only views (`ReadOnlyCollection<T>`, such as
 `DocumentViewer.PageViews`), which cannot be cleared, and `Sibling*` collections
 (`Inline.SiblingInlines`), which are the parent's list rather than the element's.
 
-DPs that point at another live element (`Popup.PlacementTarget`, `Label.Target`)
-are not emitted: a view cannot refer to an element it declares, and materializing a
+`UIElement`-typed DPs that point at another live element (`Popup.PlacementTarget`,
+`Label.Target`) are not emitted: a view cannot refer to an element it declares, and materializing a
 node for them would build a new orphan element.
 
 Headers carry no date, so a regeneration that changes nothing leaves no diff.

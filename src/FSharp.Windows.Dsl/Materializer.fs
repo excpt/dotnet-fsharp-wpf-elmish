@@ -257,15 +257,18 @@ module Materializer =
         else
             []
 
-    /// The children a parent can hold, the rest reported. Materialize and
-    /// reconcile both go through this, so they agree on the list and its indices.
-    let attachable (parentType: Type) (children: VirtualNode list) =
+    /// The children a parent can hold. Materialize and reconcile both go through
+    /// this, so they agree on the list and its indices.
+    let holdable (parentType: Type) (children: VirtualNode list) =
         match unattachable parentType children with
         | [] -> children
-        | problems ->
-            problems |> List.iter report
+        | _ -> children |> List.filter (fun c -> typeof<UIElement>.IsAssignableFrom c.Type)
 
-            children |> List.filter (fun c -> typeof<UIElement>.IsAssignableFrom c.Type)
+    /// holdable, with the children left out reported. Only for a tree being
+    /// applied: the previous tree's problems were reported when it was new.
+    let attachable (parentType: Type) (children: VirtualNode list) =
+        unattachable parentType children |> List.iter report
+        holdable parentType children
 
     /// Attach materialized children to a parent element based on its type.
     let rec private attachChildren (parent: DependencyObject) (children: VirtualNode list) =
