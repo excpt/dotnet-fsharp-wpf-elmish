@@ -325,3 +325,11 @@ let ``a generic handler type is rendered as F# source and is emittable`` () =
         |> should equal (Some "System.EventHandler<System.Windows.Controls.DataGridBeginningEditEventArgs>")
 
         Program.isEmittableEvent ev |> should be True)
+
+[<Fact>]
+let ``isInstantiable requires a concrete type with a public parameterless constructor`` () =
+    AssemblyInspector.isInstantiable typeof<System.Text.StringBuilder>
+    |> should be True
+    // concrete but only parameterised constructors (like WriteableBitmap, AdornerLayer)
+    AssemblyInspector.isInstantiable typeof<System.Uri> |> should be False
+    AssemblyInspector.isInstantiable typeof<System.IO.Stream> |> should be False

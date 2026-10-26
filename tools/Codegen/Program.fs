@@ -610,7 +610,7 @@ let buildEmitInput
       InheritedHelpers = inherited @ inheritedEventHelpers
       AttachedDPs = attachedDPs
       CollectionProps = collectionProps
-      IsAbstract = t.IsAbstract
+      IsAbstract = not (AssemblyInspector.isInstantiable t)
       AssemblyInfo = assemblyInfo
       GeneratedDate = DateTime.Now.ToString("yyyy-MM-dd") }
 
@@ -976,7 +976,7 @@ let main argv =
                 let moduleName = t.Name
                 allControlsForReg.Add((t.FullName, propTypeName, moduleName))
 
-                if not t.IsAbstract then
+                if AssemblyInspector.isInstantiable t then
                     concreteControls.Add((t.Name, moduleName))
 
         // Generate Elements.fs (shorthand constructors)
