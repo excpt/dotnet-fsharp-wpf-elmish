@@ -169,7 +169,7 @@ ListBox.create [
 TreeView.create [
     TreeView.itemsSource model.Nodes
     TreeView.selectedItem model.Selected
-    TreeView.onSelectedItemChanged (TreeNodeSelected >> dispatch)
+    TreeView.onSelectedItemChanged (RoutedPropertyChangedEventHandler(fun _ e -> dispatch (TreeNodeSelected e.NewValue)))
 ]
 ```
 
