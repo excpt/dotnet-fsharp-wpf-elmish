@@ -41,4 +41,4 @@ jobs:
       # success while running nothing at all until the global.json runner switch,
       # and a floor makes that failure loud instead of green.
       - name: Test
-        run: dotnet test --solution FSharp.Windows.Dsl.slnx --no-build --minimum-expected-tests 313
+        run: dotnet test --solution FSharp.Windows.Dsl.slnx --no-build --minimum-expected-tests 316
