@@ -22,38 +22,45 @@ module Style =
 
         let probe = Activator.CreateInstance(node.Type) :?> DependencyObject
 
-        // Locals set by the constructor are the type's own doing, not the
-        // caller's props — snapshot them so only the props become setters.
-        let baseline = Dictionary<DependencyProperty, obj>()
-        let mutable before = probe.GetLocalValueEnumerator()
+        // A Window registers itself with Application.Windows from its constructor;
+        // an unclosed probe would keep the app from shutting down on last close.
+        try
+            // Locals set by the constructor are the type's own doing, not the
+            // caller's props — snapshot them so only the props become setters.
+            let baseline = Dictionary<DependencyProperty, obj>()
+            let mutable before = probe.GetLocalValueEnumerator()
 
-        while before.MoveNext() do
-            baseline.[before.Current.Property] <- before.Current.Value
+            while before.MoveNext() do
+                baseline.[before.Current.Property] <- before.Current.Value
 
-        for prop in node.Props do
-            match prop with
-            | :? EventProp -> invalidArg (nameof node) "a style cannot carry event handlers"
-            | :? CollectionProp -> invalidArg (nameof node) "a style cannot carry collection props"
-            | :? ResourcesProp
-            | :? ResourceRefProp -> invalidArg (nameof node) "a style cannot carry resource props"
-            | :? AttachedProp as (AttachedProp(dp, value)) -> probe.SetValue(dp, value)
-            | p -> Materializer.tryApplyProp probe node.Type p
+            for prop in node.Props do
+                match prop with
+                | :? EventProp -> invalidArg (nameof node) "a style cannot carry event handlers"
+                | :? CollectionProp -> invalidArg (nameof node) "a style cannot carry collection props"
+                | :? ResourcesProp
+                | :? ResourceRefProp -> invalidArg (nameof node) "a style cannot carry resource props"
+                | :? AttachedProp as (AttachedProp(dp, value)) -> probe.SetValue(dp, value)
+                | p -> Materializer.tryApplyProp probe node.Type p
 
-        let style = Style(node.Type)
-        let mutable written = probe.GetLocalValueEnumerator()
+            let style = Style(node.Type)
+            let mutable written = probe.GetLocalValueEnumerator()
 
-        while written.MoveNext() do
-            let entry = written.Current
+            while written.MoveNext() do
+                let entry = written.Current
 
-            let fromCtor =
-                match baseline.TryGetValue entry.Property with
-                | true, v -> Object.Equals(v, entry.Value)
-                | _ -> false
+                let fromCtor =
+                    match baseline.TryGetValue entry.Property with
+                    | true, v -> Object.Equals(v, entry.Value)
+                    | _ -> false
 
-            if not entry.Property.ReadOnly && not fromCtor then
-                style.Setters.Add(Setter(entry.Property, entry.Value))
+                if not entry.Property.ReadOnly && not fromCtor then
+                    style.Setters.Add(Setter(entry.Property, entry.Value))
 
-        style
+            style
+        finally
+            match probe with
+            | :? Window as w -> w.Close()
+            | _ -> ()
 
     /// Create a Style from a list of (DependencyProperty, value) setters.
     let create (setters: (DependencyProperty * obj) list) =
