@@ -24,10 +24,15 @@ type PropDiagnostic =
     /// callback, a read-only DP, a wrong value type). The rest of the render
     /// went ahead without it.
     | ApplyFailed of elementType: Type * propType: Type * message: string
+    /// More children than the element can hold: a ContentControl or Decorator holds
+    /// one, a non-container none. The children past that are not attached.
+    | ChildrenNotHeld of elementType: Type * held: int * given: int
 
     override this.ToString() =
         match this with
         | ApplyFailed(el, prop, message) -> $"applying {prop.Name} to {el.Name} failed: {message}"
+        | ChildrenNotHeld(el, held, given) ->
+            $"{el.Name} holds {held} child(ren), got {given}; the rest are not attached"
         | UnappliedProp(el, prop) ->
             $"nothing applies {prop.Name} to {el.Name} — not a prop, or its package is not registered"
         | PropNotForElement(el, prop, owner) -> $"{prop.Name} belongs to {owner.Name}, not to {el.Name}"
@@ -81,6 +86,29 @@ module Materializer =
             pending.Value <- None
             Runtime.ExceptionServices.ExceptionDispatchInfo.Capture(e).Throw()
         | None -> ()
+
+    /// How many children an element of this type holds: a Panel or ItemsControl any
+    /// number, a ContentControl or Decorator one, anything else none.
+    let childCapacity (elType: Type) =
+        if
+            typeof<Panel>.IsAssignableFrom elType
+            || typeof<ItemsControl>.IsAssignableFrom elType
+        then
+            Int32.MaxValue
+        elif
+            typeof<ContentControl>.IsAssignableFrom elType
+            || typeof<Decorator>.IsAssignableFrom elType
+        then
+            1
+        else
+            0
+
+    /// Report children past what the element holds; they are not attached.
+    let internal checkChildCount (elType: Type) (given: int) =
+        let held = childCapacity elType
+
+        if given > held then
+            report (ChildrenNotHeld(elType, held, given))
 
     /// Run one prop's application. A WPF exception is recorded as ApplyFailed
     /// instead of propagating, so one rejected value cannot abort a walk that
@@ -210,6 +238,8 @@ module Materializer =
         if children.IsEmpty then
             ()
         else
+            checkChildCount (parent.GetType()) children.Length
+
             match parent with
             | :? Panel as p ->
                 for child in children do

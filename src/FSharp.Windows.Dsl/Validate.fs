@@ -75,5 +75,10 @@ module Validate =
                   | Some problem -> problem
                   | None -> ()
 
+          let held = Materializer.childCapacity node.Type
+
+          if node.Children.Length > held then
+              ChildrenNotHeld(node.Type, held, node.Children.Length)
+
           for child in node.Children do
               yield! tree child ]

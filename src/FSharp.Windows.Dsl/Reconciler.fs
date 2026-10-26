@@ -50,8 +50,8 @@ module Reconciler =
     let private removeChild (parent: DependencyObject) (index: int) =
         match parent with
         | :? Panel as p when index < p.Children.Count -> p.Children.RemoveAt(index)
-        | :? ContentControl as cc -> cc.Content <- null
-        | :? Decorator as d -> d.Child <- null
+        | :? ContentControl as cc when index = 0 -> cc.Content <- null
+        | :? Decorator as d when index = 0 -> d.Child <- null
         | :? Controls.ItemsControl as ic when index < ic.Items.Count -> ic.Items.RemoveAt(index)
         | _ -> ()
 
@@ -69,8 +69,8 @@ module Reconciler =
     let private insertChild (parent: DependencyObject) (index: int) (child: DependencyObject) =
         match parent with
         | :? Panel as p -> p.Children.Insert(index, child :?> UIElement)
-        | :? ContentControl as cc -> cc.Content <- child
-        | :? Decorator as d -> d.Child <- child :?> UIElement
+        | :? ContentControl as cc when index = 0 -> cc.Content <- child
+        | :? Decorator as d when index = 0 -> d.Child <- child :?> UIElement
         | :? Controls.ItemsControl as ic -> ic.Items.Insert(index, child)
         | _ -> ()
 
@@ -82,8 +82,8 @@ module Reconciler =
                 p.Children.RemoveAt(index)
 
             p.Children.Insert(index, child :?> UIElement)
-        | :? ContentControl as cc -> cc.Content <- child
-        | :? Decorator as d -> d.Child <- child :?> UIElement
+        | :? ContentControl as cc when index = 0 -> cc.Content <- child
+        | :? Decorator as d when index = 0 -> d.Child <- child :?> UIElement
         | :? Controls.ItemsControl as ic ->
             if index < ic.Items.Count then
                 ic.Items.RemoveAt(index)
@@ -391,6 +391,8 @@ module Reconciler =
         (oldChildren: VirtualNode list)
         (newChildren: VirtualNode list)
         =
+        Materializer.checkChildCount (parent.GetType()) newChildren.Length
+
         if hasKeys oldChildren || hasKeys newChildren then
             reconcileKeyedChildren parent oldChildren newChildren
         else
