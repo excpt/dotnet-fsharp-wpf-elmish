@@ -6,23 +6,23 @@ open FsUnit.Xunit
 open FSharp.Windows.Dsl.Codegen
 
 [<Fact>]
-let ``resolveAssembly finds PresentationFramework for net8.0-windows`` () =
+let ``resolveAssembly finds PresentationFramework for net10.0-windows`` () =
     let path =
-        AssemblyInspector.resolveAssembly "net8.0-windows" "PresentationFramework"
+        AssemblyInspector.resolveAssembly "net10.0-windows" "PresentationFramework"
 
     File.Exists(path) |> should be True
     path |> should endWith "PresentationFramework.dll"
 
 [<Fact>]
-let ``resolveAssembly finds WindowsBase for net8.0-windows`` () =
-    let path = AssemblyInspector.resolveAssembly "net8.0-windows" "WindowsBase"
+let ``resolveAssembly finds WindowsBase for net10.0-windows`` () =
+    let path = AssemblyInspector.resolveAssembly "net10.0-windows" "WindowsBase"
 
     File.Exists(path) |> should be True
 
 [<Fact>]
 let ``createContext loads assembly successfully`` () =
     let pfPath =
-        AssemblyInspector.resolveAssembly "net8.0-windows" "PresentationFramework"
+        AssemblyInspector.resolveAssembly "net10.0-windows" "PresentationFramework"
 
     let runtimeDir = Path.GetDirectoryName(pfPath)
     use ctx = AssemblyInspector.createContext runtimeDir []
@@ -33,7 +33,7 @@ let ``createContext loads assembly successfully`` () =
 [<Fact>]
 let ``discoverDPs finds WidthProperty on FrameworkElement`` () =
     let pfPath =
-        AssemblyInspector.resolveAssembly "net8.0-windows" "PresentationFramework"
+        AssemblyInspector.resolveAssembly "net10.0-windows" "PresentationFramework"
 
     let runtimeDir = Path.GetDirectoryName(pfPath)
     use ctx = AssemblyInspector.createContext runtimeDir []
@@ -45,7 +45,7 @@ let ``discoverDPs finds WidthProperty on FrameworkElement`` () =
 [<Fact>]
 let ``discoverDPs finds HeightProperty on FrameworkElement`` () =
     let pfPath =
-        AssemblyInspector.resolveAssembly "net8.0-windows" "PresentationFramework"
+        AssemblyInspector.resolveAssembly "net10.0-windows" "PresentationFramework"
 
     let runtimeDir = Path.GetDirectoryName(pfPath)
     use ctx = AssemblyInspector.createContext runtimeDir []
@@ -57,7 +57,7 @@ let ``discoverDPs finds HeightProperty on FrameworkElement`` () =
 [<Fact>]
 let ``discoverDPs marks Grid.RowProperty as attached`` () =
     let pfPath =
-        AssemblyInspector.resolveAssembly "net8.0-windows" "PresentationFramework"
+        AssemblyInspector.resolveAssembly "net10.0-windows" "PresentationFramework"
 
     let runtimeDir = Path.GetDirectoryName(pfPath)
     use ctx = AssemblyInspector.createContext runtimeDir []
@@ -70,7 +70,7 @@ let ``discoverDPs marks Grid.RowProperty as attached`` () =
 [<Fact>]
 let ``discoverDPs marks Button.IsDefaultProperty as not attached`` () =
     let pfPath =
-        AssemblyInspector.resolveAssembly "net8.0-windows" "PresentationFramework"
+        AssemblyInspector.resolveAssembly "net10.0-windows" "PresentationFramework"
 
     let runtimeDir = Path.GetDirectoryName(pfPath)
     use ctx = AssemblyInspector.createContext runtimeDir []
@@ -83,7 +83,7 @@ let ``discoverDPs marks Button.IsDefaultProperty as not attached`` () =
 [<Fact>]
 let ``discoverEvents finds Click on ButtonBase`` () =
     let pfPath =
-        AssemblyInspector.resolveAssembly "net8.0-windows" "PresentationFramework"
+        AssemblyInspector.resolveAssembly "net10.0-windows" "PresentationFramework"
 
     let runtimeDir = Path.GetDirectoryName(pfPath)
     use ctx = AssemblyInspector.createContext runtimeDir []
@@ -98,7 +98,7 @@ let ``discoverEvents finds Click on ButtonBase`` () =
 [<Fact>]
 let ``findControlTypes finds Button in PresentationFramework`` () =
     let pfPath =
-        AssemblyInspector.resolveAssembly "net8.0-windows" "PresentationFramework"
+        AssemblyInspector.resolveAssembly "net10.0-windows" "PresentationFramework"
 
     let runtimeDir = Path.GetDirectoryName(pfPath)
     use ctx = AssemblyInspector.createContext runtimeDir []
@@ -109,7 +109,7 @@ let ``findControlTypes finds Button in PresentationFramework`` () =
 [<Fact>]
 let ``findControlTypes excludes abstract types`` () =
     let pfPath =
-        AssemblyInspector.resolveAssembly "net8.0-windows" "PresentationFramework"
+        AssemblyInspector.resolveAssembly "net10.0-windows" "PresentationFramework"
 
     let runtimeDir = Path.GetDirectoryName(pfPath)
     use ctx = AssemblyInspector.createContext runtimeDir []
@@ -123,7 +123,7 @@ let ``findControlTypes excludes abstract types`` () =
 [<Fact>]
 let ``discoverClrEvents finds Closing on Window`` () =
     let pfPath =
-        AssemblyInspector.resolveAssembly "net8.0-windows" "PresentationFramework"
+        AssemblyInspector.resolveAssembly "net10.0-windows" "PresentationFramework"
 
     let runtimeDir = Path.GetDirectoryName(pfPath)
     use ctx = AssemblyInspector.createContext runtimeDir []
@@ -137,7 +137,7 @@ let ``discoverClrEvents finds Closing on Window`` () =
 [<Fact>]
 let ``discoverClrEvents excludes routed events`` () =
     let pfPath =
-        AssemblyInspector.resolveAssembly "net8.0-windows" "PresentationFramework"
+        AssemblyInspector.resolveAssembly "net10.0-windows" "PresentationFramework"
 
     let runtimeDir = Path.GetDirectoryName(pfPath)
     use ctx = AssemblyInspector.createContext runtimeDir []
@@ -155,7 +155,7 @@ let ``discoverClrEvents excludes routed events`` () =
 [<Fact>]
 let ``discoverAllEvents includes both routed and CLR events`` () =
     let pfPath =
-        AssemblyInspector.resolveAssembly "net8.0-windows" "PresentationFramework"
+        AssemblyInspector.resolveAssembly "net10.0-windows" "PresentationFramework"
 
     let runtimeDir = Path.GetDirectoryName(pfPath)
     use ctx = AssemblyInspector.createContext runtimeDir []
@@ -172,7 +172,7 @@ let ``discoverAllEvents includes both routed and CLR events`` () =
 [<Fact>]
 let ``findAllDependencyObjectSubtypes includes DataGridColumn (DO not UIElement)`` () =
     let pfPath =
-        AssemblyInspector.resolveAssembly "net8.0-windows" "PresentationFramework"
+        AssemblyInspector.resolveAssembly "net10.0-windows" "PresentationFramework"
 
     let runtimeDir = Path.GetDirectoryName(pfPath)
     use ctx = AssemblyInspector.createContext runtimeDir []
@@ -189,7 +189,7 @@ let ``findAllDependencyObjectSubtypes includes DataGridColumn (DO not UIElement)
 [<Fact>]
 let ``findAllDependencyObjectSubtypes is a superset of findAllUIElementSubtypes`` () =
     let pfPath =
-        AssemblyInspector.resolveAssembly "net8.0-windows" "PresentationFramework"
+        AssemblyInspector.resolveAssembly "net10.0-windows" "PresentationFramework"
 
     let runtimeDir = Path.GetDirectoryName(pfPath)
     use ctx = AssemblyInspector.createContext runtimeDir []
@@ -210,7 +210,7 @@ let ``findAllDependencyObjectSubtypes is a superset of findAllUIElementSubtypes`
 [<Fact>]
 let ``computeReachableDOTypes pulls DataGridColumn in via DataGrid.Columns`` () =
     let pfPath =
-        AssemblyInspector.resolveAssembly "net8.0-windows" "PresentationFramework"
+        AssemblyInspector.resolveAssembly "net10.0-windows" "PresentationFramework"
 
     let runtimeDir = Path.GetDirectoryName(pfPath)
     use ctx = AssemblyInspector.createContext runtimeDir []
@@ -256,7 +256,7 @@ let ``computeReachableDOTypes pulls DataGridColumn in via DataGrid.Columns`` () 
 [<Fact>]
 let ``discoverDPs finds CanUserSort on DataGridColumn`` () =
     let pfPath =
-        AssemblyInspector.resolveAssembly "net8.0-windows" "PresentationFramework"
+        AssemblyInspector.resolveAssembly "net10.0-windows" "PresentationFramework"
 
     let runtimeDir = Path.GetDirectoryName(pfPath)
     use ctx = AssemblyInspector.createContext runtimeDir []
@@ -269,7 +269,7 @@ let ``discoverDPs finds CanUserSort on DataGridColumn`` () =
 [<Fact>]
 let ``discoverAllEvents has no duplicates`` () =
     let pfPath =
-        AssemblyInspector.resolveAssembly "net8.0-windows" "PresentationFramework"
+        AssemblyInspector.resolveAssembly "net10.0-windows" "PresentationFramework"
 
     let runtimeDir = Path.GetDirectoryName(pfPath)
     use ctx = AssemblyInspector.createContext runtimeDir []

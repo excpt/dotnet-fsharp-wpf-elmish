@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
-        <!-- net472 is the floor here: xunit.v3 (via FsUnit.xUnit) does not support net461. -->
-        <TargetFrameworks>net472;net8.0-windows;net9.0-windows;net10.0-windows</TargetFrameworks>
+        <!-- net472 is the floor here: xunit.v3 (via FsUnit.xUnit) does not support net462. -->
+        <TargetFrameworks>net472;net10.0-windows</TargetFrameworks>
         <UseWPF>true</UseWPF>
         <IsTestProject>false</IsTestProject>
         <!-- Pulls xunit.v3 through FsUnit, which would otherwise make this library look

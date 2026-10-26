@@ -21,7 +21,7 @@ type CliArgs =
                 "Assembly name(s), comma-separated (e.g., PresentationFramework or DevExpress.Xpf.Grid.v25.2)"
             | Namespace _ -> "Output namespace (e.g., FSharp.Windows.Dsl.Controls)"
             | Output _ -> "Output directory for generated files"
-            | Tfm _ -> "Primary target framework for type discovery (default: net8.0-windows)"
+            | Tfm _ -> "Primary target framework for type discovery (default: net10.0-windows)"
             | Baseline _ -> "Baseline TFM for multi-version diff (e.g., net461)"
             | Tfms _ -> "Comma-separated TFMs to diff against baseline"
             | Assembly_Path _ -> "Additional directory to search for assemblies (e.g., DevExpress install path)"
@@ -616,7 +616,7 @@ let main argv =
     try
         let results = parser.Parse(argv)
 
-        let tfm = results.TryGetResult Tfm |> Option.defaultValue "net8.0-windows"
+        let tfm = results.TryGetResult Tfm |> Option.defaultValue "net10.0-windows"
 
         let extraPaths0 =
             results.TryGetResult Assembly_Path
