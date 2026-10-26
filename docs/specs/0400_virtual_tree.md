@@ -54,6 +54,19 @@ StackPanel.create [
 Without keys: index shifts when spinner appears/disappears, reconciler patches wrong element.
 With keys: reconciler matches by identity regardless of position.
 
+### Mixing keyed and unkeyed children
+
+Keyed and unkeyed children may share a list, for example a static header above
+keyed rows. Once any child in the list has a key, the whole list goes through the
+keyed diff, and every unkeyed child gets a synthetic key: its type plus its
+ordinal among unkeyed siblings of that type. An unkeyed header therefore keeps
+its element across renders, and an unkeyed placeholder is removed when keyed rows
+replace it. Changing an unkeyed child's type replaces the element.
+
+A user key that repeats within one list is matched by occurrence: the first
+`key "a"` in the old list pairs with the first in the new list, the second with
+the second. Repeats are still a bug in the view, but they no longer leak elements.
+
 ## Children Collection Differences
 
 Different parent types store children differently. The reconciler handles the
