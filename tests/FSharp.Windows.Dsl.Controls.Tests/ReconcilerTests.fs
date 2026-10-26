@@ -405,14 +405,15 @@ let ``event handler is refreshed on reconciliation`` () =
     runSta (fun () ->
         register ()
 
-        let mutable lastValue = 0
+        let mutable oldCalls = 0
+        let mutable newCalls = 0
 
         let tree1 =
             stackPanel
                 [ StackPanel.children
                       [ button
                             [ Button.content "Click"
-                              Button.onClick (RoutedEventHandler(fun _ _ -> lastValue <- 1)) ] ] ]
+                              Button.onClick (RoutedEventHandler(fun _ _ -> oldCalls <- oldCalls + 1)) ] ] ]
 
         let live = Dsl.createLive tree1
         let sp = live.Root :?> StackPanel
@@ -420,7 +421,7 @@ let ``event handler is refreshed on reconciliation`` () =
 
         // Raise click — should call first handler
         btn.RaiseEvent(RoutedEventArgs(Controls.Primitives.ButtonBase.ClickEvent))
-        lastValue |> should equal 1
+        oldCalls |> should equal 1
 
         // Update with new handler that sets a different value
         let tree2 =
@@ -428,13 +429,14 @@ let ``event handler is refreshed on reconciliation`` () =
                 [ StackPanel.children
                       [ button
                             [ Button.content "Click"
-                              Button.onClick (RoutedEventHandler(fun _ _ -> lastValue <- 2)) ] ] ]
+                              Button.onClick (RoutedEventHandler(fun _ _ -> newCalls <- newCalls + 1)) ] ] ]
 
         Dsl.update live tree2
 
-        // Raise click — should call NEW handler only
+        // Raise click — should call NEW handler only; the old one must be detached
         btn.RaiseEvent(RoutedEventArgs(Controls.Primitives.ButtonBase.ClickEvent))
-        lastValue |> should equal 2)
+        newCalls |> should equal 1
+        oldCalls |> should equal 1)
 
 [<Fact>]
 let ``event handler refresh preserves element identity`` () =
