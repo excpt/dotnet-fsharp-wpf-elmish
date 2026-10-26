@@ -90,3 +90,47 @@ let ``updateChildView re-renders the child view from the parent model`` () =
 
         child.Window.Title |> should equal "View 5")
 
+// --- Memo ---
+
+type Slice = { Name: string }
+
+[<Fact>]
+let ``memo hits for a reference-equal slice`` () =
+    let calls = ref 0
+    let slice = { Name = "a" }
+
+    let view =
+        Memo.memo (fun (m: Slice) -> m) (fun s (_: unit -> unit) ->
+            calls.Value <- calls.Value + 1
+            textBlock [ TextBlock.text s.Name ])
+
+    let first = view slice ignore
+    let second = view slice ignore
+    calls.Value |> should equal 1
+    second |> should be (sameAs first)
+
+[<Fact>]
+let ``memo misses for a freshly allocated equal slice`` () =
+    let calls = ref 0
+
+    let view =
+        Memo.memo (fun (m: Slice) -> m) (fun s (_: unit -> unit) ->
+            calls.Value <- calls.Value + 1
+            textBlock [ TextBlock.text s.Name ])
+
+    view { Name = "a" } ignore |> ignore
+    view { Name = "a" } ignore |> ignore
+    calls.Value |> should equal 2
+
+[<Fact>]
+let ``memoView misses for a value-type slice`` () =
+    let calls = ref 0
+
+    let view =
+        Memo.memoView (fun (m: int) -> m) (fun s ->
+            calls.Value <- calls.Value + 1
+            textBlock [ TextBlock.text (string s) ])
+
+    view 1 |> ignore
+    view 1 |> ignore
+    calls.Value |> should equal 2
