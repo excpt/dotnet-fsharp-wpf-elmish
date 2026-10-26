@@ -3,16 +3,20 @@ namespace FSharp.Windows.Dsl.Testing
 open System
 open System.Threading.Tasks
 open Elmish
-open FsUnit.Xunit
 
 /// Helpers for inspecting Elmish commands in tests.
 module CmdTest =
 
-    /// Assert that a command is Cmd.none (empty).
-    let isNone (cmd: Cmd<'msg>) = cmd |> should be Empty
+    /// Assert that a command is Cmd.none (empty). Throws otherwise, which any
+    /// test framework reports as a failure.
+    let isNone (cmd: Cmd<'msg>) =
+        if not cmd.IsEmpty then
+            failwith $"Expected Cmd.none, got {cmd.Length} command(s)"
 
     /// Assert that a command is NOT Cmd.none.
-    let isSome (cmd: Cmd<'msg>) = cmd |> should not' (be Empty)
+    let isSome (cmd: Cmd<'msg>) =
+        if cmd.IsEmpty then
+            failwith "Expected a command, got Cmd.none"
 
     /// Run synchronous commands and collect dispatched messages, in order. An
     /// exception a command throws propagates, so a crashing effect does not look

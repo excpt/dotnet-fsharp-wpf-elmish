@@ -2,7 +2,7 @@
 
 F# DSL for WPF using the Elm architecture (MVU pattern). No XAML, no MVVM, no INPC — pure functions all the way down.
 
-Targets .NET 10 (Windows) and .NET Framework 4.6.2+ (`net462`; `net472` for the Testing package).
+Targets .NET 10 (Windows) and .NET Framework 4.6.2+ (`net462`).
 
 ### Packages
 
@@ -26,10 +26,9 @@ dotnet test
 
 `global.json` switches `dotnet test` to the Microsoft.Testing.Platform runner —
 required, because the suites are xunit.v3 and the SDK's default VSTest path
-finds no adapter, runs nothing, and exits 0. Do not remove it. For the same
-reason `FSharp.Windows.Dsl.Testing` sets `IsTestingPlatformApplication=false`:
-it pulls xunit.v3 through FsUnit, so without it the runner treats that library
-as a suite and crashes on the platform handshake.
+finds no adapter, runs nothing, and exits 0. Do not remove it. Keep test
+frameworks out of `FSharp.Windows.Dsl.Testing`: a library that pulls in xunit.v3
+is treated as a suite by the runner and crashes on the platform handshake.
 
 Always run `dotnet test` at the solution root. Do not run individual test projects.
 

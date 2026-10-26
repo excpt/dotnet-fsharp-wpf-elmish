@@ -18,6 +18,14 @@ let ``isNone passes for Cmd.none`` () =
 let ``isSome passes for Cmd.ofMsg`` () = CmdTest.isSome (Cmd.ofMsg A)
 
 [<Fact>]
+let ``isNone fails for a command`` () =
+    Assert.ThrowsAny<exn>(fun () -> CmdTest.isNone (Cmd.ofMsg A)) |> ignore
+
+[<Fact>]
+let ``isSome fails for Cmd.none`` () =
+    Assert.ThrowsAny<exn>(fun () -> CmdTest.isSome (Cmd.none: Cmd<Msg>)) |> ignore
+
+[<Fact>]
 let ``run collects dispatched messages from Cmd.ofMsg`` () =
     let msgs = CmdTest.run (Cmd.ofMsg A)
     msgs |> should equal [ A ]

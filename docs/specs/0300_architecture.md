@@ -59,7 +59,7 @@ FSharp.Windows.Dsl.Controls           (depends on Dsl + PresentationFramework)
     ↑
 FSharp.Windows.Dsl.Elmish            (depends on Dsl + Elmish)
     ↑
-FSharp.Windows.Dsl.Testing           (depends on Dsl + Elmish)
+FSharp.Windows.Dsl.Testing           (depends on Dsl + Controls + Elmish; no test framework)
 
 FSharp.Windows.Dsl.Controls
     ↑
