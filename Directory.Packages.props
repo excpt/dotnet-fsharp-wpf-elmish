@@ -1,9 +1,9 @@
 <Project>
     <ItemGroup>
         <!-- Testing (xunit v3 requires OutputType=Exe in test projects) -->
-        <PackageVersion Include="xunit.v3" Version="3.2.2"/>
-        <PackageVersion Include="FsUnit.xUnit" Version="7.1.1"/>
-        <PackageVersion Include="xunit.runner.visualstudio" Version="3.1.5"/>
+        <PackageVersion Include="xunit.v3" Version="4.0.2"/>
+        <PackageVersion Include="FsUnit.xUnit" Version="8.0.0"/>
+        <PackageVersion Include="xunit.runner.visualstudio" Version="4.0.1"/>
 
         <!-- Source Link -->
         <PackageVersion Include="Microsoft.SourceLink.GitHub" Version="10.0.403"/>
