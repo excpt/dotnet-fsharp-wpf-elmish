@@ -49,6 +49,12 @@ let init () =
 
 let update msg model =
     match msg with
+    // Setting Text from the model raises TextChanged with the value it already
+    // holds (Cancel clearing the form would re-validate the empty fields).
+    // A change that is not one is ignored.
+    | NameChanged v when v = model.Name -> model, Cmd.none
+    | EmailChanged v when v = model.Email -> model, Cmd.none
+    | NotesChanged v when v = model.Notes -> model, Cmd.none
     | NameChanged v ->
         let m = { model with Name = v; Saved = false }
         { m with Errors = validate m }, Cmd.none
