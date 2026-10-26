@@ -443,5 +443,4 @@ module DataGridRowsPresenter =
         { Type = typeof<System.Windows.Controls.Primitives.DataGridRowsPresenter>
           Props = ps
           Children = cs
-          UserKey = uk
-          InternalId = "" }
+          UserKey = uk }

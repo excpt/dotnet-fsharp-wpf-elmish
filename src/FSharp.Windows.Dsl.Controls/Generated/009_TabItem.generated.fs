@@ -486,5 +486,4 @@ module TabItem =
         { Type = typeof<System.Windows.Controls.TabItem>
           Props = ps
           Children = cs
-          UserKey = uk
-          InternalId = "" }
+          UserKey = uk }

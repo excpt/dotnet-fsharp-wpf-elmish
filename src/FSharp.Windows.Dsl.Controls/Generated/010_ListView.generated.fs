@@ -511,5 +511,4 @@ module ListView =
         { Type = typeof<System.Windows.Controls.ListView>
           Props = ps
           Children = cs
-          UserKey = uk
-          InternalId = "" }
+          UserKey = uk }

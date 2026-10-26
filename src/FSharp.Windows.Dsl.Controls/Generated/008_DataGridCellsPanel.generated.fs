@@ -434,5 +434,4 @@ module DataGridCellsPanel =
         { Type = typeof<System.Windows.Controls.DataGridCellsPanel>
           Props = ps
           Children = cs
-          UserKey = uk
-          InternalId = "" }
+          UserKey = uk }

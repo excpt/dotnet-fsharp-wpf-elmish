@@ -37,5 +37,4 @@ module CollectionContainer =
         { Type = typeof<System.Windows.Data.CollectionContainer>
           Props = ps
           Children = cs
-          UserKey = uk
-          InternalId = "" }
+          UserKey = uk }

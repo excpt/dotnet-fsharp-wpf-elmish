@@ -506,5 +506,4 @@ module RichTextBox =
         { Type = typeof<System.Windows.Controls.RichTextBox>
           Props = ps
           Children = cs
-          UserKey = uk
-          InternalId = "" }
+          UserKey = uk }

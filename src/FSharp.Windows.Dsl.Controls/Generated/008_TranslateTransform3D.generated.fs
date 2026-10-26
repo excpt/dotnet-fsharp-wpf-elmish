@@ -59,5 +59,4 @@ module TranslateTransform3D =
         { Type = typeof<System.Windows.Media.Media3D.TranslateTransform3D>
           Props = ps
           Children = cs
-          UserKey = uk
-          InternalId = "" }
+          UserKey = uk }

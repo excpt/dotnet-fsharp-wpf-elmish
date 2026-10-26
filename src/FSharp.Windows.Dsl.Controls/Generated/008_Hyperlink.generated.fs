@@ -405,5 +405,4 @@ module Hyperlink =
         { Type = typeof<System.Windows.Documents.Hyperlink>
           Props = ps
           Children = cs
-          UserKey = uk
-          InternalId = "" }
+          UserKey = uk }

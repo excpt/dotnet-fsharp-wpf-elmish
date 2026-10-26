@@ -458,5 +458,4 @@ module ResizeGrip =
         { Type = typeof<System.Windows.Controls.Primitives.ResizeGrip>
           Props = ps
           Children = cs
-          UserKey = uk
-          InternalId = "" }
+          UserKey = uk }

@@ -44,5 +44,4 @@ module GuidelineSet =
         { Type = typeof<System.Windows.Media.GuidelineSet>
           Props = ps
           Children = cs
-          UserKey = uk
-          InternalId = "" }
+          UserKey = uk }

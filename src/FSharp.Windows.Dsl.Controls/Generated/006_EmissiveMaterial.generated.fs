@@ -46,5 +46,4 @@ module EmissiveMaterial =
         { Type = typeof<System.Windows.Media.Media3D.EmissiveMaterial>
           Props = ps
           Children = cs
-          UserKey = uk
-          InternalId = "" }
+          UserKey = uk }

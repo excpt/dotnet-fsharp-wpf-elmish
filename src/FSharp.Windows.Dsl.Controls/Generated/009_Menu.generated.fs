@@ -505,5 +505,4 @@ module Menu =
         { Type = typeof<System.Windows.Controls.Menu>
           Props = ps
           Children = cs
-          UserKey = uk
-          InternalId = "" }
+          UserKey = uk }

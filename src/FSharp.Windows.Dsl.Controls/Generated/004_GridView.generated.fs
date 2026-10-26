@@ -94,5 +94,4 @@ module GridView =
         { Type = typeof<System.Windows.Controls.GridView>
           Props = ps
           Children = cs
-          UserKey = uk
-          InternalId = "" }
+          UserKey = uk }

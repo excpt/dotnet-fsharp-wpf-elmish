@@ -458,5 +458,4 @@ module CalendarItem =
         { Type = typeof<System.Windows.Controls.Primitives.CalendarItem>
           Props = ps
           Children = cs
-          UserKey = uk
-          InternalId = "" }
+          UserKey = uk }

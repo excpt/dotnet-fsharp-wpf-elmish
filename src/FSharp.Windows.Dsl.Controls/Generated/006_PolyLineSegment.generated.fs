@@ -43,5 +43,4 @@ module PolyLineSegment =
         { Type = typeof<System.Windows.Media.PolyLineSegment>
           Props = ps
           Children = cs
-          UserKey = uk
-          InternalId = "" }
+          UserKey = uk }

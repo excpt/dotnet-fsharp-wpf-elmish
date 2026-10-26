@@ -376,5 +376,4 @@ module BlockUIContainer =
         { Type = typeof<System.Windows.Documents.BlockUIContainer>
           Props = ps
           Children = cs
-          UserKey = uk
-          InternalId = "" }
+          UserKey = uk }

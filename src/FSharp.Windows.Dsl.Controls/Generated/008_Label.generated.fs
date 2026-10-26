@@ -475,5 +475,4 @@ module Label =
         { Type = typeof<System.Windows.Controls.Label>
           Props = ps
           Children = cs
-          UserKey = uk
-          InternalId = "" }
+          UserKey = uk }

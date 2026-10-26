@@ -77,5 +77,4 @@ module TaskbarItemInfo =
         { Type = typeof<System.Windows.Shell.TaskbarItemInfo>
           Props = ps
           Children = cs
-          UserKey = uk
-          InternalId = "" }
+          UserKey = uk }

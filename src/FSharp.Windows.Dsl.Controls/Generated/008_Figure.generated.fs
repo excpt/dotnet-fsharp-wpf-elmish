@@ -418,5 +418,4 @@ module Figure =
         { Type = typeof<System.Windows.Documents.Figure>
           Props = ps
           Children = cs
-          UserKey = uk
-          InternalId = "" }
+          UserKey = uk }

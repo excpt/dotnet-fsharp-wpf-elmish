@@ -50,5 +50,4 @@ module EllipseGeometry =
         { Type = typeof<System.Windows.Media.EllipseGeometry>
           Props = ps
           Children = cs
-          UserKey = uk
-          InternalId = "" }
+          UserKey = uk }

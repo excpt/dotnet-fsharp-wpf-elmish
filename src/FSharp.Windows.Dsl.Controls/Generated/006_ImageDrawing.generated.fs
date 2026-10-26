@@ -44,5 +44,4 @@ module ImageDrawing =
         { Type = typeof<System.Windows.Media.ImageDrawing>
           Props = ps
           Children = cs
-          UserKey = uk
-          InternalId = "" }
+          UserKey = uk }

@@ -53,5 +53,4 @@ module DiffuseMaterial =
         { Type = typeof<System.Windows.Media.Media3D.DiffuseMaterial>
           Props = ps
           Children = cs
-          UserKey = uk
-          InternalId = "" }
+          UserKey = uk }

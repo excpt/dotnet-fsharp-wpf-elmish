@@ -690,5 +690,4 @@ module UIElement =
         { Type = typeof<System.Windows.UIElement>
           Props = ps
           Children = cs
-          UserKey = uk
-          InternalId = "" }
+          UserKey = uk }

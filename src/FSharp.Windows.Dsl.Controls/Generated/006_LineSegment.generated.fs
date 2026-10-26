@@ -43,5 +43,4 @@ module LineSegment =
         { Type = typeof<System.Windows.Media.LineSegment>
           Props = ps
           Children = cs
-          UserKey = uk
-          InternalId = "" }
+          UserKey = uk }

@@ -100,5 +100,4 @@ module BitmapImage =
         { Type = typeof<System.Windows.Media.Imaging.BitmapImage>
           Props = ps
           Children = cs
-          UserKey = uk
-          InternalId = "" }
+          UserKey = uk }

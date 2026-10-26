@@ -46,5 +46,4 @@ module PathGeometry =
         { Type = typeof<System.Windows.Media.PathGeometry>
           Props = ps
           Children = cs
-          UserKey = uk
-          InternalId = "" }
+          UserKey = uk }

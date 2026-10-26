@@ -391,5 +391,4 @@ module List =
         { Type = typeof<System.Windows.Documents.List>
           Props = ps
           Children = cs
-          UserKey = uk
-          InternalId = "" }
+          UserKey = uk }

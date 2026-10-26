@@ -155,7 +155,6 @@ module Button =
             Props      = props |> List.map box
             Children   = []
             UserKey    = None
-            InternalId = ""
         }
 ```
 

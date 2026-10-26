@@ -487,5 +487,4 @@ module CheckBox =
         { Type = typeof<System.Windows.Controls.CheckBox>
           Props = ps
           Children = cs
-          UserKey = uk
-          InternalId = "" }
+          UserKey = uk }

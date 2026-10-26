@@ -506,5 +506,4 @@ module GridSplitter =
         { Type = typeof<System.Windows.Controls.GridSplitter>
           Props = ps
           Children = cs
-          UserKey = uk
-          InternalId = "" }
+          UserKey = uk }

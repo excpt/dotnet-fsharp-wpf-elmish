@@ -376,5 +376,4 @@ module Run =
         { Type = typeof<System.Windows.Documents.Run>
           Props = ps
           Children = cs
-          UserKey = uk
-          InternalId = "" }
+          UserKey = uk }

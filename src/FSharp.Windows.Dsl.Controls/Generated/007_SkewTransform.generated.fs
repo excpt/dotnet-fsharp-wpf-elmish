@@ -52,5 +52,4 @@ module SkewTransform =
         { Type = typeof<System.Windows.Media.SkewTransform>
           Props = ps
           Children = cs
-          UserKey = uk
-          InternalId = "" }
+          UserKey = uk }

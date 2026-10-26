@@ -378,5 +378,4 @@ module Section =
         { Type = typeof<System.Windows.Documents.Section>
           Props = ps
           Children = cs
-          UserKey = uk
-          InternalId = "" }
+          UserKey = uk }

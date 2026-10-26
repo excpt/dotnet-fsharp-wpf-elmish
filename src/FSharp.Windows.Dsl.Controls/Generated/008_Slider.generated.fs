@@ -536,5 +536,4 @@ module Slider =
         { Type = typeof<System.Windows.Controls.Slider>
           Props = ps
           Children = cs
-          UserKey = uk
-          InternalId = "" }
+          UserKey = uk }

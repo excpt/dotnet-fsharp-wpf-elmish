@@ -54,5 +54,4 @@ module QuadraticBezierSegment =
         { Type = typeof<System.Windows.Media.QuadraticBezierSegment>
           Props = ps
           Children = cs
-          UserKey = uk
-          InternalId = "" }
+          UserKey = uk }

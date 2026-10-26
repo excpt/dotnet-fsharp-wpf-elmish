@@ -54,5 +54,4 @@ module BitmapCache =
         { Type = typeof<System.Windows.Media.BitmapCache>
           Props = ps
           Children = cs
-          UserKey = uk
-          InternalId = "" }
+          UserKey = uk }

@@ -35,5 +35,4 @@ module BitmapEffectCollection =
         { Type = typeof<System.Windows.Media.Effects.BitmapEffectCollection>
           Props = ps
           Children = cs
-          UserKey = uk
-          InternalId = "" }
+          UserKey = uk }

@@ -531,5 +531,4 @@ module TextBox =
         { Type = typeof<System.Windows.Controls.TextBox>
           Props = ps
           Children = cs
-          UserKey = uk
-          InternalId = "" }
+          UserKey = uk }

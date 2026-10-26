@@ -441,5 +441,4 @@ module Viewbox =
         { Type = typeof<System.Windows.Controls.Viewbox>
           Props = ps
           Children = cs
-          UserKey = uk
-          InternalId = "" }
+          UserKey = uk }

@@ -73,5 +73,4 @@ module BevelBitmapEffect =
         { Type = typeof<System.Windows.Media.Effects.BevelBitmapEffect>
           Props = ps
           Children = cs
-          UserKey = uk
-          InternalId = "" }
+          UserKey = uk }

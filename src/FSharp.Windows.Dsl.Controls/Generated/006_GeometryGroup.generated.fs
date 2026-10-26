@@ -45,5 +45,4 @@ module GeometryGroup =
         { Type = typeof<System.Windows.Media.GeometryGroup>
           Props = ps
           Children = cs
-          UserKey = uk
-          InternalId = "" }
+          UserKey = uk }

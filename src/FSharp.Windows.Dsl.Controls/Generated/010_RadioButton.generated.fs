@@ -492,5 +492,4 @@ module RadioButton =
         { Type = typeof<System.Windows.Controls.RadioButton>
           Props = ps
           Children = cs
-          UserKey = uk
-          InternalId = "" }
+          UserKey = uk }

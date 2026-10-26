@@ -68,5 +68,4 @@ module Pen =
         { Type = typeof<System.Windows.Media.Pen>
           Props = ps
           Children = cs
-          UserKey = uk
-          InternalId = "" }
+          UserKey = uk }

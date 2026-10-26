@@ -35,5 +35,4 @@ module DrawingCollection =
         { Type = typeof<System.Windows.Media.DrawingCollection>
           Props = ps
           Children = cs
-          UserKey = uk
-          InternalId = "" }
+          UserKey = uk }

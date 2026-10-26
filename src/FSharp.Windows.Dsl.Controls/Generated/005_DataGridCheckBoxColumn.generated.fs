@@ -90,5 +90,4 @@ module DataGridCheckBoxColumn =
         { Type = typeof<System.Windows.Controls.DataGridCheckBoxColumn>
           Props = ps
           Children = cs
-          UserKey = uk
-          InternalId = "" }
+          UserKey = uk }

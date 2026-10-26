@@ -44,5 +44,4 @@ module DashStyle =
         { Type = typeof<System.Windows.Media.DashStyle>
           Props = ps
           Children = cs
-          UserKey = uk
-          InternalId = "" }
+          UserKey = uk }

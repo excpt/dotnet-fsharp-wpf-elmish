@@ -87,5 +87,4 @@ module GridViewColumn =
         { Type = typeof<System.Windows.Controls.GridViewColumn>
           Props = ps
           Children = cs
-          UserKey = uk
-          InternalId = "" }
+          UserKey = uk }

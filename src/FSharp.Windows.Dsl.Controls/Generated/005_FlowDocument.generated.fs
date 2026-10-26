@@ -508,5 +508,4 @@ module FlowDocument =
         { Type = typeof<System.Windows.Documents.FlowDocument>
           Props = ps
           Children = cs
-          UserKey = uk
-          InternalId = "" }
+          UserKey = uk }

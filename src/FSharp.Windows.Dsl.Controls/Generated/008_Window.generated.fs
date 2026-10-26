@@ -583,5 +583,4 @@ module Window =
         { Type = typeof<System.Windows.Window>
           Props = ps
           Children = cs
-          UserKey = uk
-          InternalId = "" }
+          UserKey = uk }

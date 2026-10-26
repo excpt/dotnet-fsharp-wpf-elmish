@@ -457,5 +457,4 @@ module ScrollContentPresenter =
         { Type = typeof<System.Windows.Controls.ScrollContentPresenter>
           Props = ps
           Children = cs
-          UserKey = uk
-          InternalId = "" }
+          UserKey = uk }

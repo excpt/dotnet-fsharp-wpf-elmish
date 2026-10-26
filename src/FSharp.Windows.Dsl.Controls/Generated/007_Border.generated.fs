@@ -453,5 +453,4 @@ module Border =
         { Type = typeof<System.Windows.Controls.Border>
           Props = ps
           Children = cs
-          UserKey = uk
-          InternalId = "" }
+          UserKey = uk }

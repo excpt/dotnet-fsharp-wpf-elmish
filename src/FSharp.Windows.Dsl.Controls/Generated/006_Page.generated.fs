@@ -465,5 +465,4 @@ module Page =
         { Type = typeof<System.Windows.Controls.Page>
           Props = ps
           Children = cs
-          UserKey = uk
-          InternalId = "" }
+          UserKey = uk }

@@ -35,5 +35,4 @@ module Transform3DCollection =
         { Type = typeof<System.Windows.Media.Media3D.Transform3DCollection>
           Props = ps
           Children = cs
-          UserKey = uk
-          InternalId = "" }
+          UserKey = uk }

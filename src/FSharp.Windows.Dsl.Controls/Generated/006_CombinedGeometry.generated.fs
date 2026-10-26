@@ -56,5 +56,4 @@ module CombinedGeometry =
         { Type = typeof<System.Windows.Media.CombinedGeometry>
           Props = ps
           Children = cs
-          UserKey = uk
-          InternalId = "" }
+          UserKey = uk }

@@ -520,5 +520,4 @@ module MediaElement =
         { Type = typeof<System.Windows.Controls.MediaElement>
           Props = ps
           Children = cs
-          UserKey = uk
-          InternalId = "" }
+          UserKey = uk }

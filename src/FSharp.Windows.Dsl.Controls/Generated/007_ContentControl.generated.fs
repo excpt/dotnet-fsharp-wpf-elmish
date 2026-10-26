@@ -487,5 +487,4 @@ module ContentControl =
         { Type = typeof<System.Windows.Controls.ContentControl>
           Props = ps
           Children = cs
-          UserKey = uk
-          InternalId = "" }
+          UserKey = uk }

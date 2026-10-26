@@ -486,5 +486,4 @@ module RepeatButton =
         { Type = typeof<System.Windows.Controls.Primitives.RepeatButton>
           Props = ps
           Children = cs
-          UserKey = uk
-          InternalId = "" }
+          UserKey = uk }

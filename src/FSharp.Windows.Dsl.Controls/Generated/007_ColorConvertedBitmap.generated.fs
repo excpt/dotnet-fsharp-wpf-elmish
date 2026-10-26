@@ -78,5 +78,4 @@ module ColorConvertedBitmap =
         { Type = typeof<System.Windows.Media.Imaging.ColorConvertedBitmap>
           Props = ps
           Children = cs
-          UserKey = uk
-          InternalId = "" }
+          UserKey = uk }

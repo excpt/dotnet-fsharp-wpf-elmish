@@ -565,5 +565,4 @@ module ContentElement =
         { Type = typeof<System.Windows.ContentElement>
           Props = ps
           Children = cs
-          UserKey = uk
-          InternalId = "" }
+          UserKey = uk }

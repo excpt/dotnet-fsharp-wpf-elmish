@@ -50,5 +50,4 @@ module EmbossBitmapEffect =
         { Type = typeof<System.Windows.Media.Effects.EmbossBitmapEffect>
           Props = ps
           Children = cs
-          UserKey = uk
-          InternalId = "" }
+          UserKey = uk }

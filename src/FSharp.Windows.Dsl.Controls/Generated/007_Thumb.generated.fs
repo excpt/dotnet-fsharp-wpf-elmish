@@ -476,5 +476,4 @@ module Thumb =
         { Type = typeof<System.Windows.Controls.Primitives.Thumb>
           Props = ps
           Children = cs
-          UserKey = uk
-          InternalId = "" }
+          UserKey = uk }

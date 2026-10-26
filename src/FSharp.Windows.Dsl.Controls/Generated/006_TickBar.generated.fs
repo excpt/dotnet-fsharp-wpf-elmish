@@ -489,5 +489,4 @@ module TickBar =
         { Type = typeof<System.Windows.Controls.Primitives.TickBar>
           Props = ps
           Children = cs
-          UserKey = uk
-          InternalId = "" }
+          UserKey = uk }

@@ -371,5 +371,4 @@ module Bold =
         { Type = typeof<System.Windows.Documents.Bold>
           Props = ps
           Children = cs
-          UserKey = uk
-          InternalId = "" }
+          UserKey = uk }

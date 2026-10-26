@@ -79,5 +79,4 @@ module FormatConvertedBitmap =
         { Type = typeof<System.Windows.Media.Imaging.FormatConvertedBitmap>
           Props = ps
           Children = cs
-          UserKey = uk
-          InternalId = "" }
+          UserKey = uk }

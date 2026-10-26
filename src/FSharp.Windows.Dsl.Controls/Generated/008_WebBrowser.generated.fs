@@ -454,5 +454,4 @@ module WebBrowser =
         { Type = typeof<System.Windows.Controls.WebBrowser>
           Props = ps
           Children = cs
-          UserKey = uk
-          InternalId = "" }
+          UserKey = uk }

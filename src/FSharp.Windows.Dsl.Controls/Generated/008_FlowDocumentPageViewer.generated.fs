@@ -520,5 +520,4 @@ module FlowDocumentPageViewer =
         { Type = typeof<System.Windows.Controls.FlowDocumentPageViewer>
           Props = ps
           Children = cs
-          UserKey = uk
-          InternalId = "" }
+          UserKey = uk }

@@ -371,5 +371,4 @@ module Underline =
         { Type = typeof<System.Windows.Documents.Underline>
           Props = ps
           Children = cs
-          UserKey = uk
-          InternalId = "" }
+          UserKey = uk }

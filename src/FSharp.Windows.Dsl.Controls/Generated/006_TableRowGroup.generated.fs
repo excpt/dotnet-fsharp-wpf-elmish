@@ -370,5 +370,4 @@ module TableRowGroup =
         { Type = typeof<System.Windows.Documents.TableRowGroup>
           Props = ps
           Children = cs
-          UserKey = uk
-          InternalId = "" }
+          UserKey = uk }

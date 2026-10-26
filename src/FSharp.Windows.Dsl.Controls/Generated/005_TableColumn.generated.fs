@@ -374,5 +374,4 @@ module TableColumn =
         { Type = typeof<System.Windows.Documents.TableColumn>
           Props = ps
           Children = cs
-          UserKey = uk
-          InternalId = "" }
+          UserKey = uk }

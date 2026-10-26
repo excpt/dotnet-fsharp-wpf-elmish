@@ -434,5 +434,4 @@ module TabPanel =
         { Type = typeof<System.Windows.Controls.Primitives.TabPanel>
           Props = ps
           Children = cs
-          UserKey = uk
-          InternalId = "" }
+          UserKey = uk }

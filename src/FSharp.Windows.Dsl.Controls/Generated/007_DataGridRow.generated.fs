@@ -536,5 +536,4 @@ module DataGridRow =
         { Type = typeof<System.Windows.Controls.DataGridRow>
           Props = ps
           Children = cs
-          UserKey = uk
-          InternalId = "" }
+          UserKey = uk }

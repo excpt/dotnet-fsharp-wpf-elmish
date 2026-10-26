@@ -41,5 +41,4 @@ module D3DImage =
         { Type = typeof<System.Windows.Interop.D3DImage>
           Props = ps
           Children = cs
-          UserKey = uk
-          InternalId = "" }
+          UserKey = uk }

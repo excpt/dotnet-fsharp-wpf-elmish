@@ -521,5 +521,4 @@ module ToolBar =
         { Type = typeof<System.Windows.Controls.ToolBar>
           Props = ps
           Children = cs
-          UserKey = uk
-          InternalId = "" }
+          UserKey = uk }

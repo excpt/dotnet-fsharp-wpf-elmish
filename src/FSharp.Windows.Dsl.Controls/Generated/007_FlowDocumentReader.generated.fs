@@ -559,5 +559,4 @@ module FlowDocumentReader =
         { Type = typeof<System.Windows.Controls.FlowDocumentReader>
           Props = ps
           Children = cs
-          UserKey = uk
-          InternalId = "" }
+          UserKey = uk }

@@ -496,5 +496,4 @@ module ScrollViewer =
         { Type = typeof<System.Windows.Controls.ScrollViewer>
           Props = ps
           Children = cs
-          UserKey = uk
-          InternalId = "" }
+          UserKey = uk }

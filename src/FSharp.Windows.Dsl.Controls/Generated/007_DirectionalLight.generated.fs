@@ -45,5 +45,4 @@ module DirectionalLight =
         { Type = typeof<System.Windows.Media.Media3D.DirectionalLight>
           Props = ps
           Children = cs
-          UserKey = uk
-          InternalId = "" }
+          UserKey = uk }

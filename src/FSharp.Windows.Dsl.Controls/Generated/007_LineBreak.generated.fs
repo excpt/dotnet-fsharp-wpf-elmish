@@ -371,5 +371,4 @@ module LineBreak =
         { Type = typeof<System.Windows.Documents.LineBreak>
           Props = ps
           Children = cs
-          UserKey = uk
-          InternalId = "" }
+          UserKey = uk }

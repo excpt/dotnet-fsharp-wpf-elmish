@@ -72,5 +72,4 @@ module Storyboard =
         { Type = typeof<System.Windows.Media.Animation.Storyboard>
           Props = ps
           Children = cs
-          UserKey = uk
-          InternalId = "" }
+          UserKey = uk }

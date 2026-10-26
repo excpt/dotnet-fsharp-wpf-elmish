@@ -35,5 +35,4 @@ module TransformCollection =
         { Type = typeof<System.Windows.Media.TransformCollection>
           Props = ps
           Children = cs
-          UserKey = uk
-          InternalId = "" }
+          UserKey = uk }

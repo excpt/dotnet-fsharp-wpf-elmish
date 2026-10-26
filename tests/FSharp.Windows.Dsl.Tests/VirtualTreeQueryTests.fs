@@ -11,8 +11,7 @@ let private node t key children props =
     { Type = t
       Props = props
       Children = children
-      UserKey = key
-      InternalId = "" }
+      UserKey = key }
 
 let private leaf t = node t None [] []
 let private keyed t k = node t (Some k) [] []
@@ -201,3 +200,35 @@ let ``tryFindProp handles EventProp wrapper`` () =
             n
 
     result |> should equal (Some "click-handler")
+
+// --- Queries reach nodes held in props ---
+
+[<Fact>]
+let ``queries find nodes held in CollectionProp and NodeProp`` () =
+    let column = keyed typeof<int> "name-col"
+    let header = keyed typeof<float> "header"
+
+    let tree =
+        node
+            typeof<obj>
+            None
+            []
+            [ box (CollectionProp("Columns", [ column ]))
+              box (NodeProp("Header", header)) ]
+
+    VirtualTree.findByKey "name-col" tree |> should equal (Some column)
+    VirtualTree.findByType typeof<float> tree |> should equal (Some header)
+    VirtualTree.findAllByType typeof<int> tree |> should equal [ column ]
+    VirtualTree.exists (fun n -> n.UserKey = Some "header") tree |> should be True
+
+/// Shaped like a generated prop DU with a VirtualNode-valued case (ContextMenu).
+type private HolderProp =
+    | Held of VirtualNode
+    | Unused
+
+[<Fact>]
+let ``queries find a node held in a union prop case`` () =
+    let menu = keyed typeof<int> "menu"
+    let tree = node typeof<obj> None [] [ box (Held menu) ]
+
+    VirtualTree.findByKey "menu" tree |> should equal (Some menu)

@@ -397,8 +397,7 @@ let private emitModule (sb: StringBuilder) (input: EmitControlInput) =
         sb.AppendLine($"        {{ Type = typeof<{input.ControlFullName}>") |> ignore
         sb.AppendLine($"          Props = ps") |> ignore
         sb.AppendLine($"          Children = cs") |> ignore
-        sb.AppendLine($"          UserKey = uk") |> ignore
-        sb.AppendLine($"          InternalId = \"\" }}") |> ignore
+        sb.AppendLine($"          UserKey = uk }}") |> ignore
 
 /// Generate F# source code for a single control.
 let emitControlFile (input: EmitControlInput) : string =

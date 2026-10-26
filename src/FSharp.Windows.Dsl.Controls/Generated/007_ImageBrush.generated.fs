@@ -52,5 +52,4 @@ module ImageBrush =
         { Type = typeof<System.Windows.Media.ImageBrush>
           Props = ps
           Children = cs
-          UserKey = uk
-          InternalId = "" }
+          UserKey = uk }

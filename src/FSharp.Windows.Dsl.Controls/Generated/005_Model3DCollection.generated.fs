@@ -35,5 +35,4 @@ module Model3DCollection =
         { Type = typeof<System.Windows.Media.Media3D.Model3DCollection>
           Props = ps
           Children = cs
-          UserKey = uk
-          InternalId = "" }
+          UserKey = uk }

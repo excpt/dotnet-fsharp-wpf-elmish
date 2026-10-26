@@ -485,5 +485,4 @@ module Button =
         { Type = typeof<System.Windows.Controls.Button>
           Props = ps
           Children = cs
-          UserKey = uk
-          InternalId = "" }
+          UserKey = uk }

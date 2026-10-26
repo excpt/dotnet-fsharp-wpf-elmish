@@ -83,5 +83,4 @@ module DropShadowBitmapEffect =
         { Type = typeof<System.Windows.Media.Effects.DropShadowBitmapEffect>
           Props = ps
           Children = cs
-          UserKey = uk
-          InternalId = "" }
+          UserKey = uk }

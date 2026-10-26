@@ -477,5 +477,4 @@ module ProgressBar =
         { Type = typeof<System.Windows.Controls.ProgressBar>
           Props = ps
           Children = cs
-          UserKey = uk
-          InternalId = "" }
+          UserKey = uk }

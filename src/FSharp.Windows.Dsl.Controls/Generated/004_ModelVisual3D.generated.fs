@@ -43,5 +43,4 @@ module ModelVisual3D =
         { Type = typeof<System.Windows.Media.Media3D.ModelVisual3D>
           Props = ps
           Children = cs
-          UserKey = uk
-          InternalId = "" }
+          UserKey = uk }

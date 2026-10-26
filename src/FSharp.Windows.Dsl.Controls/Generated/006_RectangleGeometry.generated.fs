@@ -50,5 +50,4 @@ module RectangleGeometry =
         { Type = typeof<System.Windows.Media.RectangleGeometry>
           Props = ps
           Children = cs
-          UserKey = uk
-          InternalId = "" }
+          UserKey = uk }

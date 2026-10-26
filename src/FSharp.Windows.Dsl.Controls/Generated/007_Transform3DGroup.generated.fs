@@ -41,5 +41,4 @@ module Transform3DGroup =
         { Type = typeof<System.Windows.Media.Media3D.Transform3DGroup>
           Props = ps
           Children = cs
-          UserKey = uk
-          InternalId = "" }
+          UserKey = uk }

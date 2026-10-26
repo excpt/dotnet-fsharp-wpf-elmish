@@ -56,5 +56,4 @@ module GeometryModel3D =
         { Type = typeof<System.Windows.Media.Media3D.GeometryModel3D>
           Props = ps
           Children = cs
-          UserKey = uk
-          InternalId = "" }
+          UserKey = uk }

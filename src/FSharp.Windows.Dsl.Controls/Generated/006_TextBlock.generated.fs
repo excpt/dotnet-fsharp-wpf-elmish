@@ -502,5 +502,4 @@ module TextBlock =
         { Type = typeof<System.Windows.Controls.TextBlock>
           Props = ps
           Children = cs
-          UserKey = uk
-          InternalId = "" }
+          UserKey = uk }

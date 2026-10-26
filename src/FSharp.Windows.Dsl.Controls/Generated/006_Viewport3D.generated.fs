@@ -437,5 +437,4 @@ module Viewport3D =
         { Type = typeof<System.Windows.Controls.Viewport3D>
           Props = ps
           Children = cs
-          UserKey = uk
-          InternalId = "" }
+          UserKey = uk }

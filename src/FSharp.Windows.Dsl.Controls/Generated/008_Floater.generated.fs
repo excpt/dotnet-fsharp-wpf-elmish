@@ -395,5 +395,4 @@ module Floater =
         { Type = typeof<System.Windows.Documents.Floater>
           Props = ps
           Children = cs
-          UserKey = uk
-          InternalId = "" }
+          UserKey = uk }

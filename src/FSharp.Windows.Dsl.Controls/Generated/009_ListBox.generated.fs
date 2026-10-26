@@ -509,5 +509,4 @@ module ListBox =
         { Type = typeof<System.Windows.Controls.ListBox>
           Props = ps
           Children = cs
-          UserKey = uk
-          InternalId = "" }
+          UserKey = uk }

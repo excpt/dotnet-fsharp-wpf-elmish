@@ -573,5 +573,4 @@ module NavigationWindow =
         { Type = typeof<System.Windows.Navigation.NavigationWindow>
           Props = ps
           Children = cs
-          UserKey = uk
-          InternalId = "" }
+          UserKey = uk }

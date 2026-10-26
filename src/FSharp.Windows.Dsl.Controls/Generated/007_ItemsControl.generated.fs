@@ -554,5 +554,4 @@ module ItemsControl =
         { Type = typeof<System.Windows.Controls.ItemsControl>
           Props = ps
           Children = cs
-          UserKey = uk
-          InternalId = "" }
+          UserKey = uk }

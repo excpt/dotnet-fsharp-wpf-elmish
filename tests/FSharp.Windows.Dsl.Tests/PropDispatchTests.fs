@@ -193,15 +193,13 @@ let ``strictProps raises a rejected value after the walk, with the tree complete
             { Type = typeof<DerivedElement>
               Props = props
               Children = []
-              UserKey = None
-              InternalId = "" }
+              UserKey = None }
 
         let panel children =
             { Type = typeof<System.Windows.Controls.StackPanel>
               Props = []
               Children = children
-              UserKey = None
-              InternalId = "" }
+              UserKey = None }
 
         let live = Dsl.createLive (panel [])
         Materializer.strictProps <- true

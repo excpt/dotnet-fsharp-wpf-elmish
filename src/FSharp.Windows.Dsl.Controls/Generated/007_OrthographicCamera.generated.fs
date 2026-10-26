@@ -57,5 +57,4 @@ module OrthographicCamera =
         { Type = typeof<System.Windows.Media.Media3D.OrthographicCamera>
           Props = ps
           Children = cs
-          UserKey = uk
-          InternalId = "" }
+          UserKey = uk }

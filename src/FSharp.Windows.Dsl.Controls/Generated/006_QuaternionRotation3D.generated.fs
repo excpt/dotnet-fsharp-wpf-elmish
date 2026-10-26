@@ -43,5 +43,4 @@ module QuaternionRotation3D =
         { Type = typeof<System.Windows.Media.Media3D.QuaternionRotation3D>
           Props = ps
           Children = cs
-          UserKey = uk
-          InternalId = "" }
+          UserKey = uk }

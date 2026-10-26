@@ -44,5 +44,4 @@ module GradientStop =
         { Type = typeof<System.Windows.Media.GradientStop>
           Props = ps
           Children = cs
-          UserKey = uk
-          InternalId = "" }
+          UserKey = uk }

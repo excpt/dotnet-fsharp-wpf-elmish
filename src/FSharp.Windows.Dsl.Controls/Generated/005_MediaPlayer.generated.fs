@@ -71,5 +71,4 @@ module MediaPlayer =
         { Type = typeof<System.Windows.Media.MediaPlayer>
           Props = ps
           Children = cs
-          UserKey = uk
-          InternalId = "" }
+          UserKey = uk }

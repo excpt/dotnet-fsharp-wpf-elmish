@@ -35,5 +35,4 @@ module Int32Collection =
         { Type = typeof<System.Windows.Media.Int32Collection>
           Props = ps
           Children = cs
-          UserKey = uk
-          InternalId = "" }
+          UserKey = uk }

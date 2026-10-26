@@ -381,5 +381,4 @@ module RowDefinition =
         { Type = typeof<System.Windows.Controls.RowDefinition>
           Props = ps
           Children = cs
-          UserKey = uk
-          InternalId = "" }
+          UserKey = uk }

@@ -52,5 +52,4 @@ module DrawingBrush =
         { Type = typeof<System.Windows.Media.DrawingBrush>
           Props = ps
           Children = cs
-          UserKey = uk
-          InternalId = "" }
+          UserKey = uk }

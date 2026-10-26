@@ -443,5 +443,4 @@ module Ellipse =
         { Type = typeof<System.Windows.Shapes.Ellipse>
           Props = ps
           Children = cs
-          UserKey = uk
-          InternalId = "" }
+          UserKey = uk }

@@ -35,5 +35,4 @@ module ThumbButtonInfoCollection =
         { Type = typeof<System.Windows.Shell.ThumbButtonInfoCollection>
           Props = ps
           Children = cs
-          UserKey = uk
-          InternalId = "" }
+          UserKey = uk }

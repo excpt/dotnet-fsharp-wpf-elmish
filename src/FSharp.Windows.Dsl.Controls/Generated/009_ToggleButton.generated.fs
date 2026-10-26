@@ -507,5 +507,4 @@ module ToggleButton =
         { Type = typeof<System.Windows.Controls.Primitives.ToggleButton>
           Props = ps
           Children = cs
-          UserKey = uk
-          InternalId = "" }
+          UserKey = uk }

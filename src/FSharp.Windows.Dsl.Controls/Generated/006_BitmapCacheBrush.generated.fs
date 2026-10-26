@@ -59,5 +59,4 @@ module BitmapCacheBrush =
         { Type = typeof<System.Windows.Media.BitmapCacheBrush>
           Props = ps
           Children = cs
-          UserKey = uk
-          InternalId = "" }
+          UserKey = uk }

@@ -543,5 +543,4 @@ module Frame =
         { Type = typeof<System.Windows.Controls.Frame>
           Props = ps
           Children = cs
-          UserKey = uk
-          InternalId = "" }
+          UserKey = uk }

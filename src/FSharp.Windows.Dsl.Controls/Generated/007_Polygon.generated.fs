@@ -452,5 +452,4 @@ module Polygon =
         { Type = typeof<System.Windows.Shapes.Polygon>
           Props = ps
           Children = cs
-          UserKey = uk
-          InternalId = "" }
+          UserKey = uk }

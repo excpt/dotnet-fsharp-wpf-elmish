@@ -540,5 +540,4 @@ module ToolTip =
         { Type = typeof<System.Windows.Controls.ToolTip>
           Props = ps
           Children = cs
-          UserKey = uk
-          InternalId = "" }
+          UserKey = uk }

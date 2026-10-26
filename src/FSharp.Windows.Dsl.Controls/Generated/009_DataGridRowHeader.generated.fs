@@ -492,5 +492,4 @@ module DataGridRowHeader =
         { Type = typeof<System.Windows.Controls.Primitives.DataGridRowHeader>
           Props = ps
           Children = cs
-          UserKey = uk
-          InternalId = "" }
+          UserKey = uk }

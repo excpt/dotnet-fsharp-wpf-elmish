@@ -71,5 +71,4 @@ module DrawingGroup =
         { Type = typeof<System.Windows.Media.DrawingGroup>
           Props = ps
           Children = cs
-          UserKey = uk
-          InternalId = "" }
+          UserKey = uk }

@@ -515,5 +515,4 @@ module DocumentViewer =
         { Type = typeof<System.Windows.Controls.DocumentViewer>
           Props = ps
           Children = cs
-          UserKey = uk
-          InternalId = "" }
+          UserKey = uk }

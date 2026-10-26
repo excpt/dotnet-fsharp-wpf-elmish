@@ -1,6 +1,7 @@
 namespace FSharp.Windows.Dsl
 
 open System
+open Microsoft.FSharp.Reflection
 
 /// Boxed property value. Each control has its own typed Prop DU;
 /// boxing erases the type so VirtualNode can hold props from any control.
@@ -11,8 +12,7 @@ type VirtualNode =
     { Type: Type
       Props: Prop list
       Children: VirtualNode list
-      UserKey: string option
-      InternalId: string }
+      UserKey: string option }
 
 /// Marker type for multiple children in prop lists (boxed alongside typed props).
 type ChildrenProp = Children of VirtualNode list
@@ -95,8 +95,6 @@ module Resource =
         box (ResourceRefProp(System.Windows.FrameworkElement.StyleProperty, box key))
 
 module VirtualTree =
-    /// Generate a stable position-based internal ID for reconciler matching.
-    let makeId (parentId: string) (index: int) (t: Type) : string = $"{parentId}.{index}.{t.Name}"
 
     /// Extract special props (children, content child, key) from a boxed prop list.
     /// Returns (children, userKey, filtered props without special markers).
@@ -122,12 +120,28 @@ module VirtualTree =
 
     // --- Query functions ---
 
+    /// Children plus the nodes held in props: CollectionProp items and any union
+    /// case field that is a VirtualNode (NodeProp, ContextMenu, Popup.Child), the
+    /// same subtrees Validate.tree walks.
+    let private subtrees (node: VirtualNode) =
+        node.Children
+        @ (node.Props
+           |> List.collect (fun p ->
+               match p with
+               | :? CollectionProp as (CollectionProp(_, cs)) -> cs
+               | _ when FSharpType.IsUnion(p.GetType(), true) ->
+                   [ for field in snd (FSharpValue.GetUnionFields(p, p.GetType(), true)) do
+                         match field with
+                         | :? VirtualNode as held -> held
+                         | _ -> () ]
+               | _ -> []))
+
     /// Find first node of a given control type (depth-first).
     let rec findByType (t: Type) (node: VirtualNode) : VirtualNode option =
         if node.Type = t then
             Some node
         else
-            node.Children |> List.tryPick (findByType t)
+            subtrees node |> List.tryPick (findByType t)
 
     /// Find all nodes of a given control type (depth-first).
     let findAllByType (t: Type) (node: VirtualNode) : VirtualNode list =
@@ -137,7 +151,7 @@ module VirtualTree =
             if n.Type = t then
                 results.Add(n)
 
-            n.Children |> List.iter collect
+            subtrees n |> List.iter collect
 
         collect node
         results |> Seq.toList
@@ -147,7 +161,7 @@ module VirtualTree =
         if node.UserKey = Some key then
             Some node
         else
-            node.Children |> List.tryPick (findByKey key)
+            subtrees node |> List.tryPick (findByKey key)
 
     /// Get children of a node.
     let children (node: VirtualNode) : VirtualNode list = node.Children
@@ -160,7 +174,7 @@ module VirtualTree =
         if predicate root then
             true
         else
-            root.Children |> List.exists (exists predicate)
+            subtrees root |> List.exists (exists predicate)
 
     /// Try to extract a value from a node's props using an extractor function.
     /// Unwraps EventProp wrappers automatically.

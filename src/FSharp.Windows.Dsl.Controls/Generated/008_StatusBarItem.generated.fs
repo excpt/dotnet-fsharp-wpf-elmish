@@ -469,5 +469,4 @@ module StatusBarItem =
         { Type = typeof<System.Windows.Controls.Primitives.StatusBarItem>
           Props = ps
           Children = cs
-          UserKey = uk
-          InternalId = "" }
+          UserKey = uk }

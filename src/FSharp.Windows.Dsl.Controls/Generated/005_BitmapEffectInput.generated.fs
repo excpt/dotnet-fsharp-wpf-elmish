@@ -57,5 +57,4 @@ module BitmapEffectInput =
         { Type = typeof<System.Windows.Media.Effects.BitmapEffectInput>
           Props = ps
           Children = cs
-          UserKey = uk
-          InternalId = "" }
+          UserKey = uk }

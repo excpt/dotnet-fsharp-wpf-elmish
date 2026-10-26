@@ -443,5 +443,4 @@ module GridViewRowPresenter =
         { Type = typeof<System.Windows.Controls.GridViewRowPresenter>
           Props = ps
           Children = cs
-          UserKey = uk
-          InternalId = "" }
+          UserKey = uk }

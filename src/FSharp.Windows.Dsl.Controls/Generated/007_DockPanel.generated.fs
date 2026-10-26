@@ -442,5 +442,4 @@ module DockPanel =
         { Type = typeof<System.Windows.Controls.DockPanel>
           Props = ps
           Children = cs
-          UserKey = uk
-          InternalId = "" }
+          UserKey = uk }

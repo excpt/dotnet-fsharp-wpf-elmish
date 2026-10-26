@@ -42,5 +42,4 @@ module VisualStateGroup =
         { Type = typeof<System.Windows.VisualStateGroup>
           Props = ps
           Children = cs
-          UserKey = uk
-          InternalId = "" }
+          UserKey = uk }

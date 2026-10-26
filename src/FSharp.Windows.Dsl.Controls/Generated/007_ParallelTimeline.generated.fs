@@ -68,5 +68,4 @@ module ParallelTimeline =
         { Type = typeof<System.Windows.Media.Animation.ParallelTimeline>
           Props = ps
           Children = cs
-          UserKey = uk
-          InternalId = "" }
+          UserKey = uk }

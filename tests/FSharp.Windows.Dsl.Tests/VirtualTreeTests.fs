@@ -11,14 +11,12 @@ let ``VirtualNode can be created with all fields`` () =
         { Type = typeof<obj>
           Props = []
           Children = []
-          UserKey = None
-          InternalId = "" }
+          UserKey = None }
 
     node.Type |> should equal typeof<obj>
     node.Props |> should be Empty
     node.Children |> should be Empty
     node.UserKey |> should equal None
-    node.InternalId |> should equal ""
 
 [<Fact>]
 let ``VirtualNode supports structural equality for equal nodes`` () =
@@ -26,15 +24,13 @@ let ``VirtualNode supports structural equality for equal nodes`` () =
         { Type = typeof<int>
           Props = []
           Children = []
-          UserKey = None
-          InternalId = "a" }
+          UserKey = None }
 
     let node2 =
         { Type = typeof<int>
           Props = []
           Children = []
-          UserKey = None
-          InternalId = "a" }
+          UserKey = None }
 
     node1 |> should equal node2
 
@@ -44,15 +40,13 @@ let ``VirtualNode with different Type are not equal`` () =
         { Type = typeof<int>
           Props = []
           Children = []
-          UserKey = None
-          InternalId = "" }
+          UserKey = None }
 
     let node2 =
         { Type = typeof<string>
           Props = []
           Children = []
-          UserKey = None
-          InternalId = "" }
+          UserKey = None }
 
     node1 |> should not' (equal node2)
 
@@ -62,15 +56,13 @@ let ``VirtualNode with different UserKey are not equal`` () =
         { Type = typeof<int>
           Props = []
           Children = []
-          UserKey = Some "a"
-          InternalId = "" }
+          UserKey = Some "a" }
 
     let node2 =
         { Type = typeof<int>
           Props = []
           Children = []
-          UserKey = Some "b"
-          InternalId = "" }
+          UserKey = Some "b" }
 
     node1 |> should not' (equal node2)
 
@@ -80,15 +72,13 @@ let ``VirtualNode with different Props are not equal`` () =
         { Type = typeof<int>
           Props = [ box 1 ]
           Children = []
-          UserKey = None
-          InternalId = "" }
+          UserKey = None }
 
     let node2 =
         { Type = typeof<int>
           Props = [ box 2 ]
           Children = []
-          UserKey = None
-          InternalId = "" }
+          UserKey = None }
 
     node1 |> should not' (equal node2)
 
@@ -98,22 +88,19 @@ let ``VirtualNode with children preserves order`` () =
         { Type = typeof<int>
           Props = []
           Children = []
-          UserKey = Some "first"
-          InternalId = "" }
+          UserKey = Some "first" }
 
     let child2 =
         { Type = typeof<string>
           Props = []
           Children = []
-          UserKey = Some "second"
-          InternalId = "" }
+          UserKey = Some "second" }
 
     let parent =
         { Type = typeof<obj>
           Props = []
           Children = [ child1; child2 ]
-          UserKey = None
-          InternalId = "" }
+          UserKey = None }
 
     parent.Children |> should haveLength 2
     parent.Children.[0].UserKey |> should equal (Some "first")
@@ -125,22 +112,19 @@ let ``VirtualNode supports nested children`` () =
         { Type = typeof<int>
           Props = []
           Children = []
-          UserKey = None
-          InternalId = "" }
+          UserKey = None }
 
     let child =
         { Type = typeof<string>
           Props = []
           Children = [ grandchild ]
-          UserKey = None
-          InternalId = "" }
+          UserKey = None }
 
     let parent =
         { Type = typeof<obj>
           Props = []
           Children = [ child ]
-          UserKey = None
-          InternalId = "" }
+          UserKey = None }
 
     parent.Children.[0].Children |> should haveLength 1
 
@@ -150,26 +134,9 @@ let ``VirtualNode reference equality holds for same instance`` () =
         { Type = typeof<int>
           Props = []
           Children = []
-          UserKey = None
-          InternalId = "" }
+          UserKey = None }
 
     Object.ReferenceEquals(node, node) |> should be True
-
-[<Fact>]
-let ``makeId generates correct format`` () =
-    let id = VirtualTree.makeId "root" 0 typeof<int>
-    id |> should equal "root.0.Int32"
-
-[<Fact>]
-let ``makeId with empty parent`` () =
-    let id = VirtualTree.makeId "" 3 typeof<string>
-    id |> should equal ".3.String"
-
-[<Fact>]
-let ``makeId with nested parent id`` () =
-    let parentId = VirtualTree.makeId "root" 0 typeof<obj>
-    let childId = VirtualTree.makeId parentId 1 typeof<int>
-    childId |> should equal "root.0.Object.1.Int32"
 
 // --- extractSpecialProps tests ---
 
@@ -177,8 +144,7 @@ let private dummyNode =
     { Type = typeof<int>
       Props = []
       Children = []
-      UserKey = None
-      InternalId = "" }
+      UserKey = None }
 
 [<Fact>]
 let ``extractSpecialProps extracts ChildrenProp`` () =

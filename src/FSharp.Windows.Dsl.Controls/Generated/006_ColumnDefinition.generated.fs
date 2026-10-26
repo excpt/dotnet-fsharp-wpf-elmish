@@ -383,5 +383,4 @@ module ColumnDefinition =
         { Type = typeof<System.Windows.Controls.ColumnDefinition>
           Props = ps
           Children = cs
-          UserKey = uk
-          InternalId = "" }
+          UserKey = uk }

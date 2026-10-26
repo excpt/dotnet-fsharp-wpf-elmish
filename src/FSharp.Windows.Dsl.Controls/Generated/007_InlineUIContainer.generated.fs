@@ -371,5 +371,4 @@ module InlineUIContainer =
         { Type = typeof<System.Windows.Documents.InlineUIContainer>
           Props = ps
           Children = cs
-          UserKey = uk
-          InternalId = "" }
+          UserKey = uk }

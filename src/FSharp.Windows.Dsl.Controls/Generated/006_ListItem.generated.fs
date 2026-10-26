@@ -411,5 +411,4 @@ module ListItem =
         { Type = typeof<System.Windows.Documents.ListItem>
           Props = ps
           Children = cs
-          UserKey = uk
-          InternalId = "" }
+          UserKey = uk }

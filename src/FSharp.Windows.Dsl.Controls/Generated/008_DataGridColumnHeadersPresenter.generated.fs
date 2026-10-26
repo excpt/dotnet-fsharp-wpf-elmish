@@ -500,5 +500,4 @@ module DataGridColumnHeadersPresenter =
         { Type = typeof<System.Windows.Controls.Primitives.DataGridColumnHeadersPresenter>
           Props = ps
           Children = cs
-          UserKey = uk
-          InternalId = "" }
+          UserKey = uk }

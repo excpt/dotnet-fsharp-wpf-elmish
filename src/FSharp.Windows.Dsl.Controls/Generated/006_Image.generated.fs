@@ -464,5 +464,4 @@ module Image =
         { Type = typeof<System.Windows.Controls.Image>
           Props = ps
           Children = cs
-          UserKey = uk
-          InternalId = "" }
+          UserKey = uk }

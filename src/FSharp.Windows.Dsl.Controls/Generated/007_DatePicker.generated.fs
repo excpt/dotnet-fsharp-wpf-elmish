@@ -538,5 +538,4 @@ module DatePicker =
         { Type = typeof<System.Windows.Controls.DatePicker>
           Props = ps
           Children = cs
-          UserKey = uk
-          InternalId = "" }
+          UserKey = uk }

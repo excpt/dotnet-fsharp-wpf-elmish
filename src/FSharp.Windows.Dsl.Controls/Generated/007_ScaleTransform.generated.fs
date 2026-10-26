@@ -52,5 +52,4 @@ module ScaleTransform =
         { Type = typeof<System.Windows.Media.ScaleTransform>
           Props = ps
           Children = cs
-          UserKey = uk
-          InternalId = "" }
+          UserKey = uk }

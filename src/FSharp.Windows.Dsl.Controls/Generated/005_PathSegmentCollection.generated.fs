@@ -35,5 +35,4 @@ module PathSegmentCollection =
         { Type = typeof<System.Windows.Media.PathSegmentCollection>
           Props = ps
           Children = cs
-          UserKey = uk
-          InternalId = "" }
+          UserKey = uk }

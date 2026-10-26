@@ -469,5 +469,4 @@ module GroupItem =
         { Type = typeof<System.Windows.Controls.GroupItem>
           Props = ps
           Children = cs
-          UserKey = uk
-          InternalId = "" }
+          UserKey = uk }

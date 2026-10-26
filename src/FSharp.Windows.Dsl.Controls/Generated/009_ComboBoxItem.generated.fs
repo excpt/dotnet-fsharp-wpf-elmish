@@ -476,5 +476,4 @@ module ComboBoxItem =
         { Type = typeof<System.Windows.Controls.ComboBoxItem>
           Props = ps
           Children = cs
-          UserKey = uk
-          InternalId = "" }
+          UserKey = uk }

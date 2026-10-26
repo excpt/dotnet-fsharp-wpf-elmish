@@ -405,5 +405,4 @@ module Paragraph =
         { Type = typeof<System.Windows.Documents.Paragraph>
           Props = ps
           Children = cs
-          UserKey = uk
-          InternalId = "" }
+          UserKey = uk }

@@ -501,5 +501,4 @@ module HeaderedContentControl =
         { Type = typeof<System.Windows.Controls.HeaderedContentControl>
           Props = ps
           Children = cs
-          UserKey = uk
-          InternalId = "" }
+          UserKey = uk }

@@ -447,5 +447,4 @@ module WrapPanel =
         { Type = typeof<System.Windows.Controls.WrapPanel>
           Props = ps
           Children = cs
-          UserKey = uk
-          InternalId = "" }
+          UserKey = uk }

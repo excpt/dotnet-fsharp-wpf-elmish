@@ -35,5 +35,4 @@ module PathFigureCollection =
         { Type = typeof<System.Windows.Media.PathFigureCollection>
           Props = ps
           Children = cs
-          UserKey = uk
-          InternalId = "" }
+          UserKey = uk }

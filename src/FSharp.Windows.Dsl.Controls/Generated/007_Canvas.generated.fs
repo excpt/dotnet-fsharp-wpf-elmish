@@ -446,5 +446,4 @@ module Canvas =
         { Type = typeof<System.Windows.Controls.Canvas>
           Props = ps
           Children = cs
-          UserKey = uk
-          InternalId = "" }
+          UserKey = uk }

@@ -35,5 +35,4 @@ module MaterialCollection =
         { Type = typeof<System.Windows.Media.Media3D.MaterialCollection>
           Props = ps
           Children = cs
-          UserKey = uk
-          InternalId = "" }
+          UserKey = uk }

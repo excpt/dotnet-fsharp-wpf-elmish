@@ -40,5 +40,4 @@ module MaterialGroup =
         { Type = typeof<System.Windows.Media.Media3D.MaterialGroup>
           Props = ps
           Children = cs
-          UserKey = uk
-          InternalId = "" }
+          UserKey = uk }

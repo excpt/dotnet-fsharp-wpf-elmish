@@ -450,5 +450,4 @@ module UniformGrid =
         { Type = typeof<System.Windows.Controls.Primitives.UniformGrid>
           Props = ps
           Children = cs
-          UserKey = uk
-          InternalId = "" }
+          UserKey = uk }

@@ -370,5 +370,4 @@ module TableRow =
         { Type = typeof<System.Windows.Documents.TableRow>
           Props = ps
           Children = cs
-          UserKey = uk
-          InternalId = "" }
+          UserKey = uk }

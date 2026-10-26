@@ -108,25 +108,49 @@ module Reconciler =
         | :? EventProp as (EventProp inner) -> inner.GetType() :> obj
         | _ -> p.GetType() :> obj
 
+    /// Each prop with its slot. Handlers add up, so a repeated event slot (two
+    /// onClick handlers) is numbered by occurrence and matched pairwise; any other
+    /// repeated slot is last-wins and keeps one key.
+    let private slots (props: obj list) =
+        let seen = Dictionary<obj, int>()
+
+        props
+        |> List.map (fun p ->
+            match p with
+            | :? EventProp ->
+                let k = propKey p
+
+                let n =
+                    match seen.TryGetValue(k) with
+                    | true, n -> n
+                    | _ -> 0
+
+                seen.[k] <- n + 1
+                box (struct (k, n)), p
+            | _ -> propKey p, p)
+
     /// Swap an event handler on a live element using reflection.
     /// Extracts event name from F# DU case name (OnXxx → Xxx),
     /// calls RemoveHandler(old) + AddHandler(new) via the CLR event.
     let private swapEventHandler (el: DependencyObject) (oldInner: obj) (newInner: obj) =
         let caseName = oldInner.GetType().Name
 
-        if caseName.StartsWith("On") && caseName.Length > 2 then
-            let eventName = caseName.Substring(2)
-            let evInfo = el.GetType().GetEvent(eventName)
+        let evInfo =
+            if caseName.StartsWith("On") && caseName.Length > 2 then
+                el.GetType().GetEvent(caseName.Substring(2))
+            else
+                null
 
-            if not (isNull evInfo) then
-                let itemProp = oldInner.GetType().GetProperty("Item")
+        let itemProp = oldInner.GetType().GetProperty("Item")
 
-                if not (isNull itemProp) then
-                    match itemProp.GetValue(oldInner), itemProp.GetValue(newInner) with
-                    | (:? Delegate as oldH), (:? Delegate as newH) when not (Object.ReferenceEquals(oldH, newH)) ->
-                        evInfo.RemoveEventHandler(el, oldH)
-                        evInfo.AddEventHandler(el, newH)
-                    | _ -> ()
+        if isNull evInfo || isNull itemProp then
+            Materializer.report (UnappliedProp(el.GetType(), oldInner.GetType()))
+        else
+            match itemProp.GetValue(oldInner), itemProp.GetValue(newInner) with
+            | (:? Delegate as oldH), (:? Delegate as newH) when not (Object.ReferenceEquals(oldH, newH)) ->
+                evInfo.RemoveEventHandler(el, oldH)
+                evInfo.AddEventHandler(el, newH)
+            | _ -> ()
 
     /// Diff old and new props, applying only changes in-place.
     /// Value props: re-apply changed ones (SetValue is idempotent).
@@ -134,62 +158,59 @@ module Reconciler =
     /// AttachedProps: re-apply changed ones (SetValue is idempotent).
     /// Dropped props: cleared (Materializer.clearProp), so conditional props turn off.
     let private diffAndApplyProps (el: DependencyObject) (oldProps: obj list) (newProps: obj list) =
-        // Build map of old props by key for O(1) lookup
+        // Build map of old props by slot for O(1) lookup
         let oldMap = Dictionary<obj, obj>()
 
-        for p in oldProps do
-            oldMap.[propKey p] <- p
+        for k, p in slots oldProps do
+            oldMap.[k] <- p
 
         // Clear props the new tree dropped. First, so a slot that changes kind
         // (a value replaced by a resource reference on the same DP) is cleared
         // before the new kind is set, not after.
-        let newKeys = HashSet<obj>(newProps |> Seq.map propKey)
+        let newSlots = slots newProps
+        let newKeys = HashSet<obj>(newSlots |> Seq.map fst)
 
         for KeyValue(key, p) in oldMap do
             if not (newKeys.Contains key) then
                 Materializer.guard el p (fun () -> Materializer.clearProp el p)
 
         // Apply new props that differ from old
-        let applyNew (p: obj) =
+        let applyNew (key: obj) (p: obj) =
             match p with
             | :? EventProp as (EventProp newInner) ->
-                let key = propKey p
-
                 match oldMap.TryGetValue(key) with
                 | true, (:? EventProp as (EventProp oldInner)) -> swapEventHandler el oldInner newInner
                 | _ -> Materializer.tryApplyProp el (el.GetType()) newInner
             | :? AttachedProp as (AttachedProp(dp, value)) ->
-                match oldMap.TryGetValue(dp :> obj) with
+                match oldMap.TryGetValue(key) with
                 | true, (:? AttachedProp as (AttachedProp(_, oldValue))) when oldValue = value -> ()
                 | _ -> el.SetValue(dp, value)
             | :? CollectionProp as (CollectionProp(name, cs)) ->
-                match oldMap.TryGetValue(propKey p) with
+                match oldMap.TryGetValue(key) with
                 | true, (:? CollectionProp as (CollectionProp(_, oldCs))) when oldCs = cs -> ()
                 | _ -> Materializer.applyCollectionProp el name cs
             | :? NodeProp as (NodeProp(name, child)) ->
-                match oldMap.TryGetValue(propKey p) with
+                match oldMap.TryGetValue(key) with
                 | true, (:? NodeProp as (NodeProp(_, oldChild))) when oldChild = child -> ()
                 | _ -> Materializer.applyNodeProp el name child
             | :? ResourcesProp as (ResourcesProp entries) ->
-                match oldMap.TryGetValue(propKey p) with
+                match oldMap.TryGetValue(key) with
                 | true, (:? ResourcesProp as (ResourcesProp oldEntries)) when oldEntries = entries -> ()
                 | true, (:? ResourcesProp as (ResourcesProp oldEntries)) ->
                     Materializer.updateResourceEntries el oldEntries entries
                 | _ -> Materializer.applyResourceEntries el entries
-            | :? ResourceRefProp as (ResourceRefProp(dp, key)) ->
-                match oldMap.TryGetValue(propKey p) with
-                | true, (:? ResourceRefProp as (ResourceRefProp(_, oldKey))) when Object.Equals(oldKey, key) -> ()
-                | _ -> Materializer.applyResourceReference el dp key
+            | :? ResourceRefProp as (ResourceRefProp(dp, resKey)) ->
+                match oldMap.TryGetValue(key) with
+                | true, (:? ResourceRefProp as (ResourceRefProp(_, oldKey))) when Object.Equals(oldKey, resKey) -> ()
+                | _ -> Materializer.applyResourceReference el dp resKey
             | _ ->
-                let key = propKey p
-
                 match oldMap.TryGetValue(key) with
                 | true, oldP when oldP = p -> () // Unchanged — skip
                 | _ -> Materializer.tryApplyProp el (el.GetType()) p // Changed or new — apply
 
         // Each guarded, so a rejected value is recorded and the walk goes on
-        for p in newProps do
-            Materializer.guard el p (fun () -> applyNew p)
+        for k, p in newSlots do
+            Materializer.guard el p (fun () -> applyNew k p)
 
     /// Recursively diff old and new virtual trees, applying changes to the live WPF tree.
     let rec private reconcile
@@ -289,6 +310,10 @@ module Reconciler =
 
             for (k, newChild) in List.zip (effectiveKeys newChildren) newChildren do
                 match oldMap.TryGetValue(k) with
+                | true, (oldNode, el) when Object.ReferenceEquals(oldNode, newChild) ->
+                    stats.Skipped <- stats.Skipped + 1
+                    target.Add(el)
+                    oldMap.Remove(k) |> ignore
                 | true, (oldNode, el) when oldNode.Type = newChild.Type ->
                     if oldNode.Props <> newChild.Props then
                         stats.PropReapplied <- stats.PropReapplied + 1

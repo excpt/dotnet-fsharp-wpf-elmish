@@ -413,5 +413,4 @@ module TableCell =
         { Type = typeof<System.Windows.Documents.TableCell>
           Props = ps
           Children = cs
-          UserKey = uk
-          InternalId = "" }
+          UserKey = uk }

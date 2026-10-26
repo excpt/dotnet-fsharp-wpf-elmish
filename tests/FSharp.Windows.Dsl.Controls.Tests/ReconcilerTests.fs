@@ -681,3 +681,98 @@ let ``children a parent cannot hold are reported, at runtime and by Validate`` (
         diagnostics |> should contain (ChildrenNotHeld(typeof<TextBlock>, 0, 1))
         Validate.tree two |> should equal [ ChildrenNotHeld(typeof<Border>, 1, 2) ]
         Validate.tree one |> should equal [ ChildrenNotHeld(typeof<TextBlock>, 0, 1) ])
+
+// --- Event props ---
+
+[<Fact>]
+let ``two handlers of the same event are both swapped on update`` () =
+    runSta (fun () ->
+        register ()
+        let calls = Array.zeroCreate 4
+
+        let h i =
+            RoutedEventHandler(fun _ _ -> calls.[i] <- calls.[i] + 1)
+
+        let tree a b =
+            stackPanel [ StackPanel.children [ button [ Button.onClick (h a); Button.onClick (h b) ] ] ]
+
+        let live = Dsl.createLive (tree 0 1)
+        Dsl.update live (tree 2 3)
+
+        let btn = (live.Root :?> StackPanel).Children.[0] :?> Button
+        btn.RaiseEvent(RoutedEventArgs(Controls.Primitives.ButtonBase.ClickEvent))
+        calls |> should equal [| 0; 0; 1; 1 |])
+
+/// An event case whose name matches no CLR event, as a hand-written DU might.
+/// Two cases, so each compiles to its own nested type like the generated DUs.
+type private FakeEvent =
+    | OnNoSuchEvent of RoutedEventHandler
+    | Clicked of RoutedEventHandler
+
+[<Fact>]
+let ``a handler swap that cannot resolve its event is reported`` () =
+    runSta (fun () ->
+        register ()
+
+        // Each handler captures its render, so the two delegates differ
+        let handler (render: int) =
+            OnNoSuchEvent(RoutedEventHandler(fun _ _ -> ignore render))
+
+        let tree render =
+            stackPanel [ StackPanel.children [ button [ box (EventProp(box (handler render))) ] ] ]
+
+        let live = Dsl.createLive (tree 1)
+        Materializer.clearDiagnostics ()
+        Dsl.update live (tree 2)
+
+        Materializer.diagnostics ()
+        |> should contain (UnappliedProp(typeof<Button>, (handler 0).GetType())))
+
+// --- Keyed children ---
+
+[<Fact>]
+let ``keyed path skips a child that is the same reference`` () =
+    runSta (fun () ->
+        register ()
+        let shared = textBlock [ box (Key "shared"); TextBlock.text "same" ]
+
+        let tree (s: string) =
+            stackPanel [ StackPanel.children [ shared; textBlock [ box (Key "other"); TextBlock.text s ] ] ]
+
+        let live = Dsl.createLive (tree "a")
+        Dsl.update live (tree "b")
+
+        Reconciler.lastStats.Skipped |> should equal 1)
+
+[<Fact>]
+let ``a handler swap whose case is not named On... is reported`` () =
+    runSta (fun () ->
+        register ()
+
+        let handler (render: int) =
+            Clicked(RoutedEventHandler(fun _ _ -> ignore render))
+
+        let tree render =
+            stackPanel [ StackPanel.children [ button [ box (EventProp(box (handler render))) ] ] ]
+
+        let live = Dsl.createLive (tree 1)
+        Materializer.clearDiagnostics ()
+        Dsl.update live (tree 2)
+
+        Materializer.diagnostics ()
+        |> should contain (UnappliedProp(typeof<Button>, (handler 0).GetType())))
+
+// --- Repeated value props ---
+
+[<Fact>]
+let ``a repeated value prop keeps last-wins when its later copy is dropped`` () =
+    runSta (fun () ->
+        register ()
+
+        let tree props =
+            stackPanel [ StackPanel.children [ textBlock props ] ]
+
+        let live = Dsl.createLive (tree [ TextBlock.text "a"; TextBlock.text "b" ])
+        Dsl.update live (tree [ TextBlock.text "a" ])
+
+        ((live.Root :?> StackPanel).Children.[0] :?> TextBlock).Text |> should equal "a")

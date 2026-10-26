@@ -476,5 +476,4 @@ module ListViewItem =
         { Type = typeof<System.Windows.Controls.ListViewItem>
           Props = ps
           Children = cs
-          UserKey = uk
-          InternalId = "" }
+          UserKey = uk }

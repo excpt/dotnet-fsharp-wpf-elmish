@@ -469,5 +469,4 @@ module UserControl =
         { Type = typeof<System.Windows.Controls.UserControl>
           Props = ps
           Children = cs
-          UserKey = uk
-          InternalId = "" }
+          UserKey = uk }

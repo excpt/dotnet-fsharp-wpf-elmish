@@ -458,5 +458,4 @@ module VirtualizingStackPanel =
         { Type = typeof<System.Windows.Controls.VirtualizingStackPanel>
           Props = ps
           Children = cs
-          UserKey = uk
-          InternalId = "" }
+          UserKey = uk }

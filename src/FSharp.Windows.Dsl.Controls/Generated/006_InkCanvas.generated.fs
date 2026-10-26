@@ -564,5 +564,4 @@ module InkCanvas =
         { Type = typeof<System.Windows.Controls.InkCanvas>
           Props = ps
           Children = cs
-          UserKey = uk
-          InternalId = "" }
+          UserKey = uk }

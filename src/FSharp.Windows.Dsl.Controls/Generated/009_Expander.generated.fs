@@ -502,5 +502,4 @@ module Expander =
         { Type = typeof<System.Windows.Controls.Expander>
           Props = ps
           Children = cs
-          UserKey = uk
-          InternalId = "" }
+          UserKey = uk }

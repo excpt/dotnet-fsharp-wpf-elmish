@@ -484,5 +484,4 @@ module ScrollBar =
         { Type = typeof<System.Windows.Controls.Primitives.ScrollBar>
           Props = ps
           Children = cs
-          UserKey = uk
-          InternalId = "" }
+          UserKey = uk }

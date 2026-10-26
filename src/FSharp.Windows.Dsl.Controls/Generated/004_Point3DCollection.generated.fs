@@ -35,5 +35,4 @@ module Point3DCollection =
         { Type = typeof<System.Windows.Media.Media3D.Point3DCollection>
           Props = ps
           Children = cs
-          UserKey = uk
-          InternalId = "" }
+          UserKey = uk }

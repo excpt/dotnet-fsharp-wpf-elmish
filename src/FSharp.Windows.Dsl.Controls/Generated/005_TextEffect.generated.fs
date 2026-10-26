@@ -56,5 +56,4 @@ module TextEffect =
         { Type = typeof<System.Windows.Media.TextEffect>
           Props = ps
           Children = cs
-          UserKey = uk
-          InternalId = "" }
+          UserKey = uk }

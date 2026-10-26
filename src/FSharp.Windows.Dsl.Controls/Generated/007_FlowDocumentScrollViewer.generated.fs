@@ -557,5 +557,4 @@ module FlowDocumentScrollViewer =
         { Type = typeof<System.Windows.Controls.FlowDocumentScrollViewer>
           Props = ps
           Children = cs
-          UserKey = uk
-          InternalId = "" }
+          UserKey = uk }

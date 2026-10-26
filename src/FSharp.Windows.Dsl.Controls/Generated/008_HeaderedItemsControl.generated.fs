@@ -525,5 +525,4 @@ module HeaderedItemsControl =
         { Type = typeof<System.Windows.Controls.HeaderedItemsControl>
           Props = ps
           Children = cs
-          UserKey = uk
-          InternalId = "" }
+          UserKey = uk }

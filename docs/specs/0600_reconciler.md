@@ -119,6 +119,11 @@ each render to see the latest state.
 A handler dropped from the new tree is detached (the generated `clear` calls
 `RemoveHandler`), so `button [ if model.CanSave then Button.onClick save ]` stops
 firing once `CanSave` is false.
+Two handlers of one event (two `onClick` on one button) are matched by occurrence,
+first with first, so each old handler is swapped for its counterpart. Any other
+repeated prop is last-wins. An `EventProp` case that names no CLR event (`OnXxx`
+where `Xxx` is not an event of the element) cannot be swapped; that is reported as
+`UnappliedProp` and the old handler stays attached.
 
 ### Dropped Props
 
@@ -189,7 +194,11 @@ let diffChildren old newDef patches =
     | Leaf         -> diffLeafProps old newDef patches
 ```
 
-**Keyed diffing** for dynamic / conditional children — O(n) with a dictionary:
+**Keyed diffing** for dynamic / conditional children — old children are matched
+through a dictionary. Moving an element into place finds its current index with a
+linear scan, so a full reorder is O(n²); at the 20-50 children a component diffs
+that is not worth a cleverer move algorithm. A child that is the same reference as
+its old node is skipped without a walk (`Stats.Skipped`), as in the index diff:
 
 ```fsharp
 let diffKeyed old newChildren patches =

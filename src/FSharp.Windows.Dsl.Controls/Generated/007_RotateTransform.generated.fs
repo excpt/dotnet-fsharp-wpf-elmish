@@ -48,5 +48,4 @@ module RotateTransform =
         { Type = typeof<System.Windows.Media.RotateTransform>
           Props = ps
           Children = cs
-          UserKey = uk
-          InternalId = "" }
+          UserKey = uk }

@@ -66,5 +66,4 @@ module ScaleTransform3D =
         { Type = typeof<System.Windows.Media.Media3D.ScaleTransform3D>
           Props = ps
           Children = cs
-          UserKey = uk
-          InternalId = "" }
+          UserKey = uk }

@@ -59,5 +59,4 @@ module ArcSegment =
         { Type = typeof<System.Windows.Media.ArcSegment>
           Props = ps
           Children = cs
-          UserKey = uk
-          InternalId = "" }
+          UserKey = uk }

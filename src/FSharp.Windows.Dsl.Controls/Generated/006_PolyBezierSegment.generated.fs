@@ -43,5 +43,4 @@ module PolyBezierSegment =
         { Type = typeof<System.Windows.Media.PolyBezierSegment>
           Props = ps
           Children = cs
-          UserKey = uk
-          InternalId = "" }
+          UserKey = uk }

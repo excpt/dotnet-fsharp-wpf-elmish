@@ -435,5 +435,4 @@ module ToolBarPanel =
         { Type = typeof<System.Windows.Controls.Primitives.ToolBarPanel>
           Props = ps
           Children = cs
-          UserKey = uk
-          InternalId = "" }
+          UserKey = uk }

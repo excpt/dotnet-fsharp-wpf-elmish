@@ -481,5 +481,4 @@ module GroupBox =
         { Type = typeof<System.Windows.Controls.GroupBox>
           Props = ps
           Children = cs
-          UserKey = uk
-          InternalId = "" }
+          UserKey = uk }

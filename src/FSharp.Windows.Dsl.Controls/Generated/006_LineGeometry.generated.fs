@@ -46,5 +46,4 @@ module LineGeometry =
         { Type = typeof<System.Windows.Media.LineGeometry>
           Props = ps
           Children = cs
-          UserKey = uk
-          InternalId = "" }
+          UserKey = uk }

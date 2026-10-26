@@ -62,5 +62,4 @@ module TextDecoration =
         { Type = typeof<System.Windows.TextDecoration>
           Props = ps
           Children = cs
-          UserKey = uk
-          InternalId = "" }
+          UserKey = uk }

@@ -315,6 +315,11 @@ hot reload is the designer.
 Ships in **FSharp.Windows.Dsl** (not Testing) because it's useful at runtime too.
 But the Testing package re-exports it for convenience.
 
+The search queries (`findByType`, `findAllByType`, `findByKey`, `exists`) walk the
+same subtrees as `Validate.tree`: children, the nodes held in `CollectionProp` (grid
+columns), and any prop case whose field is a node (`NodeProp`, `Button.contextMenu`,
+`Popup.child`).
+
 ```fsharp
 module VirtualTree =
 

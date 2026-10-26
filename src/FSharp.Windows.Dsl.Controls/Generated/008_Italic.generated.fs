@@ -371,5 +371,4 @@ module Italic =
         { Type = typeof<System.Windows.Documents.Italic>
           Props = ps
           Children = cs
-          UserKey = uk
-          InternalId = "" }
+          UserKey = uk }

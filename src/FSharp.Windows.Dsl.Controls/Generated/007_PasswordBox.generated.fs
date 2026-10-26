@@ -514,5 +514,4 @@ module PasswordBox =
         { Type = typeof<System.Windows.Controls.PasswordBox>
           Props = ps
           Children = cs
-          UserKey = uk
-          InternalId = "" }
+          UserKey = uk }

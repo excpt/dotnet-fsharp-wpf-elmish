@@ -452,5 +452,4 @@ module Rectangle =
         { Type = typeof<System.Windows.Shapes.Rectangle>
           Props = ps
           Children = cs
-          UserKey = uk
-          InternalId = "" }
+          UserKey = uk }

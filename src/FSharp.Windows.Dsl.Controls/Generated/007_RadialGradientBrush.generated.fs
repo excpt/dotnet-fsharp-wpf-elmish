@@ -69,5 +69,4 @@ module RadialGradientBrush =
         { Type = typeof<System.Windows.Media.RadialGradientBrush>
           Props = ps
           Children = cs
-          UserKey = uk
-          InternalId = "" }
+          UserKey = uk }

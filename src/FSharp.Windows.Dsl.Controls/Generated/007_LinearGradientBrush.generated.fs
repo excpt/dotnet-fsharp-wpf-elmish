@@ -60,5 +60,4 @@ module LinearGradientBrush =
         { Type = typeof<System.Windows.Media.LinearGradientBrush>
           Props = ps
           Children = cs
-          UserKey = uk
-          InternalId = "" }
+          UserKey = uk }

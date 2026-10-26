@@ -54,5 +54,4 @@ module SpecularMaterial =
         { Type = typeof<System.Windows.Media.Media3D.SpecularMaterial>
           Props = ps
           Children = cs
-          UserKey = uk
-          InternalId = "" }
+          UserKey = uk }

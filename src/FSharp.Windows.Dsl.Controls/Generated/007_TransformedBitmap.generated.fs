@@ -59,5 +59,4 @@ module TransformedBitmap =
         { Type = typeof<System.Windows.Media.Imaging.TransformedBitmap>
           Props = ps
           Children = cs
-          UserKey = uk
-          InternalId = "" }
+          UserKey = uk }

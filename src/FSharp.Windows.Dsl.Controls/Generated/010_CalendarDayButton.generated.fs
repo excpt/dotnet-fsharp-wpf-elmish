@@ -478,5 +478,4 @@ module CalendarDayButton =
         { Type = typeof<System.Windows.Controls.Primitives.CalendarDayButton>
           Props = ps
           Children = cs
-          UserKey = uk
-          InternalId = "" }
+          UserKey = uk }

@@ -121,5 +121,4 @@ module DataGridTextColumn =
         { Type = typeof<System.Windows.Controls.DataGridTextColumn>
           Props = ps
           Children = cs
-          UserKey = uk
-          InternalId = "" }
+          UserKey = uk }

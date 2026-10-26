@@ -10,7 +10,6 @@ type VirtualNode = {
     Props      : Prop list
     Children   : VirtualNode list
     UserKey    : string option        // provided by consumer for dynamic children
-    InternalId : string               // reconciler-assigned, stable position-based id
 }
 ```
 
@@ -28,12 +27,12 @@ Empty   → Empty                → nothing
 
 ```fsharp
 // user key — required for conditional / dynamic children
-Button.create [ key "submit-btn" ]
-
-// auto id — position-based, assigned by reconciler
-let makeId (parentId: string) (index: int) (t: Type) =
-    $"{parentId}.{index}.{t.Name}"
+Button.create [ box (Key "submit-btn") ]
 ```
+
+Unkeyed children carry no id. Their position is their identity: the index diff
+matches them by position, and in a keyed list `effectiveKeys` gives each one its
+type and ordinal among unkeyed siblings of that type.
 
 Reconciler matching priority:
 1. `UserKey` match with the same type → same element, diff props. A `UserKey` match with a different type is a replace: the old element is removed and a new one created (counted in `Reconciler.Stats.Replaced`)

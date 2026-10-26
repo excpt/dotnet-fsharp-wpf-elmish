@@ -459,5 +459,4 @@ module Track =
         { Type = typeof<System.Windows.Controls.Primitives.Track>
           Props = ps
           Children = cs
-          UserKey = uk
-          InternalId = "" }
+          UserKey = uk }

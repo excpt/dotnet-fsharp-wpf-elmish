@@ -506,5 +506,4 @@ module DatePickerTextBox =
         { Type = typeof<System.Windows.Controls.Primitives.DatePickerTextBox>
           Props = ps
           Children = cs
-          UserKey = uk
-          InternalId = "" }
+          UserKey = uk }

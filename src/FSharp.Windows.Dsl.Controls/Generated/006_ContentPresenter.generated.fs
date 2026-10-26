@@ -477,5 +477,4 @@ module ContentPresenter =
         { Type = typeof<System.Windows.Controls.ContentPresenter>
           Props = ps
           Children = cs
-          UserKey = uk
-          InternalId = "" }
+          UserKey = uk }

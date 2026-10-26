@@ -449,5 +449,4 @@ module DataGridDetailsPresenter =
         { Type = typeof<System.Windows.Controls.Primitives.DataGridDetailsPresenter>
           Props = ps
           Children = cs
-          UserKey = uk
-          InternalId = "" }
+          UserKey = uk }

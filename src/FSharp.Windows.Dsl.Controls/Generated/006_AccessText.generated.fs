@@ -504,5 +504,4 @@ module AccessText =
         { Type = typeof<System.Windows.Controls.AccessText>
           Props = ps
           Children = cs
-          UserKey = uk
-          InternalId = "" }
+          UserKey = uk }

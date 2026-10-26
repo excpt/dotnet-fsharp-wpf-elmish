@@ -47,5 +47,4 @@ module BlurBitmapEffect =
         { Type = typeof<System.Windows.Media.Effects.BlurBitmapEffect>
           Props = ps
           Children = cs
-          UserKey = uk
-          InternalId = "" }
+          UserKey = uk }

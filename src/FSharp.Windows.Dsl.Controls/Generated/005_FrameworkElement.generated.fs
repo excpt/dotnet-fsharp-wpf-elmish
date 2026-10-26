@@ -556,5 +556,4 @@ module FrameworkElement =
         { Type = typeof<System.Windows.FrameworkElement>
           Props = ps
           Children = cs
-          UserKey = uk
-          InternalId = "" }
+          UserKey = uk }

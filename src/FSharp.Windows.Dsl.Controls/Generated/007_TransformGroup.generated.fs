@@ -39,5 +39,4 @@ module TransformGroup =
         { Type = typeof<System.Windows.Media.TransformGroup>
           Props = ps
           Children = cs
-          UserKey = uk
-          InternalId = "" }
+          UserKey = uk }

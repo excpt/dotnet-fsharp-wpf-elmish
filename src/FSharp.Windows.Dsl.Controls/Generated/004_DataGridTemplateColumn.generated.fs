@@ -108,5 +108,4 @@ module DataGridTemplateColumn =
         { Type = typeof<System.Windows.Controls.DataGridTemplateColumn>
           Props = ps
           Children = cs
-          UserKey = uk
-          InternalId = "" }
+          UserKey = uk }

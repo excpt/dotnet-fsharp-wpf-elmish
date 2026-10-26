@@ -438,5 +438,4 @@ module DocumentReference =
         { Type = typeof<System.Windows.Documents.DocumentReference>
           Props = ps
           Children = cs
-          UserKey = uk
-          InternalId = "" }
+          UserKey = uk }

@@ -48,5 +48,4 @@ module GlyphRunDrawing =
         { Type = typeof<System.Windows.Media.GlyphRunDrawing>
           Props = ps
           Children = cs
-          UserKey = uk
-          InternalId = "" }
+          UserKey = uk }

@@ -460,5 +460,4 @@ module Grid =
         { Type = typeof<System.Windows.Controls.Grid>
           Props = ps
           Children = cs
-          UserKey = uk
-          InternalId = "" }
+          UserKey = uk }

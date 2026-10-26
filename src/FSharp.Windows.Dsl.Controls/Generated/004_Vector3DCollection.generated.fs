@@ -35,5 +35,4 @@ module Vector3DCollection =
         { Type = typeof<System.Windows.Media.Media3D.Vector3DCollection>
           Props = ps
           Children = cs
-          UserKey = uk
-          InternalId = "" }
+          UserKey = uk }

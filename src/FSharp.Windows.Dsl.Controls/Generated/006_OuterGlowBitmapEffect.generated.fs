@@ -66,5 +66,4 @@ module OuterGlowBitmapEffect =
         { Type = typeof<System.Windows.Media.Effects.OuterGlowBitmapEffect>
           Props = ps
           Children = cs
-          UserKey = uk
-          InternalId = "" }
+          UserKey = uk }

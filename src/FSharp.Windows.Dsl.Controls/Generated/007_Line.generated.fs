@@ -460,5 +460,4 @@ module Line =
         { Type = typeof<System.Windows.Shapes.Line>
           Props = ps
           Children = cs
-          UserKey = uk
-          InternalId = "" }
+          UserKey = uk }

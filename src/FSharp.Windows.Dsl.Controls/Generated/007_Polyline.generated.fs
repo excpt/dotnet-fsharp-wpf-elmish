@@ -452,5 +452,4 @@ module Polyline =
         { Type = typeof<System.Windows.Shapes.Polyline>
           Props = ps
           Children = cs
-          UserKey = uk
-          InternalId = "" }
+          UserKey = uk }
