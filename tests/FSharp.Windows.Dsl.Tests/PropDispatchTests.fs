@@ -180,3 +180,39 @@ let ``re-registering an apply replaces one already dispatched to`` () =
             el.BaseValue |> should equal "re:after"
         finally
             Materializer.registerApply<BaseElement, BaseElementProp> (fun el (SetBase v) -> el.BaseValue <- v))
+
+type BoomProp = Boom
+
+[<Fact>]
+let ``strictProps raises a rejected value after the walk, with the tree complete`` () =
+    runSta (fun () ->
+        register ()
+        Materializer.registerApply<DerivedElement, BoomProp> (fun _ _ -> invalidOp "boom")
+
+        let node (props: obj list) =
+            { Type = typeof<DerivedElement>
+              Props = props
+              Children = []
+              UserKey = None
+              InternalId = "" }
+
+        let panel children =
+            { Type = typeof<System.Windows.Controls.StackPanel>
+              Props = []
+              Children = children
+              UserKey = None
+              InternalId = "" }
+
+        let live = Dsl.createLive (panel [])
+        Materializer.strictProps <- true
+
+        try
+            (fun () -> Dsl.update live (panel [ node [ box Boom ]; node [] ]))
+            |> should throw typeof<System.InvalidOperationException>
+        finally
+            Materializer.strictProps <- false
+
+        (live.Root :?> System.Windows.Controls.StackPanel).Children.Count
+        |> should equal 2
+
+        live.CurrentTree.Children.Length |> should equal 2)

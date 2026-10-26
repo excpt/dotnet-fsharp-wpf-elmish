@@ -55,6 +55,16 @@ module Reconciler =
         | :? Controls.ItemsControl as ic when index < ic.Items.Count -> ic.Items.RemoveAt(index)
         | _ -> ()
 
+    /// Drop every live child, for a rebuild after a walk that did not finish.
+    /// Items generated from ItemsSource are not ours to clear.
+    let internal clearChildren (parent: DependencyObject) =
+        match parent with
+        | :? Panel as p -> p.Children.Clear()
+        | :? ContentControl as cc -> cc.Content <- null
+        | :? Decorator as d -> d.Child <- null
+        | :? Controls.ItemsControl as ic when isNull ic.ItemsSource -> ic.Items.Clear()
+        | _ -> ()
+
     /// Insert a materialized child into a parent at the given index.
     let private insertChild (parent: DependencyObject) (index: int) (child: DependencyObject) =
         match parent with
@@ -80,18 +90,6 @@ module Reconciler =
 
             ic.Items.Insert(index, child)
         | _ -> ()
-
-    /// Apply all props to a live element (used for initial creation and root).
-    let private applyProps (el: DependencyObject) (props: obj list) =
-        for prop in props do
-            match prop with
-            | :? AttachedProp as (AttachedProp(dp, value)) -> el.SetValue(dp, value)
-            | :? CollectionProp as (CollectionProp(name, cs)) -> Materializer.applyCollectionProp el name cs
-            | :? NodeProp as (NodeProp(name, child)) -> Materializer.applyNodeProp el name child
-            | :? ResourcesProp as (ResourcesProp entries) -> Materializer.applyResourceEntries el entries
-            | :? ResourceRefProp as (ResourceRefProp(dp, key)) -> Materializer.applyResourceReference el dp key
-            | :? EventProp as (EventProp inner) -> Materializer.applyProp el inner
-            | _ -> Materializer.applyProp el prop
 
     /// Prop identity key — uniquely identifies a prop "slot" regardless of value.
     /// Each F# DU case compiles to a distinct nested type. AttachedProps share
@@ -149,17 +147,17 @@ module Reconciler =
 
         for KeyValue(key, p) in oldMap do
             if not (newKeys.Contains key) then
-                Materializer.clearProp el p
+                Materializer.guard el p (fun () -> Materializer.clearProp el p)
 
         // Apply new props that differ from old
-        for p in newProps do
+        let applyNew (p: obj) =
             match p with
             | :? EventProp as (EventProp newInner) ->
                 let key = propKey p
 
                 match oldMap.TryGetValue(key) with
                 | true, (:? EventProp as (EventProp oldInner)) -> swapEventHandler el oldInner newInner
-                | _ -> Materializer.applyProp el newInner
+                | _ -> Materializer.tryApplyProp el (el.GetType()) newInner
             | :? AttachedProp as (AttachedProp(dp, value)) ->
                 match oldMap.TryGetValue(dp :> obj) with
                 | true, (:? AttachedProp as (AttachedProp(_, oldValue))) when oldValue = value -> ()
@@ -187,7 +185,11 @@ module Reconciler =
 
                 match oldMap.TryGetValue(key) with
                 | true, oldP when oldP = p -> () // Unchanged — skip
-                | _ -> Materializer.applyProp el p // Changed or new — apply
+                | _ -> Materializer.tryApplyProp el (el.GetType()) p // Changed or new — apply
+
+        // Each guarded, so a rejected value is recorded and the walk goes on
+        for p in newProps do
+            Materializer.guard el p (fun () -> applyNew p)
 
     /// Recursively diff old and new virtual trees, applying changes to the live WPF tree.
     let rec private reconcile
