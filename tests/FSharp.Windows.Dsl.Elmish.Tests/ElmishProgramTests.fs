@@ -77,3 +77,16 @@ let ``runChildWindow gives each program its own live tree`` () =
         parent.Window.Title |> should equal "Parent 0"
         parent.Renders.Value |> should equal parentRenders)
 
+// --- openChildView / updateChildView ---
+
+[<Fact>]
+let ``updateChildView re-renders the child view from the parent model`` () =
+    withOwner (fun owner ->
+        let view (count: int) (_: unit -> unit) = window [ Window.title $"View {count}" ]
+        let child = Program.openChildView owner view 0 ignore
+        child.Window.Title |> should equal "View 0"
+
+        Program.updateChildView child 5 ignore
+
+        child.Window.Title |> should equal "View 5")
+
