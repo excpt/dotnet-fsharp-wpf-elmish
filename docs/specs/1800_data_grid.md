@@ -115,15 +115,15 @@ let updateCache (key: CacheKey) (rows: 'T seq) =
 Grid keeps its stable reference. WPF binding notifies the grid automatically.
 No reconciler involvement.
 
-> **VERIFIED — ISSUE FOUND:** `Clear()` fires `NotifyCollectionChangedAction.Reset`
-> which causes grids (WPF DataGrid, DevExpress GridControl) to **reset scroll position**.
-> Clear()+Add() does NOT retain scroll position.
+> **CORRECTED:** a synchronous `Clear()`+`Add()` keeps scroll position (verified on WPF
+> DataGrid, ListBox and DevExpress GridControl), but it drops selection and the current row
+> and raises one Reset plus N Add notifications. Scroll is lost only if a layout pass runs
+> while the collection is empty (e.g. `DataCache.Clear` at load start, `Update` on arrival).
 >
-> **Mitigation strategies:**
-> 1. Manually save/restore scroll position around reload
-> 2. Use item-by-item Remove/Add instead of Clear
-> 3. Suppress change notifications during batch operation (custom collection)
-> 4. Use `BeginDataUpdate()`/`EndDataUpdate()` on DevExpress GridControl
+> `DataCache.Update` therefore syncs in place by index: rows `Equals` to the incoming row are
+> not touched (selection/current row survive), changed rows are replaced, extras are
+> added/removed. Insertions shift later rows, so they are replaced and lose selection.
+> For 10k+ rows on DevExpress also consider `BeginDataUpdate()`/`EndDataUpdate()`.
 
 ## Large Datasets — DevExpress Virtual Sources
 

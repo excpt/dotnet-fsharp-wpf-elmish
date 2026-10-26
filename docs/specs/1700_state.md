@@ -39,7 +39,7 @@ User selects date range
   → dispatch Load
     → fetch from gRPC
       → Loaded orders[]
-        → cache.Clear(); orders |> List.iter cache.Add
+        → cache.Update(key, orders)   // in-place sync, keeps selection of unchanged rows
           → grid re-renders from ObservableCollection
             → done
 ```
