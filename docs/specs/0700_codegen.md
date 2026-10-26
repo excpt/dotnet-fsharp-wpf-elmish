@@ -498,20 +498,33 @@ This catches events invisible to routed event discovery:
 
 ### Bridgeable Event Delegates
 
-F# `el.MyEvent.AddHandler(h)` (the `IEvent<_,_>` projection) only accepts
-delegates with the canonical `void Invoke(System.Object, System.EventArgs)`
-shape. Anything else trips FS1091 — non-void return (`HwndSourceHook` returns
-`IntPtr`), wrong arg count (`ImageFailedEventHandler` has three), or a derived
-sender type. We capture the structural verdict at discovery time:
+F# `el.MyEvent.AddHandler(h)` (the `IEvent<_,_>` projection) accepts a delegate whose
+`Invoke` returns void, takes at least two parameters, the first exactly `System.Object`,
+and none by reference. Anything else trips FS1091: a non-void return (`HwndSourceHook`
+returns `IntPtr`) or a derived sender type. The second parameter need not derive from
+`EventArgs`: `DependencyPropertyChangedEventArgs` is a struct, and `DataContextChanged`,
+`IsVisibleChanged` and the other `DependencyPropertyChangedEventHandler` events compile
+like any other. The structural verdict is captured at discovery time:
 
 ```fsharp
 let isStandardEventDelegate (delegateType: Type) =
     let invoke = delegateType.GetMethod("Invoke")
+    let parms = invoke.GetParameters()
     invoke.ReturnType.FullName = "System.Void"
-    && invoke.GetParameters().Length = 2
-    && invoke.GetParameters().[0].ParameterType.FullName = "System.Object"
-    && inheritsEventArgs invoke.GetParameters().[1].ParameterType
+    && parms.Length >= 2
+    && parms.[0].ParameterType.FullName = "System.Object"
+    && parms |> Array.forall (fun p -> not p.ParameterType.IsByRef)
 ```
+
+Generic handlers (`EventHandler<T>`, `RoutedPropertyChangedEventHandler<T>`) are emitted:
+`fsharpTypeName` renders a constructed generic as F# source
+(`System.EventHandler<System.Windows.Controls.DataGridBeginningEditEventArgs>`), not as
+the CLR's ``EventHandler`1[[...]]``. That brings in DataGrid's editing, row and column
+events, `TreeView.SelectedItemChanged`, `RangeBase.ValueChanged` and the touch and
+manipulation events. Nested handler types are still left out.
+
+Every event the filter leaves out is printed with its reason during generation
+(`skip event HwndHost.MessageHook: ... is not void Invoke(obj, ...)`).
 
 Plus `[Obsolete]` is honoured — F# raises FS0101 on any reference to a
 deprecated construct, so a wrapper that names it would never compile
@@ -585,7 +598,7 @@ let emitControlFile (info: ControlInfo) (versionDPs: (string * DP[]) list) =
 | DO-valued DPs (`GridControl.View`) | `MaterializeBeforeSet` — DU case = `VirtualNode`, apply runs `Materializer.materialize` |
 | Auto-init list collections (`GridControl.Columns`) | `CollectionProp(name, children)` — Materializer reflects, clears, repopulates |
 | Routed events | Subscribe/unsubscribe via `AddHandler`/`RemoveHandler` |
-| CLR events (not routed) | Standard .NET event `add`/`remove`; structural `void Invoke(Object, EventArgs)` filter |
+| CLR events (not routed) | Standard .NET event `add`/`remove`; structural `void Invoke(Object, ...)` filter, generics rendered as F# source |
 | Non-visual DOs (`GridColumn`) | Reachability-pulled; same wrapper shape as visual |
 | `[Obsolete]` events | Skipped — F# FS0101 forbids referencing them |
 | Version-specific DPs | `#if` guards from TFM comparison |
