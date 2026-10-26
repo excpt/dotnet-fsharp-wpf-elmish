@@ -68,3 +68,10 @@ let ``KeyBindings.applyTo clears previous bindings`` () =
 
         KeyBindings.applyTo win [ KeyBindings.bind Key.B ModifierKeys.Control (fun () -> ()) ]
         win.InputBindings.Count |> should equal 1)
+
+[<Fact>]
+let ``bind accepts an unmodified letter key`` () =
+    runSta (fun () ->
+        let b = KeyBindings.bind Key.A ModifierKeys.None ignore :?> KeyBinding
+        b.Key |> should equal Key.A
+        b.Modifiers |> should equal ModifierKeys.None)

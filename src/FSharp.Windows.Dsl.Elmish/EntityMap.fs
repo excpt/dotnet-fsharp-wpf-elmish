@@ -44,4 +44,5 @@ module EntityMap =
 
     /// Create from a list of entities using a key selector.
     let ofList (keySelector: 'T -> 'id) (items: 'T list) : EntityMap<'id, 'T> =
-        items |> List.fold (fun map item -> upsertOne (keySelector item) item map) empty
+        { Ids = items |> List.map keySelector |> List.distinct
+          Entities = items |> List.map (fun item -> keySelector item, item) |> Map.ofList }

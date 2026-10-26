@@ -30,7 +30,9 @@ This keeps `update` fully testable — you test by dispatching `DeleteConfirmed`
 
 ## Dialog Module
 
-WPF dialogs are blocking calls. Wrap them as plain functions:
+WPF dialogs are blocking calls. Wrap them as plain functions. The shipped `Dialog`
+module owns each dialog by the active window (the main window when none is active), so
+it opens in front of the app rather than behind it:
 
 ```fsharp
 module Dialog =

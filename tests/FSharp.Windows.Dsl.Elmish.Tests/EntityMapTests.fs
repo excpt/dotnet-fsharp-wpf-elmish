@@ -114,3 +114,25 @@ let ``ofList creates EntityMap from key-value pairs`` () =
 
     EntityMap.count map |> should equal 2
     EntityMap.ids map |> should equal [ 1; 2 ]
+
+[<Fact>]
+let ``ofList keeps first-seen order and the last value for a repeated id`` () =
+    let map =
+        EntityMap.ofList
+            (fun o -> o.Id)
+            [ { Id = 2; Customer = "B" }
+              { Id = 1; Customer = "A" }
+              { Id = 2; Customer = "B2" } ]
+
+    EntityMap.ids map |> should equal [ 2; 1 ]
+    EntityMap.tryFind 2 map |> should equal (Some { Id = 2; Customer = "B2" })
+
+[<Fact>]
+let ``ofList is linear: 20k items well under a second`` () =
+    let sw = System.Diagnostics.Stopwatch.StartNew()
+
+    EntityMap.ofList (fun o -> o.Id) [ for i in 1..20_000 -> { Id = i; Customer = "" } ]
+    |> EntityMap.count
+    |> should equal 20_000
+
+    sw.ElapsedMilliseconds |> should be (lessThan 1000L)

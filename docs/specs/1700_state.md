@@ -45,6 +45,9 @@ User selects date range
 ```
 
 The `Order[]` never touches the model. It goes straight into the `ObservableCollection` cache.
+`DataCache.Update` changes an `ObservableCollection` a grid is bound to, so it must run on
+the UI thread: call it from `update` or a command's result message, which the run
+functions already dispatch there, not from a task continuation.
 The model only holds the date range, selection id, and loading state.
 
 **Reload is the sync strategy.** Users press reload when they want current data.

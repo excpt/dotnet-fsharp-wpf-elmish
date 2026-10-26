@@ -200,8 +200,9 @@ replace `setState`, so the auto-save survives `runWindow` and `runChildWindow`.
 
 What is saved and restored:
 
-- The model is written as JSON to `.elmish-debug-state.json` in the working directory
-  (`saveTo` / `restoreFrom` take an explicit path).
+- The model is written as JSON to `.elmish-debug-state.json` next to the app
+  (`AppContext.BaseDirectory`), so each app has its own file whatever directory it was
+  started from (`saveTo` / `restoreFrom` take an explicit path).
 - Records, options, lists, sets and maps use System.Text.Json's built-in F# support.
   Discriminated unions, which System.Text.Json rejects, go through an internal converter
   in `DebugState`: a case without fields is written as its name, a case with fields as

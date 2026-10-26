@@ -88,7 +88,11 @@ let subscribe (ctx: ComponentContext) (model: Model) =
 ## Subscription Lifetime
 
 `IDisposable` from `Subscribe` stored in `ComponentContext`.
-Disposed when component unmounts — no leaked subscriptions.
+Disposed when component unmounts — no leaked subscriptions. A subscription disposed while
+a message is being delivered gets no further calls, not even for that message.
+
+A subscriber that throws does not stop delivery to the others; the exception is written
+to `Trace` and the bus goes on.
 
 ```fsharp
 let onUnmount (ctx: ComponentContext) =

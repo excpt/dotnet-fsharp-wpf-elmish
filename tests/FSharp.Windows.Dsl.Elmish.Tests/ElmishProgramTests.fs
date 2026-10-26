@@ -213,3 +213,13 @@ let ``withTrace auto-save keeps the latest model across the run functions`` () =
             DebugState.restoreFrom<int> path |> should equal (Some 2)
         finally
             System.IO.File.Delete path)
+
+// --- Root contract ---
+
+[<Fact>]
+let ``a view whose root is not a Window fails with a message that says so`` () =
+    withOwner (fun owner ->
+        (fun () -> Program.openChildView owner (fun () _ -> stackPanel []) () ignore |> ignore)
+        |> should
+            (throwWithMessage "The view's root must be a Window, not StackPanel")
+            typeof<InvalidOperationException>)

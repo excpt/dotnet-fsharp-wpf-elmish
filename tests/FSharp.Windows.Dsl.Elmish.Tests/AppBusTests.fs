@@ -114,3 +114,24 @@ let ``disposing subscription twice does not throw`` () =
     sub.Dispose()
     sub.Dispose()
 // should not throw
+
+[<Fact>]
+let ``a subscriber disposed during delivery is not called afterwards`` () =
+    let bus = AppBus()
+    let late = ResizeArray()
+    let mutable second: System.IDisposable = null
+    let mutable firstCalls = 0
+
+    // The first handler disposes the second before its turn in the same delivery
+    use _ =
+        bus.Subscribe(fun _ ->
+            firstCalls <- firstCalls + 1
+            second.Dispose())
+
+    second <- bus.Subscribe(late.Add)
+
+    bus.Publish "x"
+    waitFor (fun () -> firstCalls = 1)
+    Thread.Sleep 50
+
+    late |> should be Empty

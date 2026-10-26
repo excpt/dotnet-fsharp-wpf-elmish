@@ -10,6 +10,13 @@ open FSharp.Windows.Dsl
 [<RequireQualifiedAccess>]
 module Program =
 
+    /// The root a window-hosting run function shows. Any other root type is a
+    /// view mistake, reported as one rather than as a bare InvalidCastException.
+    let private asWindow (root: DependencyObject) =
+        match root with
+        | :? Window as w -> w
+        | other -> invalidOp $"The view's root must be a Window, not {other.GetType().Name}"
+
     let private wireSetState (program: Program<_, 'model, 'msg, VirtualNode>) =
         // The UI thread wires the program, so this is its dispatcher. Read inside
         // setState, CurrentDispatcher would belong to whichever thread dispatched.
@@ -36,33 +43,31 @@ module Program =
 
         let getWindow () =
             match live with
-            | Some l -> l.Root :?> Window
+            | Some l -> asWindow l.Root
             | None -> failwith "Program has not been initialized"
 
         setState, syncDispatch, getWindow
 
-    /// Run an Elmish program as the main application window.
-    /// Creates the Application and starts the message pump.
-    let runWindow (program: Program<unit, 'model, 'msg, VirtualNode>) =
-        let setState, syncDispatch, getWindow = wireSetState program
-
-        program
-        |> Program.withSetState setState
-        |> Program.runWithDispatch syncDispatch ()
-
-        let app = Application()
-        app.Run(getWindow ())
-
     /// Run an Elmish program with an argument as the main application window.
+    /// Uses the host's Application if it created one, else creates it — before
+    /// init runs, so init commands see Application.Current — then starts the
+    /// message pump.
     let runWindowWithArg (arg: 'arg) (program: Program<'arg, 'model, 'msg, VirtualNode>) =
+        let app =
+            match Application.Current with
+            | null -> Application()
+            | existing -> existing
+
         let setState, syncDispatch, getWindow = wireSetState program
 
         program
         |> Program.withSetState setState
         |> Program.runWithDispatch syncDispatch arg
 
-        let app = Application()
         app.Run(getWindow ())
+
+    /// Run an Elmish program as the main application window.
+    let runWindow (program: Program<unit, 'model, 'msg, VirtualNode>) = runWindowWithArg () program
 
     /// Run an Elmish program as a child window owned by a parent.
     /// Non-blocking — shows the window and returns immediately.
@@ -94,7 +99,7 @@ module Program =
     /// Same model, same dispatch — just another view into the same state.
     /// Returns an update function the parent calls on each setState.
     type ChildView<'model, 'msg> =
-        { mutable Live: LiveTree option
+        { Live: LiveTree
           View: 'model -> ('msg -> unit) -> VirtualNode
           Window: Window }
 
@@ -108,19 +113,15 @@ module Program =
         =
         let tree = childView model dispatch
         let live = Dsl.createLive tree
-        let win = live.Root :?> Window
+        let win = asWindow live.Root
         win.Owner <- owner
         win.Show()
 
-        { Live = Some live
+        { Live = live
           View = childView
           Window = win }
 
     /// Update a child view with new model/dispatch from the parent.
     let updateChildView (child: ChildView<'model, 'msg>) (model: 'model) (dispatch: 'msg -> unit) =
         if child.Window.IsLoaded then
-            let tree = child.View model dispatch
-
-            match child.Live with
-            | Some live -> Dsl.update live tree
-            | None -> child.Live <- Some(Dsl.createLive tree)
+            Dsl.update child.Live (child.View model dispatch)

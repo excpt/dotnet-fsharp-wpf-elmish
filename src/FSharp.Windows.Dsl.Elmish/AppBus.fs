@@ -14,11 +14,14 @@ type AppBus<'msg>() =
                 async {
                     let! msg = inbox.Receive()
 
-                    for handler in subscriptions.Values do
-                        try
-                            handler msg
-                        with _ ->
-                            ()
+                    // Values is a snapshot: skip a handler disposed since it was taken
+                    for KeyValue(id, handler) in subscriptions.ToArray() do
+                        if subscriptions.ContainsKey id then
+                            try
+                                handler msg
+                            with e ->
+                                // One failing subscriber must not starve the others
+                                Diagnostics.Trace.TraceError($"AppBus subscriber failed: {e}")
 
                     return! loop ()
                 }

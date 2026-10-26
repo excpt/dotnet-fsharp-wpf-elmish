@@ -9,8 +9,6 @@ module KeyBindings =
 
     /// Create a KeyBinding from a key, modifiers, and an action.
     let bind (key: Key) (modifiers: ModifierKeys) (action: unit -> unit) : InputBinding =
-        let gesture = KeyGesture(key, modifiers)
-
         let command =
             { new ICommand with
                 member _.CanExecute _ = true
@@ -19,7 +17,9 @@ module KeyBindings =
                 [<CLIEvent>]
                 member _.CanExecuteChanged = Event<_, _>().Publish }
 
-        KeyBinding(command, gesture)
+        // Set by property, not through a KeyGesture: KeyGesture rejects a letter or
+        // digit with no modifier, which KeyBinding's own properties accept.
+        KeyBinding(Command = command, Key = key, Modifiers = modifiers)
 
     /// Apply key bindings to a window. Clears existing bindings first.
     let applyTo (window: Window) (bindings: InputBinding list) =

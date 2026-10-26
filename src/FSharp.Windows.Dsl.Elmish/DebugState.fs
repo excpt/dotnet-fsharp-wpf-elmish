@@ -135,7 +135,10 @@ module DebugState =
                 failed "restore from" path e
                 None
 
-    let private defaultPath = ".elmish-debug-state.json"
+    // Next to the app, not the working directory: one file per app, whatever
+    // directory the app was launched from.
+    let private defaultPath =
+        IO.Path.Combine(AppContext.BaseDirectory, ".elmish-debug-state.json")
 
     /// Save model to the default path.
     let save (model: 'model) = saveTo defaultPath model

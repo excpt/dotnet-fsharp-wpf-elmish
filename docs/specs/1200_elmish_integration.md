@@ -58,6 +58,19 @@ Elmish's own message queue is not thread-safe (its ring buffer and re-entrancy f
 are unsynchronised), so this marshalling is what makes cross-thread dispatch safe, not
 Elmish. A program started with plain `Program.run` does not get it.
 
+## Run Function Contract
+
+- `runWindow` uses the `Application` the host created, if any, and creates one otherwise,
+  before `init` runs, so `init` commands can rely on `Application.Current`.
+- The view's root must be a `Window`. Any other root fails with
+  `InvalidOperationException` naming the type.
+- An exception in `update`, `view` or a command goes to Elmish's error handler, which by
+  default only writes to `Trace`, invisible in a WinExe. Install
+  `Program.withErrorHandler` to show or log it.
+- `runChildWindow` does not stop the child loop when its window closes. A child with
+  subscriptions should end them itself: dispatch a message from `Window.onClosed` and
+  stop on it with `Program.withTermination`.
+
 ## Memoization at Component Boundaries
 
 ```fsharp

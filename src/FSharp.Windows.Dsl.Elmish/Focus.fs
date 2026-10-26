@@ -12,7 +12,7 @@ module Focus =
     /// Dispatches on the WPF Dispatcher to ensure the visual tree is ready.
     let element (name: string) : Cmd<'msg> =
         Cmd.ofEffect (fun _ ->
-            let win = Application.Current.MainWindow
+            let win = ActiveWindow.get ()
 
             if not (isNull win) then
                 win.Dispatcher.InvokeAsync(fun () ->
