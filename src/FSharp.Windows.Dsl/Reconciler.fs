@@ -231,7 +231,26 @@ module Reconciler =
     and private hasKeys (children: VirtualNode list) =
         children |> List.exists (fun c -> c.UserKey.IsSome)
 
-    /// Key-based children diffing — matches by UserKey, uses minimal moves.
+    /// One key per child, so the keyed diff tracks every element. Unkeyed
+    /// children get "\000Type\000n" (nth unkeyed child of that type), and a
+    /// repeated user key gets "\000n" appended, so neither collides with a
+    /// user key nor shadows its earlier twin in the old-children map.
+    and private effectiveKeys (children: VirtualNode list) =
+        let seen = Dictionary<string, int>()
+
+        children
+        |> List.map (fun c ->
+            let k = defaultArg c.UserKey ("\000" + c.Type.FullName)
+
+            let n =
+                match seen.TryGetValue(k) with
+                | true, n -> n
+                | _ -> 0
+
+            seen.[k] <- n + 1
+            if n = 0 && c.UserKey.IsSome then k else $"{k}\000{n}")
+
+    /// Key-based children diffing — matches by key, uses minimal moves.
     /// Elements already at the correct position are never detached.
     and private reconcileKeyedChildren
         (parent: DependencyObject)
@@ -245,22 +264,20 @@ module Reconciler =
             (removeAt: int -> unit)
             (insertAt: int -> DependencyObject -> unit)
             =
-            // Phase 1: Build map of old keyed children
+            // Phase 1: Build map of old children by effective key
             let oldMap = Dictionary<string, VirtualNode * DependencyObject>()
 
-            for i in 0 .. (oldChildren.Length - 1) do
-                match oldChildren.[i].UserKey with
-                | Some k when i < count -> oldMap.[k] <- (oldChildren.[i], getItem i)
-                | _ -> ()
+            List.zip (effectiveKeys oldChildren) oldChildren
+            |> List.iteri (fun i (k, c) ->
+                if i < count then
+                    oldMap.[k] <- (c, getItem i))
 
             // Phase 2: Resolve target list — diff props, collect elements
             let target = ResizeArray<DependencyObject>(newChildren.Length)
 
-            for newChild in newChildren do
-                match newChild.UserKey with
-                | Some k when oldMap.ContainsKey(k) ->
-                    let (oldNode, el) = oldMap.[k]
-
+            for (k, newChild) in List.zip (effectiveKeys newChildren) newChildren do
+                match oldMap.TryGetValue(k) with
+                | true, (oldNode, el) ->
                     if oldNode.Props <> newChild.Props then
                         stats.PropReapplied <- stats.PropReapplied + 1
                         diffAndApplyProps el oldNode.Props newChild.Props

@@ -461,3 +461,71 @@ let ``event handler refresh preserves element identity`` () =
 
         // Same element — event swap, not replacement
         Object.ReferenceEquals(sp.Children.[0], origBtn) |> should be True)
+
+// --- Mixed keyed and unkeyed children ---
+
+[<Fact>]
+let ``mixed keyed and unkeyed children keep count and identity across identical renders`` () =
+    runSta (fun () ->
+        register ()
+
+        let tree () =
+            stackPanel
+                [ StackPanel.children
+                      [ textBlock [ TextBlock.text "Header" ]
+                        button [ Key "a"; Button.content "A" ] ] ]
+
+        let live = Dsl.createLive (tree ())
+        let sp = live.Root :?> StackPanel
+        let header = sp.Children.[0]
+        let row = sp.Children.[1]
+
+        Dsl.update live (tree ())
+        Dsl.update live (tree ())
+
+        sp.Children.Count |> should equal 2
+        Object.ReferenceEquals(sp.Children.[0], header) |> should be True
+        Object.ReferenceEquals(sp.Children.[1], row) |> should be True)
+
+[<Fact>]
+let ``unkeyed placeholder is removed when keyed rows replace it`` () =
+    runSta (fun () ->
+        register ()
+
+        let live =
+            Dsl.createLive (stackPanel [ StackPanel.children [ textBlock [ TextBlock.text "Loading..." ] ] ])
+
+        let sp = live.Root :?> StackPanel
+
+        Dsl.update
+            live
+            (stackPanel
+                [ StackPanel.children
+                      [ button [ Key "a"; Button.content "A" ]
+                        button [ Key "b"; Button.content "B" ] ] ])
+
+        sp.Children.Count |> should equal 2
+
+        sp.Children
+        |> Seq.cast<UIElement>
+        |> Seq.forall (fun c -> c :? Button)
+        |> should be True)
+
+[<Fact>]
+let ``duplicate keys do not grow the children across renders`` () =
+    runSta (fun () ->
+        register ()
+
+        let tree () =
+            stackPanel
+                [ StackPanel.children
+                      [ button [ Key "a"; Button.content "1" ]
+                        button [ Key "a"; Button.content "2" ] ] ]
+
+        let live = Dsl.createLive (tree ())
+        let sp = live.Root :?> StackPanel
+
+        Dsl.update live (tree ())
+        Dsl.update live (tree ())
+
+        sp.Children.Count |> should equal 2)
