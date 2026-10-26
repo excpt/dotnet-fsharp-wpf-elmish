@@ -41,7 +41,9 @@ let update msg model =
         { model with Error = Some ex; Loading = false }, Cmd.none
 ```
 
-Tasks run off dispatcher thread. Result dispatched back onto it automatically.
+Tasks run off the UI thread and complete on the thread pool. Their result message is
+marshalled back to the UI thread by the dispatch that `Program.runWindow` installs
+(see 1200, Dispatch Threading), so `update` handles `DataLoaded` on the UI thread.
 
 ## Key Points
 
@@ -50,4 +52,4 @@ Tasks run off dispatcher thread. Result dispatched back onto it automatically.
 - `Cmd.OfTask.attempt` runs a `Task<unit>` and only dispatches on error (not for success results)
 - `Cmd.ofEffect` runs a synchronous side effect with access to `dispatch`
 - `Sub.effect` (NOT `Sub.ofEffect`) creates a long-lived subscription — key is `string list`, callback must return `IDisposable`
-- All async results are automatically dispatched — no manual thread marshalling needed
+- All async results are dispatched back to the UI thread by the run functions (`runWindow`, `runChildWindow`): no manual marshalling needed. A loop started with plain `Program.run` does not marshal.
