@@ -786,7 +786,7 @@ With shared output: ~55MB total.
 dotnet build vendor/FSharp.DevExpress.Wpf/FSharp.DevExpress.Wpf.Core/
 
 # Build everything (use the DevExpress solution)
-dotnet build FSharp.Windows.Dsl.DevExpress.slnx
+dotnet build solutions/FSharp.Windows.Dsl.DevExpress.slnx
 ```
 
 ### Using in an Application
