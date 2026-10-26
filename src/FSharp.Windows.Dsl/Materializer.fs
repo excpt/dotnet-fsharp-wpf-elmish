@@ -124,9 +124,20 @@ module Materializer =
 
             record (ApplyFailed(el.GetType(), propType, e.Message)) e
 
+    /// Set a registration, dropping what resolveIn cached for the DU's case types
+    /// under the previous one, so re-registering reaches cases already dispatched.
+    let private register (registry: ConcurrentDictionary<Type, 'v>) (propType: Type) (value: 'v) =
+        for cached in registry.Keys do
+            if cached <> propType && propType.IsAssignableFrom cached then
+                registry.TryRemove(cached) |> ignore
+
+        registry.[propType] <- value
+
     /// Register an apply function for a control type.
     let registerApply<'el, 'prop when 'el :> DependencyObject> (apply: 'el -> 'prop -> unit) =
-        owner.[typeof<'prop>] <-
+        register
+            owner
+            typeof<'prop>
             (typeof<'el>, (fun (el: DependencyObject) (prop: obj) -> apply (el :?> 'el) (prop :?> 'prop)))
 
     /// Undo for each prop type: what clears the slot its apply set, so a prop
@@ -135,7 +146,7 @@ module Materializer =
 
     /// Register the clear function that undoes a control type's apply.
     let registerClear<'el, 'prop when 'el :> DependencyObject> (clear: 'el -> 'prop -> unit) =
-        clearers.[typeof<'prop>] <- fun (el: DependencyObject) (prop: obj) -> clear (el :?> 'el) (prop :?> 'prop)
+        register clearers typeof<'prop> (fun (el: DependencyObject) (prop: obj) -> clear (el :?> 'el) (prop :?> 'prop))
 
     /// The registration for a prop type. A multi-case DU compiles each case
     /// to its own nested subtype, so what arrives boxed is the case type and the
@@ -197,7 +208,7 @@ module Materializer =
         | :? FrameworkContentElement as fce ->
             for (k, v) in entries do
                 fce.Resources.[k] <- v
-        | _ -> ()
+        | _ -> report (PropNotForElement(el.GetType(), typeof<ResourcesProp>, typeof<FrameworkElement>))
 
     /// Reconcile an element's ResourceDictionary against new entries: remove
     /// keys that vanished, set keys whose value changed, leave the rest alone
@@ -231,7 +242,7 @@ module Materializer =
         match el with
         | :? FrameworkElement as fe -> fe.SetResourceReference(dp, key)
         | :? FrameworkContentElement as fce -> fce.SetResourceReference(dp, key)
-        | _ -> ()
+        | _ -> report (PropNotForElement(el.GetType(), typeof<ResourceRefProp>, typeof<FrameworkElement>))
 
     /// Attach materialized children to a parent element based on its type.
     let rec private attachChildren (parent: DependencyObject) (children: VirtualNode list) =

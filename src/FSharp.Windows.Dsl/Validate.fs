@@ -3,6 +3,7 @@ namespace FSharp.Windows.Dsl
 open System
 open System.Collections
 open System.Reflection
+open System.Windows
 open Microsoft.FSharp.Reflection
 
 /// Static check of a virtual tree: what would the materializer be unable to
@@ -48,16 +49,25 @@ module Validate =
 
     /// Every problem in a tree, depth-first, parents before children.
     let rec tree (node: VirtualNode) : PropDiagnostic list =
-        [ for prop in node.Props do
+        [ let hasResources =
+              typeof<FrameworkElement>.IsAssignableFrom node.Type
+              || typeof<FrameworkContentElement>.IsAssignableFrom node.Type
+
+          for prop in node.Props do
               match prop with
-              // Markers the materializer handles itself — nothing to resolve.
-              | :? AttachedProp
+              // Ignored by the materializer, so not a problem here either.
+              | null -> ()
+              | :? AttachedProp -> ()
+              | :? ResourcesProp
+              | :? ResourceRefProp when not hasResources ->
+                  PropNotForElement(node.Type, prop.GetType(), typeof<FrameworkElement>)
               | :? ResourcesProp
               | :? ResourceRefProp -> ()
-              | :? EventProp as (EventProp inner) ->
+              | :? EventProp as (EventProp inner) when not (isNull inner) ->
                   match checkValueProp node.Type inner with
                   | Some problem -> problem
                   | None -> ()
+              | :? EventProp -> ()
               | :? NodeProp as (NodeProp(name, child)) ->
                   match checkNodeProp node.Type name child with
                   | Some problem -> problem

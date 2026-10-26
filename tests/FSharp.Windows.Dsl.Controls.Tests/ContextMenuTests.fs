@@ -196,7 +196,7 @@ let ``Build.contextMenu produces concrete ContextMenu`` () =
         (cm.Items.[0] :?> MenuItem).Header :?> string |> should equal "Cut")
 
 [<Fact>]
-let ``Build.contextMenu attaches to button via prop`` () =
+let ``contextMenu node attaches to button via prop`` () =
     runSta (fun () ->
         Registration.register ()
 

@@ -32,21 +32,23 @@ module Validation =
 
     /// Fails if the value is outside the inclusive range [min, max].
     let inline range (field: string) (min: 'a) (max: 'a) (value: 'a) : (string * string) option when 'a: comparison =
-        if value < min || value > max then
+        // `not (min <= value)` rather than `value < min`: NaN compares false both ways
+        if not (min <= value && value <= max) then
             Some(field, $"{field} must be between {min} and {max}")
         else
             None
 
     /// Fails if the value does not match the regex pattern.
     let pattern (field: string) (regex: string) (value: string) : (string * string) option =
-        if Regex.IsMatch(value, regex) then
+        if Regex.IsMatch((if isNull value then "" else value), regex) then
             None
         else
             Some(field, $"{field} is invalid")
 
     /// Collect validator results into a Map<fieldName, errorMessage>.
     /// First error per field wins.
-    let collect (results: (string * string) option list) : Map<string, string> = results |> List.choose id |> Map.ofList
+    let collect (results: (string * string) option list) : Map<string, string> =
+        results |> List.choose id |> List.rev |> Map.ofList
 
     /// Look up the error message for a specific field.
     let errorFor (field: string) (errors: Map<string, string>) : string option = Map.tryFind field errors

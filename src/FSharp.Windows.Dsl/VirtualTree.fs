@@ -85,7 +85,13 @@ module Resource =
 
     /// An implicit style entry, keyed by its TargetType: applies to every
     /// element of that type in scope, with no reference on the elements.
-    let implicitStyle (style: System.Windows.Style) : obj * obj = (box style.TargetType, box style)
+    /// A style with no TargetType of its own (Style.create) is keyed by WPF's
+    /// default, IFrameworkInputElement, which no element matches, so it is rejected.
+    let implicitStyle (style: System.Windows.Style) : obj * obj =
+        if style.TargetType = typeof<System.Windows.IFrameworkInputElement> then
+            invalidArg (nameof style) "an implicit style needs a TargetType (Style.createFor or Style.ofNode)"
+
+        (box style.TargetType, box style)
 
     /// Bind a dependency property to a keyed resource (dynamic lookup).
     let reference (dp: System.Windows.DependencyProperty) (key: string) : obj = box (ResourceRefProp(dp, box key))

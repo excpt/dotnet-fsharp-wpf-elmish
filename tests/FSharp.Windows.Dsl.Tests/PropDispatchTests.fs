@@ -214,3 +214,65 @@ let ``strictProps raises a rejected value after the walk, with the tree complete
         |> should equal 2
 
         live.CurrentTree.Children.Length |> should equal 2)
+
+type TwoCaseProp =
+    | CaseA of string
+    | CaseB of string
+
+[<Fact>]
+let ``re-registering an apply replaces it for a case of a multi-case DU`` () =
+    runSta (fun () ->
+        let apply prefix =
+            Materializer.registerApply<BaseElement, TwoCaseProp> (fun el p ->
+                match p with
+                | CaseA v
+                | CaseB v -> el.BaseValue <- prefix + v)
+
+        apply ""
+        let el = BaseElement()
+
+        // Dispatch a case first, so its case type is resolved...
+        Materializer.applyProp el (box (CaseA "before"))
+
+        // ...then re-register: the case must reach the new apply.
+        apply "re:"
+        Materializer.applyProp el (box (CaseA "after"))
+        el.BaseValue |> should equal "re:after")
+
+[<Fact>]
+let ``resource props on an element that has no resources are reported`` () =
+    runSta (fun () ->
+        Materializer.clearDiagnostics ()
+
+        let node =
+            { Type = typeof<System.Windows.Media.TranslateTransform>
+              Props =
+                [ Resource.dictionary [ Resource.named "k" 1 ]
+                  Resource.reference UIElement.OpacityProperty "k" ]
+              Children = []
+              UserKey = None }
+
+        Materializer.materialize node |> ignore
+        let expected = typeof<System.Windows.Media.TranslateTransform>
+
+        Materializer.diagnostics ()
+        |> should contain (PropNotForElement(expected, typeof<ResourcesProp>, typeof<FrameworkElement>))
+
+        Materializer.diagnostics ()
+        |> should contain (PropNotForElement(expected, typeof<ResourceRefProp>, typeof<FrameworkElement>))
+
+        Validate.tree node
+        |> should
+            equal
+            [ PropNotForElement(expected, typeof<ResourcesProp>, typeof<FrameworkElement>)
+              PropNotForElement(expected, typeof<ResourceRefProp>, typeof<FrameworkElement>) ])
+
+[<Fact>]
+let ``Validate skips a null prop, as the materializer does`` () =
+    let node =
+        { Type = typeof<BaseElement>
+          Props = [ null; box (EventProp null) ]
+          Children = []
+          UserKey = None }
+
+    Validate.tree node |> should be Empty

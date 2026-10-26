@@ -222,3 +222,20 @@ let ``validated field materializes with transparent border when valid`` () =
         let validBorder = sp.Children.[0] :?> Border
         validBorder.BorderBrush |> should equal Brushes.Transparent
         sp.Children.Count |> should equal 1)
+
+// --- Edge cases ---
+
+[<Fact>]
+let ``collect keeps the first error per field`` () =
+    Validation.collect [ Some("Name", "first"); Some("Name", "second") ]
+    |> Map.find "Name"
+    |> should equal "first"
+
+[<Fact>]
+let ``pattern treats null as empty, like the other string validators`` () =
+    Validation.pattern "Code" "^a$" null
+    |> should equal (Some("Code", "Code is invalid"))
+
+[<Fact>]
+let ``range rejects NaN`` () =
+    Validation.range "Score" 0.0 1.0 nan |> should not' (equal None)

@@ -36,7 +36,8 @@ module Style =
             for prop in node.Props do
                 match prop with
                 | :? EventProp -> invalidArg (nameof node) "a style cannot carry event handlers"
-                | :? CollectionProp -> invalidArg (nameof node) "a style cannot carry collection props"
+                | :? CollectionProp
+                | :? NodeProp -> invalidArg (nameof node) "a style cannot carry collection or node props"
                 | :? ResourcesProp
                 | :? ResourceRefProp -> invalidArg (nameof node) "a style cannot carry resource props"
                 | :? AttachedProp as (AttachedProp(dp, value)) -> probe.SetValue(dp, value)
@@ -82,7 +83,9 @@ module Style =
         s
 
     /// Register a typed Style as an implicit style in a ResourceDictionary.
-    let applyImplicit (resources: ResourceDictionary) (style: Style) = resources.[style.TargetType] <- style
+    let applyImplicit (resources: ResourceDictionary) (style: Style) =
+        let key, value = Resource.implicitStyle style
+        resources.[key] <- value
 
     /// Register multiple typed Styles as implicit styles.
     let applyImplicits (resources: ResourceDictionary) (styles: Style list) =

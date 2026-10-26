@@ -169,3 +169,24 @@ let ``ofNode on a window node leaves no window registered with the application``
         Style.ofNode (window [ Window.fontSize 13.0 ]) |> ignore
 
         app.Windows.Count |> should equal 0)
+
+[<Fact>]
+let ``Style.ofNode rejects node props`` () =
+    runSta (fun () ->
+        register ()
+
+        (fun () ->
+            Style.ofNode (button [ FSharp.Windows.Dsl.Node.prop "Content" (textBlock []) ])
+            |> ignore)
+        |> should throw typeof<System.ArgumentException>)
+
+[<Fact>]
+let ``an untyped style cannot be registered as implicit`` () =
+    runSta (fun () ->
+        let untyped = Style.create [ (Control.ForegroundProperty, box Brushes.Red) ]
+
+        (fun () -> FSharp.Windows.Dsl.Resource.implicitStyle untyped |> ignore)
+        |> should throw typeof<System.ArgumentException>
+
+        (fun () -> Style.applyImplicit (ResourceDictionary()) untyped)
+        |> should throw typeof<System.ArgumentException>)
