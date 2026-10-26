@@ -103,15 +103,9 @@ let fieldView (errors: Map<string, string>) (fieldName: string) (label: string) 
     stackPanel
         [ StackPanel.margin (Thickness(0.0, 0.0, 0.0, 12.0))
           StackPanel.children
-              // All three keyed: a conditional child needs a key, and mixing keyed
-              // with unkeyed siblings leaves stale children behind (see #12).
-              [ textBlock
-                    [ box (Key "label")
-                      TextBlock.text label
-                      TextBlock.margin (Thickness(0.0, 0.0, 0.0, 4.0)) ]
+              [ textBlock [ TextBlock.text label; TextBlock.margin (Thickness(0.0, 0.0, 0.0, 4.0)) ]
                 border
-                    [ box (Key "field")
-                      Border.borderBrush (
+                    [ Border.borderBrush (
                           if error.IsSome then
                               Brushes.Red
                           else
@@ -120,6 +114,7 @@ let fieldView (errors: Map<string, string>) (fieldName: string) (label: string) 
                       Border.borderThickness (Thickness 1.0)
                       Border.contentChild field ]
                 match error with
+                // Conditional children need a key
                 | Some msg ->
                     textBlock
                         [ box (Key "error")
