@@ -166,6 +166,12 @@ let diffKeyed old newChildren patches =
     |> Seq.iter   (fun k -> patches.Add(RemoveKey k))
 ```
 
+In the implementation (`Reconciler.reconcileKeyedChildren`), `getKey` is
+`effectiveKeys`: a child's user key, or for an unkeyed child a synthetic key of its
+type and its ordinal among unkeyed siblings of that type, with repeated user keys
+numbered by occurrence. Every old child is therefore in the map and every stale one
+is removed. Unkeyed children in a list that has any key are tracked, not leaked.
+
 ## Tier 5 — Patch Application
 
 Collect ALL patches first. Apply in a single `Dispatcher.Invoke`:
