@@ -55,12 +55,7 @@ let ``restore returns None on schema mismatch`` () =
 
     try
         File.WriteAllText(testPath, """{"Unrelated": true}""")
-        // Should still deserialize but fields get defaults — F# records require all fields
-        // so a mismatch will throw, which we catch → None
-        let restored = DebugState.restoreFrom<TestModel> testPath
-        // Either None (deserialization fails) or Some with defaults — both acceptable
-        // The key thing is it doesn't throw
-        true |> should be True
+        DebugState.restoreFrom<TestModel> testPath |> should equal None
     finally
         cleanup ()
 
@@ -85,4 +80,57 @@ let ``save overwrites previous state`` () =
         restored |> Option.map (fun m -> m.Text) |> should equal (Some "second")
         restored |> Option.map (fun m -> m.Count) |> should equal (Some 2)
     finally
+        cleanup ()
+
+// --- F# unions (System.Text.Json has no converter for them) ---
+
+type Page =
+    | Dashboard
+    | Settings of tab: int
+    | Detail of id: int * name: string
+
+type Tree =
+    | Leaf
+    | Node of Tree list
+
+type UnionModel =
+    { Page: Page
+      Previous: Page option
+      History: Page list
+      Tree: Tree
+      Last: Result<int, string>
+      Count: int }
+
+[<Fact>]
+let ``save and restore round-trips a model with unions`` () =
+    cleanup ()
+
+    try
+        let model =
+            { Page = Detail(7, "seven")
+              Previous = Some(Settings 2)
+              History = [ Dashboard; Settings 1 ]
+              Tree = Node [ Leaf; Node [ Leaf ] ]
+              Last = Error "boom"
+              Count = 3 }
+
+        DebugState.saveTo testPath model
+        DebugState.restoreFrom<UnionModel> testPath |> should equal (Some model)
+    finally
+        cleanup ()
+
+// --- Failures are visible ---
+
+type Unsupported = { Kind: System.Type }
+
+[<Fact>]
+let ``strict save throws for a model the serializer cannot handle`` () =
+    cleanup ()
+    DebugState.strict <- true
+
+    try
+        (fun () -> DebugState.saveTo testPath { Kind = typeof<int> })
+        |> should throw typeof<System.NotSupportedException>
+    finally
+        DebugState.strict <- false
         cleanup ()
