@@ -84,6 +84,13 @@ rather than as positional children.
 | Auto-init list DP (`GridControl.Columns`, `DataGrid.Columns`) | `CollectionProp(name, children)` | Reflects named CLR property, expects `IList`, clears + adds |
 | Single-element CLR property (`NavBarItem.Content`) | `NodeProp(name, node)` | Reflects named CLR property, materializes the node, assigns it |
 
+A `ContentControl` or `Decorator` holds one child and any other non-container none (the
+`children`/`contentChild` helpers exist on every type). Children past that are not
+attached and are reported as `ChildrenNotHeld(elementType, held, given)`: at runtime by the
+materializer and the reconciler, statically by `Validate.tree`. The reconciler only touches
+index 0 of a single-slot parent, so removing an extra child from the tree leaves the held
+one in place.
+
 ```fsharp
 gridControl
     [ GridControl.itemsSource src
