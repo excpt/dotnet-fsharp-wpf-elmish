@@ -10,6 +10,13 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
+      # The tag names the release; <Version> is what gets packed. They must agree.
+      - name: Verify tag matches version
+        shell: bash
+        run: |
+          v=$(grep -oP '(?<=<Version>)[^<]+' Directory.Build.props)
+          [ "v$v" = "$GITHUB_REF_NAME" ] || { echo "Tag $GITHUB_REF_NAME does not match <Version>$v</Version>"; exit 1; }
+
       - uses: actions/setup-dotnet@v5
         with:
           dotnet-version: "10.0.x"
@@ -23,14 +30,15 @@ jobs:
       # See ci.yml — the floor guards against a runner that discovers nothing and
       # exits 0, which is how this pipeline published without ever running a test.
       - name: Test
-        run: dotnet test --solution FSharp.Windows.Dsl.slnx --no-build -c Release --minimum-expected-tests 349
+        run: dotnet test --solution FSharp.Windows.Dsl.slnx --no-build -c Release --minimum-expected-tests 351
 
       - name: Pack
         run: >
           dotnet pack src/FSharp.Windows.Dsl/FSharp.Windows.Dsl.fsproj -c Release --no-build --output ./nupkgs;
           dotnet pack src/FSharp.Windows.Dsl.Elmish/FSharp.Windows.Dsl.Elmish.fsproj -c Release --no-build --output ./nupkgs;
           dotnet pack src/FSharp.Windows.Dsl.Controls/FSharp.Windows.Dsl.Controls.fsproj -c Release --no-build --output ./nupkgs;
-          dotnet pack src/FSharp.Windows.Dsl.Testing/FSharp.Windows.Dsl.Testing.fsproj -c Release --no-build --output ./nupkgs
+          dotnet pack src/FSharp.Windows.Dsl.Testing/FSharp.Windows.Dsl.Testing.fsproj -c Release --no-build --output ./nupkgs;
+          dotnet pack tools/Codegen/FSharp.Windows.Dsl.Codegen.fsproj -c Release --no-build --output ./nupkgs
 
       - name: Push to NuGet
         shell: bash
@@ -38,3 +46,4 @@ jobs:
           dotnet nuget push ./nupkgs/*.nupkg
           --source "https://api.nuget.org/v3/index.json"
           --api-key ${{ secrets.NUGET_API_KEY }}
+          --skip-duplicate
