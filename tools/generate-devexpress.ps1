@@ -152,7 +152,7 @@ function Invoke-GeneratePackage {
     $fsproj = @"
 <Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
-        <TargetFramework>net8.0-windows</TargetFramework>
+        <TargetFramework>net10.0-windows</TargetFramework>
         <UseWPF>true</UseWPF>
         <Version>$script:DxNugetVersion</Version>
         <Description>F# DSL wrappers for DevExpress WPF $Suffix controls (v$script:DxNugetVersion)</Description>

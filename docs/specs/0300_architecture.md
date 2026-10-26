@@ -49,7 +49,7 @@ FSharp.Windows.Dsl.Codegen      → reflection-based code generation CLI tool
 DevExpress wrappers are not published. `tools/generate-devexpress.sh` (or `.ps1`) runs the
 codegen tool against a local DevExpress install and writes one project per product area,
 `FSharp.DevExpress.Wpf.<Area>` (namespace `FSharp.DevExpress.Wpf.<Area>`, e.g. `.Grid`),
-targeting `net8.0-windows`, into the gitignored `vendor/` folder. CI does not build them.
+targeting `net10.0-windows` (the Controls target that carries the `NET8_0_OR_GREATER` cases), into the gitignored `vendor/` folder. CI does not build them.
 The same tool can generate wrappers for any other WPF control library.
 
 ## Package Dependency Graph

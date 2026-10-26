@@ -62,6 +62,7 @@ module Counter =
         | Increment
         | Decrement
         | Reset
+        | SetCount of int
 
     let init () = { Count = 0 }
 
@@ -70,6 +71,7 @@ module Counter =
         | Increment -> { model with Count = model.Count + 1 }
         | Decrement -> { model with Count = model.Count - 1 }
         | Reset -> { Count = 0 }
+        | SetCount n -> { Count = n }
 
     let view model dispatch =
         stackPanel
@@ -87,7 +89,12 @@ module Counter =
                           SpinEdit.isFloatValue false
                           FrameworkElement.margin (Thickness(0.0, 0.0, 0.0, 16.0))
                           FrameworkElement.height 48.0
-                          Control.fontSize 24.0 ]
+                          Control.fontSize 24.0
+                          BaseEdit.onEditValueChanged (
+                              DevExpress.Xpf.Editors.EditValueChangedEventHandler(fun _ e ->
+                                  if not (isNull e.NewValue) then
+                                      dispatch (SetCount(Convert.ToInt32 e.NewValue)))
+                          ) ]
                     stackPanel
                         [ StackPanel.orientation Orientation.Horizontal
                           StackPanel.horizontalAlignment HorizontalAlignment.Center
@@ -124,10 +131,15 @@ module Settings =
           UserName: string
           ReportDate: DateTime }
 
+    // Set, not toggle: Checked/Unchecked also fire when the model sets IsChecked,
+    // and an idempotent message turns that echo into a no-op.
     type Msg =
         | ToggleNotifications
-        | ToggleDarkMode
-        | ToggleAutoSave
+        | SetNotifications of bool
+        | SetDarkMode of bool
+        | SetAutoSave of bool
+        | SetUserName of string
+        | SetReportDate of DateTime
 
     let init () =
         { Notifications = true
@@ -141,12 +153,11 @@ module Settings =
         | ToggleNotifications ->
             { model with
                 Notifications = not model.Notifications }
-        | ToggleDarkMode ->
-            { model with
-                DarkMode = not model.DarkMode }
-        | ToggleAutoSave ->
-            { model with
-                AutoSave = not model.AutoSave }
+        | SetNotifications v -> { model with Notifications = v }
+        | SetDarkMode v -> { model with DarkMode = v }
+        | SetAutoSave v -> { model with AutoSave = v }
+        | SetUserName v -> { model with UserName = v }
+        | SetReportDate v -> { model with ReportDate = v }
 
     let view model dispatch =
         stackPanel
@@ -162,27 +173,31 @@ module Settings =
                           )
                           CheckEdit.isChecked (Nullable model.Notifications)
                           FrameworkElement.margin (Thickness 4.0)
-                          CheckEdit.onChecked (RoutedEventHandler(fun _ _ -> dispatch ToggleNotifications))
-                          CheckEdit.onUnchecked (RoutedEventHandler(fun _ _ -> dispatch ToggleNotifications)) ]
+                          CheckEdit.onChecked (RoutedEventHandler(fun _ _ -> dispatch (SetNotifications true)))
+                          CheckEdit.onUnchecked (RoutedEventHandler(fun _ _ -> dispatch (SetNotifications false))) ]
                     CheckEdit.create
                         [ CheckEdit.content (sprintf "Dark mode (%s)" (if model.DarkMode then "on" else "off"))
                           CheckEdit.isChecked (Nullable model.DarkMode)
                           FrameworkElement.margin (Thickness 4.0)
-                          CheckEdit.onChecked (RoutedEventHandler(fun _ _ -> dispatch ToggleDarkMode))
-                          CheckEdit.onUnchecked (RoutedEventHandler(fun _ _ -> dispatch ToggleDarkMode)) ]
+                          CheckEdit.onChecked (RoutedEventHandler(fun _ _ -> dispatch (SetDarkMode true)))
+                          CheckEdit.onUnchecked (RoutedEventHandler(fun _ _ -> dispatch (SetDarkMode false))) ]
                     CheckEdit.create
                         [ CheckEdit.content (sprintf "Auto-save (%s)" (if model.AutoSave then "on" else "off"))
                           CheckEdit.isChecked (Nullable model.AutoSave)
                           FrameworkElement.margin (Thickness 4.0)
-                          CheckEdit.onChecked (RoutedEventHandler(fun _ _ -> dispatch ToggleAutoSave))
-                          CheckEdit.onUnchecked (RoutedEventHandler(fun _ _ -> dispatch ToggleAutoSave)) ]
+                          CheckEdit.onChecked (RoutedEventHandler(fun _ _ -> dispatch (SetAutoSave true)))
+                          CheckEdit.onUnchecked (RoutedEventHandler(fun _ _ -> dispatch (SetAutoSave false))) ]
                     textBlock
                         [ TextBlock.text "User Name"
                           TextBlock.margin (Thickness(4.0, 16.0, 0.0, 4.0)) ]
                     TextEdit.create
                         [ TextEditBase.text model.UserName
                           BaseEdit.nullText "Enter user name..."
-                          FrameworkElement.margin (Thickness 4.0) ]
+                          FrameworkElement.margin (Thickness 4.0)
+                          BaseEdit.onEditValueChanged (
+                              DevExpress.Xpf.Editors.EditValueChangedEventHandler(fun _ e ->
+                                  dispatch (SetUserName(if isNull e.NewValue then "" else string e.NewValue)))
+                          ) ]
                     textBlock
                         [ TextBlock.text "Report Date"
                           TextBlock.margin (Thickness(4.0, 12.0, 0.0, 4.0)) ]
@@ -190,7 +205,13 @@ module Settings =
                         [ DateEdit.dateTime model.ReportDate
                           DateEdit.showToday true
                           DateEdit.showWeekNumbers true
-                          FrameworkElement.margin (Thickness 4.0) ] ] ]
+                          FrameworkElement.margin (Thickness 4.0)
+                          BaseEdit.onEditValueChanged (
+                              DevExpress.Xpf.Editors.EditValueChangedEventHandler(fun _ e ->
+                                  match e.NewValue with
+                                  | :? DateTime as d -> dispatch (SetReportDate d)
+                                  | _ -> ())
+                          ) ] ] ]
 
 // ============================================================
 // Shell — DXRibbonWindow + Ribbon + AccordionControl nav
@@ -305,11 +326,22 @@ let buildNavPanel (dispatch: Msg -> unit) =
 
     acc
 
+// Built once: Content compares by reference, so a fresh instance per render would
+// replace the ribbon and accordion and reset their UI state on every message.
+// ponytail: one cache for the one main window; key by dispatch if a second shell appears.
+let mutable private chrome = None
+
+let private getChrome dispatch =
+    match chrome with
+    | Some c -> c
+    | None ->
+        let c = buildRibbon dispatch, buildNavPanel dispatch
+        chrome <- Some c
+        c
+
 /// Create the DXRibbonWindow with embedded Ribbon + AccordionControl nav
 let view model dispatch =
-    // Build imperative DX controls and embed in the view tree
-    let ribbon = buildRibbon dispatch
-    let navPanel = buildNavPanel dispatch
+    let ribbon, navPanel = getChrome dispatch
 
     FSharp.DevExpress.Wpf.Ribbon.DXRibbonWindow.create
         [ Window.title $"DevExpress Elmish \u2014 {model.Page}"
@@ -319,32 +351,26 @@ let view model dispatch =
               dockPanel
                   [ DockPanel.lastChildFill true
                     DockPanel.children
-                        [ // Ribbon at top — pre-built DX control
-                          DockPanel.dock
-                              Dock.Top
-                              (
-                              // Wrap in a ContentControl to embed the pre-built ribbon
-                              contentControl [ ContentControl.content ribbon ])
+                        [ // Ribbon at top — pre-built DX control wrapped in a ContentControl
+                          contentControl [ DockPanel.dock Dock.Top; ContentControl.content ribbon ]
                           // Outlook-style accordion nav on left
-                          DockPanel.dock
-                              Dock.Left
-                              (border
-                                  [ Border.width 180.0
-                                    Border.borderThickness (Thickness(0.0, 0.0, 1.0, 0.0))
-                                    Border.borderBrush SystemColors.ActiveBorderBrush
-                                    Border.contentChild (contentControl [ ContentControl.content navPanel ]) ])
+                          border
+                              [ DockPanel.dock Dock.Left
+                                Border.width 180.0
+                                Border.borderThickness (Thickness(0.0, 0.0, 1.0, 0.0))
+                                Border.borderBrush SystemColors.ActiveBorderBrush
+                                Border.contentChild (contentControl [ ContentControl.content navPanel ]) ]
                           // Status bar
-                          DockPanel.dock
-                              Dock.Bottom
-                              (border
-                                  [ Border.padding (Thickness(8.0, 4.0, 8.0, 4.0))
-                                    Border.borderThickness (Thickness(0.0, 1.0, 0.0, 0.0))
-                                    Border.borderBrush SystemColors.ActiveBorderBrush
-                                    Border.contentChild (
-                                        textBlock
-                                            [ TextBlock.text
-                                                  $"Page: {model.Page} | Counter: {model.Counter.Count} | AutoSave: {model.Settings.AutoSave}" ]
-                                    ) ])
+                          border
+                              [ DockPanel.dock Dock.Bottom
+                                Border.padding (Thickness(8.0, 4.0, 8.0, 4.0))
+                                Border.borderThickness (Thickness(0.0, 1.0, 0.0, 0.0))
+                                Border.borderBrush SystemColors.ActiveBorderBrush
+                                Border.contentChild (
+                                    textBlock
+                                        [ TextBlock.text
+                                              $"Page: {model.Page} | Counter: {model.Counter.Count} | AutoSave: {model.Settings.AutoSave}" ]
+                                ) ]
                           // Content area
                           border
                               [ Border.padding (Thickness 16.0)

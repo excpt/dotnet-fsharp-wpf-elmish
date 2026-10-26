@@ -683,7 +683,7 @@ Output goes to `vendor/FSharp.DevExpress.Wpf/` (gitignored) by default. Custom o
      `Dialogs`, `Office`, `ExpressionEditor`
    - Higher-level: `Gantt`, `PdfViewer`, `RichEdit`, `Spreadsheet`, `Dashboard`
    - Skipped: `DataAccess` (wizard UI types, not useful in declarative DSL)
-4. **Creates `.fsproj` files** (`net8.0-windows`) with correct NuGet `PackageReference` and
+4. **Creates `.fsproj` files** (`net10.0-windows`) with correct NuGet `PackageReference` and
    inter-project `ProjectReference` dependencies. The codegen runs with
    `--assembly-path <install>/Components/Bin/Framework`, so no `#if` guards are emitted
 5. **Cleans `Generated/`** before regenerating to prevent stale files
