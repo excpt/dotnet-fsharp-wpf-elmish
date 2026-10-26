@@ -6,7 +6,7 @@
         <PackageVersion Include="xunit.runner.visualstudio" Version="3.1.5"/>
 
         <!-- Source Link -->
-        <PackageVersion Include="Microsoft.SourceLink.GitHub" Version="10.0.102"/>
+        <PackageVersion Include="Microsoft.SourceLink.GitHub" Version="10.0.403"/>
 
         <!-- Core -->
         <PackageVersion Include="FSharp.Core" Version="10.1.203"/>
