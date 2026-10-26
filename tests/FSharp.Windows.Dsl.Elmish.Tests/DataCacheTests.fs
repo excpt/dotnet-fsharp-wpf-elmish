@@ -88,3 +88,42 @@ let ``Remove deletes collection entirely`` () =
     // GetOrCreate now returns a new collection
     let col2 = cache.GetOrCreate "orders"
     System.Object.ReferenceEquals(col1, col2) |> should be False
+
+[<Fact>]
+let ``Update with unchanged rows raises no collection notifications`` () =
+    let cache = DataCache<string, Order>()
+    let a = { Id = 1; Customer = "Alice" }
+    let b = { Id = 2; Customer = "Bob" }
+    cache.Update("orders", [ a; b ])
+    let col = cache.GetOrCreate "orders"
+
+    let events =
+        ResizeArray<System.Collections.Specialized.NotifyCollectionChangedAction>()
+
+    col.CollectionChanged.Add(fun e -> events.Add e.Action)
+
+    cache.Update("orders", [ a; b; { Id = 3; Customer = "Carl" } ])
+
+    events
+    |> Seq.toList
+    |> should equal [ System.Collections.Specialized.NotifyCollectionChangedAction.Add ]
+
+    col.Count |> should equal 3
+
+[<Fact>]
+let ``Update replaces changed rows and trims extras`` () =
+    let cache = DataCache<string, Order>()
+
+    cache.Update(
+        "orders",
+        [ { Id = 1; Customer = "A" }
+          { Id = 2; Customer = "B" }
+          { Id = 3; Customer = "C" } ]
+    )
+
+    cache.Update("orders", [ { Id = 1; Customer = "A" }; { Id = 9; Customer = "Z" } ])
+
+    cache.GetOrCreate("orders")
+    |> Seq.map (fun o -> o.Id)
+    |> Seq.toList
+    |> should equal [ 1; 9 ]
