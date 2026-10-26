@@ -303,6 +303,7 @@ It reports the same `PropDiagnostic` cases the materializer records:
 | `PropNotForElement` | A real prop, on a control it does not belong to |
 | `UnusableMember` | A `NodeProp`/`CollectionProp` name the element cannot take — unknown, read-only, or the wrong type |
 | `ApplyFailed` | Runtime only: WPF rejected the value (a validate callback, a read-only DP, a wrong type). `Validate.tree` cannot see it |
+| `ChildrenNotHeld` | More children than the element holds (a ContentControl or Decorator one, other non-containers none); the rest are not attached |
 
 Worth one assertion per view function. The runtime side of the same information
 is `Materializer.diagnostics ()`, and `Materializer.strictProps <- true` turns
