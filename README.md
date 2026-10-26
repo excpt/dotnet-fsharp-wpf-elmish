@@ -68,11 +68,11 @@ dockPanel
 
 ### When a Prop Does Not Apply
 
-Applying is best-effort: a wrong prop must not take a live window down. What did not apply is recorded rather than discarded.
+Applying is best-effort: a wrong prop, or a value WPF rejects, must not take a live window down. What did not apply is recorded rather than discarded, and the rest of the render goes ahead.
 
 ```fsharp
 Materializer.diagnostics ()        // what nothing applied, each recorded once
-Materializer.strictProps <- true   // fail instead — for development and tests
+Materializer.strictProps <- true   // fail after the render instead — for development and tests
 Validate.tree (view model ignore)  // the same checks statically, nothing materialized
 ```
 

@@ -157,6 +157,25 @@ event handlers adds ~0.05ms per render — negligible vs WPF layout/render. Hand
 with the same reference (defined outside the view function) are skipped via
 `Object.ReferenceEquals`.
 
+### Failure Contract
+
+A render always finishes its walk. Each prop application runs under
+`Materializer.guard`: an exception WPF raises while applying a value (a validate
+callback rejecting a negative width, a read-only DP, a wrong value type) is recorded
+as `ApplyFailed` in `Materializer.diagnostics ()` and that prop is skipped. Structural
+changes and every other prop still apply, and `LiveTree.CurrentTree` advances to the
+new tree.
+
+Under `Materializer.strictProps` the first failure is held and raised by
+`Dsl.update` (or `Dsl.materialize`, `Dsl.createLive`, `Materializer.applyProp`) after
+the walk, never in the middle of it.
+
+If a structural change itself throws (for example adding children to an
+`ItemsControl` whose `ItemsSource` is set), `Dsl.update` drops the root's live
+children, records the current tree with no children, and rethrows. The next render
+then rebuilds the children instead of diffing against a tree the live elements no
+longer match, so nothing is duplicated.
+
 ## Tier 4 — Children Diffing Strategy
 
 Different strategies based on how children are used:
