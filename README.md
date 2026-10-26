@@ -49,7 +49,7 @@ The DSL replaces XAML bindings, ICommand, and ViewModelBase with the Elm loop:
 3. **`update`** returns a new model in response to messages (pure function)
 4. **`dispatch`** connects user interactions back to the loop
 
-A reconciler diffs the old and new virtual trees and applies only the changes to the live WPF element tree. Event handlers are automatically refreshed on each render — no stale closures.
+A reconciler diffs the old and new virtual trees and applies only the changes to the live WPF element tree. Event handlers are refreshed on each render, and props dropped from a render are cleared: no stale closures, no stale values.
 
 ## Props
 

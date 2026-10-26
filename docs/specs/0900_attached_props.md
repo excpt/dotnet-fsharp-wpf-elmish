@@ -77,6 +77,8 @@ type AttachedProp = AttachedProp of DependencyProperty * obj
 is added to the parent. The reconciler keys them by `DependencyProperty`
 identity, so one changing does not disturb the others, and re-applies only what
 changed — `SetValue` is idempotent.
+An attached prop dropped from the new tree is cleared with `el.ClearValue(dp)`, so
+`if model.Wide then Grid.columnSpan 2` stops spanning when `Wide` turns false.
 
 ## Codegen Rule
 
