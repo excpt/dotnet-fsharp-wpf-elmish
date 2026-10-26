@@ -134,12 +134,22 @@ module Reconciler =
     /// Value props: re-apply changed ones (SetValue is idempotent).
     /// Event props: swap handlers via RemoveHandler + AddHandler (solves stale closures).
     /// AttachedProps: re-apply changed ones (SetValue is idempotent).
+    /// Dropped props: cleared (Materializer.clearProp), so conditional props turn off.
     let private diffAndApplyProps (el: DependencyObject) (oldProps: obj list) (newProps: obj list) =
         // Build map of old props by key for O(1) lookup
         let oldMap = Dictionary<obj, obj>()
 
         for p in oldProps do
             oldMap.[propKey p] <- p
+
+        // Clear props the new tree dropped. First, so a slot that changes kind
+        // (a value replaced by a resource reference on the same DP) is cleared
+        // before the new kind is set, not after.
+        let newKeys = HashSet<obj>(newProps |> Seq.map propKey)
+
+        for KeyValue(key, p) in oldMap do
+            if not (newKeys.Contains key) then
+                Materializer.clearProp el p
 
         // Apply new props that differ from old
         for p in newProps do

@@ -551,3 +551,47 @@ let ``keyed child whose type changes is replaced`` () =
             | PropNotForElement(el, _, owner) -> el = typeof<Button> && owner = typeof<TextBlock>
             | _ -> false)
         |> should be False)
+
+// --- Props dropped from the new tree are cleared ---
+
+let private dropAll (props: obj list) (makeTree: obj list -> VirtualNode) =
+    let live = Dsl.createLive (stackPanel [ StackPanel.children [ makeTree props ] ])
+    let sp = live.Root :?> StackPanel
+    Dsl.update live (stackPanel [ StackPanel.children [ makeTree [] ] ])
+    sp.Children.[0]
+
+[<Fact>]
+let ``dropped value prop reverts to its default`` () =
+    runSta (fun () ->
+        register ()
+        let tb = dropAll [ TextBlock.text "Saved" ] textBlock :?> TextBlock
+        tb.Text |> should equal "")
+
+[<Fact>]
+let ``dropped attached prop is cleared`` () =
+    runSta (fun () ->
+        register ()
+        let btn = dropAll [ Grid.row 1 ] button
+        Grid.GetRow(btn) |> should equal 0)
+
+[<Fact>]
+let ``dropped event handler no longer fires`` () =
+    runSta (fun () ->
+        register ()
+        let mutable calls = 0
+
+        let btn =
+            dropAll [ Button.onClick (RoutedEventHandler(fun _ _ -> calls <- calls + 1)) ] button :?> Button
+
+        btn.RaiseEvent(RoutedEventArgs(Controls.Primitives.ButtonBase.ClickEvent))
+        calls |> should equal 0)
+
+[<Fact>]
+let ``dropped resource dictionary removes its entries`` () =
+    runSta (fun () ->
+        register ()
+
+        let sp =
+            dropAll [ Resource.dictionary [ Resource.named "Accent" Media.Brushes.Red ] ] stackPanel :?> StackPanel
+
+        sp.Resources.Contains("Accent") |> should be False)

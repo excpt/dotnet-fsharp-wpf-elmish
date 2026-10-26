@@ -246,3 +246,26 @@ module Materializer =
         attachChildren el node.Children
         el
 
+    /// Undo a prop the element no longer has: the slot goes back to what it
+    /// would be had the prop never been set (default, style or inherited value),
+    /// a handler is detached, merged resources and collection items are removed.
+    /// A typed prop with no registered clear (a control package generated
+    /// before clears existed) is left as it is.
+    let clearProp (el: DependencyObject) (prop: obj) =
+        let clearTyped (p: obj) =
+            match resolveIn clearers (p.GetType()), tryOwnerOf (p.GetType()) with
+            | Some clear, Some ownerType when ownerType.IsAssignableFrom(el.GetType()) -> clear el p
+            | _ -> ()
+
+        match prop with
+        | :? AttachedProp as (AttachedProp(dp, _)) -> el.ClearValue(dp)
+        | :? ResourceRefProp as (ResourceRefProp(dp, _)) -> el.ClearValue(dp)
+        | :? ResourcesProp as (ResourcesProp entries) -> updateResourceEntries el entries []
+        | :? CollectionProp as (CollectionProp(name, _)) -> applyCollectionProp el name []
+        | :? NodeProp as (NodeProp(name, _)) ->
+            match el.GetType().GetProperty(name, BindingFlags.Public ||| BindingFlags.Instance) with
+            | null -> ()
+            | p when p.CanWrite -> p.SetValue(el, null)
+            | _ -> ()
+        | :? EventProp as (EventProp inner) -> clearTyped inner
+        | _ -> clearTyped prop
