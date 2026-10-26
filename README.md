@@ -84,7 +84,7 @@ Validate.tree (view model ignore)  // the same checks statically, nothing materi
 | Package | Description |
 |---|---|
 | `FSharp.Windows.Dsl` | Virtual tree, reconciler, props |
-| `FSharp.Windows.Dsl.Elmish` | `Program.runWindow` / `runChildWindow`, `ComponentContext`, `AppBus`, `Dialog`, `Focus`, `KeyBindings`, `Memo`, `DataCache`, `EntityMap`, `Permissions`, `OperationRegistry`, `DebugState` (restart-based hot reload) |
+| `FSharp.Windows.Dsl.Elmish` | `Program.runWindow` / `runChildWindow` / `runDialogWindow`, cancellable keyed commands (`Cmd.OfTask.runKeyed`, `Cmd.cancel`), `ComponentContext`, `AppBus`, `Dialog`, `Focus`, `KeyBindings`, `Memo`, `DataCache`, `EntityMap`, `Permissions`, `DebugState` (restart-based hot reload) |
 | `FSharp.Windows.Dsl.Controls` | Generated WPF control wrappers, plus `Style`, `Validation` and `Build` |
 | `FSharp.Windows.Dsl.Testing` | TestProgram, CmdTest, VirtualTree queries |
 | `FSharp.Windows.Dsl.Codegen` | Reflection-based code generation tool |

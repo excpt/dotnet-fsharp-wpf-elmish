@@ -7,14 +7,14 @@ Targets .NET 10 (Windows) and .NET Framework 4.6.2+ (`net462`).
 ### Packages
 
 - `FSharp.Windows.Dsl` — virtual tree, reconciler, props, VirtualTree queries (no Elmish dependency)
-- `FSharp.Windows.Dsl.Elmish` — Program.runWindow/runChildWindow, ComponentContext, AppBus, Dialog, Focus, KeyBindings, Memo, DataCache, EntityMap, Permissions, OperationRegistry, DebugState (restart-based hot reload)
+- `FSharp.Windows.Dsl.Elmish` — Program.runWindow/runChildWindow/runDialogWindow, per-window cancellation scopes (Cmd.OfTask.runKeyed, Cmd.cancel), ComponentContext, AppBus, Dialog, Focus, KeyBindings, Memo, DataCache, EntityMap, Permissions, DebugState (restart-based hot reload)
 - `FSharp.Windows.Dsl.Controls` — codegen'd WPF control wrappers, plus Style, Validation, Build
 - `FSharp.Windows.Dsl.Testing` — TestProgram, CmdTest, VirtualTreeQuery (for test projects)
 - `FSharp.Windows.Dsl.Codegen` — reflection-based code generation CLI tool
 
 DevExpress wrappers (`FSharp.DevExpress.Wpf.<Area>`, 26 projects) are generated locally into the gitignored `vendor/` by `tools/generate-devexpress.sh` / `.ps1`; they are not published and CI does not build them.
 
-Cancellation: only `OperationRegistry` (`src/FSharp.Windows.Dsl.Elmish/Cancellation.fs`) exists. The design in `docs/specs/2100_cancellation.md` (`Cmd.ofTaskForeground`/`ofTaskBackground`, per-window scopes, close warning) is not built yet; tracked in #33.
+Cancellation: each run function gives its program a scope (`Scope.fs`), cancelled when the window closes; late messages are dropped. `Cmd.OfTask.runKeyed`/`Cmd.OfAsync.runKeyed` and `Cmd.cancel` work inside it. See `docs/specs/2100_cancellation.md`.
 
 ## Development
 
@@ -71,7 +71,7 @@ See `docs/specs/1100_hot_reload.md`.
 ### Source projects
 
 - `src/FSharp.Windows.Dsl/` — virtual tree, reconciler, base prop types
-- `src/FSharp.Windows.Dsl.Elmish/` — Elmish integration, Program.runWindow/runChildWindow, AppBus, OperationRegistry
+- `src/FSharp.Windows.Dsl.Elmish/` — Elmish integration, Program.runWindow/runChildWindow/runDialogWindow, cancellation scopes, AppBus
 - `src/FSharp.Windows.Dsl.Controls/` — codegen'd WPF control wrappers, plus hand-written Build, Style, Validation
 - `src/FSharp.Windows.Dsl.Testing/` — TestProgram, CmdTest, VirtualTree query re-exports
 

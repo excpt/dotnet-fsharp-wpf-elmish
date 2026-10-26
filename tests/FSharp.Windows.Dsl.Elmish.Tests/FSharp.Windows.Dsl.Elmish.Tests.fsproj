@@ -12,13 +12,13 @@
         <Compile Include="AppBusTests.fs" />
         <Compile Include="DebugStateTests.fs" />
         <Compile Include="ComponentContextTests.fs" />
-        <Compile Include="CancellationTests.fs" />
         <Compile Include="PermissionsTests.fs" />
         <Compile Include="EntityMapTests.fs" />
         <Compile Include="DataCacheTests.fs" />
         <Compile Include="FocusTests.fs" />
         <Compile Include="KeyBindingsTests.fs" />
         <Compile Include="ElmishProgramTests.fs" />
+        <Compile Include="ScopeTests.fs" />
     </ItemGroup>
     <ItemGroup>
         <PackageReference Include="xunit.v3" />

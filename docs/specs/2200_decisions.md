@@ -75,14 +75,12 @@ Every architectural decision and its rationale.
 
 | Decision | Rationale |
 |---|---|
-| One CTS per lifetime scope | App / component / operation — never per dispatch |
-| CTS manual disposal | Task completing does not dispose CTS — always dispose in result handler |
-| Operation registry | `OperationRegistry`: explicit tracking — CTS has no built-in active task count |
-| Foreground vs Background ops | `OperationKind` on each registered op; `CancelBackground` cancels only background ones |
-
-Planned, not built (tracked in #33, design in 2100): runtime-managed per-window CTS scopes
-with linked cancellation, `Cmd.ofTaskForeground`/`Cmd.ofTaskBackground`, and the close
-warning for foreground ops.
+| One scope per program run | Per window, not global: keys stay local, closing a window cancels only its work |
+| Scope owned by the runtime | Set around every dispatch, so `update` stays pure and takes no context or token |
+| No owner link | WPF closes owned windows with their owner and each closes its own scope; a child never cancels its owner |
+| Late results dropped | A cancelled scope's dispatch drops messages, whatever started the work |
+| Keyed operations | `runKeyed`/`Cmd.cancel` by key; a new run under a key replaces the old, which then reports nothing; each op's CTS disposed when it finishes |
+| No shadowing of `Cmd.OfTask` | Token-aware replacements would break every caller; `runKeyed` is opt-in |
 
 ## Hot Reload
 

@@ -80,10 +80,9 @@ let update msg model =
 
 ## Custom Modal Windows — Elmish Programs as Dialogs
 
-There is no modal run function: `Program.runChildWindow` calls `Show()`, not
-`ShowDialog()`. A custom picker or wizard runs its own loop with
-`Program.withSetState` and `Dsl.createLive`, then shows the window modally.
-`ShowDialog()` returns when the window closes, so the function returns a typed result:
+`Program.runDialogWindow owner program` runs a program as a modal window: it sets
+`Owner`, calls `ShowDialog()`, and returns the program's last model when the window
+closes. The model is the dialog's result:
 
 ```fsharp
 module CustomerPicker =
@@ -91,38 +90,13 @@ module CustomerPicker =
     type Model = { Search: string; Results: Customer list; Selected: Customer option }
     type Msg   = | SearchChanged of string | ResultsLoaded of Customer list | Select of Customer
 
-    type Result =
-        | Selected  of Customer
-        | Cancelled
+    // update:  | Select c -> { model with Selected = Some c }, Cmd.none
+    // view returns a Window node; the OK button closes it after selecting:
+    //   Button.onClick (RoutedEventHandler(fun sender _ ->
+    //       dispatch (Select c)
+    //       Window.GetWindow(sender :?> DependencyObject).Close()))
 
-    // update onSelect: | Select c -> model, Cmd.ofEffect (fun _ -> onSelect c)
-    // view returns a Window node (title, size, content)
-
-    let showDialog (owner: Window) : Result =
-        let mutable result = Cancelled
-        let mutable live: LiveTree option = None
-        let window () = live.Value.Root :?> Window
-
-        let onSelect (customer: Customer) =
-            result <- Selected customer
-            (window ()).DialogResult <- Nullable true   // closes the dialog
-
-        let setState model dispatch =
-            let tree = view model dispatch
-            match live with
-            | None -> live <- Some(Dsl.createLive tree)
-            | Some l -> Dsl.update l tree
-
-        Program.mkProgram init (update onSelect) view
-        |> Program.withSetState setState
-        // queue every message on the UI thread, as runWindow does
-        |> Program.runWithDispatch
-            (fun dispatch msg -> owner.Dispatcher.BeginInvoke(Action(fun () -> dispatch msg)) |> ignore)
-            ()
-
-        (window ()).Owner <- owner
-        (window ()).ShowDialog() |> ignore
-        result
+    let program = Program.mkProgram init update view
 ```
 
 Parent update, with the owner from the component's `WindowService` rather than the
@@ -135,11 +109,13 @@ global `Application.Current.MainWindow`:
         match ctx.WindowService.GetWindow() with
         | None -> ()
         | Some owner ->
-            match CustomerPicker.showDialog owner with
-            | CustomerPicker.Selected c -> dispatch (CustomerPicked c)
-            | CustomerPicker.Cancelled  -> dispatch PickCancelled
-    )
+            match (Program.runDialogWindow owner CustomerPicker.program).Selected with
+            | Some c -> dispatch (CustomerPicked c)
+            | None -> dispatch PickCancelled)
 ```
+
+The dialog gets its own cancellation scope (see 2100): work it started with
+`Cmd.OfTask.runKeyed` stops when it closes.
 
 ## Pattern Summary
 
@@ -149,7 +125,7 @@ global `Application.Current.MainWindow`:
 | `Dialog.info` / `Dialog.error` | `MessageBox.Show()` | `unit` |
 | `Dialog.openFile` | `OpenFileDialog.ShowDialog()` | `string list option` |
 | `Dialog.saveFile` | `SaveFileDialog.ShowDialog()` | `string option` |
-| Custom Elmish window | `window.ShowDialog()` | typed `Result` DU |
+| Custom Elmish window | `Program.runDialogWindow` | the program's last model |
 
 All wrapped in `Cmd.ofEffect`. All dispatch a message with the result.
 `update` stays pure throughout.

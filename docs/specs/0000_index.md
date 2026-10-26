@@ -75,7 +75,7 @@ Patterns for common LOB scenarios. Each is independent — implement as needed.
 | 1800 | [1800_data_grid.md](1800_data_grid.md) | Data & Grids | Leaf node contract works, ObservableCollection cache works, virtual sources documented |
 | 1900 | [1900_dialogs.md](1900_dialogs.md) | Dialogs | Dialog module wraps standard dialogs |
 | 2000 | [2000_async_external.md](2000_async_external.md) | Async & External | Task commands work, subscriptions wire external events, Elmish 5.x API correct |
-| 2100 | [2100_cancellation.md](2100_cancellation.md) | Cancellation | `OperationRegistry` tracks ops. The rest (CTS scopes, foreground/background commands, close warning) is planned, not built — see #33 |
+| 2100 | [2100_cancellation.md](2100_cancellation.md) | Cancellation | Per-window scopes cancel on close and drop late results; `Cmd.OfTask.runKeyed` / `Cmd.cancel` |
 
 ### Reference
 
@@ -88,7 +88,7 @@ Patterns for common LOB scenarios. Each is independent — implement as needed.
 
 ```
 FSharp.Windows.Dsl              → virtual tree, reconciler, props, VirtualTree queries
-FSharp.Windows.Dsl.Elmish       → Program.runWindow, ComponentContext, AppBus, Dialog, DebugState, OperationRegistry
+FSharp.Windows.Dsl.Elmish       → Program.runWindow, cancellation scopes, ComponentContext, AppBus, Dialog, DebugState
 FSharp.Windows.Dsl.Controls     → codegen'd WPF control wrappers, Style, Validation
 FSharp.Windows.Dsl.Testing      → TestProgram, CmdTest, VirtualTreeQuery (for test projects)
 FSharp.Windows.Dsl.Codegen      → reflection-based code generation tool

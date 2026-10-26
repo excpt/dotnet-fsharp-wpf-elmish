@@ -11,6 +11,8 @@ Entries are written by hand.
 
 ### Changed — BREAKING
 
+- `OperationRegistry`, `OperationKind` and `OperationInfo` are removed: nothing
+  used them, and the per-window scopes below replace them.
 - `VirtualNode.InternalId` and `VirtualTree.makeId` are removed; nothing read them.
 - `ChildView.Live` is a `LiveTree`, no longer an option.
 - Codegen no longer emits element-reference DPs (`Popup.PlacementTarget`,
@@ -25,6 +27,13 @@ Entries are written by hand.
 
 ### Added
 
+- Per-window cancellation scopes: every run function gives its program a scope,
+  cancelled when the window closes. After that, the program drops late messages. `Cmd.OfTask.runKeyed` / `Cmd.OfAsync.runKeyed` start
+  work under a key with a token from that scope, `Cmd.cancel key` cancels one
+  operation, and a new run under a key replaces the old one, which then reports
+  nothing.
+- `Program.runDialogWindow` / `runDialogWindowWithArg`: run a program as a modal
+  window and get its last model back when it closes.
 - An obj-typed prop (`content`, `header`, `toolTip`) given a `VirtualNode`
   materializes it (`Materializer.valueOf`) instead of showing the record.
 - VirtualTree queries walk nodes held in props (`CollectionProp` items, `NodeProp`,

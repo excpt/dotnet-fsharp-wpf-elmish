@@ -29,7 +29,7 @@ Everything else follows from that.
 | Controls as leaf nodes | Avoids reconciling WPF's internal control state |
 | Component isolation | Each component owns its model, messages, `update` and `view`; components in a window compose into that window's single loop |
 | AppBus for cross-component | Decouples components from direct references to each other |
-| Operation registry | `OperationRegistry` tracks running operations and their CTS; the app decides how to show and cancel them |
+| Cancellation scopes | Each window's work is cancelled when it closes; keyed operations are cancelled by name with `Cmd.cancel` |
 | Permissions as model state | Authorization state lives in the model alongside the rest of the UI state |
 | Hot reload as Feature Zero | Layout changes preserve running application state |
 

@@ -20,6 +20,10 @@ Program.runWindowWithArg : 'arg -> Program<'arg, 'model, 'msg, VirtualNode> -> u
 Program.runChildWindow        : Window -> Program<unit, 'model, 'msg, VirtualNode> -> unit
 Program.runChildWindowWithArg : Window -> 'arg -> Program<'arg, 'model, 'msg, VirtualNode> -> unit
 
+// modal window with its own loop: sets Owner, ShowDialog()s, returns the last model
+Program.runDialogWindow        : Window -> Program<unit, 'model, 'msg, VirtualNode> -> 'model
+Program.runDialogWindowWithArg : Window -> 'arg -> Program<'arg, 'model, 'msg, VirtualNode> -> 'model
+
 // second window onto the caller's own model and dispatch (no loop of its own)
 Program.openChildView   : Window -> ('model -> ('msg -> unit) -> VirtualNode) -> 'model -> ('msg -> unit) -> ChildView<'model, 'msg>
 Program.updateChildView : ChildView<'model, 'msg> -> 'model -> ('msg -> unit) -> unit
@@ -71,9 +75,10 @@ Elmish. A program started with plain `Program.run` does not get it.
 - An exception in `update`, `view` or a command goes to Elmish's error handler, which by
   default only writes to `Trace`, invisible in a WinExe. Install
   `Program.withErrorHandler` to show or log it.
-- `runChildWindow` does not stop the child loop when its window closes. A child with
-  subscriptions should end them itself: dispatch a message from `Window.onClosed` and
-  stop on it with `Program.withTermination`.
+- Each run gets a cancellation scope, cancelled once its window has closed (see 2100).
+  After that the program drops every message, so no late result reaches `update`;
+  a message dispatched from `Window.onClosed` itself still arrives. The loop itself is not terminated: a child with subscriptions should
+  end them with `Program.withTermination` on a message dispatched from `Window.onClosed`.
 
 ## Memoization at Component Boundaries
 

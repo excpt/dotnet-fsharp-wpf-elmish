@@ -38,7 +38,7 @@
 
 ```
 FSharp.Windows.Dsl              → virtual tree, reconciler, props, VirtualTree queries
-FSharp.Windows.Dsl.Elmish       → Program.runWindow, ComponentContext, AppBus, Dialog, DebugState, Memo, OperationRegistry
+FSharp.Windows.Dsl.Elmish       → Program.runWindow, cancellation scopes, ComponentContext, AppBus, Dialog, DebugState, Memo
 FSharp.Windows.Dsl.Controls     → codegen'd WPF control wrappers, Style, Validation
 FSharp.Windows.Dsl.Testing      → TestProgram, CmdTest, VirtualTreeQuery (for test projects)
 FSharp.Windows.Dsl.Codegen      → reflection-based code generation CLI tool

@@ -1,264 +1,101 @@
-# Cancellation Token Hierarchy
+# Cancellation Scopes
 
-> **Package:** FSharp.Windows.Dsl.Elmish
+> **Package:** FSharp.Windows.Dsl.Elmish — `Scope.fs`, `ElmishProgram.fs`
 
-> **Status: planned, not yet implemented — tracked in #33.** Of this spec only
-> `OperationKind`, `OperationInfo` and `OperationRegistry` ship (`Cancellation.fs`, see
-> [Operation Registry](#operation-registry)), and nothing in the runtime uses them yet.
-> The CTS hierarchy, `ComponentCts`, `Cmd.ofTaskForeground` / `Cmd.ofTaskBackground` and
-> the close warning do not exist. #33 builds them as runtime-managed per-window scopes,
-> so the sketches below show the intent, not an API you can call.
+Work a window starts stops when the window closes, and the user can cancel one
+operation by name. Neither needs a token or a context in user code: `init` and
+`update` stay pure, and the run functions own the scopes.
 
-## Design — One CTS Per Lifetime Scope
+## One Scope Per Program Run
 
-`CancellationTokenSource` is created **once per lifetime scope**. Never per dispatch.
-Create one per scope and derive linked tokens for child scopes.
+Each run function (`runWindow`, `runChildWindow`, `runDialogWindow` and their
+`WithArg` variants) gives its program a scope: one `CancellationTokenSource` for
+the life of the window.
 
-```
-App CTS          (root — whole app lifetime)
-  ├── Component CTS  (linked — component lifetime)
-  │     ├── Operation CTS  (linked — single task)
-  │     └── Operation CTS  (linked — another task)
-  └── Component CTS  (linked — another component)
-```
+- **Cancelled on close.** The scope is cancelled when its window has closed, after
+  the window's own `Closed` handlers ran, so a message the view dispatches from
+  `Window.onClosed` still reaches `update`.
+- **Owners need no link.** WPF closes a window's owned windows with it, and each
+  closes its own scope, so closing a window cancels its child windows' work. Closing
+  a child never touches its owner.
+- **Late results dropped.** Once the scope is cancelled, the program's dispatch
+  drops every message. A result that arrives after the window closed, from a
+  keyed operation, a plain `Cmd.OfTask`, or a fire-and-forget task, never reaches
+  `update`.
+- **Ambient, not passed.** Commands start synchronously inside the dispatch that
+  processed their message, and the run functions set the program's scope around
+  every dispatch (and around `init`). A command's effect therefore sees its own
+  window's scope without being handed it. `Program.map` and other wrappers are
+  not involved.
 
-Cancelling any level cascades down via `CreateLinkedTokenSource`.
-Cancelling a child never affects the parent.
+A `Program` value can be run many times (one child window per click); each run
+gets its own scope.
 
-## The Three Scopes
-
-### App Scope — Root
-
-```fsharp
-module App =
-    let cts = new CancellationTokenSource()
-    let registry = OperationRegistry()
-
-    let run () =
-        let app    = Application()
-        let window = Window()
-
-        app.Exit.Add(fun _ ->
-            cts.Cancel()
-            cts.Dispose())
-
-        app.Run(window) |> ignore
-```
-
-### Component Scope — Linked to App
-
-Planned field. Today `ComponentContext<'bus>` is `{ WindowService; Bus: AppBus<'bus> }`.
+## Keyed Operations
 
 ```fsharp
-type ComponentContext<'bus> = {
-    ComponentCts  : CancellationTokenSource   // planned
-    WindowService : IWindowService
-    Bus           : AppBus<'bus>
-}
+type Msg =
+    | StartImport
+    | CancelImport
+    | ImportDone of int
+    | ImportFailed of exn
+    | ImportCancelled
 
-let createComponentContext () = {
-    ComponentCts =
-        CancellationTokenSource.CreateLinkedTokenSource(App.cts.Token)
-    WindowService = ...
-    Bus           = ...
-}
-
-let disposeComponent (ctx: ComponentContext) =
-    ctx.ComponentCts.Cancel()
-    ctx.ComponentCts.Dispose()
-```
-
-### Operation Scope — Linked to Component
-
-```fsharp
-type ComponentState = {
-    Ctx          : ComponentContext
-    mutable OpCts : CancellationTokenSource option
-    mutable OpId  : Guid option
-}
-
-let update (state: ComponentState) msg model =
+let update msg model =
     match msg with
-    | StartOperation ->
-        let opCts =
-            CancellationTokenSource.CreateLinkedTokenSource(
-                state.Ctx.ComponentCts.Token)
-
-        state.OpCts <- Some opCts
-        state.OpId  <- Some (App.registry.Register Foreground "Importing orders" opCts)
-
-        { model with
-            Buttons   = { CanStart = false; CanCancel = true; CanClose = false }
-            Operation = Running 0 },
-        Cmd.batch [
-            Cmd.ofEffect (fun _ -> ProgressModal.show())
-            // NOTE: Use Cmd.OfTask.either (not attempt) — we need both success and error
-            // Cmd.OfTask.attempt discards the result and only dispatches on error
-            Cmd.OfTask.either
-                (fun () -> longRunningTask opCts.Token)
-                ()
-                (fun result -> OperationComplete)
-                (fun ex ->
-                    if ex :? OperationCanceledException
-                    then OperationCancelled
-                    else OperationFailed ex.Message)
-        ]
-
-    | CancelRequested ->
-        state.OpCts |> Option.iter (fun cts -> cts.Cancel())
-        { model with
-            Buttons   = { model.Buttons with CanCancel = false }
-            Operation = Cancelling },
-        Cmd.none
-
-    | OperationComplete | OperationCancelled | OperationFailed _ ->
-        state.OpId  |> Option.iter App.registry.Unregister
-        state.OpCts |> Option.iter (fun cts ->
-            cts.Cancel()
-            cts.Dispose()
-        )
-        state.OpCts <- None
-        state.OpId  <- None
-
-        { model with
-            Buttons   = { CanStart = true; CanCancel = false; CanClose = true }
-            Operation =
-                match msg with
-                | OperationComplete   -> Completed
-                | OperationCancelled  -> Idle
-                | OperationFailed err -> Failed err
-                | _                   -> model.Operation },
-        Cmd.none
+    | StartImport ->
+        { model with Importing = true },
+        Cmd.OfTask.runKeyed "import"
+            (fun ct -> Importer.run ct)     // CancellationToken -> Task<int>
+            ImportDone ImportFailed ImportCancelled
+    | CancelImport -> model, Cmd.cancel "import"
+    | ImportDone _ | ImportFailed _ | ImportCancelled -> { model with Importing = false }, Cmd.none
 ```
 
-## CTS Disposal Rules
+- `Cmd.OfTask.runKeyed key work ofSuccess ofError ofCancelled` starts `work` with a
+  token linked to the window's scope.
+- `Cmd.OfAsync.runKeyed key work ...` takes an `Async<'a>` and starts it with that
+  token, so every `let!`/`do!` in it observes cancellation; only calls into Task
+  APIs need `Async.CancellationToken` passed on.
+- The token is cancelled by `Cmd.cancel key`, by starting the same key again, or by
+  closing the window.
+- A run cancelled by `Cmd.cancel` reports `ofCancelled`, never a result, even if the
+  work ignored the token and finished anyway. An exception from a run that was not
+  cancelled reports `ofError`.
+- A run replaced by a newer one under its key reports nothing: only the latest run
+  under a key reports, so its `ofSuccess` or `ofCancelled` is the one `update` sees.
+- Keys are plain strings and local to their window: `"import"` in two windows are
+  two operations. Several keys can run side by side (`$"export-{id}"`).
+- Each operation's token source is disposed when its work finishes.
 
-| Object | Disposal rule |
-|---|---|
-| `CancellationToken` | Value type struct — no disposal needed |
-| `CancellationTokenSource` | `IDisposable` — always dispose manually |
-| Linked child CTS | Dispose when operation done — parent unaffected |
-| Task completing | Does NOT dispose CTS — you must dispose in result handler |
+`Cmd` here extends Elmish's: `Cmd.ofMsg`, `Cmd.batch`, `Cmd.OfTask.either` and the
+rest still resolve to Elmish. Plain `Cmd.OfTask.perform`/`either`/`attempt` get no
+token; their late results are still dropped after the window closes, but the work
+itself runs to the end. Use `runKeyed` for work that should stop.
 
-## Operation Kinds
+Outside a run function (a unit test calling `CmdTest.run`), each `runKeyed` gets a
+scope of its own, so replacing a key and `Cmd.cancel` do not reach it.
+
+## Modal Windows
+
+`Program.runDialogWindow owner program` shows the program's window with
+`ShowDialog`, blocks until it closes, and returns the program's last model: the
+dialog's result. Call it from a command and dispatch what it returns:
 
 ```fsharp
-type OperationKind =
-    | Foreground    // user-initiated — warn on close, show cancel button
-    | Background    // silent — auto-cancelled on close, no warning
+| EditCustomer c ->
+    model,
+    Cmd.ofEffect (fun dispatch ->
+        let result = CustomerDialog.program c |> Program.runDialogWindow owner
+        dispatch (CustomerEdited result))
 ```
 
-## Operation Registry
+The dialog's scope closes when it closes, like any window's.
 
-Shipped (`src/FSharp.Windows.Dsl.Elmish/Cancellation.fs`). It only tracks: nothing
-registers operations or reads the registry until #33 lands, so a consumer that uses it
-today calls `Register` / `Unregister` itself and renders `ForegroundOps` in its own view.
-`CancelAll` and `CancelBackground` swallow any exception from `Cancel()`, so a CTS
-disposed without `Unregister` (`ObjectDisposedException`) or a throwing token callback
-(`AggregateException`) does not stop the rest from being cancelled.
+## Not Built
 
-```fsharp
-type OperationInfo = {
-    Id          : Guid
-    Description : string
-    StartedAt   : DateTime
-    Cts         : CancellationTokenSource
-    Kind        : OperationKind
-}
-
-type OperationRegistry() =
-    let ops = ConcurrentDictionary<Guid, OperationInfo>()
-
-    member _.Register (kind: OperationKind) (description: string)
-                      (cts: CancellationTokenSource) =
-        let id = Guid.NewGuid()
-        ops.[id] <- {
-            Id = id; Description = description
-            StartedAt = DateTime.Now; Cts = cts; Kind = kind
-        }
-        id
-
-    member _.Unregister (id: Guid) =
-        ops.TryRemove(id) |> ignore
-
-    member _.ForegroundCount =
-        ops.Values |> Seq.filter (fun op -> op.Kind = Foreground) |> Seq.length
-
-    member _.ForegroundOps =
-        ops.Values |> Seq.filter (fun op -> op.Kind = Foreground) |> Seq.toList
-
-    member _.CancelAll () =
-        ops.Values |> Seq.iter (fun op -> try op.Cts.Cancel() with _ -> ())
-
-    member _.CancelBackground () =
-        ops.Values
-        |> Seq.filter (fun op -> op.Kind = Background)
-        |> Seq.iter   (fun op -> try op.Cts.Cancel() with _ -> ())
-```
-
-## DSL Helpers — Consumer Never Touches Registry (planned)
-
-```fsharp
-module Cmd =
-    let ofTaskForeground
-        (description : string)
-        (state       : ComponentState)
-        (task        : CancellationToken -> Task<'a>)
-        (onSuccess   : 'a  -> 'msg)
-        (onError     : exn -> 'msg) =
-
-        let opCts =
-            CancellationTokenSource.CreateLinkedTokenSource(
-                state.Ctx.ComponentCts.Token)
-        let opId =
-            App.registry.Register Foreground description opCts
-
-        Cmd.OfTask.either
-            (fun () -> task opCts.Token) ()
-            (fun result ->
-                App.registry.Unregister opId
-                opCts.Dispose()
-                onSuccess result)
-            (fun ex ->
-                App.registry.Unregister opId
-                opCts.Dispose()
-                onError ex)
-```
-
-## App Close — Only Foreground Triggers Warning (planned)
-
-```fsharp
-window.Closing.Add(fun e ->
-    App.registry.CancelBackground()
-
-    if App.registry.ForegroundCount > 0 then
-        let descriptions =
-            App.registry.ForegroundOps
-            |> List.map (fun op ->
-                $"* {op.Description} (running {(DateTime.Now - op.StartedAt).TotalSeconds |> int}s)")
-            |> String.concat "\n"
-
-        let result =
-            MessageBox.Show(
-                $"Operations still running:\n\n{descriptions}\n\nCancel them and exit?",
-                "Operations Running",
-                MessageBoxButton.YesNo,
-                MessageBoxImage.Warning)
-
-        if result = MessageBoxResult.Yes then
-            App.registry.CancelAll()
-        else
-            e.Cancel <- true
-)
-```
-
-`App.cts` is cancelled and disposed once, in `app.Exit` (App Scope above), not here.
-
-Cancellation cascade:
-```
-user clicks X
-  → background ops cancelled silently
-  → foreground warning shown
-    → Yes → CancelAll → all CTS cascade → window closes
-    → No  → e.Cancel = true → window stays open
-```
+- A foreground/background split with a "work still running" warning on close.
+- A scope on `ComponentContext`.
+- Token-aware replacements for `Cmd.OfTask.perform`/`either`/`attempt`.
+- `CmdTest.runAsyncWithin` cancelling the commands it waits for (it stops waiting
+  at its timeout).
