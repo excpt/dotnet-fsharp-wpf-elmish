@@ -245,25 +245,33 @@ module CmdTest =
     let isSome (cmd: Cmd<'msg>) =
         cmd |> should not' (be Empty)
 
-    /// Run synchronous commands and collect dispatched messages.
-    let run (cmd: Cmd<'msg>) : 'msg list =
-        let messages = ResizeArray<'msg>()
-        cmd |> List.iter (fun sub ->
-            try sub messages.Add
-            with _ -> ())
-        messages |> Seq.toList
+    /// Run synchronous commands; collect dispatched messages in order.
+    /// An exception a command throws propagates.
+    let run (cmd: Cmd<'msg>) : 'msg list
 
-    /// Run async commands and collect dispatched messages.
-    let runAsync (cmd: Cmd<'msg>) : Task<'msg list> = task {
-        let messages = System.Collections.Concurrent.ConcurrentBag<'msg>()
-        do! cmd
-            |> List.map (fun sub -> Task.Run(fun () ->
-                try sub messages.Add
-                with _ -> ()))
-            |> Task.WhenAll
-        return messages |> Seq.toList
-    }
+    /// Run commands that may dispatch later (Cmd.OfTask, Cmd.OfAsync); collect
+    /// dispatched messages in dispatch order. Each command is awaited until its
+    /// first dispatch or the timeout.
+    let runAsyncWithin (timeout: TimeSpan) (cmd: Cmd<'msg>) : Task<'msg list>
+
+    /// runAsyncWithin with a 5 second timeout.
+    let runAsync (cmd: Cmd<'msg>) : Task<'msg list>
 ```
+
+`runAsync` observes a command through its dispatch: `Cmd.OfAsync` and `Cmd.OfTask`
+return at once and dispatch when the work completes on the pool, so each command is
+given a completion source resolved on its first dispatch, and the run waits for all
+of them or the timeout. Consequences:
+
+- A command that never dispatches (`Cmd.OfTask.attempt` on success, an effect that
+  only performs I/O) costs the whole timeout; what was collected by then is
+  returned. Use `runAsyncWithin` with a short timeout to assert "dispatches nothing".
+- A command that dispatches more than once: messages after its first are kept if
+  they arrive before the last command settles.
+- Messages come back in dispatch order; a synchronous `Cmd.batch` keeps its order.
+- An exception a command throws when started propagates instead of reading as "no
+  message". An exception inside the async work is Elmish's to report: `perform`
+  without an error mapper never dispatches, so the run times out.
 
 ---
 
