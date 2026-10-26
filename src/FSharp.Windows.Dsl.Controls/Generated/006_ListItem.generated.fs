@@ -1,7 +1,6 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -401,9 +400,6 @@ module ListItem =
     let key (k: string) : obj = box (Key k)
 
     let blocks (cs: VirtualNode list) : obj = box (CollectionProp("Blocks", cs))
-
-    let siblingListItems (cs: VirtualNode list) : obj =
-        box (CollectionProp("SiblingListItems", cs))
 
     let create (props: obj list) : VirtualNode =
         let cs, uk, ps = VirtualTree.extractSpecialProps props

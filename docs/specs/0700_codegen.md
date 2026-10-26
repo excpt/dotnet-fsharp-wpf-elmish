@@ -48,7 +48,6 @@ standard WPF controls. Only a small number of DPs and enum values were added in 
 // Window.generated.fs
 // AUTO-GENERATED — do not edit manually
 // Source assembly: PresentationFramework 8.0.0 + 9.0.0 conditionals
-// Generated: 2026-03-22
 
 type WindowProp =
     | Base       of ContentControlProp
@@ -103,7 +102,10 @@ auto-discovers them:
 ```
 
 The tool finds installed runtimes via `dotnet --list-runtimes` or by scanning
-the shared directory. It picks the latest patch version per major.
+the shared directory. It picks the latest patch version per major, comparing folder
+names as versions (8.0.10 over 8.0.9) and taking a preview only when no release is
+installed. `--tfms` must be in ascending order, since each TFM is diffed against the
+one before it.
 
 #### CLI — specify which versions to diff
 
@@ -418,7 +420,15 @@ Detection walks the type's `PropertyType` for an `IList<T>`/`ICollection<T>`/
 `GridColumnCollection` (extends `ObservableCollection<GridColumn>`, non-generic
 at the surface but generic in its inheritance). Properties named `Children`,
 `Content`, `Items`, `Resources` are skipped because the visual-tree mechanism
-already handles them.
+already handles them. So are read-only views (`ReadOnlyCollection<T>`, such as
+`DocumentViewer.PageViews`), which cannot be cleared, and `Sibling*` collections
+(`Inline.SiblingInlines`), which are the parent's list rather than the element's.
+
+DPs that point at another live element (`Popup.PlacementTarget`, `Label.Target`)
+are not emitted: a view cannot refer to an element it declares, and materializing a
+node for them would build a new orphan element.
+
+Headers carry no date, so a regeneration that changes nothing leaves no diff.
 
 ### DependencyObject-Valued DPs (MaterializeBeforeSet)
 
@@ -569,7 +579,6 @@ let emitControlFile (info: ControlInfo) (versionDPs: (string * DP[]) list) =
     sb.AppendLine("// AUTO-GENERATED — do not edit manually")
     sb.AppendLine($"// Regenerate: dotnet run --project tools/Codegen")
     sb.AppendLine($"// Source: {info.Type.Assembly.GetName().Name} {info.Type.Assembly.GetName().Version}")
-    sb.AppendLine($"// Generated: {DateTime.Now:yyyy-MM-dd}")
     sb.AppendLine()
 
     // prop DU — baseline
@@ -699,7 +708,6 @@ Each generated file has a header:
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework 8.0.0
-// Generated: 2024-03-17
 ```
 
 Manual fixes go in a separate non-generated file alongside:

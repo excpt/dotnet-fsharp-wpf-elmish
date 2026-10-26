@@ -2,100 +2,114 @@ module FSharp.Windows.Dsl.Codegen.FSharpEmitter
 
 open System.Text
 
+/// F# keywords, reserved words and OCaml-compat operators: as an identifier
+/// each needs double backticks.
 let private fsharpReserved =
     set
         [ "abstract"
           "and"
           "as"
+          "asr"
           "assert"
+          "atomic"
           "base"
           "begin"
+          "break"
           "checked"
           "class"
+          "component"
+          "const"
+          "constraint"
+          "constructor"
+          "continue"
           "default"
           "delegate"
           "do"
           "done"
           "downcast"
           "downto"
+          "eager"
           "elif"
           "else"
           "end"
+          "event"
           "exception"
           "extern"
+          "external"
           "false"
           "finally"
           "fixed"
           "for"
           "fun"
           "function"
+          "functor"
           "global"
           "if"
           "in"
+          "include"
           "inherit"
           "inline"
           "interface"
           "internal"
+          "land"
           "lazy"
           "let"
+          "lor"
+          "lsl"
+          "lsr"
+          "lxor"
           "match"
+          "measure"
           "member"
+          "method"
+          "mixin"
+          "mod"
           "module"
           "mutable"
           "namespace"
           "new"
           "not"
           "null"
+          "object"
           "of"
           "open"
           "or"
           "override"
+          "parallel"
+          "params"
           "private"
+          "process"
+          "protected"
           "public"
+          "pure"
           "rec"
+          "recursive"
           "return"
+          "sealed"
           "select"
+          "sig"
           "static"
           "struct"
+          "tailcall"
           "then"
           "to"
+          "trait"
           "true"
           "try"
           "type"
           "upcast"
           "use"
           "val"
+          "virtual"
           "void"
+          "volatile"
           "when"
           "while"
           "with"
-          "yield"
-          "process"
-          "atomic"
-          "break"
-          "checked"
-          "component"
-          "const"
-          "constraint"
-          "constructor"
-          "continue"
-          "eager"
-          "event"
-          "external"
-          "fixed"
-          "method"
-          "mixin"
-          "object"
-          "parallel"
-          "protected"
-          "pure"
-          "sealed"
-          "tailcall"
-          "trait"
-          "virtual"
-          "volatile" ]
+          "yield" ]
 
-let private toCamelCase (name: string) =
+/// camelCase a CLR member name into an F# identifier, escaping keywords.
+let toSafeCamelCase (name: string) =
     if name.Length = 0 then
         name
     else
@@ -110,7 +124,6 @@ let private emitHeader (sb: StringBuilder) (input: EmitControlInput) =
     sb.AppendLine("// AUTO-GENERATED — do not edit manually") |> ignore
     sb.AppendLine("// Regenerate: dotnet run --project tools/Codegen") |> ignore
     sb.AppendLine($"// Source assembly: {input.AssemblyInfo}") |> ignore
-    sb.AppendLine($"// Generated: {input.GeneratedDate}") |> ignore
     sb.AppendLine() |> ignore
 
 let private emitNamespaceAndOpens (sb: StringBuilder) (input: EmitControlInput) =
@@ -179,7 +192,7 @@ let private emitModule (sb: StringBuilder) (input: EmitControlInput) =
     let guardedDPs = input.OwnDPs |> List.filter (fun dp -> dp.Guard.IsSome)
 
     for dp in baselineDPs do
-        let fnName = toCamelCase dp.CaseName
+        let fnName = toSafeCamelCase dp.CaseName
 
         sb.AppendLine($"    let {fnName} v : obj = box ({propType}.{dp.CaseName} v)")
         |> ignore
@@ -188,7 +201,7 @@ let private emitModule (sb: StringBuilder) (input: EmitControlInput) =
     let guardedEvents = input.OwnEvents |> List.filter (fun e -> e.Guard.IsSome)
 
     for ev in baselineEvents do
-        let fnName = toCamelCase ev.CaseName
+        let fnName = toSafeCamelCase ev.CaseName
 
         sb.AppendLine($"    let {fnName} v : obj = box (EventProp(box ({propType}.{ev.CaseName} v)))")
         |> ignore
@@ -205,12 +218,12 @@ let private emitModule (sb: StringBuilder) (input: EmitControlInput) =
         for item in items do
             match item with
             | Choice1Of2 dp ->
-                let fnName = toCamelCase dp.CaseName
+                let fnName = toSafeCamelCase dp.CaseName
 
                 sb.AppendLine($"    let {fnName} v : obj = box ({propType}.{dp.CaseName} v)")
                 |> ignore
             | Choice2Of2 ev ->
-                let fnName = toCamelCase ev.CaseName
+                let fnName = toSafeCamelCase ev.CaseName
 
                 sb.AppendLine($"    let {fnName} v : obj = box (EventProp(box ({propType}.{ev.CaseName} v)))")
                 |> ignore
@@ -338,10 +351,10 @@ let private emitModule (sb: StringBuilder) (input: EmitControlInput) =
     let dpAndEventNames =
         seq {
             for dp in input.OwnDPs do
-                yield toCamelCase dp.CaseName
+                yield toSafeCamelCase dp.CaseName
 
             for ev in input.OwnEvents do
-                yield toCamelCase ev.CaseName
+                yield toSafeCamelCase ev.CaseName
 
             for h in input.InheritedHelpers do
                 yield h.FnName
@@ -428,7 +441,7 @@ let emitElements (ns: string) (controls: (string * string) list) : string =
     sb.AppendLine() |> ignore
 
     for controlName, fullModuleName in controls do
-        let fnName = toCamelCase controlName
+        let fnName = toSafeCamelCase controlName
 
         sb.AppendLine($"    let {fnName} (props: obj list) : VirtualNode = {fullModuleName}.create props")
         |> ignore

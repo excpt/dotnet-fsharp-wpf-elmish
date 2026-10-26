@@ -84,5 +84,4 @@ type EmitControlInput =
       AttachedDPs: EmitAttachedDP list
       CollectionProps: EmitCollectionProp list
       IsAbstract: bool
-      AssemblyInfo: string
-      GeneratedDate: string }
+      AssemblyInfo: string }

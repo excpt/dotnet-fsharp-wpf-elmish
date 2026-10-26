@@ -1,7 +1,6 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -467,5 +466,3 @@ module DocumentViewerBase =
 
     let isMasterPage (v: bool) : obj =
         box (AttachedProp(System.Windows.Controls.Primitives.DocumentViewerBase.IsMasterPageProperty, box v))
-
-    let pageViews (cs: VirtualNode list) : obj = box (CollectionProp("PageViews", cs))

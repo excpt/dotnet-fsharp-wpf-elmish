@@ -249,3 +249,30 @@ let ``generic and dependency-property-changed handlers are generated and fire`` 
 
         valueChanges |> should equal 1
         contextChanges |> should equal 1)
+
+// --- The generated surface as a whole ---
+
+[<Fact>]
+let ``every generated shorthand materializes with no props`` () =
+    runSta (fun () ->
+        register ()
+
+        let shorthands =
+            typeof<ButtonProp>.Assembly
+                .GetType("FSharp.Windows.Dsl.Controls.Elements")
+                .GetMethods(Reflection.BindingFlags.Public ||| Reflection.BindingFlags.Static)
+            |> Array.filter (fun m -> m.ReturnType = typeof<VirtualNode> && m.GetParameters().Length = 1)
+
+        let failures =
+            [ for m in shorthands do
+                  try
+                      match Dsl.materialize (m.Invoke(null, [| box ([]: obj list) |]) :?> VirtualNode) with
+                      | :? Window as w -> w.Close()
+                      | _ -> ()
+                  with e ->
+                      let e = if isNull e.InnerException then e else e.InnerException
+                      $"{m.Name}: {e.GetType().Name} {e.Message}" ]
+
+        // Exceptions only: diagnostics are process-wide, shared with tests running alongside
+        shorthands.Length |> should be (greaterThan 200)
+        failures |> should be Empty)

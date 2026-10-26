@@ -1,7 +1,6 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -375,6 +374,3 @@ module Inline =
     let children (cs: VirtualNode list) : obj = box (Children cs)
     let contentChild (c: VirtualNode) : obj = box (ContentChild c)
     let key (k: string) : obj = box (Key k)
-
-    let siblingInlines (cs: VirtualNode list) : obj =
-        box (CollectionProp("SiblingInlines", cs))

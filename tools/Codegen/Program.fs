@@ -34,104 +34,13 @@ let tfmToGuard (tfm: string) =
     | t when t.StartsWith("net8") -> "NET8_0_OR_GREATER"
     | _ -> failwith $"No guard symbol for TFM: {tfm}"
 
-/// F# reserved keywords — must be escaped with double backticks.
-let private fsharpReserved =
-    set
-        [ "abstract"
-          "and"
-          "as"
-          "assert"
-          "base"
-          "begin"
-          "checked"
-          "class"
-          "default"
-          "delegate"
-          "do"
-          "done"
-          "downcast"
-          "downto"
-          "elif"
-          "else"
-          "end"
-          "exception"
-          "extern"
-          "false"
-          "finally"
-          "fixed"
-          "for"
-          "fun"
-          "function"
-          "global"
-          "if"
-          "in"
-          "inherit"
-          "inline"
-          "interface"
-          "internal"
-          "lazy"
-          "let"
-          "match"
-          "member"
-          "module"
-          "mutable"
-          "namespace"
-          "new"
-          "not"
-          "null"
-          "of"
-          "open"
-          "or"
-          "override"
-          "private"
-          "public"
-          "rec"
-          "return"
-          "select"
-          "static"
-          "struct"
-          "then"
-          "to"
-          "true"
-          "try"
-          "type"
-          "upcast"
-          "use"
-          "val"
-          "void"
-          "when"
-          "while"
-          "with"
-          "yield"
-          "process"
-          "checked"
-          "component"
-          "event"
-          "method"
-          "object"
-          "parallel"
-          "protected"
-          "sealed"
-          "virtual"
-          "volatile" ]
-
-let private toSafeCamelCase (name: string) =
-    let camel = string (Char.ToLowerInvariant(name.[0])) + name.[1..]
-
-    if fsharpReserved.Contains camel then
-        $"``{camel}``"
-    else
-        camel
-
-/// No hand-written base types — everything is generated.
-let baseTypes = Map.empty<string, string * string>
+let private toSafeCamelCase = FSharpEmitter.toSafeCamelCase
 
 /// Roots of the inheritance hierarchy — these have no parent Prop DU.
 /// DependencyObject is the absolute root (every wrapper-eligible type descends from it
 /// and it has no DPs of its own). UIElement is kept for backwards compatibility:
 /// its file is generated with no Base case so consumers can call apply directly.
 let hierarchyRoots = Set.ofList [ "DependencyObject"; "UIElement" ]
-let hierarchyRoot = "UIElement"
 
 /// Map .NET type full names to F# type names.
 /// Uses F# aliases for primitives, fully qualified names for WPF types.
@@ -147,8 +56,8 @@ let mapToFSharpType (fullName: string) =
     | "System.Object" -> "obj"
     | "System.Byte" -> "byte"
     | "System.Char" -> "char"
-    | name when name.Contains('`') -> "obj"
     | null -> "obj"
+    | name when name.Contains('`') -> "obj"
     | name -> name.Replace('+', '.')
 
 /// Types to exclude from generation (internal, utility, or not useful in DSL).
@@ -228,6 +137,14 @@ let private collectionElementType (pt: Type) : Type option =
         with _ ->
             None
 
+/// A property's collection element type, or None when the property's type cannot
+/// be resolved: one unresolvable property must not end the scan of its siblings.
+let private propertyElementType (p: System.Reflection.PropertyInfo) =
+    try
+        collectionElementType p.PropertyType
+    with _ ->
+        None
+
 /// Reachability closure: starting from the seed UIElement subtypes, follow DP value types
 /// and CLR collection element types until no new DependencyObject is discovered. When a
 /// type is pulled in we also add its DependencyObject ancestors (so resolveParent finds
@@ -300,7 +217,7 @@ let computeReachableDOTypes (allDOTypes: Type list) (seed: Type list) : Set<stri
                     System.Reflection.BindingFlags.Public
                     ||| System.Reflection.BindingFlags.Instance
                 ) do
-                match collectionElementType p.PropertyType with
+                match propertyElementType p with
                 | Some elem when not (isNull elem.FullName) && byFullName.ContainsKey(elem.FullName) ->
                     pull (byFullName.[elem.FullName])
                 | _ -> ()
@@ -323,8 +240,14 @@ let private isWpfType (t: Type) =
 /// Skips candidates with the same short name as `t` to prevent self-referencing
 /// Base cases when two types share a short name (e.g., VisualElements.ControlBoxButton
 /// vs Docking.ControlBoxButton).
-/// A DP is emittable when it isn't attached and isn't read-only.
-let isEmittableDP (dp: DPInfo) = not dp.IsAttached && not dp.IsReadOnly
+/// DPs that point at another live element (Popup.PlacementTarget, Label.Target).
+/// A view has no reference to an element it declares, and materializing a node
+/// for them would build a new orphan element, so they are not emitted.
+let private referenceDPs = set [ "PlacementTarget"; "Target" ]
+
+/// A DP is emittable when it isn't attached, read-only, or an element reference.
+let isEmittableDP (dp: DPInfo) =
+    not dp.IsAttached && not dp.IsReadOnly && not (referenceDPs.Contains dp.Name)
 
 /// Why an event cannot be emitted, or None when it can. The handler must be a delegate F#
 /// `.AddHandler` accepts (IsStandardDelegate, captured at discovery), not obsolete (FS0101
@@ -528,9 +451,22 @@ let buildEmitInput
                 ||| System.Reflection.BindingFlags.Instance
                 ||| System.Reflection.BindingFlags.DeclaredOnly
             )
-            |> Array.filter (fun p -> p.CanRead && not (collectionPropExclusions.Contains p.Name))
+            // Read-only views (DocumentViewer.PageViews) cannot be cleared, and
+            // SiblingInlines/SiblingBlocks are the parent's list, not the element's.
+            |> Array.filter (fun p ->
+                p.CanRead
+                && not (collectionPropExclusions.Contains p.Name)
+                && not (p.Name.StartsWith "Sibling")
+                && not (
+                    (try
+                        p.PropertyType.Name
+                     with _ ->
+                         "")
+                        .StartsWith
+                        "ReadOnly"
+                ))
             |> Array.choose (fun p ->
-                match collectionElementType p.PropertyType with
+                match propertyElementType p with
                 | Some elem when AssemblyInspector.isSubclassOfByName "System.Windows.DependencyObject" elem ->
                     Some
                         { FnName = toSafeCamelCase p.Name
@@ -598,6 +534,8 @@ let buildEmitInput
                       PropDUExpression = $"{qualifier}{propDUName ev.OwnerTypeName}.On{ev.Name}"
                       IsEvent = true
                       Guard = guardMaps.Event |> Map.tryFind guardKey })
+        // A routed event re-registered via AddOwner shows up once per owner
+        |> List.distinctBy (fun h -> h.FnName)
 
     { OutputNamespace = outputNamespace
       ControlName = t.Name
@@ -611,8 +549,7 @@ let buildEmitInput
       AttachedDPs = attachedDPs
       CollectionProps = collectionProps
       IsAbstract = not (AssemblyInspector.isInstantiable t)
-      AssemblyInfo = assemblyInfo
-      GeneratedDate = DateTime.Now.ToString("yyyy-MM-dd") }
+      AssemblyInfo = assemblyInfo }
 
 [<EntryPoint>]
 let main argv =
@@ -664,6 +601,9 @@ let main argv =
             |> Array.distinct
             |> Array.toList
 
+        if assemblyNames.IsEmpty then
+            failwith "No assembly matched --assembly"
+
         let outputNamespace = results.GetResult Namespace
         let outputDir = results.GetResult Output
         let baseline = results.TryGetResult Baseline
@@ -705,8 +645,18 @@ let main argv =
                 let baselinePath = AssemblyInspector.resolveAssembly baselineTfm assemblyNames.[0]
                 printfn $"Baseline: {baselineTfm} ({baselinePath})"
 
+                let tfms = tfmsStr.Split(',') |> Array.map (fun t -> t.Trim())
+
+                let major (t: string) =
+                    int (t.Substring(3, t.IndexOf('.') - 3))
+
+                // Each TFM is diffed against the one before it, so the order decides
+                // which guard an addition gets.
+                if tfms |> Array.pairwise |> Array.exists (fun (a, b) -> major a >= major b) then
+                    failwith $"--tfms must be in ascending order: {tfmsStr}"
+
                 let tfmChain =
-                    tfmsStr.Split(',')
+                    tfms
                     |> Array.map (fun t ->
                         let t = t.Trim()
                         let path = AssemblyInspector.resolveAssembly t assemblyNames.[0]
@@ -737,12 +687,10 @@ let main argv =
             match found with
             | Some path ->
                 printfn $"  Loaded: {Path.GetFileName(path)}"
-                Some(ctx.LoadFromAssemblyPath(path))
-            | None ->
-                printfn $"  WARNING: {name} not found"
-                None
+                ctx.LoadFromAssemblyPath(path)
+            | None -> failwith $"Assembly not found: {name} (looked in {candidates})"
 
-        let packageAssemblies = assemblyNames |> List.choose loadAssembly
+        let packageAssemblies = assemblyNames |> List.map loadAssembly
 
         // Always load PresentationCore (UIElement hierarchy) and WindowsBase
         // (Freezable, DispatcherObject) so the DependencyObject scope reaches every
@@ -1000,29 +948,18 @@ let main argv =
 
         let fantomasArgs = $"\"{parentDir}\""
 
-        let psi =
-            ProcessStartInfo(
-                "dotnet",
-                $"fantomas {fantomasArgs}",
-                RedirectStandardOutput = true,
-                RedirectStandardError = true,
-                UseShellExecute = false
-            )
+        // Output goes straight to the console: nothing to buffer, nothing to deadlock on
+        let proc =
+            Process.Start(ProcessStartInfo("dotnet", $"fantomas {fantomasArgs}", UseShellExecute = false))
 
-        let proc = Process.Start(psi)
-        let stdout = proc.StandardOutput.ReadToEnd()
-        let stderr = proc.StandardError.ReadToEnd()
         proc.WaitForExit()
 
         if proc.ExitCode <> 0 then
-            eprintfn $"Fantomas failed (exit code {proc.ExitCode}):"
-            eprintfn $"{stderr}"
-            eprintfn $"{stdout}"
+            eprintfn $"Fantomas failed (exit code {proc.ExitCode})"
+            proc.ExitCode
         else
-            printfn "Fantomas formatting complete."
-
-        printfn $"Done. Generated {generated} control files + Elements + Registration in {outputDir}"
-        0
+            printfn $"Done. Generated {generated} control files + Elements + Registration in {outputDir}"
+            0
     with :? ArguParseException as ex ->
         printfn $"%s{ex.Message}"
         1

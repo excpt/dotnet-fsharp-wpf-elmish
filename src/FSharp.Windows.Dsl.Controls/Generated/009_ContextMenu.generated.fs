@@ -1,7 +1,6 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -15,7 +14,6 @@ type ContextMenuProp =
     | HorizontalOffset of float
     | VerticalOffset of float
     | IsOpen of bool
-    | PlacementTarget of VirtualNode
     | PlacementRectangle of System.Windows.Rect
     | Placement of System.Windows.Controls.Primitives.PlacementMode
     | HasDropShadow of bool
@@ -30,7 +28,6 @@ module ContextMenu =
 
     let verticalOffset v : obj = box (ContextMenuProp.VerticalOffset v)
     let isOpen v : obj = box (ContextMenuProp.IsOpen v)
-    let placementTarget v : obj = box (ContextMenuProp.PlacementTarget v)
 
     let placementRectangle v : obj =
         box (ContextMenuProp.PlacementRectangle v)
@@ -57,8 +54,6 @@ module ContextMenu =
         | ContextMenuProp.VerticalOffset v ->
             el.SetValue(System.Windows.Controls.ContextMenu.VerticalOffsetProperty, box v)
         | ContextMenuProp.IsOpen v -> el.SetValue(System.Windows.Controls.ContextMenu.IsOpenProperty, box v)
-        | ContextMenuProp.PlacementTarget v ->
-            el.SetValue(System.Windows.Controls.ContextMenu.PlacementTargetProperty, Materializer.materialize v |> box)
         | ContextMenuProp.PlacementRectangle v ->
             el.SetValue(System.Windows.Controls.ContextMenu.PlacementRectangleProperty, box v)
         | ContextMenuProp.Placement v -> el.SetValue(System.Windows.Controls.ContextMenu.PlacementProperty, box v)
@@ -77,8 +72,6 @@ module ContextMenu =
             el.ClearValue(System.Windows.Controls.ContextMenu.HorizontalOffsetProperty)
         | ContextMenuProp.VerticalOffset _ -> el.ClearValue(System.Windows.Controls.ContextMenu.VerticalOffsetProperty)
         | ContextMenuProp.IsOpen _ -> el.ClearValue(System.Windows.Controls.ContextMenu.IsOpenProperty)
-        | ContextMenuProp.PlacementTarget _ ->
-            el.ClearValue(System.Windows.Controls.ContextMenu.PlacementTargetProperty)
         | ContextMenuProp.PlacementRectangle _ ->
             el.ClearValue(System.Windows.Controls.ContextMenu.PlacementRectangleProperty)
         | ContextMenuProp.Placement _ -> el.ClearValue(System.Windows.Controls.ContextMenu.PlacementProperty)

@@ -3,12 +3,6 @@ module FSharp.Windows.Dsl.Codegen.TfmComparer
 open System.IO
 open System.Reflection
 
-/// A DP identified by owner type + name, with an optional version guard.
-type VersionedDP =
-    { OwnerTypeFullName: string
-      DPName: string
-      Guard: string option }
-
 /// Extract all DP names (as "OwnerFullName.DPName") from an assembly via MetadataLoadContext.
 let private extractDPSet (mlc: MetadataLoadContext) (assemblyPath: string) =
     let assembly = mlc.LoadFromAssemblyPath(assemblyPath)
@@ -20,7 +14,7 @@ let private extractDPSet (mlc: MetadataLoadContext) (assemblyPath: string) =
             f.FieldType.FullName = "System.Windows.DependencyProperty"
             && f.Name.EndsWith("Property"))
         |> Array.map (fun f ->
-            let dpName = f.Name.Replace("Property", "")
+            let dpName = f.Name.Substring(0, f.Name.Length - "Property".Length)
             $"{t.FullName}.{dpName}"))
     |> Set.ofArray
 

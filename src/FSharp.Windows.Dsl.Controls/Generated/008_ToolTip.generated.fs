@@ -1,7 +1,6 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -16,7 +15,6 @@ type ToolTipProp =
     | VerticalOffset of float
     | IsOpen of bool
     | HasDropShadow of bool
-    | PlacementTarget of VirtualNode
     | PlacementRectangle of System.Windows.Rect
     | Placement of System.Windows.Controls.Primitives.PlacementMode
     | CustomPopupPlacementCallback of System.Windows.Controls.Primitives.CustomPopupPlacementCallback
@@ -32,7 +30,6 @@ module ToolTip =
     let verticalOffset v : obj = box (ToolTipProp.VerticalOffset v)
     let isOpen v : obj = box (ToolTipProp.IsOpen v)
     let hasDropShadow v : obj = box (ToolTipProp.HasDropShadow v)
-    let placementTarget v : obj = box (ToolTipProp.PlacementTarget v)
     let placementRectangle v : obj = box (ToolTipProp.PlacementRectangle v)
     let placement v : obj = box (ToolTipProp.Placement v)
 
@@ -58,8 +55,6 @@ module ToolTip =
         | ToolTipProp.VerticalOffset v -> el.SetValue(System.Windows.Controls.ToolTip.VerticalOffsetProperty, box v)
         | ToolTipProp.IsOpen v -> el.SetValue(System.Windows.Controls.ToolTip.IsOpenProperty, box v)
         | ToolTipProp.HasDropShadow v -> el.SetValue(System.Windows.Controls.ToolTip.HasDropShadowProperty, box v)
-        | ToolTipProp.PlacementTarget v ->
-            el.SetValue(System.Windows.Controls.ToolTip.PlacementTargetProperty, Materializer.materialize v |> box)
         | ToolTipProp.PlacementRectangle v ->
             el.SetValue(System.Windows.Controls.ToolTip.PlacementRectangleProperty, box v)
         | ToolTipProp.Placement v -> el.SetValue(System.Windows.Controls.ToolTip.PlacementProperty, box v)
@@ -80,7 +75,6 @@ module ToolTip =
         | ToolTipProp.VerticalOffset _ -> el.ClearValue(System.Windows.Controls.ToolTip.VerticalOffsetProperty)
         | ToolTipProp.IsOpen _ -> el.ClearValue(System.Windows.Controls.ToolTip.IsOpenProperty)
         | ToolTipProp.HasDropShadow _ -> el.ClearValue(System.Windows.Controls.ToolTip.HasDropShadowProperty)
-        | ToolTipProp.PlacementTarget _ -> el.ClearValue(System.Windows.Controls.ToolTip.PlacementTargetProperty)
         | ToolTipProp.PlacementRectangle _ -> el.ClearValue(System.Windows.Controls.ToolTip.PlacementRectangleProperty)
         | ToolTipProp.Placement _ -> el.ClearValue(System.Windows.Controls.ToolTip.PlacementProperty)
         | ToolTipProp.CustomPopupPlacementCallback _ ->

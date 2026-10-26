@@ -1,7 +1,6 @@
 // AUTO-GENERATED — do not edit manually
 // Regenerate: dotnet run --project tools/Codegen
 // Source assembly: PresentationFramework (baseline: net461)
-// Generated: 2026-10-26
 
 namespace FSharp.Windows.Dsl.Controls
 
@@ -19,7 +18,6 @@ type PopupProp =
     | StaysOpen of bool
     | HorizontalOffset of float
     | VerticalOffset of float
-    | PlacementTarget of VirtualNode
     | PlacementRectangle of System.Windows.Rect
     | PopupAnimation of System.Windows.Controls.Primitives.PopupAnimation
     | AllowsTransparency of bool
@@ -37,7 +35,6 @@ module Popup =
     let staysOpen v : obj = box (PopupProp.StaysOpen v)
     let horizontalOffset v : obj = box (PopupProp.HorizontalOffset v)
     let verticalOffset v : obj = box (PopupProp.VerticalOffset v)
-    let placementTarget v : obj = box (PopupProp.PlacementTarget v)
     let placementRectangle v : obj = box (PopupProp.PlacementRectangle v)
     let popupAnimation v : obj = box (PopupProp.PopupAnimation v)
     let allowsTransparency v : obj = box (PopupProp.AllowsTransparency v)
@@ -62,11 +59,6 @@ module Popup =
             el.SetValue(System.Windows.Controls.Primitives.Popup.HorizontalOffsetProperty, box v)
         | PopupProp.VerticalOffset v ->
             el.SetValue(System.Windows.Controls.Primitives.Popup.VerticalOffsetProperty, box v)
-        | PopupProp.PlacementTarget v ->
-            el.SetValue(
-                System.Windows.Controls.Primitives.Popup.PlacementTargetProperty,
-                Materializer.materialize v |> box
-            )
         | PopupProp.PlacementRectangle v ->
             el.SetValue(System.Windows.Controls.Primitives.Popup.PlacementRectangleProperty, box v)
         | PopupProp.PopupAnimation v ->
@@ -88,7 +80,6 @@ module Popup =
         | PopupProp.HorizontalOffset _ ->
             el.ClearValue(System.Windows.Controls.Primitives.Popup.HorizontalOffsetProperty)
         | PopupProp.VerticalOffset _ -> el.ClearValue(System.Windows.Controls.Primitives.Popup.VerticalOffsetProperty)
-        | PopupProp.PlacementTarget _ -> el.ClearValue(System.Windows.Controls.Primitives.Popup.PlacementTargetProperty)
         | PopupProp.PlacementRectangle _ ->
             el.ClearValue(System.Windows.Controls.Primitives.Popup.PlacementRectangleProperty)
         | PopupProp.PopupAnimation _ -> el.ClearValue(System.Windows.Controls.Primitives.Popup.PopupAnimationProperty)

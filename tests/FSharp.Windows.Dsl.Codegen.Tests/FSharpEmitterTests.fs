@@ -31,8 +31,7 @@ let simpleButtonInput =
       AttachedDPs = []
       CollectionProps = []
       IsAbstract = false
-      AssemblyInfo = "PresentationFramework 8.0.0"
-      GeneratedDate = "2026-03-22" }
+      AssemblyInfo = "PresentationFramework 8.0.0" }
 
 [<Fact>]
 let ``emitControlFile includes auto-generated header`` () =
@@ -41,10 +40,10 @@ let ``emitControlFile includes auto-generated header`` () =
     output |> should haveSubstring "do not edit manually"
 
 [<Fact>]
-let ``emitControlFile includes assembly info in header`` () =
+let ``emitControlFile includes assembly info in header, and no date`` () =
     let output = FSharpEmitter.emitControlFile simpleButtonInput
     output |> should haveSubstring "PresentationFramework 8.0.0"
-    output |> should haveSubstring "2026-03-22"
+    output |> should not' (haveSubstring "// Generated:")
 
 [<Fact>]
 let ``emitControlFile includes namespace`` () =

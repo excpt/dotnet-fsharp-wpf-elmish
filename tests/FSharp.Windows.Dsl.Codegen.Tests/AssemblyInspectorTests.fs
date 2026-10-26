@@ -95,29 +95,6 @@ let ``discoverEvents finds Click on ButtonBase`` () =
     let events = AssemblyInspector.discoverEvents buttonBaseType
     events |> List.exists (fun e -> e.Name = "Click") |> should be True
 
-[<Fact>]
-let ``findControlTypes finds Button in PresentationFramework`` () =
-    let pfPath =
-        AssemblyInspector.resolveAssembly "net10.0-windows" "PresentationFramework"
-
-    let runtimeDir = Path.GetDirectoryName(pfPath)
-    use ctx = AssemblyInspector.createContext runtimeDir []
-    let assembly = ctx.LoadFromAssemblyPath(pfPath)
-    let types = AssemblyInspector.findControlTypes ctx assembly
-    types |> List.exists (fun t -> t.Name = "Button") |> should be True
-
-[<Fact>]
-let ``findControlTypes excludes abstract types`` () =
-    let pfPath =
-        AssemblyInspector.resolveAssembly "net10.0-windows" "PresentationFramework"
-
-    let runtimeDir = Path.GetDirectoryName(pfPath)
-    use ctx = AssemblyInspector.createContext runtimeDir []
-    let assembly = ctx.LoadFromAssemblyPath(pfPath)
-    let types = AssemblyInspector.findControlTypes ctx assembly
-    // ButtonBase is abstract — should NOT be in the list
-    types |> List.exists (fun t -> t.Name = "ButtonBase") |> should be False
-
 // --- CLR event discovery ---
 
 [<Fact>]
@@ -333,3 +310,11 @@ let ``isInstantiable requires a concrete type with a public parameterless constr
     // concrete but only parameterised constructors (like WriteableBitmap, AdornerLayer)
     AssemblyInspector.isInstantiable typeof<System.Uri> |> should be False
     AssemblyInspector.isInstantiable typeof<System.IO.Stream> |> should be False
+
+[<Fact>]
+let ``newestFirst orders version folders as versions, every release before a preview`` () =
+    AssemblyInspector.newestFirst [| "8.0.9"; "8.0.10"; "8.0.11-preview.1"; "8.0.2" |]
+    |> should equal [| "8.0.10"; "8.0.9"; "8.0.2"; "8.0.11-preview.1" |]
+
+    AssemblyInspector.newestFirst [| "9.0.0-rc.1"; "9.0.0" |]
+    |> should equal [| "9.0.0"; "9.0.0-rc.1" |]

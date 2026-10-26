@@ -6,6 +6,22 @@ open System.Reflection
 // Re-open to shadow System.Reflection.EventInfo with our EventInfo
 open FSharp.Windows.Dsl.Codegen
 
+/// Version folders (8.0.10, 9.0.0-preview.1), newest release first: compared as
+/// versions, not strings, so 8.0.10 beats 8.0.9; previews only after every release.
+let newestFirst (dirs: string array) =
+    dirs
+    |> Array.sortByDescending (fun d ->
+        let name = Path.GetFileName d
+
+        let core, isRelease =
+            match name.IndexOf '-' with
+            | -1 -> name, true
+            | i -> name.Substring(0, i), false
+
+        match Version.TryParse core with
+        | true, v -> isRelease, v
+        | _ -> isRelease, Version())
+
 /// Find the latest installed runtime directory for the given pack and major version.
 let findRuntimeDir (runtimePack: string) (majorVersion: string) : string =
     let baseDir =
@@ -16,7 +32,7 @@ let findRuntimeDir (runtimePack: string) (majorVersion: string) : string =
 
     Directory.GetDirectories(baseDir)
     |> Array.filter (fun d -> Path.GetFileName(d).StartsWith($"{majorVersion}."))
-    |> Array.sortDescending
+    |> newestFirst
     |> Array.tryHead
     |> Option.defaultWith (fun () -> failwith $"No {runtimePack} {majorVersion}.x found in {baseDir}")
 
@@ -52,7 +68,7 @@ let findNetFxRefDir (tfm: string) : string =
     let fromNuGet =
         if Directory.Exists(pkgRoot) then
             Directory.GetDirectories(pkgRoot)
-            |> Array.sortDescending
+            |> newestFirst
             |> Array.tryPick (fun ver ->
                 let candidate = Path.Combine(ver, "build", ".NETFramework", folder)
                 if Directory.Exists(candidate) then Some candidate else None)
@@ -184,7 +200,7 @@ let rec fsharpTypeName (t: Type) : string =
 
 /// Check if a DP field represents an attached property by looking for a static SetXxx method.
 let private isAttached (field: FieldInfo) =
-    let propName = field.Name.Replace("Property", "")
+    let propName = field.Name.Substring(0, field.Name.Length - "Property".Length)
 
     let setMethod =
         field.DeclaringType.GetMethod($"Set{propName}", BindingFlags.Public ||| BindingFlags.Static)
@@ -369,21 +385,6 @@ let rec isSubclassOfByName (baseTypeName: string) (t: Type) =
 /// True when the type is concrete and has a public parameterless constructor (what Materializer needs).
 let isInstantiable (t: Type) =
     not t.IsAbstract && not (isNull (t.GetConstructor(Type.EmptyTypes)))
-
-/// Find all control types in an assembly (public, non-abstract, subclass of FrameworkElement).
-let findControlTypes (_mlc: MetadataLoadContext) (assembly: Assembly) : Type list =
-    assembly.GetTypes()
-    |> Array.filter (fun t ->
-        t.IsPublic
-        && not t.IsAbstract
-        && isSubclassOfByName "System.Windows.FrameworkElement" t)
-    |> Array.toList
-
-/// Find all FrameworkElement subtypes including abstract (needed for full hierarchy chain).
-let findAllFrameworkElementSubtypes (_mlc: MetadataLoadContext) (assembly: Assembly) : Type list =
-    assembly.GetTypes()
-    |> Array.filter (fun t -> t.IsPublic && isSubclassOfByName "System.Windows.FrameworkElement" t)
-    |> Array.toList
 
 /// Find all UIElement subtypes (including UIElement, Visual ancestors with DPs) across multiple assemblies.
 let findAllUIElementSubtypes (_mlc: MetadataLoadContext) (assemblies: Assembly list) : Type list =
