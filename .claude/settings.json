@@ -1,7 +1,18 @@
 {
   "permissions": {
     "allow": [
-      "Bash",
+      "Bash(dotnet build:*)",
+      "Bash(dotnet test:*)",
+      "Bash(dotnet restore:*)",
+      "Bash(dotnet tool restore:*)",
+      "Bash(dotnet fantomas:*)",
+      "Bash(dotnet run --project tools/Codegen:*)",
+      "Bash(git status:*)",
+      "Bash(git diff:*)",
+      "Bash(git log:*)",
+      "Bash(git show:*)",
+      "Bash(gh issue view:*)",
+      "Bash(gh issue list:*)",
       "Read",
       "Glob",
       "Grep"

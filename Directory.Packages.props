@@ -13,6 +13,8 @@
 
         <!-- .NET Framework targeting (reference assemblies for net4x builds on machines without VS) -->
         <PackageVersion Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.3"/>
+        <!-- The codegen net461 baseline reads these from the NuGet cache -->
+        <PackageVersion Include="Microsoft.NETFramework.ReferenceAssemblies.net461" Version="1.0.3"/>
 
         <!-- BCL fillers needed only on .NET Framework targets -->
         <PackageVersion Include="System.Text.Json" Version="10.0.14"/>

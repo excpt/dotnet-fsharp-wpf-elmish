@@ -18,5 +18,8 @@
     <ItemGroup>
         <PackageReference Include="System.Reflection.MetadataLoadContext" />
         <PackageReference Include="Argu" />
+        <!-- Not used by the tool's code: restoring it puts the net461 reference
+             assemblies in the NuGet cache, where the net461 baseline looks for them. -->
+        <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies.net461" ExcludeAssets="all" PrivateAssets="all" />
     </ItemGroup>
 </Project>

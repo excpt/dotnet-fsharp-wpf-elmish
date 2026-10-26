@@ -42,3 +42,41 @@ jobs:
       # and a floor makes that failure loud instead of green.
       - name: Test
         run: dotnet test --solution FSharp.Windows.Dsl.slnx --no-build --minimum-expected-tests 353
+
+  # The Generated/ files are committed: regenerate them and fail on any difference,
+  # so a codegen change cannot land without its output (or the output drift alone).
+  codegen-drift:
+    needs: format
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      # The guard diff reads the WPF assemblies of every TFM in --tfms
+      - uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: |
+            8.0.x
+            9.0.x
+            10.0.x
+
+      - name: Restore tools
+        run: dotnet tool restore
+
+      - name: Regenerate core controls
+        run: >
+          dotnet run --project tools/Codegen --
+          --assembly PresentationFramework
+          --baseline net461
+          --tfms net8.0-windows,net9.0-windows,net10.0-windows
+          --namespace FSharp.Windows.Dsl.Controls
+          --output src/FSharp.Windows.Dsl.Controls/Generated/
+
+      - name: Fail on drift
+        shell: bash
+        run: |
+          drift=$(git status --porcelain -- src/FSharp.Windows.Dsl.Controls)
+          if [ -n "$drift" ]; then
+            echo "Generated files differ from a fresh regeneration:"; echo "$drift"
+            git diff --stat -- src/FSharp.Windows.Dsl.Controls
+            exit 1
+          fi
