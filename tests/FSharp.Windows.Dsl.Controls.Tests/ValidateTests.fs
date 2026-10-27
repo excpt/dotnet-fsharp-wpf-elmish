@@ -161,6 +161,29 @@ let ``any item fits a non-generic list`` () =
         Validate.tree tree |> should be Empty)
 
 [<Fact>]
+let ``a typed ICollection-only collection reports a wrong item`` () =
+    runSta (fun () ->
+        register ()
+
+        // FlowDocument.Blocks is a BlockCollection (ICollection<Block>, no IList<T>).
+        let tree = flowDocument [ box (CollectionProp("Blocks", [ button [] ])) ]
+
+        match Validate.tree tree with
+        | [ UnusableMember(el, name, _) ] ->
+            el |> should equal typeof<System.Windows.Documents.FlowDocument>
+            name |> should equal "Blocks"
+        | other -> failwith $"expected one unusable member, got {other}")
+
+[<Fact>]
+let ``inlines take a run and a UIElement`` () =
+    runSta (fun () ->
+        register ()
+
+        let tree = textBlock [ box (CollectionProp("Inlines", [ run []; button [] ])) ]
+
+        Validate.tree tree |> should be Empty)
+
+[<Fact>]
 let ``a handler prop on the right control passes and on the wrong one is reported`` () =
     runSta (fun () ->
         register ()

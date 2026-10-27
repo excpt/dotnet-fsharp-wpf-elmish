@@ -27,6 +27,11 @@ module Validate =
             Some(UnusableMember(elType, name, $"{p.PropertyType.Name} cannot hold a {node.Type.Name}"))
         | _ -> None
 
+    // InlineCollection.Add wraps a UIElement in an InlineUIContainer.
+    let private allowsUIElement (item: Type) (t: Type) =
+        item = typeof<System.Windows.Documents.Inline>
+        && typeof<UIElement>.IsAssignableFrom t
+
     /// Is the named property a list the materializer can fill?
     let private checkCollectionProp (elType: Type) (name: string) (children: VirtualNode list) =
         match property elType name with
@@ -35,18 +40,18 @@ module Validate =
         | p when not (typeof<IList>.IsAssignableFrom p.PropertyType) ->
             Some(UnusableMember(elType, name, $"{p.PropertyType.Name} is not an IList"))
         | p ->
-            // IList<T> (also through ObservableCollection<T> or a typed collection)
+            // ICollection<T> (also through ObservableCollection<T> or a typed collection)
             // names the item type; a plain IList takes anything.
             p.PropertyType.GetInterfaces()
             |> Array.append [| p.PropertyType |]
             |> Array.tryFind (fun i ->
                 i.IsGenericType
-                && i.GetGenericTypeDefinition() = typedefof<System.Collections.Generic.IList<_>>)
+                && i.GetGenericTypeDefinition() = typedefof<System.Collections.Generic.ICollection<_>>)
             |> Option.bind (fun i ->
                 let item = i.GetGenericArguments()[0]
 
                 children
-                |> List.tryFind (fun c -> not (item.IsAssignableFrom c.Type))
+                |> List.tryFind (fun c -> not (item.IsAssignableFrom c.Type || allowsUIElement item c.Type))
                 |> Option.map (fun c -> UnusableMember(elType, name, $"{item.Name} cannot hold a {c.Type.Name}")))
 
     /// Would this prop reach the element it was declared on?
