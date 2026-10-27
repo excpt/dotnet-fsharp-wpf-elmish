@@ -71,10 +71,11 @@ same reference. Otherwise it diffs the root's props in place and reconciles its
 children. The root element is never replaced: a different root type in the new tree
 is not detected. `Dsl.update` wraps it for a `LiveTree` (from `Dsl.createLive`).
 
-The counts of the last update are in `Reconciler.lastStats` (`Skipped`, `Replaced`,
+The counts of the last update are in `Reconciler.lastStats ()` (`Skipped`, `Replaced`,
 `Created`, `Removed`, `ChildDiffs`, `PropReapplied`), and each update writes its time
-and counts to `Debug`. The counters are module-level, shared by every live tree, so
-with several windows `lastStats` is the last update of whichever tree ran last. They
+and counts to `Debug`. The counters are per thread: `lastStats ()` is the last update
+on the calling thread, so an update on another UI thread does not overwrite it. With
+several windows on one thread it is the last update of whichever tree ran last. They
 are diagnostics only.
 
 ## Prop Diffing — Slots

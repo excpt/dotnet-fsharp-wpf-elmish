@@ -347,7 +347,7 @@ let main _ =
         swReconcile.Stop()
 
         printfn
-            $"[render #{renderCount}] tree={treeMs}ms reconcile={swReconcile.ElapsedMilliseconds}ms — {Reconciler.lastStats}"
+            $"[render #{renderCount}] tree={treeMs}ms reconcile={swReconcile.ElapsedMilliseconds}ms — {Reconciler.lastStats ()}"
 
     render ()
 

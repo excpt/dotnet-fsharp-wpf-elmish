@@ -15,6 +15,8 @@ Entries are written by hand.
   used them, and the per-window scopes below replace them.
 - `VirtualNode.InternalId` and `VirtualTree.makeId` are removed; nothing read them.
 - `ChildView.Live` is a `LiveTree`, no longer an option.
+- `Reconciler.lastStats` is a function, `lastStats ()`, and per thread: an update on
+  another UI thread no longer overwrites it, or the counts of an update running there.
 - Codegen no longer emits element-reference DPs (`Popup.PlacementTarget`,
   `ToolTip`/`ContextMenu.PlacementTarget`, `Label.Target`), read-only collection
   helpers (`DocumentViewer.pageViews`) or `Sibling*` collection helpers: none of

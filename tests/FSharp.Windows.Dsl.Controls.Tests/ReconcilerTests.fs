@@ -46,13 +46,13 @@ let ``reconcile skips identical tree (reference equality)`` () =
         let same = tree "B"
         let live = Dsl.createLive (tree "A")
         Dsl.update live same
-        let afterRealUpdate = Reconciler.lastStats
+        let afterRealUpdate = Reconciler.lastStats ()
 
         // The same reference again: the fast path returns before any walk, so
         // no new stats are recorded
         Dsl.update live same
 
-        Reconciler.lastStats |> should be (sameAs afterRealUpdate))
+        Reconciler.lastStats () |> should be (sameAs afterRealUpdate))
 
 // --- Prop changes ---
 
@@ -507,7 +507,7 @@ let ``keyed child whose type changes is replaced`` () =
 
         sp.Children.Count |> should equal 1
         (sp.Children.[0] :?> TextBlock).Text |> should equal "T"
-        Reconciler.lastStats.Replaced |> should equal 1
+        Reconciler.lastStats().Replaced |> should equal 1
 
         Materializer.diagnostics ()
         |> List.exists (function
@@ -705,7 +705,37 @@ let ``keyed path skips a child that is the same reference`` () =
         let live = Dsl.createLive (tree "a")
         Dsl.update live (tree "b")
 
-        Reconciler.lastStats.Skipped |> should equal 1)
+        Reconciler.lastStats().Skipped |> should equal 1)
+
+[<Fact>]
+let ``stats are per thread: an update on another UI thread does not overwrite them`` () =
+    let aUpdated = new ManualResetEventSlim()
+    let bUpdated = new ManualResetEventSlim()
+
+    let tree (s: string) =
+        stackPanel [ StackPanel.children [ textBlock [ TextBlock.text s ] ] ]
+
+    let otherThread =
+        Thread(fun () ->
+            aUpdated.Wait()
+            register ()
+            // A replaced child, where thread A's update skipped nothing and replaced nothing
+            let live = Dsl.createLive (tree "x")
+            Dsl.update live (stackPanel [ StackPanel.children [ button [] ] ])
+            bUpdated.Set())
+
+    otherThread.SetApartmentState(ApartmentState.STA)
+    otherThread.Start()
+
+    runSta (fun () ->
+        register ()
+        let live = Dsl.createLive (tree "a")
+        Dsl.update live (tree "b")
+        aUpdated.Set()
+        bUpdated.Wait()
+        Reconciler.lastStats().Replaced |> should equal 0)
+
+    otherThread.Join()
 
 [<Fact>]
 let ``a handler swap whose case is not named On... is reported`` () =

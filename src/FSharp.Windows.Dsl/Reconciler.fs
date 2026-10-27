@@ -28,8 +28,15 @@ module Reconciler =
         override this.ToString() =
             $"skip={this.Skipped} replace={this.Replaced} create={this.Created} remove={this.Removed} childDiff={this.ChildDiffs} propReapply={this.PropReapplied}"
 
-    let mutable lastStats = Stats.Zero()
-    let mutable private stats = Stats.Zero()
+    // Per thread: each UI thread reconciles its own trees, so an update on another
+    // one (a second UI thread, tests running in parallel) must not count into these.
+    let private current =
+        new System.Threading.ThreadLocal<Stats>(fun () -> Stats.Zero())
+
+    let private last = new System.Threading.ThreadLocal<Stats>(fun () -> Stats.Zero())
+
+    /// The counts of the last update on the calling thread.
+    let lastStats () = last.Value
 
     /// Get the live child element at a given index from a parent.
     let private getChild (parent: DependencyObject) (index: int) : DependencyObject option =
@@ -222,29 +229,30 @@ module Reconciler =
         match oldNode, newNode with
 
         // Same reference — skip entire subtree
-        | Some old, Some newN when Object.ReferenceEquals(old, newN) -> stats.Skipped <- stats.Skipped + 1
+        | Some old, Some newN when Object.ReferenceEquals(old, newN) ->
+            current.Value.Skipped <- current.Value.Skipped + 1
 
         // Both None
         | None, None -> ()
 
         // New node — create
         | None, Some newN ->
-            stats.Created <- stats.Created + 1
+            current.Value.Created <- current.Value.Created + 1
             insertChild parent index (Materializer.materialize newN)
 
         // Removed — destroy
         | Some _, None ->
-            stats.Removed <- stats.Removed + 1
+            current.Value.Removed <- current.Value.Removed + 1
             removeChild parent index
 
         // Different types — replace
         | Some old, Some newN when old.Type <> newN.Type ->
-            stats.Replaced <- stats.Replaced + 1
+            current.Value.Replaced <- current.Value.Replaced + 1
             replaceChild parent index (Materializer.materialize newN)
 
         // Same type, props changed — diff and apply in-place (preserves element identity)
         | Some old, Some newN when old.Props <> newN.Props ->
-            stats.PropReapplied <- stats.PropReapplied + 1
+            current.Value.PropReapplied <- current.Value.PropReapplied + 1
 
             match getChild parent index with
             | Some el ->
@@ -254,7 +262,7 @@ module Reconciler =
 
         // Same type, same props — just diff children
         | Some old, Some newN ->
-            stats.ChildDiffs <- stats.ChildDiffs + 1
+            current.Value.ChildDiffs <- current.Value.ChildDiffs + 1
 
             match getChild parent index with
             | Some el -> reconcileChildren el old.Children newN.Children
@@ -311,24 +319,24 @@ module Reconciler =
             for (k, newChild) in List.zip (effectiveKeys newChildren) newChildren do
                 match oldMap.TryGetValue(k) with
                 | true, (oldNode, el) when Object.ReferenceEquals(oldNode, newChild) ->
-                    stats.Skipped <- stats.Skipped + 1
+                    current.Value.Skipped <- current.Value.Skipped + 1
                     target.Add(el)
                     oldMap.Remove(k) |> ignore
                 | true, (oldNode, el) when oldNode.Type = newChild.Type ->
                     if oldNode.Props <> newChild.Props then
-                        stats.PropReapplied <- stats.PropReapplied + 1
+                        current.Value.PropReapplied <- current.Value.PropReapplied + 1
                         diffAndApplyProps el oldNode.Props newChild.Props
 
-                    stats.ChildDiffs <- stats.ChildDiffs + 1
+                    current.Value.ChildDiffs <- current.Value.ChildDiffs + 1
                     reconcileChildren el oldNode.Children newChild.Children
                     target.Add(el)
                     oldMap.Remove(k) |> ignore
                 | _ ->
                     // Same key, different type: the old element stays in oldMap and phase 3 removes it
                     if oldMap.ContainsKey(k) then
-                        stats.Replaced <- stats.Replaced + 1
+                        current.Value.Replaced <- current.Value.Replaced + 1
                     else
-                        stats.Created <- stats.Created + 1
+                        current.Value.Created <- current.Value.Created + 1
 
                     target.Add(Materializer.materialize newChild)
 
@@ -341,7 +349,7 @@ module Reconciler =
 
             for idx in removals do
                 removeAt idx
-                stats.Removed <- stats.Removed + 1
+                current.Value.Removed <- current.Value.Removed + 1
 
             // Phase 4: Sync collection to target order using minimal moves.
             // At each position, if the current element matches target, skip.
@@ -430,15 +438,15 @@ module Reconciler =
     /// Child elements are preserved when only props change.
     let update (rootElement: DependencyObject) (oldTree: VirtualNode) (newTree: VirtualNode) =
         if not (Object.ReferenceEquals(oldTree, newTree)) then
-            stats <- Stats.Zero()
+            current.Value <- Stats.Zero()
             let sw = System.Diagnostics.Stopwatch.StartNew()
 
             if oldTree.Props <> newTree.Props then
-                stats.PropReapplied <- stats.PropReapplied + 1
+                current.Value.PropReapplied <- current.Value.PropReapplied + 1
                 diffAndApplyProps rootElement oldTree.Props newTree.Props
 
             reconcileChildren rootElement oldTree.Children newTree.Children
 
             sw.Stop()
-            lastStats <- stats
-            System.Diagnostics.Debug.WriteLine($"[Reconciler] {sw.ElapsedMilliseconds}ms — {stats}")
+            last.Value <- current.Value
+            System.Diagnostics.Debug.WriteLine($"[Reconciler] {sw.ElapsedMilliseconds}ms — {current.Value}")
