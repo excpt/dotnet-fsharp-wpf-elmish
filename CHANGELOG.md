@@ -9,6 +9,8 @@ Entries are written by hand.
 
 ## [Unreleased]
 
+## [0.5.0] — 2026-10-27
+
 ### Changed — BREAKING
 
 - `OperationRegistry`, `OperationKind` and `OperationInfo` are removed: nothing

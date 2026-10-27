@@ -22,7 +22,7 @@ Windows Desktop runtime (Windows only); see Runtime Requirements below.
 This is a **separate NuGet package** users add to their test project:
 
 ```xml
-<PackageReference Include="FSharp.Windows.Dsl.Testing" Version="0.4.0" />
+<PackageReference Include="FSharp.Windows.Dsl.Testing" Version="0.5.0" />
 ```
 
 It depends on no test framework; the samples below use xunit and FsUnit's `should`.
