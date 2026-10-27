@@ -913,7 +913,12 @@ let ``a collection prop fills the most derived of two same-named properties`` ()
 
         Dsl.update live { tree [] with Props = [] }
         own.Items.Count |> should equal 0
-        Materializer.diagnostics () |> should be Empty)
+        // the seen set is process-global; only look at this element type
+        Materializer.diagnostics ()
+        |> List.filter (function
+            | UnappliedProp(el, _) -> el = typeof<OwnItemsControl>
+            | _ -> false)
+        |> should be Empty)
 
 // --- Live collection, selection and stats coverage (#41) ---
 

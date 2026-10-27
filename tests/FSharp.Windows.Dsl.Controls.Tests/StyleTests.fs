@@ -5,6 +5,7 @@ open System.Windows.Controls
 open System.Windows.Media
 open Xunit
 open FsUnit.Xunit
+open FSharp.Windows.Dsl
 open FSharp.Windows.Dsl.Controls
 
 let private runSta f =
@@ -305,4 +306,7 @@ let ``Style.ofNode skips a prop with no registration`` () =
 
         // Materializer.report records it as a diagnostic; without strictProps the prop is dropped
         let s = Style.ofNode (button [ box 42 ])
-        s.Setters.Count |> should equal 0)
+        s.Setters.Count |> should equal 0
+
+        Materializer.diagnostics ()
+        |> should contain (UnappliedProp(typeof<Button>, typeof<int>)))
