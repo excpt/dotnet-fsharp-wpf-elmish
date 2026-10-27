@@ -59,7 +59,6 @@ Entries are written by hand.
   (DevExpress `AccordionItem.items`).
 - CI fails when the committed generated controls drift from a fresh regeneration.
 - The release workflow verifies the tag against `<Version>` and packs the codegen tool.
-- `Cmd.OfAsync.runKeyed` is tested; progress reporting for `runKeyed` is not built (a command dispatches progress messages itself).
 
 ### Fixed
 
