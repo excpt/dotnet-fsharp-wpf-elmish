@@ -303,7 +303,7 @@ It reports the same `PropDiagnostic` cases the materializer records:
 |---|---|
 | `UnappliedProp` | Nothing owns this prop type — a value that is not a prop, or a control package whose `Registration.register()` was never called |
 | `PropNotForElement` | A real prop, on a control it does not belong to (attached-property helpers such as `Grid.row` are not checked) |
-| `UnusableMember` | A `NodeProp`/`CollectionProp` name the element cannot take — unknown, read-only, or the wrong type — or a `Panel`/`Decorator` child that is not a `UIElement` (`"Children"`) |
+| `UnusableMember` | A `NodeProp`/`CollectionProp` name the element cannot take — unknown, read-only, or the wrong type, including a `CollectionProp` item the collection's element type (`IList<T>`; a plain `IList` takes any) cannot hold — or a `Panel`/`Decorator` child that is not a `UIElement` (`"Children"`) |
 | `ApplyFailed` | Runtime only: WPF rejected the value (a validate callback, a read-only DP, a wrong type). `Validate.tree` cannot see it |
 | `ChildrenNotHeld` | More children than the element holds (a ContentControl or Decorator one, other non-containers none); the rest are not attached |
 

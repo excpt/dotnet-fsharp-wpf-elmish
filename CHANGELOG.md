@@ -29,6 +29,7 @@ Entries are written by hand.
 
 ### Added
 
+- `Validate.tree` reports a `CollectionProp` item the collection's element type cannot hold (`UnusableMember`), ahead of the runtime `ApplyFailed`.
 - Per-window cancellation scopes: every run function gives its program a scope,
   cancelled when the window closes. After that, the program drops late messages. `Cmd.OfTask.runKeyed` / `Cmd.OfAsync.runKeyed` start
   work under a key with a token from that scope, `Cmd.cancel key` cancels one

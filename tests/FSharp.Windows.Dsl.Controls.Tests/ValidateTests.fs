@@ -126,3 +126,61 @@ let ``problems in a node held by a union prop case are found`` () =
         match Validate.tree tree with
         | [ PropNotForElement(el, _, _) ] -> el |> should equal typeof<MenuItem>
         | other -> failwith $"expected one misplaced prop inside the menu, got {other}")
+
+[<Fact>]
+let ``collection items of the element type pass`` () =
+    runSta (fun () ->
+        register ()
+
+        let tree = grid [ Grid.rowDefinitions [ rowDefinition []; rowDefinition [] ] ]
+
+        Validate.tree tree |> should be Empty)
+
+[<Fact>]
+let ``a collection item of the wrong type is reported`` () =
+    runSta (fun () ->
+        register ()
+
+        // RowDefinitions is a RowDefinitionCollection: a TextBlock cannot be added.
+        let tree = grid [ Grid.rowDefinitions [ rowDefinition []; textBlock [] ] ]
+
+        match Validate.tree tree with
+        | [ UnusableMember(el, name, _) ] ->
+            el |> should equal typeof<Grid>
+            name |> should equal "RowDefinitions"
+        | other -> failwith $"expected one unusable member, got {other}")
+
+[<Fact>]
+let ``any item fits a non-generic list`` () =
+    runSta (fun () ->
+        register ()
+
+        // ItemsControl.Items is an ItemCollection: a plain IList.
+        let tree = comboBox [ box (CollectionProp("Items", [ textBlock []; button [] ])) ]
+
+        Validate.tree tree |> should be Empty)
+
+[<Fact>]
+let ``a handler prop on the right control passes and on the wrong one is reported`` () =
+    runSta (fun () ->
+        register ()
+
+        Validate.tree (button [ Button.onClick (RoutedEventHandler(fun _ _ -> ())) ])
+        |> should be Empty
+
+        match Validate.tree (textBlock [ Button.onClick (RoutedEventHandler(fun _ _ -> ())) ]) with
+        | [ PropNotForElement(el, _, _) ] -> el |> should equal typeof<System.Windows.Controls.TextBlock>
+        | other -> failwith $"expected one misplaced handler, got {other}")
+
+// No runSta: Validate.tree on a tree of data needs no WPF thread. Only the
+// reflection-based owner lookup runs, and Registration is already process-wide.
+[<Fact>]
+let ``Validate.tree runs on a plain test thread`` () =
+    runSta register
+
+    Thread.CurrentThread.GetApartmentState()
+    |> should not' (equal ApartmentState.STA)
+
+    let tree = stackPanel [ StackPanel.children [ textBlock [ TextBlock.text "a" ] ] ]
+
+    Validate.tree tree |> should be Empty

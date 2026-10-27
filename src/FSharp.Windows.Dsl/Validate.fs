@@ -28,13 +28,26 @@ module Validate =
         | _ -> None
 
     /// Is the named property a list the materializer can fill?
-    let private checkCollectionProp (elType: Type) (name: string) =
+    let private checkCollectionProp (elType: Type) (name: string) (children: VirtualNode list) =
         match property elType name with
         | null -> Some(UnusableMember(elType, name, "no such property"))
         | p when not p.CanRead -> Some(UnusableMember(elType, name, "not readable"))
         | p when not (typeof<IList>.IsAssignableFrom p.PropertyType) ->
             Some(UnusableMember(elType, name, $"{p.PropertyType.Name} is not an IList"))
-        | _ -> None
+        | p ->
+            // IList<T> (also through ObservableCollection<T> or a typed collection)
+            // names the item type; a plain IList takes anything.
+            p.PropertyType.GetInterfaces()
+            |> Array.append [| p.PropertyType |]
+            |> Array.tryFind (fun i ->
+                i.IsGenericType
+                && i.GetGenericTypeDefinition() = typedefof<System.Collections.Generic.IList<_>>)
+            |> Option.bind (fun i ->
+                let item = i.GetGenericArguments()[0]
+
+                children
+                |> List.tryFind (fun c -> not (item.IsAssignableFrom c.Type))
+                |> Option.map (fun c -> UnusableMember(elType, name, $"{item.Name} cannot hold a {c.Type.Name}")))
 
     /// Would this prop reach the element it was declared on?
     let private checkValueProp (elType: Type) (prop: obj) =
@@ -74,7 +87,7 @@ module Validate =
 
                   yield! tree child
               | :? CollectionProp as (CollectionProp(name, children)) ->
-                  match checkCollectionProp node.Type name with
+                  match checkCollectionProp node.Type name children with
                   | Some problem -> problem
                   | None -> ()
 
