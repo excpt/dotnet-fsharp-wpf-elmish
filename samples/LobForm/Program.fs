@@ -12,7 +12,8 @@ Registration.register ()
 
 // ============================================================
 // LOB Form Sample — validation, focus, keyboard shortcuts,
-// context menus, TextBox two-way binding
+// context menus, TextBox two-way binding, a cancellable save,
+// screen-reader labels, an implicit style
 // ============================================================
 
 type Model =
@@ -21,6 +22,7 @@ type Model =
       Notes: string
       Errors: Map<string, string>
       Saved: bool
+      Saving: bool
       StatusMessage: string }
 
 type Msg =
@@ -28,6 +30,9 @@ type Msg =
     | EmailChanged of string
     | NotesChanged of string
     | Save
+    | SaveDone
+    | SaveFailed of exn
+    | SaveCancelled
     | Cancel
     | ClearStatus
 
@@ -44,6 +49,7 @@ let init () =
       Notes = ""
       Errors = Map.empty
       Saved = false
+      Saving = false
       StatusMessage = "Fill in the form and press Ctrl+S to save." },
     Cmd.none
 
@@ -62,15 +68,17 @@ let update msg model =
         let m = { model with Email = v; Saved = false }
         { m with Errors = validate m }, Cmd.none
     | NotesChanged v -> { model with Notes = v; Saved = false }, Cmd.none
+    | Save when model.Saving -> model, Cmd.none
     | Save ->
         let errors = validate model
 
         if Validation.isValid errors then
             { model with
                 Errors = Map.empty
-                Saved = true
-                StatusMessage = $"Saved: {model.Name} <{model.Email}>" },
-            Cmd.none
+                Saving = true
+                StatusMessage = "Saving… (Esc cancels)" },
+            // Stands in for a server call; Cmd.cancel "save" or closing the window stops it
+            Cmd.OfAsync.runKeyed "save" (Async.Sleep 1500) (fun () -> SaveDone) SaveFailed SaveCancelled
         else
             // Focus first field with error
             let firstErrorField =
@@ -85,15 +93,37 @@ let update msg model =
                 Errors = errors
                 StatusMessage = "Please fix the errors above." },
             focusCmd
+    | SaveDone ->
+        { model with
+            Saving = false
+            Saved = true
+            StatusMessage = $"Saved: {model.Name} <{model.Email}>" },
+        Cmd.none
+    | SaveFailed e ->
+        { model with
+            Saving = false
+            StatusMessage = $"Save failed: {e.Message}" },
+        Cmd.none
+    | SaveCancelled ->
+        { model with
+            Saving = false
+            StatusMessage = "Save cancelled." },
+        Cmd.none
+    | Cancel when model.Saving -> model, Cmd.cancel "save"
     | Cancel ->
         { Name = ""
           Email = ""
           Notes = ""
           Errors = Map.empty
           Saved = false
+          Saving = false
           StatusMessage = "Form cleared." },
         Cmd.none
     | ClearStatus -> { model with StatusMessage = "" }, Cmd.none
+
+// Built once: a Style made in the view would be a new resource on every
+// render and restyle every TextBox under it
+let textBoxStyle = Style.ofNode (textBox [ TextBox.padding (Thickness 4.0) ])
 
 // --- View helpers ---
 
@@ -165,7 +195,7 @@ let view model dispatch =
                                 StackPanel.margin (Thickness 16.0)
                                 StackPanel.children
                                     [ button
-                                          [ Button.content "Cancel"
+                                          [ Button.content (if model.Saving then "Stop saving" else "Cancel")
                                             Button.width 80.0
                                             Button.margin (Thickness 4.0)
                                             Button.onClick (RoutedEventHandler(fun _ _ -> dispatch Cancel)) ]
@@ -174,13 +204,18 @@ let view model dispatch =
                                             Button.width 120.0
                                             Button.margin (Thickness 4.0)
                                             Button.isDefault true
+                                            Button.isEnabled (not model.Saving)
                                             Button.onClick (RoutedEventHandler(fun _ _ -> dispatch Save)) ] ] ]
                           // Form
                           scrollViewer
                               [ ScrollViewer.padding (Thickness 16.0)
                                 ScrollViewer.contentChild (
                                     stackPanel
-                                        [ StackPanel.children
+                                        [ // Every TextBox below gets this padding: an implicit
+                                          // style, declared like an element
+                                          Resource.dictionary [ Resource.implicitStyle textBoxStyle ]
+                                          StackPanel.isEnabled (not model.Saving)
+                                          StackPanel.children
                                               [ textBlock
                                                     [ TextBlock.text "Customer Form"
                                                       TextBlock.fontWeight FontWeights.Bold
@@ -193,7 +228,8 @@ let view model dispatch =
                                                     (textBox
                                                         [ TextBox.name "field_Name"
                                                           TextBox.text model.Name
-                                                          TextBox.padding (Thickness 4.0)
+                                                          AutomationProperties.name "Name"
+                                                          AutomationProperties.isRequiredForForm true
                                                           TextBox.onTextChanged (
                                                               TextChangedEventHandler(fun sender _ ->
                                                                   let tb = sender :?> TextBox
@@ -206,7 +242,8 @@ let view model dispatch =
                                                     (textBox
                                                         [ TextBox.name "field_Email"
                                                           TextBox.text model.Email
-                                                          TextBox.padding (Thickness 4.0)
+                                                          AutomationProperties.name "Email"
+                                                          AutomationProperties.isRequiredForForm true
                                                           TextBox.onTextChanged (
                                                               TextChangedEventHandler(fun sender _ ->
                                                                   let tb = sender :?> TextBox
@@ -219,7 +256,7 @@ let view model dispatch =
                                                     (textBox
                                                         [ TextBox.name "field_Notes"
                                                           TextBox.text model.Notes
-                                                          TextBox.padding (Thickness 4.0)
+                                                          AutomationProperties.name "Notes"
                                                           TextBox.acceptsReturn true
                                                           TextBox.minLines 3
                                                           TextBox.contextMenu (

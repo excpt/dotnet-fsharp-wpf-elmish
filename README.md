@@ -105,9 +105,9 @@ dotnet run --project samples/ElmishCounter
 
 | Sample | Description |
 |---|---|
-| `samples/HelloDsl` | Minimal DSL without Elmish |
-| `samples/ElmishCounter` | Counter with components and child windows |
-| `samples/LobForm` | Line-of-business form patterns |
+| `samples/HelloDsl` | Minimal DSL without Elmish: implicit styles, a node as tooltip, a DataGrid |
+| `samples/ElmishCounter` | Components, a child window, a modal dialog returning its model, a cancellable keyed operation |
+| `samples/LobForm` | Line-of-business form: validation, focus, shortcuts, a cancellable save, screen-reader labels |
 | `samples/DevExpressDashboard` | DevExpress controls with Ribbon and AccordionControl |
 
 ## Testing

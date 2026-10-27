@@ -25,6 +25,10 @@ type State =
       Count: int
       People: Person list }
 
+// Built once: a Style made in render would be a new resource every time
+// and restyle every Button under it
+let navButtonStyle = Style.ofNode (button [ Button.margin (Thickness 2.0) ])
+
 let mutable renderCount = 0
 
 let dashboardView () =
@@ -167,6 +171,13 @@ let dataGridView (people: Person list) onGenerate =
                             button
                                 [ Button.content $"Generate 10,000 records"
                                   Button.padding (Thickness(12.0, 4.0, 12.0, 4.0))
+                                  // A node in an obj-typed prop (toolTip, content, header)
+                                  // is materialized into a live element
+                                  Button.toolTip (
+                                      textBlock
+                                          [ TextBlock.text "Replaces the grid's rows; times are printed to the console"
+                                            TextBlock.fontStyle FontStyles.Italic ]
+                                  )
                                   Button.onClick onGenerate ]
                             textBlock
                                 [ TextBlock.text $"  ({people.Length} records)"
@@ -255,14 +266,15 @@ let main _ =
                                         Border.borderBrush SystemColors.ActiveBorderBrush
                                         Border.contentChild (
                                             stackPanel
-                                                [ StackPanel.children
+                                                [ // Implicit style: every Button in this panel gets the margin
+                                                  Resource.dictionary [ Resource.implicitStyle navButtonStyle ]
+                                                  StackPanel.children
                                                       [ textBlock
                                                             [ TextBlock.text "Navigation"
                                                               TextBlock.fontWeight FontWeights.Bold
                                                               TextBlock.margin (Thickness(0.0, 0.0, 0.0, 8.0)) ]
                                                         button
                                                             [ Button.content "Dashboard"
-                                                              Button.margin (Thickness 2.0)
                                                               Button.onClick (
                                                                   RoutedEventHandler(fun _ _ ->
                                                                       dispatch (fun () ->
@@ -270,7 +282,6 @@ let main _ =
                                                               ) ]
                                                         button
                                                             [ Button.content "Counter"
-                                                              Button.margin (Thickness 2.0)
                                                               Button.onClick (
                                                                   RoutedEventHandler(fun _ _ ->
                                                                       dispatch (fun () ->
@@ -278,7 +289,6 @@ let main _ =
                                                               ) ]
                                                         button
                                                             [ Button.content "Settings"
-                                                              Button.margin (Thickness 2.0)
                                                               Button.onClick (
                                                                   RoutedEventHandler(fun _ _ ->
                                                                       dispatch (fun () ->
@@ -286,7 +296,6 @@ let main _ =
                                                               ) ]
                                                         button
                                                             [ Button.content "DataGrid"
-                                                              Button.margin (Thickness 2.0)
                                                               Button.onClick (
                                                                   RoutedEventHandler(fun _ _ ->
                                                                       dispatch (fun () ->
