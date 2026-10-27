@@ -15,44 +15,6 @@ FSharp.DevExpress.Wpf.Accordion.Registration.register ()
 DevExpress.Xpf.Core.ApplicationThemeHelper.ApplicationThemeName <- DevExpress.Xpf.Core.Theme.Office2019ColorfulName
 
 // ============================================================
-// Ribbon helpers — RibbonPage/Group/BarButtonItem are data models,
-// not UIElements, so we build them imperatively.
-// ============================================================
-module Ribbon =
-    open DevExpress.Xpf.Ribbon
-    open DevExpress.Xpf.Bars
-
-    let createButton caption (onClick: unit -> unit) =
-        let item = BarButtonItem(Content = caption)
-        item.ItemClick.Add(fun _ -> onClick ())
-        item
-
-    let createGroup caption (items: BarButtonItem list) =
-        let group = RibbonPageGroup(Caption = caption)
-
-        for item in items do
-            group.Items.Add(item)
-
-        group
-
-    let createPage caption (groups: RibbonPageGroup list) =
-        let page = RibbonPage(Caption = caption)
-
-        for group in groups do
-            page.Groups.Add(group)
-
-        page
-
-    let createRibbon (pages: RibbonPage list) =
-        let ribbon = RibbonControl()
-        ribbon.RibbonStyle <- RibbonStyle.Office2019
-
-        for page in pages do
-            ribbon.Items.Add(page)
-
-        ribbon
-
-// ============================================================
 // Counter Component — DX SimpleButton + SpinEdit
 // ============================================================
 module Counter =
@@ -101,6 +63,8 @@ module Counter =
                           StackPanel.children
                               [ SimpleButton.create
                                     [ ContentControl.content " - "
+                                      // Screen readers would announce " - "; give them a name
+                                      AutomationProperties.name "Decrement"
                                       FrameworkElement.width 80.0
                                       FrameworkElement.height 36.0
                                       FrameworkElement.margin (Thickness 4.0)
@@ -114,6 +78,7 @@ module Counter =
                                       ButtonBase.onClick (RoutedEventHandler(fun _ _ -> dispatch Reset)) ]
                                 SimpleButton.create
                                     [ ContentControl.content " + "
+                                      AutomationProperties.name "Increment"
                                       FrameworkElement.width 80.0
                                       FrameworkElement.height 36.0
                                       FrameworkElement.margin (Thickness 4.0)
@@ -214,6 +179,69 @@ module Settings =
                           ) ] ] ]
 
 // ============================================================
+// Set-count dialog — a program run modally; its last model is the result
+// ============================================================
+module CountDialog =
+    type Model = { Value: int; Result: int option }
+
+    type Msg =
+        | ValueChanged of int
+        | Accept
+
+    let init (current: int) =
+        { Value = current; Result = None }, Cmd.none
+
+    let update msg model =
+        match msg with
+        | ValueChanged v -> { model with Value = v }, Cmd.none
+        | Accept -> { model with Result = Some model.Value }, Cmd.none
+
+    let view model dispatch =
+        ThemedWindow.create
+            [ Window.title "Set count"
+              Window.width 280.0
+              Window.sizeToContent SizeToContent.Height
+              Window.resizeMode ResizeMode.NoResize
+              Window.showInTaskbar false
+              Window.contentChild (
+                  stackPanel
+                      [ StackPanel.margin (Thickness 16.0)
+                        StackPanel.children
+                            [ SpinEdit.create
+                                  [ BaseEdit.editValue (box (decimal model.Value))
+                                    SpinEdit.isFloatValue false
+                                    AutomationProperties.name "New count"
+                                    BaseEdit.onEditValueChanged (
+                                        DevExpress.Xpf.Editors.EditValueChangedEventHandler(fun _ e ->
+                                            if not (isNull e.NewValue) then
+                                                dispatch (ValueChanged(Convert.ToInt32 e.NewValue)))
+                                    ) ]
+                              stackPanel
+                                  [ StackPanel.orientation Orientation.Horizontal
+                                    StackPanel.horizontalAlignment HorizontalAlignment.Right
+                                    StackPanel.margin (Thickness(0.0, 12.0, 0.0, 0.0))
+                                    StackPanel.children
+                                        [ SimpleButton.create
+                                              [ ContentControl.content "OK"
+                                                FrameworkElement.width 70.0
+                                                FrameworkElement.margin (Thickness 4.0)
+                                                Button.isDefault true
+                                                ButtonBase.onClick (
+                                                    RoutedEventHandler(fun sender _ ->
+                                                        dispatch Accept
+                                                        Window.GetWindow(sender :?> DependencyObject).Close())
+                                                ) ]
+                                          // IsCancel closes a dialog by itself; Result stays None
+                                          SimpleButton.create
+                                              [ ContentControl.content "Cancel"
+                                                FrameworkElement.width 70.0
+                                                FrameworkElement.margin (Thickness 4.0)
+                                                Button.isCancel true ] ] ] ] ]
+              ) ]
+
+    let program = Elmish.Program.mkProgram init update view
+
+// ============================================================
 // Shell — DXRibbonWindow + Ribbon + AccordionControl nav
 // ============================================================
 type Page =
@@ -224,18 +252,26 @@ type Page =
 type Model =
     { Page: Page
       Counter: Counter.Model
-      Settings: Settings.Model }
+      Settings: Settings.Model
+      Adding: bool }
 
 type Msg =
     | Navigate of Page
     | CounterMsg of Counter.Msg
     | SettingsMsg of Settings.Msg
     | OpenChildWindow
+    | AskForCount
+    | SlowAdd
+    | SlowAddDone of int
+    | SlowAddFailed of exn
+    | SlowAddCancelled
+    | CancelSlowAdd
 
 let init () =
     { Page = Dashboard
       Counter = Counter.init ()
-      Settings = Settings.init () },
+      Settings = Settings.init ()
+      Adding = false },
     Cmd.none
 
 let update msg model =
@@ -263,6 +299,36 @@ let update msg model =
                           border [ Border.padding (Thickness 16.0); Border.contentChild (Counter.view m d) ]
                       ) ])
             |> Program.runChildWindow owner)
+    | AskForCount ->
+        model,
+        Cmd.ofEffect (fun dispatch ->
+            let owner = Application.Current.MainWindow
+
+            // Blocks until the dialog closes, then hands back its last model
+            match (Program.runDialogWindowWithArg owner model.Counter.Count CountDialog.program).Result with
+            | Some n -> dispatch (CounterMsg(Counter.SetCount n))
+            | None -> ())
+    // Keyed work: Cmd.cancel "slow-add" or closing the window stops it
+    | SlowAdd when model.Adding -> model, Cmd.none
+    | SlowAdd ->
+        { model with Adding = true },
+        Cmd.OfAsync.runKeyed
+            "slow-add"
+            (async {
+                do! Async.Sleep 3000
+                return 10
+            })
+            SlowAddDone
+            SlowAddFailed
+            SlowAddCancelled
+    | SlowAddDone n ->
+        { model with
+            Adding = false
+            Counter = Counter.update (Counter.SetCount(model.Counter.Count + n)) model.Counter },
+        Cmd.none
+    | SlowAddFailed _
+    | SlowAddCancelled -> { model with Adding = false }, Cmd.none
+    | CancelSlowAdd -> model, Cmd.cancel "slow-add"
 
 let dashboardView dispatch =
     stackPanel
@@ -282,84 +348,103 @@ let dashboardView dispatch =
                     [ ContentControl.content "Open Counter in New Window (independent loop)"
                       FrameworkElement.margin (Thickness(0.0, 16.0, 0.0, 0.0))
                       Control.padding (Thickness(12.0, 6.0, 12.0, 6.0))
+                      // A node in an obj-typed prop becomes a live element
+                      FrameworkElement.toolTip (
+                          stackPanel
+                              [ StackPanel.children
+                                    [ textBlock
+                                          [ TextBlock.text "Independent loop"; TextBlock.fontWeight FontWeights.Bold ]
+                                      textBlock [ TextBlock.text "Its own model and update; closes with this window." ] ] ]
+                      )
                       ButtonBase.onClick (RoutedEventHandler(fun _ _ -> dispatch OpenChildWindow)) ] ] ]
 
-/// Build the Ribbon with toolbar buttons wired to dispatch
-let buildRibbon (dispatch: Msg -> unit) =
-    Ribbon.createRibbon
-        [ Ribbon.createPage
-              "Home"
-              [ Ribbon.createGroup
-                    "Navigate"
-                    [ Ribbon.createButton "Dashboard" (fun () -> dispatch (Navigate Dashboard))
-                      Ribbon.createButton "Counter" (fun () -> dispatch (Navigate CounterPage))
-                      Ribbon.createButton "Settings" (fun () -> dispatch (Navigate SettingsPage)) ]
-                Ribbon.createGroup "Actions" [ Ribbon.createButton "New Window" (fun () -> dispatch OpenChildWindow) ] ]
-          Ribbon.createPage
-              "View"
-              [ Ribbon.createGroup
-                    "Options"
-                    [ Ribbon.createButton "Toggle Notifications" (fun () ->
-                          dispatch (SettingsMsg Settings.ToggleNotifications)) ] ] ]
+open DevExpress.Xpf.Bars
+open FSharp.DevExpress.Wpf.Ribbon
+open FSharp.DevExpress.Wpf.Accordion
 
-/// Build an Outlook-style AccordionControl for left navigation
-let buildNavPanel (dispatch: Msg -> unit) =
-    let acc = DevExpress.Xpf.Accordion.AccordionControl()
-    acc.ExpandMode <- DevExpress.Xpf.Accordion.ExpandMode.Single
-    acc.ExpandItemOnHeaderClick <- true
+let ribbonButton caption msg dispatch =
+    BarButtonItem.create
+        [ BarButtonItem.content caption
+          BarButtonItem.onItemClick (ItemClickEventHandler(fun _ _ -> dispatch msg)) ]
 
-    let addItem (parent: DevExpress.Xpf.Accordion.AccordionItem) header (onClick: unit -> unit) =
-        let item = DevExpress.Xpf.Accordion.AccordionItem(Header = header)
-        item.MouseLeftButtonUp.Add(fun _ -> onClick ())
-        parent.Items.Add(item)
+// Ribbon and accordion are declared like any other node. Their handlers close over
+// dispatch, which would make the items unequal on every render, so the reconciler
+// would clear and refill them (resetting the selected tab). Memo.memo ignore builds
+// each once per program; the reconciler skips a node that is the same reference.
+let ribbonView =
+    Memo.memo ignore (fun () dispatch ->
+        RibbonControl.create
+            [ DockPanel.dock Dock.Top
+              RibbonControl.ribbonStyle DevExpress.Xpf.Ribbon.RibbonStyle.Office2019
+              RibbonControl.items
+                  [ RibbonPage.create
+                        [ RibbonPage.caption "Home"
+                          RibbonPage.groups
+                              [ RibbonPageGroup.create
+                                    [ RibbonPageGroup.caption "Navigate"
+                                      RibbonPageGroup.items
+                                          [ ribbonButton "Dashboard" (Navigate Dashboard) dispatch
+                                            ribbonButton "Counter" (Navigate CounterPage) dispatch
+                                            ribbonButton "Settings" (Navigate SettingsPage) dispatch ] ]
+                                RibbonPageGroup.create
+                                    [ RibbonPageGroup.caption "Actions"
+                                      RibbonPageGroup.items
+                                          [ ribbonButton "New Window" OpenChildWindow dispatch
+                                            ribbonButton "Set Count…" AskForCount dispatch
+                                            ribbonButton "Add 10 in 3 s" SlowAdd dispatch
+                                            ribbonButton "Cancel Add" CancelSlowAdd dispatch ] ] ] ]
+                    RibbonPage.create
+                        [ RibbonPage.caption "View"
+                          RibbonPage.groups
+                              [ RibbonPageGroup.create
+                                    [ RibbonPageGroup.caption "Options"
+                                      RibbonPageGroup.items
+                                          [ ribbonButton
+                                                "Toggle Notifications"
+                                                (SettingsMsg Settings.ToggleNotifications)
+                                                dispatch ] ] ] ] ] ])
 
-    let pages = DevExpress.Xpf.Accordion.AccordionItem(Header = "Pages")
-    addItem pages "Dashboard" (fun () -> dispatch (Navigate Dashboard))
-    addItem pages "Counter" (fun () -> dispatch (Navigate CounterPage))
-    addItem pages "Settings" (fun () -> dispatch (Navigate SettingsPage))
-    pages.IsExpanded <- true
-    acc.Items.Add(pages)
+let navItem header msg dispatch =
+    AccordionItem.create
+        [ AccordionItem.header header
+          AccordionItem.onMouseLeftButtonUp (Input.MouseButtonEventHandler(fun _ _ -> dispatch msg)) ]
 
-    let actions = DevExpress.Xpf.Accordion.AccordionItem(Header = "Actions")
-    addItem actions "Open New Window" (fun () -> dispatch OpenChildWindow)
-    acc.Items.Add(actions)
+let navView =
+    Memo.memo ignore (fun () dispatch ->
+        AccordionControl.create
+            [ AccordionControl.expandMode DevExpress.Xpf.Accordion.ExpandMode.Single
+              AccordionControl.expandItemOnHeaderClick true
+              AccordionControl.items
+                  [ AccordionItem.create
+                        [ AccordionItem.header "Pages"
+                          AccordionItem.isExpanded true
+                          AccordionItem.children
+                              [ navItem "Dashboard" (Navigate Dashboard) dispatch
+                                navItem "Counter" (Navigate CounterPage) dispatch
+                                navItem "Settings" (Navigate SettingsPage) dispatch ] ]
+                    AccordionItem.create
+                        [ AccordionItem.header "Actions"
+                          AccordionItem.children
+                              [ navItem "Open New Window" OpenChildWindow dispatch
+                                navItem "Set Count…" AskForCount dispatch ] ] ] ])
 
-    acc
-
-// Built once: Content compares by reference, so a fresh instance per render would
-// replace the ribbon and accordion and reset their UI state on every message.
-// ponytail: one cache for the one main window; key by dispatch if a second shell appears.
-let mutable private chrome = None
-
-let private getChrome dispatch =
-    match chrome with
-    | Some c -> c
-    | None ->
-        let c = buildRibbon dispatch, buildNavPanel dispatch
-        chrome <- Some c
-        c
-
-/// Create the DXRibbonWindow with embedded Ribbon + AccordionControl nav
 let view model dispatch =
-    let ribbon, navPanel = getChrome dispatch
-
-    FSharp.DevExpress.Wpf.Ribbon.DXRibbonWindow.create
-        [ Window.title $"DevExpress Elmish \u2014 {model.Page}"
+    DXRibbonWindow.create
+        [ Window.title $"DevExpress Elmish — {model.Page}"
           Window.width 900.0
           Window.height 600.0
           Window.contentChild (
               dockPanel
                   [ DockPanel.lastChildFill true
                     DockPanel.children
-                        [ // Ribbon at top — pre-built DX control wrapped in a ContentControl
-                          contentControl [ DockPanel.dock Dock.Top; ContentControl.content ribbon ]
+                        [ ribbonView model dispatch
                           // Outlook-style accordion nav on left
                           border
                               [ DockPanel.dock Dock.Left
                                 Border.width 180.0
                                 Border.borderThickness (Thickness(0.0, 0.0, 1.0, 0.0))
                                 Border.borderBrush SystemColors.ActiveBorderBrush
-                                Border.contentChild (contentControl [ ContentControl.content navPanel ]) ]
+                                Border.contentChild (navView model dispatch) ]
                           // Status bar
                           border
                               [ DockPanel.dock Dock.Bottom
@@ -368,8 +453,10 @@ let view model dispatch =
                                 Border.borderBrush SystemColors.ActiveBorderBrush
                                 Border.contentChild (
                                     textBlock
-                                        [ TextBlock.text
-                                              $"Page: {model.Page} | Counter: {model.Counter.Count} | AutoSave: {model.Settings.AutoSave}" ]
+                                        [ TextBlock.text (
+                                              $"Page: {model.Page} | Counter: {model.Counter.Count} | AutoSave: {model.Settings.AutoSave}"
+                                              + (if model.Adding then " | Adding 10…" else "")
+                                          ) ]
                                 ) ]
                           // Content area
                           border
