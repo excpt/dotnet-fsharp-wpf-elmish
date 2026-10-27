@@ -92,7 +92,7 @@ Validate.tree (view model ignore)  // the same checks statically, nothing materi
 ## Requirements
 
 - .NET 10 (Windows) or .NET Framework 4.6.2+ (the libraries target `net10.0-windows` and `net462`)
-- F# 8+
+- F# 10 / .NET 10 SDK (the packages depend on FSharp.Core 10.1.403 or newer)
 
 ## Getting Started
 

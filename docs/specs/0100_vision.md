@@ -62,4 +62,4 @@ change notification.
 
 - .NET 10 and .NET Framework 4.6.2+
 - Windows only (WPF is Windows-only)
-- F# 8+
+- F# 10 (.NET 10 SDK, FSharp.Core 10.1.403+)
