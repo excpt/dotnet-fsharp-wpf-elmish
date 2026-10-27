@@ -914,3 +914,64 @@ let ``a collection prop fills the most derived of two same-named properties`` ()
         Dsl.update live { tree [] with Props = [] }
         own.Items.Count |> should equal 0
         Materializer.diagnostics () |> should be Empty)
+
+// --- Live collection, selection and stats coverage (#41) ---
+
+[<Fact>]
+let ``a changed DataGrid columns list is re-applied to the live grid`` () =
+    runSta (fun () ->
+        register ()
+
+        let tree names =
+            dataGrid
+                [ DataGrid.columns [ for n in names -> dataGridTextColumn [ DataGridTextColumn.header (box n) ] ] ]
+
+        let live = Dsl.createLive (tree [ "Name"; "Age" ])
+        let dg = live.Root :?> DataGrid
+        dg.Columns.Count |> should equal 2
+
+        Dsl.update live (tree [ "Id" ])
+        dg.Columns.Count |> should equal 1
+        (dg.Columns.[0] :?> DataGridTextColumn).Header :?> string |> should equal "Id")
+
+[<Fact>]
+let ``ListBox itemsSource and selectedIndex are applied and updated on a live control`` () =
+    runSta (fun () ->
+        register ()
+
+        let tree (items: string list) idx =
+            listBox [ ListBox.itemsSource items; ListBox.selectedIndex idx ]
+
+        let live = Dsl.createLive (tree [ "a"; "b"; "c" ] 1)
+        let lb = live.Root :?> ListBox
+        lb.Items.Count |> should equal 3
+        lb.SelectedIndex |> should equal 1
+        lb.SelectedItem |> should equal (box "b")
+
+        Dsl.update live (tree [ "x"; "y" ] 0)
+        lb.Items.Count |> should equal 2
+        lb.SelectedIndex |> should equal 0
+        lb.SelectedItem |> should equal (box "x"))
+
+[<Fact>]
+let ``DockPanel lastChildFill is applied and updated`` () =
+    runSta (fun () ->
+        register ()
+        let live = Dsl.createLive (dockPanel [ DockPanel.lastChildFill false ])
+        let dp = live.Root :?> DockPanel
+        dp.LastChildFill |> should equal false
+
+        Dsl.update live (dockPanel [ DockPanel.lastChildFill true ])
+        dp.LastChildFill |> should equal true)
+
+[<Fact>]
+let ``stats count a changed prop as reapplied and leave an unchanged prop alone`` () =
+    runSta (fun () ->
+        register ()
+        let live = Dsl.createLive (window [ Window.title "A"; Window.width 300.0 ])
+
+        Dsl.update live (window [ Window.title "B"; Window.width 300.0 ])
+        Reconciler.lastStats().PropReapplied |> should equal 1
+
+        Dsl.update live (window [ Window.title "B"; Window.width 300.0 ])
+        Reconciler.lastStats().PropReapplied |> should equal 0)
