@@ -677,9 +677,12 @@ let ``a handler swap that cannot resolve its event is reported`` () =
     runSta (fun () ->
         register ()
 
-        // Each handler captures its render, so the two delegates differ
+        // Each handler uses its render, so the two delegates differ; a closure that
+        // ignores it compiles to one shared delegate in Release
+        let last = ref 0
+
         let handler (render: int) =
-            OnNoSuchEvent(RoutedEventHandler(fun _ _ -> ignore render))
+            OnNoSuchEvent(RoutedEventHandler(fun _ _ -> last.Value <- render))
 
         let tree render =
             stackPanel [ StackPanel.children [ button [ box (EventProp(box (handler render))) ] ] ]
@@ -742,8 +745,11 @@ let ``a handler swap whose case is not named On... is reported`` () =
     runSta (fun () ->
         register ()
 
+        // Each handler uses its render (see above)
+        let last = ref 0
+
         let handler (render: int) =
-            Clicked(RoutedEventHandler(fun _ _ -> ignore render))
+            Clicked(RoutedEventHandler(fun _ _ -> last.Value <- render))
 
         let tree render =
             stackPanel [ StackPanel.children [ button [ box (EventProp(box (handler render))) ] ] ]
