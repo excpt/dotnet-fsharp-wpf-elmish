@@ -148,3 +148,40 @@ let ``assertModel runs assertion on current model`` () =
     program |> TestProgram.dispatch Increment
 
     program |> TestProgram.assertModel (fun m -> m.Count |> should equal 1)
+
+// --- Commands are discarded, never executed ---
+
+[<Fact>]
+let ``init and update commands are not executed`` () =
+    let ran = ref 0
+    let effect = Cmd.ofEffect (fun _ -> ran.Value <- ran.Value + 1)
+
+    let program =
+        TestProgram.create (fun () -> { Count = 0; Name = "" }, effect) (fun _ m -> m, effect)
+
+    program |> TestProgram.dispatch Increment
+    program |> TestProgram.dispatchAll [ Increment; Reset ]
+
+    ran.Value |> should equal 0
+
+[<Fact>]
+let ``update command is not followed: ofMsg Reset does not reset`` () =
+    let program =
+        TestProgram.create init update
+        |> TestProgram.withModel (fun m -> { m with Count = 5 })
+
+    program |> TestProgram.dispatch LoadData
+    program.Model.Count |> should equal 5
+
+[<Fact>]
+let ``dispatchAndCapture records history with the new model`` () =
+    let program = TestProgram.create init update
+
+    program |> TestProgram.dispatchAndCapture Increment |> ignore
+    let result = program |> TestProgram.dispatchAndCapture (SetName "Z")
+
+    let h = TestProgram.history program
+    h |> should haveLength 2
+    fst h.[0] |> should equal (SetName "Z")
+    snd h.[0] |> should equal result.NewModel
+    snd h.[1] |> should equal { Count = 1; Name = "" }

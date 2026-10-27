@@ -139,3 +139,33 @@ let ``a subscriber disposed during delivery is not called afterwards`` () =
     Thread.Sleep 50
 
     calls.Value |> should equal 1
+
+// --- Typed (DU) payload ---
+
+type AppMessage =
+    | UserLoggedOut
+    | OrderSaved of int
+    | CustomerUpdated of string
+
+[<Fact>]
+let ``typed bus delivers union cases that subscribers can match`` () =
+    let bus = AppBus<AppMessage>()
+    let orders = ResizeArray<int>()
+    let customers = ResizeArray<string>()
+    let logouts = ref 0
+
+    use _ =
+        bus.Subscribe (function
+            | UserLoggedOut -> Interlocked.Increment(&logouts.contents) |> ignore
+            | OrderSaved id -> orders.Add id
+            | CustomerUpdated name -> customers.Add name)
+
+    bus.Publish(OrderSaved 7)
+    bus.Publish(CustomerUpdated "acme")
+    bus.Publish UserLoggedOut
+    bus.Publish(OrderSaved 8)
+    waitFor (fun () -> logouts.Value = 1 && orders.Count = 2 && customers.Count = 1)
+
+    orders |> Seq.toList |> should equal [ 7; 8 ]
+    customers |> Seq.toList |> should equal [ "acme" ]
+    logouts.Value |> should equal 1
