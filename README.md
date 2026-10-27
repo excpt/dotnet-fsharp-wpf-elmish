@@ -77,7 +77,7 @@ Materializer.strictProps <- true   // fail after the render instead — for deve
 Validate.tree (view model ignore)  // the same checks statically, nothing materialized
 ```
 
-`Validate.tree` is the one to reach for: `view` returns data, so a single assertion in a unit test catches a value that is not a prop, a prop put on the wrong control (attached props such as `Grid.row` are not checked), a mistyped `Node.prop` name, or a control package whose `Registration.register()` was never called — with no window and no STA thread.
+`Validate.tree` is the one to reach for: `view` returns data, so a single assertion in a unit test catches a value that is not a prop, a prop put on the wrong control (attached props such as `Grid.row` are not checked), a mistyped `Node.prop` name, a collection item the collection cannot hold, or a control package whose `Registration.register()` was never called — with no window and no STA thread.
 
 ## Packages
 

@@ -82,7 +82,8 @@ discarded:
 The `PropDiagnostic` cases: `UnappliedProp` (nothing owns this prop type — a value
 that is not a prop, or a package whose `Registration.register()` was never called),
 `PropNotForElement` (a real prop on the wrong control), `UnusableMember` (a
-`NodeProp`/`CollectionProp` name the element cannot take), `ChildrenNotHeld` (more
+`NodeProp`/`CollectionProp` name the element cannot take, or a collection item of
+the wrong type), `ChildrenNotHeld` (more
 children than the element holds) and `ApplyFailed` (WPF rejected the value; runtime
 only). `AttachedProp` is not checked for ownership by either path.
 
