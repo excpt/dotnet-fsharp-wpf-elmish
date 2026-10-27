@@ -136,3 +136,49 @@ let ``an unchanged resource entry is not set again`` () =
         Materializer.updateResourceEntries sp entries entries
 
         sp.Resources.["accent"] |> should be (sameAs sentinel))
+
+// --- Resource.reference ---
+
+[<Fact>]
+let ``reference follows the dictionary when the resource value changes`` () =
+    runSta (fun () ->
+        register ()
+
+        let tree =
+            stackPanel
+                [ Resource.dictionary [ Resource.named "Accent" Brushes.Red ]
+                  StackPanel.children
+                      [ textBlock [ Resource.reference System.Windows.Controls.TextBlock.ForegroundProperty "Accent" ] ] ]
+
+        let sp = Dsl.materializeAs<StackPanel> tree
+        let child = sp.Children.[0] :?> System.Windows.Controls.TextBlock
+        child.Foreground |> should equal (box Brushes.Red)
+
+        sp.Resources.["Accent"] <- Brushes.Blue
+        child.Foreground |> should equal (box Brushes.Blue))
+
+[<Fact>]
+let ``reference resolves a resource defined on the window for a nested element`` () =
+    runSta (fun () ->
+        register ()
+
+        let tree =
+            window
+                [ Resource.dictionary [ Resource.named "Accent" Brushes.Green ]
+                  Window.content (
+                      stackPanel
+                          [ StackPanel.children
+                                [ textBlock
+                                      [ Resource.reference
+                                            System.Windows.Controls.TextBlock.ForegroundProperty
+                                            "Accent" ] ] ]
+                  ) ]
+
+        let w = Dsl.materializeAs<System.Windows.Window> tree
+
+        try
+            let sp = w.Content :?> StackPanel
+            let child = sp.Children.[0] :?> System.Windows.Controls.TextBlock
+            child.Foreground |> should equal (box Brushes.Green)
+        finally
+            w.Close())

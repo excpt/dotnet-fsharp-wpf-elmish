@@ -200,3 +200,109 @@ let ``Style.ofNode rejects a node given to an obj-typed prop`` () =
 
         (fun () -> Style.ofNode (button [ Button.content (textBlock []) ]) |> ignore)
         |> should throw typeof<System.ArgumentException>)
+
+// --- Style.ofNode: what is captured and what is rejected ---
+
+/// An element with a plain DP its constructor sets and a read-only DP, so the
+/// baseline and read-only filters can be exercised without a real control.
+type StyleProbe() as this =
+    inherit FrameworkElement()
+
+    static let roKey =
+        DependencyProperty.RegisterReadOnly("Ro", typeof<int>, typeof<StyleProbe>, PropertyMetadata(0))
+
+    static let ctorDp =
+        DependencyProperty.Register("Ctor", typeof<int>, typeof<StyleProbe>, PropertyMetadata(0))
+
+    static let otherDp =
+        DependencyProperty.Register("Other", typeof<int>, typeof<StyleProbe>, PropertyMetadata(0))
+
+    do this.SetValue(ctorDp, box 5)
+
+    static member CtorProperty = ctorDp
+    static member OtherProperty = otherDp
+    static member RoKey = roKey
+
+type StyleProbeProp =
+    | SetCtor of int
+    | SetOther of int
+    | SetRo of int
+
+let private probeRegistered =
+    lazy
+        (FSharp.Windows.Dsl.Materializer.registerApply<StyleProbe, StyleProbeProp> (fun el p ->
+            match p with
+            | SetCtor v -> el.SetValue(StyleProbe.CtorProperty, box v)
+            | SetOther v -> el.SetValue(StyleProbe.OtherProperty, box v)
+            | SetRo v -> el.SetValue(StyleProbe.RoKey, box v)))
+
+let private probeNode (props: obj list) : FSharp.Windows.Dsl.VirtualNode =
+    probeRegistered.Force()
+
+    { Type = typeof<StyleProbe>
+      Props = props
+      Children = []
+      UserKey = None }
+
+let private setterProps (s: Style) =
+    s.Setters
+    |> Seq.cast<Setter>
+    |> Seq.map (fun x -> x.Property.Name)
+    |> List.ofSeq
+
+[<Fact>]
+let ``Style.ofNode rejects collection props`` () =
+    runSta (fun () ->
+        register ()
+
+        (fun () ->
+            Style.ofNode (button [ box (FSharp.Windows.Dsl.CollectionProp("Items", [])) ])
+            |> ignore)
+        |> should throw typeof<System.ArgumentException>)
+
+[<Fact>]
+let ``Style.ofNode rejects resource dictionaries`` () =
+    runSta (fun () ->
+        register ()
+
+        (fun () ->
+            Style.ofNode (
+                button [ FSharp.Windows.Dsl.Resource.dictionary [ FSharp.Windows.Dsl.Resource.named "k" 1 ] ]
+            )
+            |> ignore)
+        |> should throw typeof<System.ArgumentException>)
+
+[<Fact>]
+let ``Style.ofNode rejects resource references`` () =
+    runSta (fun () ->
+        register ()
+
+        (fun () -> Style.ofNode (button [ FSharp.Windows.Dsl.Resource.styleRef "k" ]) |> ignore)
+        |> should throw typeof<System.ArgumentException>)
+
+[<Fact>]
+let ``Style.ofNode excludes a prop equal to what the constructor set`` () =
+    runSta (fun () ->
+        let s = Style.ofNode (probeNode [ box (SetCtor 5); box (SetOther 7) ])
+        setterProps s |> should equal [ "Other" ])
+
+[<Fact>]
+let ``Style.ofNode keeps a prop that differs from the constructor value`` () =
+    runSta (fun () ->
+        let s = Style.ofNode (probeNode [ box (SetCtor 6) ])
+        setterProps s |> should equal [ "Ctor" ])
+
+[<Fact>]
+let ``Style.ofNode excludes read-only props`` () =
+    runSta (fun () ->
+        let s = Style.ofNode (probeNode [ box (SetRo 3); box (SetOther 7) ])
+        setterProps s |> should equal [ "Other" ])
+
+[<Fact>]
+let ``Style.ofNode skips a prop with no registration`` () =
+    runSta (fun () ->
+        register ()
+
+        // Materializer.report records it as a diagnostic; without strictProps the prop is dropped
+        let s = Style.ofNode (button [ box 42 ])
+        s.Setters.Count |> should equal 0)
