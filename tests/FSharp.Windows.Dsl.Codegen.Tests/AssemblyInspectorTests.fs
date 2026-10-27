@@ -340,3 +340,48 @@ let ``newestFirst orders version folders as versions, every release before a pre
 
     AssemblyInspector.newestFirst [| "9.0.0-rc.1"; "9.0.0" |]
     |> should equal [| "9.0.0"; "9.0.0-rc.1" |]
+
+[<Fact>]
+let ``Items is left to children only on an ItemsControl`` () =
+    // ItemsControl.Items is reached through children (Materializer.attachChildren);
+    // a non-ItemsControl's Items (DevExpress RibbonPageGroup) needs its own helper.
+    presentationFrameworkType "System.Windows.Controls.ListBox" (fun t ->
+        Program.skipsCollectionProp t "Items" |> should be True)
+
+    presentationFrameworkType "System.Windows.Controls.StackPanel" (fun t ->
+        Program.skipsCollectionProp t "Items" |> should be False
+        Program.skipsCollectionProp t "Resources" |> should be True)
+
+[<Fact>]
+let ``a list can hold nodes when its element type is a DependencyObject, an interface or object`` () =
+    presentationFrameworkType "System.Windows.Controls.Button" (fun t ->
+        Program.holdsNodes t |> should be True
+
+        // DevExpress RibbonPageGroup.Items holds IBarItem, AccordionControl.Items object
+        t.GetInterfaces()
+        |> Array.find (fun i -> i.FullName = "System.Windows.IInputElement")
+        |> Program.holdsNodes
+        |> should be True
+
+        let rec root (x: System.Type) =
+            if isNull x.BaseType then x else root x.BaseType
+
+        Program.holdsNodes (root t) |> should be True
+
+        Program.holdsNodes (t.GetProperty("Content").PropertyType.Assembly.GetType("System.String"))
+        |> should be False)
+
+[<Fact>]
+let ``a collection helper needs a list it can add to: an IList that is no array`` () =
+    presentationFrameworkType "System.Windows.Controls.DataGrid" (fun t ->
+        Program.isFillableList (t.GetProperty("Columns").PropertyType) |> should be True
+
+        // DevExpress declares new Items : X[] over an inherited list; IList.Add throws on an array
+        t.GetProperty("Columns").PropertyType.GetGenericArguments().[0].MakeArrayType()
+        |> Program.isFillableList
+        |> should be False)
+
+    // WindowCollection is an ICollection, not an IList: nothing to add through
+    presentationFrameworkType "System.Windows.Window" (fun t ->
+        Program.isFillableList (t.GetProperty("OwnedWindows").PropertyType)
+        |> should be False)

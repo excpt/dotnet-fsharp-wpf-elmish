@@ -321,9 +321,9 @@ Read-only attached DPs and those with a generic value type are skipped.
 
 ### Discovering Collection Properties (CollectionProp)
 
-Some CLR properties are auto-initialized list collections of `DependencyObject`
-elements — `GridControl.Columns : ObservableCollection<ColumnBase>`,
-`DataGrid.Columns`, etc. They're not DPs and they're not handled by
+Some CLR properties are auto-initialized lists that hold nodes —
+`GridControl.Columns : ObservableCollection<ColumnBase>`, `DataGrid.Columns`,
+DevExpress `RibbonPageGroup.Items`, etc. They're not DPs and they're not handled by
 `Materializer.attachChildren` (which only knows about Panel/ContentControl/
 Decorator/ItemsControl). The codegen emits a dedicated helper:
 
@@ -340,9 +340,17 @@ re-applies clear+add when the children list differs.
 Detection walks the type's `PropertyType` for an `IList<T>`/`ICollection<T>`/
 `IEnumerable<T>` interface — that's what catches concrete subclasses like
 `GridColumnCollection` (extends `ObservableCollection<GridColumn>`, non-generic
-at the surface but generic in its inheritance). Properties named `Children`,
-`Content`, `Items`, `Resources` are skipped because the visual-tree mechanism
-already handles them. So are read-only views (`ReadOnlyCollection<T>`, such as
+at the surface but generic in its inheritance). The element type must be one a
+node can fill: a `DependencyObject`, an interface or `object` (DevExpress
+`RibbonPageGroup.Items` holds `IBarItem`, `AccordionControl.Items` holds `object`).
+The property type must implement the non-generic `IList` and be no array: a
+generic type that is no list (`Func<T>`, `IEnumerable<T>`) has an element type
+too, and `IList.Add` throws on an array.
+
+Properties named `Children`, `Content` and `Resources` are skipped because
+`children`, `contentChild` and `Resource.dictionary` handle them. `Items` is
+skipped only on an `ItemsControl`, whose `Items` `attachChildren` fills; any other
+type's `Items` is a list of its own and gets a helper. Also skipped: read-only views (`ReadOnlyCollection<T>`, such as
 `DocumentViewer.PageViews`), which cannot be cleared, and `Sibling*` collections
 (`Inline.SiblingInlines`), which are the parent's list rather than the element's.
 

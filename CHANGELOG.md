@@ -47,6 +47,11 @@ Entries are written by hand.
   `ToolTipService.showDuration`, `RenderOptions`, `TextOptions`, `Typography` and
   more (spec 0900). The codegen's TFM guard diff now covers PresentationCore and
   WindowsBase too.
+- Codegen: collection helpers for any list that holds nodes, including lists of an
+  interface or `object` and `Items` on types that are no `ItemsControl`. DevExpress
+  gets `RibbonPageGroup.items`, `RibbonControl.items` and `AccordionControl.items`,
+  so the ribbon and accordion can be declared as nodes. A property that is no
+  `IList`, or is an array, gets no helper. The WPF output is unchanged.
 - CI fails when the committed generated controls drift from a fresh regeneration.
 - The release workflow verifies the tag against `<Version>` and packs the codegen tool.
 

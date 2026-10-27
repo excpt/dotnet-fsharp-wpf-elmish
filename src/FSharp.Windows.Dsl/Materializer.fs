@@ -294,7 +294,7 @@ module Materializer =
     /// non-generic IList (which IList<T> / ObservableCollection<T> implement), clear it
     /// and add the materialized children. A name the parent cannot use is reported
     /// rather than fatal — the codegen only emits CollectionProp for properties it
-    /// already verified are auto-initialized list collections of DependencyObject.
+    /// already verified are auto-initialized lists whose element type a node can fill.
     and applyCollectionProp (parent: DependencyObject) (name: string) (children: VirtualNode list) =
         let elType = parent.GetType()
 

@@ -390,6 +390,35 @@ let buildInheritedHelpers
     |> List.distinctBy (fun h -> h.FnName)
 
 /// Build EmitControlInput from a type and its own DPs/events.
+/// Collection properties that get no helper: Children, Content and Resources go
+/// through children/contentChild/Resource.dictionary. Items only on an ItemsControl,
+/// whose Items Materializer.attachChildren fills; any other type's Items
+/// (DevExpress RibbonPageGroup, AccordionControl) is a list of its own.
+let skipsCollectionProp (owner: Type) (name: string) =
+    match name with
+    | "Children"
+    | "Content"
+    | "Resources" -> true
+    | "Items" -> AssemblyInspector.isSubclassOfByName "System.Windows.Controls.ItemsControl" owner
+    | _ -> false
+
+/// A list whose elements can be materialized nodes: a DependencyObject type, or an
+/// interface or object a DependencyObject can stand for (DevExpress
+/// RibbonPageGroup.Items holds IBarItem, AccordionControl.Items object).
+let holdsNodes (elem: Type) =
+    elem.IsInterface
+    || elem.FullName = "System.Object"
+    || AssemblyInspector.isSubclassOfByName "System.Windows.DependencyObject" elem
+
+/// A property type Materializer.applyCollectionProp can fill: an IList that is no
+/// array (IList.Add throws on one). Generic types that are no list (Func<T>,
+/// IEnumerable<T>) carry an element type too, so this check is what rules them out.
+let isFillableList (pt: Type) =
+    not pt.IsArray
+    && (pt.FullName = "System.Collections.IList"
+        || pt.GetInterfaces()
+           |> Array.exists (fun i -> i.FullName = "System.Collections.IList"))
+
 let buildEmitInput
     (generatedTypeNames: Set<string>)
     (generatedFullNames: Set<string>)
@@ -439,14 +468,10 @@ let buildEmitInput
               EventExpression = $"el.{ev.Name}"
               Guard = guardMaps.Event |> Map.tryFind guardKey })
 
-    // Collection CLR properties: auto-initialized list-of-DependencyObject collections
+    // Collection CLR properties: auto-initialized lists that can hold nodes (holdsNodes)
     // declared on this type (e.g. GridControl.Columns : ObservableCollection<ColumnBase>).
-    // Skipped: properties whose names collide with the visual-tree mechanism (Children,
-    // Content, Items handled by Materializer.attachChildren); read-only-ish wrappers
-    // without a backing list; and properties whose element type isn't a DependencyObject.
-    let collectionPropExclusions =
-        Set.ofList [ "Children"; "Content"; "Items"; "Resources" ]
-
+    // Skipped: names skipsCollectionProp leaves to the visual-tree mechanism; read-only-ish
+    // wrappers without a backing list; and properties whose element type holds no node.
     let collectionProps =
         try
             t.GetProperties(
@@ -458,7 +483,7 @@ let buildEmitInput
             // SiblingInlines/SiblingBlocks are the parent's list, not the element's.
             |> Array.filter (fun p ->
                 p.CanRead
-                && not (collectionPropExclusions.Contains p.Name)
+                && not (skipsCollectionProp t p.Name)
                 && not (p.Name.StartsWith "Sibling")
                 && not (
                     (try
@@ -472,7 +497,7 @@ let buildEmitInput
                 match propertyElementType p with
                 | Some elem when
                     (try
-                        AssemblyInspector.isSubclassOfByName "System.Windows.DependencyObject" elem
+                        holdsNodes elem && isFillableList p.PropertyType
                      with _ ->
                          false)
                     ->
