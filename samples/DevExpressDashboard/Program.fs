@@ -404,29 +404,36 @@ let ribbonView =
                                                 (SettingsMsg Settings.ToggleNotifications)
                                                 dispatch ] ] ] ] ] ])
 
-let navItem header msg dispatch =
-    AccordionItem.create
-        [ AccordionItem.header header
-          AccordionItem.onMouseLeftButtonUp (Input.MouseButtonEventHandler(fun _ _ -> dispatch msg)) ]
+// Navigation follows the accordion's selection, so mouse, keyboard and screen
+// readers all reach it. Each item carries its page in Tag. Actions stay in the
+// ribbon: selecting an item a second time raises nothing.
+let navItem header (page: Page) =
+    AccordionItem.create [ AccordionItem.header header; AccordionItem.tag (box page) ]
 
 let navView =
     Memo.memo ignore (fun () dispatch ->
         AccordionControl.create
             [ AccordionControl.expandMode DevExpress.Xpf.Accordion.ExpandMode.Single
               AccordionControl.expandItemOnHeaderClick true
+              AccordionControl.onSelectedItemChanged (
+                  EventHandler<DevExpress.Xpf.Accordion.AccordionSelectedItemChangedEventArgs>(fun _ e ->
+                      match e.NewItem with
+                      | :? FrameworkElement as item ->
+                          match item.Tag with
+                          | :? Page as page -> dispatch (Navigate page)
+                          | _ -> ()
+                      | _ -> ())
+              )
               AccordionControl.items
                   [ AccordionItem.create
                         [ AccordionItem.header "Pages"
                           AccordionItem.isExpanded true
-                          AccordionItem.children
-                              [ navItem "Dashboard" (Navigate Dashboard) dispatch
-                                navItem "Counter" (Navigate CounterPage) dispatch
-                                navItem "Settings" (Navigate SettingsPage) dispatch ] ]
-                    AccordionItem.create
-                        [ AccordionItem.header "Actions"
-                          AccordionItem.children
-                              [ navItem "Open New Window" OpenChildWindow dispatch
-                                navItem "Set Count…" AskForCount dispatch ] ] ] ])
+                          // items, not children: AccordionItem shows its own Items,
+                          // which hides the ItemsControl.Items children would fill
+                          AccordionItem.items
+                              [ navItem "Dashboard" Dashboard
+                                navItem "Counter" CounterPage
+                                navItem "Settings" SettingsPage ] ] ] ])
 
 let view model dispatch =
     DXRibbonWindow.create
