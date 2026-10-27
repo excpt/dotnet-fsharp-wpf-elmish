@@ -391,15 +391,17 @@ let buildInheritedHelpers
 
 /// Build EmitControlInput from a type and its own DPs/events.
 /// Collection properties that get no helper: Children, Content and Resources go
-/// through children/contentChild/Resource.dictionary. Items only on an ItemsControl,
-/// whose Items Materializer.attachChildren fills; any other type's Items
-/// (DevExpress RibbonPageGroup, AccordionControl) is a list of its own.
+/// through children/contentChild/Resource.dictionary. Items only where it is
+/// ItemsControl's own, which Materializer.attachChildren fills. The scan lists only
+/// properties a type declares itself, so any other type listing Items has a list of
+/// its own (DevExpress RibbonPageGroup, AccordionControl; AccordionItem hides
+/// ItemsControl.Items with one and shows only that).
 let skipsCollectionProp (owner: Type) (name: string) =
     match name with
     | "Children"
     | "Content"
     | "Resources" -> true
-    | "Items" -> AssemblyInspector.isSubclassOfByName "System.Windows.Controls.ItemsControl" owner
+    | "Items" -> owner.FullName = "System.Windows.Controls.ItemsControl"
     | _ -> false
 
 /// A list whose elements can be materialized nodes: a DependencyObject type, or an

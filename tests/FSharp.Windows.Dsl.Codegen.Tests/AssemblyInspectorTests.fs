@@ -342,11 +342,16 @@ let ``newestFirst orders version folders as versions, every release before a pre
     |> should equal [| "9.0.0"; "9.0.0-rc.1" |]
 
 [<Fact>]
-let ``Items is left to children only on an ItemsControl`` () =
-    // ItemsControl.Items is reached through children (Materializer.attachChildren);
-    // a non-ItemsControl's Items (DevExpress RibbonPageGroup) needs its own helper.
-    presentationFrameworkType "System.Windows.Controls.ListBox" (fun t ->
+let ``Items is left to children only where it is ItemsControl's own`` () =
+    // The scan lists only properties a type declares itself. ItemsControl.Items is
+    // reached through children (Materializer.attachChildren); a type that declares
+    // an Items of its own (DevExpress AccordionItem hides ItemsControl.Items with
+    // one, RibbonPageGroup has one) needs its own helper, ItemsControl or not.
+    presentationFrameworkType "System.Windows.Controls.ItemsControl" (fun t ->
         Program.skipsCollectionProp t "Items" |> should be True)
+
+    presentationFrameworkType "System.Windows.Controls.ListBox" (fun t ->
+        Program.skipsCollectionProp t "Items" |> should be False)
 
     presentationFrameworkType "System.Windows.Controls.StackPanel" (fun t ->
         Program.skipsCollectionProp t "Items" |> should be False

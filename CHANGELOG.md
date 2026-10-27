@@ -54,11 +54,16 @@ Entries are written by hand.
   gets `RibbonPageGroup.items`, `RibbonControl.items` and `AccordionControl.items`,
   so the ribbon and accordion can be declared as nodes. A property that is no
   `IList`, or is an array, gets no helper. The WPF output is unchanged.
+  A type that hides `ItemsControl.Items` with its own list gets `items` too
+  (DevExpress `AccordionItem.items`).
 - CI fails when the committed generated controls drift from a fresh regeneration.
 - The release workflow verifies the tag against `<Version>` and packs the codegen tool.
 
 ### Fixed
 
+- A collection or node prop on a property that hides a base one (DevExpress
+  `AccordionItem.Items`) fills the most derived; it threw `AmbiguousMatchException`,
+  which `Validate.tree` did not catch.
 - Two handlers of one event on an element are both swapped on update; other
   repeated props stay last-wins.
 - The keyed child diff skips a child that is the same reference.

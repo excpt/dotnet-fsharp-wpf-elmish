@@ -880,3 +880,37 @@ let ``switching a style reference re-resolves it`` () =
 
         Dsl.update live (tree "small")
         tb.Style |> should be (sameAs small))
+
+// --- Collection props on a property that hides a base one ---
+
+/// Like DevExpress AccordionItem: an ItemsControl that declares its own Items,
+/// hiding ItemsControl.Items, and shows only that list.
+type OwnItemsControl() =
+    inherit ItemsControl()
+    member val Items = System.Collections.ObjectModel.ObservableCollection<obj>()
+
+[<Fact>]
+let ``a collection prop fills the most derived of two same-named properties`` () =
+    runSta (fun () ->
+        register ()
+        Materializer.clearDiagnostics ()
+
+        let tree texts =
+            { Type = typeof<OwnItemsControl>
+              Props = [ box (CollectionProp("Items", [ for t in texts -> textBlock [ TextBlock.text t ] ])) ]
+              Children = []
+              UserKey = None }
+
+        Validate.tree (tree [ "a" ]) |> should be Empty
+
+        let live = Dsl.createLive (tree [ "a"; "b" ])
+        let own = live.Root :?> OwnItemsControl
+        own.Items.Count |> should equal 2
+
+        Dsl.update live (tree [ "c" ])
+        own.Items.Count |> should equal 1
+        (own.Items.[0] :?> TextBlock).Text |> should equal "c"
+
+        Dsl.update live { tree [] with Props = [] }
+        own.Items.Count |> should equal 0
+        Materializer.diagnostics () |> should be Empty)

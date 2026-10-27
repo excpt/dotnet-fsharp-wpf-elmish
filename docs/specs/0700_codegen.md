@@ -349,8 +349,13 @@ too, and `IList.Add` throws on an array.
 
 Properties named `Children`, `Content` and `Resources` are skipped because
 `children`, `contentChild` and `Resource.dictionary` handle them. `Items` is
-skipped only on an `ItemsControl`, whose `Items` `attachChildren` fills; any other
-type's `Items` is a list of its own and gets a helper. Also skipped: read-only views (`ReadOnlyCollection<T>`, such as
+skipped only where it is `ItemsControl`'s own, which `attachChildren` fills. The
+scan lists only properties a type declares itself, so any other type that lists
+`Items` has a list of its own and gets a helper, an `ItemsControl` subclass
+included: DevExpress `AccordionItem` hides `ItemsControl.Items` with its own and
+shows only that one, so its entries go in `AccordionItem.items`, not `children`.
+The materializer and `Validate.tree` look a property up on the most derived type
+that declares it, so a hidden base property is no ambiguity. Also skipped: read-only views (`ReadOnlyCollection<T>`, such as
 `DocumentViewer.PageViews`), which cannot be cleared, and `Sibling*` collections
 (`Inline.SiblingInlines`), which are the parent's list rather than the element's.
 

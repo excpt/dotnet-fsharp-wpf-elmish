@@ -270,6 +270,22 @@ module Materializer =
         unattachable parentType children |> List.iter report
         holdable parentType children
 
+    /// The named public instance property, the most derived one when a type hides a
+    /// base property with its own (DevExpress AccordionItem.Items hides
+    /// ItemsControl.Items): GetProperty alone throws AmbiguousMatchException there.
+    let internal findProperty (t: Type) (name: string) =
+        let rec walk (t: Type) =
+            if isNull t then
+                null
+            else
+                match
+                    t.GetProperty(name, BindingFlags.Public ||| BindingFlags.Instance ||| BindingFlags.DeclaredOnly)
+                with
+                | null -> walk t.BaseType
+                | p -> p
+
+        walk t
+
     /// Attach materialized children to a parent element based on its type.
     let rec private attachChildren (parent: DependencyObject) (children: VirtualNode list) =
         let children = attachable (parent.GetType()) children
@@ -298,7 +314,7 @@ module Materializer =
     and applyCollectionProp (parent: DependencyObject) (name: string) (children: VirtualNode list) =
         let elType = parent.GetType()
 
-        let prop = elType.GetProperty(name, BindingFlags.Public ||| BindingFlags.Instance)
+        let prop = findProperty elType name
 
         if isNull prop then
             report (UnusableMember(elType, name, "no such property"))
@@ -322,7 +338,7 @@ module Materializer =
     and applyNodeProp (parent: DependencyObject) (name: string) (node: VirtualNode) =
         let elType = parent.GetType()
 
-        let prop = elType.GetProperty(name, BindingFlags.Public ||| BindingFlags.Instance)
+        let prop = findProperty elType name
 
         if isNull prop then
             report (UnusableMember(elType, name, "no such property"))
@@ -381,7 +397,7 @@ module Materializer =
         | :? ResourcesProp as (ResourcesProp entries) -> updateResourceEntries el entries []
         | :? CollectionProp as (CollectionProp(name, _)) -> applyCollectionProp el name []
         | :? NodeProp as (NodeProp(name, _)) ->
-            match el.GetType().GetProperty(name, BindingFlags.Public ||| BindingFlags.Instance) with
+            match findProperty (el.GetType()) name with
             | null -> ()
             | p when p.CanWrite -> p.SetValue(el, null)
             | _ -> ()

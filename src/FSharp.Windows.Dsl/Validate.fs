@@ -16,8 +16,7 @@ open Microsoft.FSharp.Reflection
 [<RequireQualifiedAccess>]
 module Validate =
 
-    let private property (t: Type) (name: string) =
-        t.GetProperty(name, BindingFlags.Public ||| BindingFlags.Instance)
+    let private property (t: Type) (name: string) = Materializer.findProperty t name
 
     /// Can a node be assigned to the named single-element property?
     let private checkNodeProp (elType: Type) (name: string) (node: VirtualNode) =
