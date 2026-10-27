@@ -965,13 +965,18 @@ let ``DockPanel lastChildFill is applied and updated`` () =
         dp.LastChildFill |> should equal true)
 
 [<Fact>]
-let ``stats count a changed prop as reapplied and leave an unchanged prop alone`` () =
+let ``stats count a changed prop as reapplied and an unchanged prop is not re-set`` () =
     runSta (fun () ->
         register ()
         let live = Dsl.createLive (window [ Window.title "A"; Window.width 300.0 ])
+        let w = live.Root :?> System.Windows.Window
+        // Drift the live width by hand: only a re-apply of the unchanged prop would reset it
+        w.Width <- 123.0
 
         Dsl.update live (window [ Window.title "B"; Window.width 300.0 ])
         Reconciler.lastStats().PropReapplied |> should equal 1
+        w.Title |> should equal "B"
+        w.Width |> should equal 123.0
 
         Dsl.update live (window [ Window.title "B"; Window.width 300.0 ])
         Reconciler.lastStats().PropReapplied |> should equal 0)
