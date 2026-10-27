@@ -128,16 +128,6 @@ let ``VirtualNode supports nested children`` () =
 
     parent.Children.[0].Children |> should haveLength 1
 
-[<Fact>]
-let ``VirtualNode reference equality holds for same instance`` () =
-    let node =
-        { Type = typeof<int>
-          Props = []
-          Children = []
-          UserKey = None }
-
-    Object.ReferenceEquals(node, node) |> should be True
-
 // --- extractSpecialProps tests ---
 
 let private dummyNode =

@@ -18,6 +18,7 @@ open FSharp.Windows.Dsl.Elmish.Tests.ElmishProgramTests
 
 type Msg =
     | Start of string
+    | StartAsync of string
     | Stop of string
     | Done of string * int
     | Failed of string
@@ -54,6 +55,17 @@ let private update (gates: Gates) msg (events: Msg list) =
     | Start key ->
         events,
         Cmd.OfTask.runKeyed key (gates.Work key) (fun v -> Done(key, v)) (fun e -> Failed e.Message) (Cancelled key)
+    | StartAsync key ->
+        events,
+        Cmd.OfAsync.runKeyed
+            key
+            (async {
+                let! ct = Async.CancellationToken
+                return! gates.Work key ct |> Async.AwaitTask
+            })
+            (fun v -> Done(key, v))
+            (fun e -> Failed e.Message)
+            (Cancelled key)
     | Stop key -> events, Cmd.cancel key
     | _ -> events, Cmd.none
 
@@ -93,6 +105,44 @@ let ``a keyed operation reports its result`` () =
 
         waitFor (fun () -> p.Events.Contains(Done("a", 7)))
         p.Events |> should contain (Done("a", 7)))
+
+[<Fact>]
+let ``an async keyed operation reports its result`` () =
+    withOwner (fun owner ->
+        let gates = Gates()
+        let p = run owner gates
+        p.Dispatch(StartAsync "a")
+
+        waitFor (fun () ->
+            (try
+                gates.Token "a" |> ignore
+                true
+             with _ ->
+                 false))
+
+        gates.Finish "a" 7
+
+        waitFor (fun () -> p.Events.Contains(Done("a", 7)))
+        p.Events |> should contain (Done("a", 7)))
+
+[<Fact>]
+let ``Cmd.cancel cancels an async keyed operation`` () =
+    withOwner (fun owner ->
+        let gates = Gates()
+        let p = run owner gates
+        p.Dispatch(StartAsync "a")
+
+        waitFor (fun () ->
+            (try
+                gates.Token "a" |> ignore
+                true
+             with _ ->
+                 false))
+
+        p.Dispatch(Stop "a")
+
+        waitFor (fun () -> p.Events.Contains(Cancelled "a"))
+        p.Events |> should contain (Cancelled "a"))
 
 [<Fact>]
 let ``a finished operation disposes its token source`` () =

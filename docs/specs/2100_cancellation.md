@@ -96,6 +96,8 @@ The dialog's scope closes when it closes, like any window's.
 
 - A foreground/background split with a "work still running" warning on close.
 - A scope on `ComponentContext`.
+- A progress reporter for `runKeyed` (`fun ct report -> ...`); a command dispatches
+  progress messages itself.
 - Token-aware replacements for `Cmd.OfTask.perform`/`either`/`attempt`.
 - `CmdTest.runAsyncWithin` cancelling the commands it waits for (it stops waiting
   at its timeout).

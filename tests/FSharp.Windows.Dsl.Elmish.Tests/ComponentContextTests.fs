@@ -24,13 +24,6 @@ type MockWindowService() =
     member _.OpenChildCalled = openChildCalled
 
 [<Fact>]
-let ``IWindowService is mockable for tests`` () =
-    let svc = MockWindowService()
-    let ws = svc :> IWindowService
-    ws.GetWindow() |> should equal None
-    svc.GetWindowCalled |> should be True
-
-[<Fact>]
 let ``WindowService.create finds the element's window and spawns children with it`` () =
     let mutable result: (Window option * Window option * Window) option = None
 
